@@ -1,0 +1,107 @@
+"use client";
+
+import React from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/app/components/ui/button";
+import FormInput from "@/app/components/inputs/form-input";
+import { useResetPasswordStore } from "@/app/store/resetPasswordStore";
+import { axiosFront } from "@/app/api/axios";
+import { toast } from "react-toastify";
+import { sendCodeSchema } from "@/app/utils/validation";
+
+export default function SendResetPasswordCode() {
+  const router = useRouter();
+  const { values, setValues, errors, setErrors, resetErrors } =
+    useResetPasswordStore();
+
+  const handleSendResetPasswordCode = async () => {
+    try {
+      // Yup validation
+      resetErrors();
+      await sendCodeSchema.validate(values, { abortEarly: false });
+
+      axiosFront
+        .post(`auth/send-reset-password-code`, {
+          phone: values.phone,
+        })
+        .then((res) => {
+          router.push("/auth/reset-password");
+
+          toast.success("კოდი გამოიგზავნა", {
+            position: "bottom-right",
+            autoClose: 3000,
+          });
+
+          resetErrors();
+        })
+        .catch((error) => {
+          if (error.response.data.message === "User not found") {
+            toast.error("მომხმარებელი ვერ მოიძებნა", {
+              position: "bottom-right",
+              autoClose: 3000,
+            });
+          } else {
+            toast.error("კოდი ვერ გამოიგზავნა", {
+              position: "bottom-right",
+              autoClose: 3000,
+            });
+          }
+
+          setErrors("phone", "შეცდომა");
+        })
+        .finally(() => {});
+    } catch (err: any) {
+      // Yup validation errors
+      if (err.inner) {
+        err.inner.forEach((e: any) => {
+          if (e.path) {
+            setErrors(e.path, e.message);
+            toast.error(e.message, {
+              position: "bottom-right",
+              autoClose: 3000,
+            });
+          }
+        });
+      }
+    }
+  };
+
+  return (
+    <div className="w-full flex flex-col gap-y-5 relative">
+      <h1 className="text-center text-xl sm:text-2xl font-semibold">
+        პაროლის განახლება
+      </h1>
+      <p className="text-center text-sm">
+        პაროლის გასანახლებლად საჭიროა რეგისტრირებული ნომრის დადასტურება ვალიდური
+        კოდით
+      </p>
+
+      <FormInput
+        id="phone"
+        value={values.phone || ""}
+        onChange={(e) => setValues("phone", e.target.value)}
+        label="ტელეფონის ნომერი"
+        error={errors.phone}
+      />
+
+      <Button
+        onClick={() => {
+          handleSendResetPasswordCode();
+        }}
+        className="h-11 cursor-pointer"
+      >
+        კოდის გაგზავნა
+      </Button>
+
+      {/* Footer link */}
+      <p
+        onClick={() => {
+          router.push("/auth/login");
+        }}
+        className="absolute bottom-[-95px] self-center cursor-pointer border-b-[1px] border-transparent hover:border-gray-700 text-sm  mt-3 z-10 text-stroke"
+      >
+        გაქვს ანგარიში? - გაიარე ავტორიზაცია
+      </p>
+    </div>
+  );
+}
