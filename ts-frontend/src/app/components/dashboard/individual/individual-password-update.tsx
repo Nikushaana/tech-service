@@ -4,6 +4,8 @@ import { axiosIndividual } from "@/app/api/axios";
 import { passwordChangeSchema } from "@/app/utils/validation";
 import { useAuthStore } from "@/app/store/useAuthStore";
 import UserPasswordUpdate from "../shared components/user-password-update";
+import { Button } from "../../ui/button";
+import { Loader2Icon } from "lucide-react";
 
 export default function IndividualPasswordUpdate() {
   const { currentUser } = useAuthStore();
@@ -29,6 +31,8 @@ export default function IndividualPasswordUpdate() {
     repeatNewPassword: "",
   });
 
+  const [loading, setLoading] = useState(false);
+
   const handleChange = (field: string, value: string) => {
     setValues((prev) => ({ ...prev, [field]: value }));
   };
@@ -36,6 +40,7 @@ export default function IndividualPasswordUpdate() {
   // change password
 
   const handleChangeIndividualPassword = async () => {
+    setLoading(true);
     try {
       // Yup validation
       setErrors((prev) => ({
@@ -82,7 +87,9 @@ export default function IndividualPasswordUpdate() {
             });
           }
         })
-        .finally(() => {});
+        .finally(() => {
+          setLoading(false);
+        });
     } catch (err: any) {
       // Yup validation errors
       if (err.inner) {
@@ -98,15 +105,25 @@ export default function IndividualPasswordUpdate() {
         });
         setErrors(newErrors);
       }
+      setLoading(false);
     }
   };
   return (
-    <UserPasswordUpdate
-      title="პაროლის განახლება"
-      values={values}
-      errors={errors}
-      onChange={handleChange}
-      onSubmit={handleChangeIndividualPassword}
-    />
+    <div className="flex flex-col gap-y-[20px] w-full">
+      <UserPasswordUpdate
+        title="პაროლის განახლება"
+        values={values}
+        errors={errors}
+        onChange={handleChange}
+      />
+      <Button
+        onClick={handleChangeIndividualPassword}
+        disabled={loading}
+        className="h-11 cursor-pointer self-end"
+      >
+        {loading && <Loader2Icon className="animate-spin" />}
+        განახლება
+      </Button>
+    </div>
   );
 }

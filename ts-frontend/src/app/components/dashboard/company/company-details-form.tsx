@@ -7,6 +7,7 @@ import { toast } from "react-toastify";
 import { axiosCompany } from "@/app/api/axios";
 import * as Yup from "yup";
 import UserDetailsForm from "../shared components/user-details-form";
+import { Loader2Icon } from "lucide-react";
 
 export default function CompanyDetailsForm() {
   const { currentUser } = useAuthStore();
@@ -37,6 +38,8 @@ export default function CompanyDetailsForm() {
     companyAgentLastName: "",
   });
 
+  const [loading, setLoading] = useState(false);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
     setValues((prev) => ({ ...prev, [id]: value }));
@@ -58,6 +61,7 @@ export default function CompanyDetailsForm() {
   });
 
   const handleUpdateCompany = async () => {
+    setLoading(true);
     try {
       // Yup validation
       setErrors((prev) => ({
@@ -89,7 +93,9 @@ export default function CompanyDetailsForm() {
             autoClose: 3000,
           });
         })
-        .finally(() => {});
+        .finally(() => {
+          setLoading(false);
+        });
     } catch (err: any) {
       // Yup validation errors
       if (err.inner) {
@@ -105,6 +111,7 @@ export default function CompanyDetailsForm() {
         });
         setErrors(newErrors);
       }
+      setLoading(false);
     }
   };
 
@@ -150,9 +157,10 @@ export default function CompanyDetailsForm() {
       />
       <Button
         onClick={handleUpdateCompany}
+        disabled={loading}
         className="h-11 cursor-pointer self-end"
       >
-        ცვლილების შენახვა
+        {loading && <Loader2Icon className="animate-spin" />}ცვლილების შენახვა
       </Button>
     </div>
   );

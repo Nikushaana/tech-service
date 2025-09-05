@@ -7,6 +7,7 @@ import { axiosCompany } from "@/app/api/axios";
 import * as Yup from "yup";
 import { toast } from "react-toastify";
 import PanelFormInput from "../inputs/panel-form-input";
+import { Loader2Icon } from "lucide-react";
 
 export default function CreateAddress() {
   const {
@@ -38,6 +39,8 @@ export default function CreateAddress() {
     description: "",
   });
 
+  const [loading, setLoading] = useState(false);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
     setValues((prev) => ({ ...prev, [id]: value }));
@@ -52,10 +55,11 @@ export default function CreateAddress() {
   });
 
   const handleCreateAddress = async () => {
+    setLoading(true);
     try {
       await createAddressSchema.validate(values, { abortEarly: false });
 
-      createAddress(modalType!, values); // or "individual" depending on user
+      await createAddress(modalType!, values); // or "individual" depending on user
       toggleOpenCreateAddressModal();
 
       // reset form values
@@ -69,6 +73,19 @@ export default function CreateAddress() {
         apartment_number: "",
         description: "",
       });
+
+      setErrors({
+        name: "",
+        city: "",
+        street: "",
+        building_number: "",
+        building_entrance: "",
+        building_floor: "",
+        apartment_number: "",
+        description: "",
+      });
+
+      setLoading(false);
     } catch (err: any) {
       if (err.inner) {
         const newErrors: any = {};
@@ -83,6 +100,7 @@ export default function CreateAddress() {
         });
         setErrors(newErrors);
       }
+      setLoading(false);
     }
   };
 
@@ -214,8 +232,10 @@ export default function CreateAddress() {
           </Button>
           <Button
             onClick={handleCreateAddress}
+            disabled={loading}
             className="h-[45px] px-6 bg-red-600 hover:bg-[#b91c1c] text-white cursor-pointer"
           >
+            {loading && <Loader2Icon className="animate-spin" />}
             დამატება
           </Button>
         </div>

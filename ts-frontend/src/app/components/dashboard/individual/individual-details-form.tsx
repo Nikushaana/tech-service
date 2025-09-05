@@ -7,6 +7,7 @@ import { toast } from "react-toastify";
 import { axiosIndividual } from "@/app/api/axios";
 import * as Yup from "yup";
 import UserDetailsForm from "../shared components/user-details-form";
+import { Loader2Icon } from "lucide-react";
 
 export default function IndividualDetailsForm() {
   const { currentUser } = useAuthStore();
@@ -31,6 +32,8 @@ export default function IndividualDetailsForm() {
     lastName: "",
   });
 
+  const [loading, setLoading] = useState(false);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
     setValues((prev) => ({ ...prev, [id]: value }));
@@ -44,6 +47,7 @@ export default function IndividualDetailsForm() {
   });
 
   const handleUpdateIndividual = async () => {
+    setLoading(true);
     try {
       // Yup validation
       setErrors((prev) => ({
@@ -71,7 +75,9 @@ export default function IndividualDetailsForm() {
             autoClose: 3000,
           });
         })
-        .finally(() => {});
+        .finally(() => {
+          setLoading(false);
+        });
     } catch (err: any) {
       // Yup validation errors
       if (err.inner) {
@@ -87,6 +93,7 @@ export default function IndividualDetailsForm() {
         });
         setErrors(newErrors);
       }
+      setLoading(false);
     }
   };
 
@@ -112,9 +119,10 @@ export default function IndividualDetailsForm() {
       <p>სტატუსი: {currentUser?.status ? "აქტიური" : "დაბლოკილი"}</p>
       <Button
         onClick={handleUpdateIndividual}
+        disabled={loading}
         className="h-11 cursor-pointer self-end"
       >
-        ცვლილების შენახვა
+        {loading && <Loader2Icon className="animate-spin" />}ცვლილების შენახვა
       </Button>
     </div>
   );

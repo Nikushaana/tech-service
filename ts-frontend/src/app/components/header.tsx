@@ -16,7 +16,7 @@ export default function Header() {
   const pathname = usePathname();
   const router = useRouter();
 
-  const { currentUser, logout } = useAuthStore();
+  const { currentUser } = useAuthStore();
 
   return (
     <header className="z-10 w-full ">
@@ -59,7 +59,14 @@ export default function Header() {
         >
           <Button
             onClick={() => {
-              router.push("/auth/login");
+              if (currentUser) {
+                if (currentUser?.role === "individual")
+                  router.push("/dashboard/individual/orders");
+                else if (currentUser?.role === "company")
+                  router.push("/dashboard/company/orders");
+              } else {
+                router.push("/auth/login");
+              }
             }}
             className="hidden md:flex h-[45px] px-[20px] sm:px-[30px] cursor-pointer"
           >

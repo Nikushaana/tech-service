@@ -9,11 +9,20 @@ import { toast } from "react-toastify";
 import * as Yup from "yup";
 import { useAuthStore } from "@/app/store/useAuthStore";
 import FormInput from "@/app/components/inputs/form-input";
+import { Loader2Icon } from "lucide-react";
 
 export default function Login() {
   const router = useRouter();
-  const { values, setValues, resetValues, errors, setErrors, resetErrors } =
-    useLoginStore();
+  const {
+    values,
+    setValues,
+    resetValues,
+    errors,
+    setErrors,
+    resetErrors,
+    loading,
+    setLoading,
+  } = useLoginStore();
 
   const { login } = useAuthStore();
 
@@ -26,6 +35,7 @@ export default function Login() {
   });
 
   const handleLogin = async () => {
+    setLoading(true);
     try {
       // Yup validation
       resetErrors();
@@ -62,7 +72,9 @@ export default function Login() {
           setErrors("phone", "შეცდომა");
           setErrors("password", "შეცდომა");
         })
-        .finally(() => {});
+        .finally(() => {
+          setLoading(false);
+        });
     } catch (err: any) {
       // Yup validation errors
       if (err.inner) {
@@ -76,6 +88,7 @@ export default function Login() {
           }
         });
       }
+      setLoading(false);
     }
   };
 
@@ -113,9 +126,10 @@ export default function Login() {
         onClick={() => {
           handleLogin();
         }}
+        disabled={loading}
         className="h-11 cursor-pointer"
       >
-        შესვლა
+        {loading && <Loader2Icon className="animate-spin" />}შესვლა
       </Button>
 
       {/* Footer link */}
@@ -123,7 +137,7 @@ export default function Login() {
         onClick={() => {
           router.push("/auth/send-register-code");
         }}
-        className="absolute bottom-[-95px] self-center cursor-pointer border-b-[1px] border-transparent hover:border-gray-700 text-sm  mt-3 z-10 text-stroke"
+        className="absolute bottom-[-95px] self-center text-center cursor-pointer border-b-[1px] border-transparent hover:border-gray-700 text-sm  mt-3 z-10 text-stroke"
       >
         არ გაქვს ანგარიში? - გაიარე რეგისტრაცია
       </p>

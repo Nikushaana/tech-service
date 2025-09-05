@@ -9,6 +9,8 @@ interface AddressesStoreState {
     openCreateAddressModal: boolean;
     modalType: AddressType | null; // store the type here
 
+    loadingDelete: boolean;
+
     toggleOpenCreateAddressModal: (type?: AddressType) => void;
 
     fetchAddresses: (type: AddressType) => Promise<void>;
@@ -20,6 +22,8 @@ export const useAddressesStore = create<AddressesStoreState>((set, get) => ({
     addresses: [],
     openCreateAddressModal: false,
     modalType: null,
+
+    loadingDelete: false,
 
     toggleOpenCreateAddressModal: (type?: AddressType) =>
         set((state) => ({
@@ -37,6 +41,7 @@ export const useAddressesStore = create<AddressesStoreState>((set, get) => ({
 
     deleteAddress: (type: AddressType, id: number) => {
         const axiosInstance = type === "company" ? axiosCompany : axiosIndividual;
+        set({ loadingDelete: true });
         return axiosInstance
             .delete(`${type}/addresses/${id}`)
             .then(() => get().fetchAddresses(type).then(() => {
@@ -48,19 +53,21 @@ export const useAddressesStore = create<AddressesStoreState>((set, get) => ({
                 } else {
                     toast.error("მისამართი ვერ წაიშალა", { position: "bottom-right", autoClose: 3000 });
                 }
-            });
+            })
+            .finally(() => {
+                set({ loadingDelete: false });
+            })
     },
 
-    createAddress: (type, data) => {
+    createAddress: async (type, data) => {
         const axiosInstance = type === "company" ? axiosCompany : axiosIndividual;
-        axiosInstance
-            .post(`${type}/create-address`, data)
-            .then(() => {
-                get().fetchAddresses(type);
-                toast.success("მისამართი დაემატა", { position: "bottom-right", autoClose: 3000 });
-            })
-            .catch(() =>
-                toast.error("მისამართი ვერ დაემატა", { position: "bottom-right", autoClose: 3000 })
-            );
-    },
+        try {
+            await axiosInstance.post(`${type}/create-address`, data);
+            await get().fetchAddresses(type);
+            toast.success("მისამართი დაემატა", { position: "bottom-right", autoClose: 3000 });
+        } catch {
+            toast.error("მისამართი ვერ დაემატა", { position: "bottom-right", autoClose: 3000 });
+            throw new Error("Failed"); // so component knows request failed
+        }
+    }
 }));

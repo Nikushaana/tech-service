@@ -2,7 +2,6 @@
 
 import React from "react";
 import PanelFormInput from "../../inputs/panel-form-input";
-import { Button } from "../../ui/button";
 
 interface UserPasswordFormProps {
   values: {
@@ -16,7 +15,6 @@ interface UserPasswordFormProps {
     repeatNewPassword?: string;
   };
   onChange: (field: string, value: string) => void;
-  onSubmit: () => void;
   title?: string;
 }
 
@@ -24,11 +22,10 @@ export default function UserPasswordUpdate({
   values,
   errors,
   onChange,
-  onSubmit,
   title,
 }: UserPasswordFormProps) {
   return (
-    <div className="flex flex-col gap-y-[20px] w-full">
+    <div className="flex flex-col gap-y-[10px] w-full">
       {title && <h2>{title}</h2>}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-[20px]">
         <PanelFormInput
@@ -37,6 +34,7 @@ export default function UserPasswordUpdate({
           onChange={(e) => onChange("oldPassword", e.target.value)}
           label="ძველი პაროლი"
           error={errors.oldPassword}
+          type="password"
         />
         <PanelFormInput
           id="newPassword"
@@ -44,6 +42,7 @@ export default function UserPasswordUpdate({
           onChange={(e) => onChange("newPassword", e.target.value)}
           label="ახალი პაროლი"
           error={errors.newPassword}
+          type="password"
         />
         <PanelFormInput
           id="repeatNewPassword"
@@ -51,11 +50,9 @@ export default function UserPasswordUpdate({
           onChange={(e) => onChange("repeatNewPassword", e.target.value)}
           label="გაიმეორე ახალი პაროლი"
           error={errors.repeatNewPassword}
+          type="password"
         />
       </div>
-      <Button onClick={onSubmit} className="h-11 cursor-pointer self-end">
-        განახლება
-      </Button>
     </div>
   );
 }

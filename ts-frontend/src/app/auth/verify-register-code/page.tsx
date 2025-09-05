@@ -8,13 +8,22 @@ import FormInput from "@/app/components/inputs/form-input";
 import { axiosFront } from "@/app/api/axios";
 import { toast } from "react-toastify";
 import { verifyCodeSchema } from "@/app/utils/validation";
+import { Loader2Icon } from "lucide-react";
 
 export default function VerifyRegisterCode() {
   const router = useRouter();
-  const { values, setValues, errors, setErrors, resetErrors } =
-    useRegisterStore();
+  const {
+    values,
+    setValues,
+    errors,
+    setErrors,
+    resetErrors,
+    loading,
+    setLoading,
+  } = useRegisterStore();
 
   const handleVerifyRegisterCode = async () => {
+    setLoading(true);
     try {
       // Yup validation
       resetErrors();
@@ -43,7 +52,9 @@ export default function VerifyRegisterCode() {
 
           setErrors("code", "შეცდომა");
         })
-        .finally(() => {});
+        .finally(() => {
+          setLoading(false);
+        });
     } catch (err: any) {
       // Yup validation errors
       if (err.inner) {
@@ -55,8 +66,12 @@ export default function VerifyRegisterCode() {
               autoClose: 3000,
             });
           }
+          if (e.path === "phone") {
+            router.push("/auth/send-register-code");
+          }
         });
       }
+      setLoading(false);
     }
   };
 
@@ -68,7 +83,7 @@ export default function VerifyRegisterCode() {
       <p className="text-center text-sm">
         შეიყვანე ტელეფონის ნომერზე გამოგზავნილი კოდი
       </p>
-
+      <p>{values.testcode}</p>
       <FormInput
         id="code"
         value={values.code || ""}
@@ -81,9 +96,10 @@ export default function VerifyRegisterCode() {
         onClick={() => {
           handleVerifyRegisterCode();
         }}
+        disabled={loading}
         className="h-11 cursor-pointer"
       >
-        შემოწმება
+        {loading && <Loader2Icon className="animate-spin" />}შემოწმება
       </Button>
 
       {/* Footer link */}
@@ -91,7 +107,7 @@ export default function VerifyRegisterCode() {
         onClick={() => {
           router.push("/auth/login");
         }}
-        className="absolute bottom-[-95px] self-center cursor-pointer border-b-[1px] border-transparent hover:border-gray-700 text-sm  mt-3 z-10 text-stroke"
+        className="absolute bottom-[-95px] self-center text-center cursor-pointer border-b-[1px] border-transparent hover:border-gray-700 text-sm  mt-3 z-10 text-stroke"
       >
         გაქვს ანგარიში? - გაიარე ავტორიზაცია
       </p>

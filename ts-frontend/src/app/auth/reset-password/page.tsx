@@ -8,13 +8,23 @@ import { useResetPasswordStore } from "@/app/store/resetPasswordStore";
 import { axiosFront } from "@/app/api/axios";
 import { toast } from "react-toastify";
 import { verifyCodePasswordResetSchema } from "@/app/utils/validation";
+import { Loader2Icon } from "lucide-react";
 
 export default function SendResetPasswordCode() {
   const router = useRouter();
-  const { values, setValues, resetValues, errors, setErrors, resetErrors } =
-    useResetPasswordStore();
+  const {
+    values,
+    setValues,
+    resetValues,
+    errors,
+    setErrors,
+    resetErrors,
+    loading,
+    setLoading,
+  } = useResetPasswordStore();
 
   const handleResetPassword = async () => {
+    setLoading(true);
     try {
       // Yup validation
       resetErrors();
@@ -48,7 +58,9 @@ export default function SendResetPasswordCode() {
                 autoClose: 3000,
               });
         })
-        .finally(() => {});
+        .finally(() => {
+          setLoading(true);
+        });
     } catch (err: any) {
       // Yup validation errors
       if (err.inner) {
@@ -62,6 +74,7 @@ export default function SendResetPasswordCode() {
           }
         });
       }
+      setLoading(true);
     }
   };
 
@@ -73,7 +86,7 @@ export default function SendResetPasswordCode() {
       <p className="text-center text-sm">
         პაროლის გასანახლებლად ჩაწერეთ ნომერზე გამოგზავნილი კოდი და ახალი პაროლი
       </p>
-
+      <p>{values.testcode}</p>
       <FormInput
         id="code"
         value={values.code || ""}
@@ -102,9 +115,10 @@ export default function SendResetPasswordCode() {
         onClick={() => {
           handleResetPassword();
         }}
+        disabled={loading}
         className="h-11 cursor-pointer"
       >
-        განახლება
+        {loading && <Loader2Icon className="animate-spin" />}განახლება
       </Button>
 
       {/* Footer link */}
@@ -112,7 +126,7 @@ export default function SendResetPasswordCode() {
         onClick={() => {
           router.push("/auth/login");
         }}
-        className="absolute bottom-[-95px] self-center cursor-pointer border-b-[1px] border-transparent hover:border-gray-700 text-sm  mt-3 z-10 text-stroke"
+        className="absolute bottom-[-95px] self-center text-center cursor-pointer border-b-[1px] border-transparent hover:border-gray-700 text-sm  mt-3 z-10 text-stroke"
       >
         გაქვს ანგარიში? - გაიარე ავტორიზაცია
       </p>

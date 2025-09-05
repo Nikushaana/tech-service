@@ -8,13 +8,22 @@ import { useResetPasswordStore } from "@/app/store/resetPasswordStore";
 import { axiosFront } from "@/app/api/axios";
 import { toast } from "react-toastify";
 import { sendCodeSchema } from "@/app/utils/validation";
+import { Loader2Icon } from "lucide-react";
 
 export default function SendResetPasswordCode() {
   const router = useRouter();
-  const { values, setValues, errors, setErrors, resetErrors } =
-    useResetPasswordStore();
+  const {
+    values,
+    setValues,
+    errors,
+    setErrors,
+    resetErrors,
+    loading,
+    setLoading,
+  } = useResetPasswordStore();
 
   const handleSendResetPasswordCode = async () => {
+    setLoading(true);
     try {
       // Yup validation
       resetErrors();
@@ -26,6 +35,8 @@ export default function SendResetPasswordCode() {
         })
         .then((res) => {
           router.push("/auth/reset-password");
+
+          setValues("testcode", res.data.code);
 
           toast.success("კოდი გამოიგზავნა", {
             position: "bottom-right",
@@ -49,7 +60,9 @@ export default function SendResetPasswordCode() {
 
           setErrors("phone", "შეცდომა");
         })
-        .finally(() => {});
+        .finally(() => {
+          setLoading(false);
+        });
     } catch (err: any) {
       // Yup validation errors
       if (err.inner) {
@@ -63,6 +76,7 @@ export default function SendResetPasswordCode() {
           }
         });
       }
+      setLoading(false);
     }
   };
 
@@ -88,9 +102,10 @@ export default function SendResetPasswordCode() {
         onClick={() => {
           handleSendResetPasswordCode();
         }}
+        disabled={loading}
         className="h-11 cursor-pointer"
       >
-        კოდის გაგზავნა
+        {loading && <Loader2Icon className="animate-spin" />}კოდის გაგზავნა
       </Button>
 
       {/* Footer link */}
@@ -98,7 +113,7 @@ export default function SendResetPasswordCode() {
         onClick={() => {
           router.push("/auth/login");
         }}
-        className="absolute bottom-[-95px] self-center cursor-pointer border-b-[1px] border-transparent hover:border-gray-700 text-sm  mt-3 z-10 text-stroke"
+        className="absolute bottom-[-95px] self-center text-center cursor-pointer border-b-[1px] border-transparent hover:border-gray-700 text-sm  mt-3 z-10 text-stroke"
       >
         გაქვს ანგარიში? - გაიარე ავტორიზაცია
       </p>

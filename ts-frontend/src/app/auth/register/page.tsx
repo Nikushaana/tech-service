@@ -10,13 +10,23 @@ import { axiosFront } from "@/app/api/axios";
 import { toast } from "react-toastify";
 import { registerSchema } from "@/app/utils/validation";
 import FormInput from "@/app/components/inputs/form-input";
+import { Loader2Icon } from "lucide-react";
 
 export default function Register() {
   const router = useRouter();
-  const { values, setValues, resetValues, errors, setErrors, resetErrors } =
-    useRegisterStore();
+  const {
+    values,
+    setValues,
+    resetValues,
+    errors,
+    setErrors,
+    resetErrors,
+    loading,
+    setLoading,
+  } = useRegisterStore();
 
   const handleRegister = async () => {
+    setLoading(true);
     try {
       // Yup validation
       resetErrors();
@@ -71,7 +81,9 @@ export default function Register() {
             setErrors(key, "შეცდომა");
           });
         })
-        .finally(() => {});
+        .finally(() => {
+          setLoading(false);
+        });
     } catch (err: any) {
       // Yup validation errors
       if (err.inner) {
@@ -83,8 +95,13 @@ export default function Register() {
               autoClose: 3000,
             });
           }
+
+          if (e.path === "phone") {
+            router.push("/auth/send-register-code");
+          }
         });
       }
+      setLoading(false);
     }
   };
 
@@ -183,9 +200,10 @@ export default function Register() {
         onClick={() => {
           handleRegister();
         }}
+        disabled={loading}
         className="h-11 cursor-pointer"
       >
-        რეგისტრაცია
+        {loading && <Loader2Icon className="animate-spin" />}რეგისტრაცია
       </Button>
 
       {/* Footer link */}
@@ -193,7 +211,7 @@ export default function Register() {
         onClick={() => {
           router.push("/auth/login");
         }}
-        className="absolute bottom-[-95px] self-center cursor-pointer border-b-[1px] border-transparent hover:border-gray-700 text-sm  mt-3 z-10 text-stroke"
+        className="absolute bottom-[-95px] self-center text-center cursor-pointer border-b-[1px] border-transparent hover:border-gray-700 text-sm  mt-3 z-10 text-stroke"
       >
         გაქვს ანგარიში? - გაიარე ავტორიზაცია
       </p>

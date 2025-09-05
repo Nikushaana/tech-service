@@ -8,6 +8,7 @@ import { toast } from "react-toastify";
 import { axiosIndividual } from "@/app/api/axios";
 import { sendCodeSchema, verifyCodeSchema } from "@/app/utils/validation";
 import UserPhoneUpdate from "../shared components/user-phone-update";
+import { Loader2Icon } from "lucide-react";
 
 export default function IndividualPhoneUpdate() {
   const { currentUser } = useAuthStore();
@@ -31,6 +32,8 @@ export default function IndividualPhoneUpdate() {
     code: "",
   });
 
+  const [loading, setLoading] = useState(false);
+
   const handleChange = (field: string, value: string) => {
     setValues((prev) => ({ ...prev, [field]: value }));
   };
@@ -40,6 +43,7 @@ export default function IndividualPhoneUpdate() {
   const [sentChangeNumberCode, setSentChangeNumberCode] = useState("");
 
   const handleSendIndividualNumberCode = async () => {
+    setLoading(true);
     try {
       // Yup validation
       setErrors((prev) => ({
@@ -80,7 +84,9 @@ export default function IndividualPhoneUpdate() {
             });
           }
         })
-        .finally(() => {});
+        .finally(() => {
+          setLoading(false);
+        });
     } catch (err: any) {
       // Yup validation errors
       if (err.inner) {
@@ -96,10 +102,12 @@ export default function IndividualPhoneUpdate() {
         });
         setErrors(newErrors);
       }
+      setLoading(false);
     }
   };
 
   const handleChangeIndividualNumber = async () => {
+    setLoading(true);
     try {
       // Yup validation
       setErrors((prev) => ({
@@ -139,7 +147,9 @@ export default function IndividualPhoneUpdate() {
             autoClose: 3000,
           });
         })
-        .finally(() => {});
+        .finally(() => {
+          setLoading(false);
+        });
     } catch (err: any) {
       // Yup validation errors
       if (err.inner) {
@@ -155,18 +165,31 @@ export default function IndividualPhoneUpdate() {
         });
         setErrors(newErrors);
       }
+      setLoading(false);
     }
   };
 
   return (
-    <UserPhoneUpdate
-      title="მომხმარებლის ტელეფონის ნომერი"
-      values={values}
-      errors={errors}
-      sentCode={sentChangeNumberCode}
-      onChange={handleChange}
-      onSendCode={handleSendIndividualNumberCode}
-      onVerifyCode={handleChangeIndividualNumber}
-    />
+    <div className="flex flex-col gap-y-[20px] w-full">
+      <UserPhoneUpdate
+        title="მომხმარებლის ტელეფონის ნომერი"
+        values={values}
+        errors={errors}
+        sentCode={sentChangeNumberCode}
+        onChange={handleChange}
+      />
+      <Button
+        onClick={
+          sentChangeNumberCode
+            ? handleChangeIndividualNumber
+            : handleSendIndividualNumberCode
+        }
+        disabled={loading}
+        className="h-11 cursor-pointer self-end"
+      >
+        {loading && <Loader2Icon className="animate-spin" />}
+        {sentChangeNumberCode ? "შემოწმება" : "კოდის გაგზავნა"}
+      </Button>
+    </div>
   );
 }

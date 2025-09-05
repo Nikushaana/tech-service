@@ -4,6 +4,9 @@ interface RegisterState {
     values: {
         phone?: string;
         code?: string;
+
+        testcode?: string;
+
         role?: "individual" | "company";
         name?: string;
         lastName?: string;
@@ -27,8 +30,10 @@ interface RegisterState {
         password?: string;
         repeatPassword?: string;
     };
+    loading: boolean;
     setErrors: (key: string, value: string) => void;
     setValues: (key: string, value: string) => void;
+    setLoading: (value: boolean) => void;
     resetValues: () => void;
     resetErrors: () => void;
 }
@@ -36,10 +41,12 @@ interface RegisterState {
 export const useRegisterStore = create<RegisterState>((set) => ({
     values: { role: "individual" },
     errors: {},
+    loading: false,
     setValues: (key, value) =>
         set((state) => ({ values: { ...state.values, [key]: value } })),
     setErrors: (key, value) =>
         set((state) => ({ errors: { ...state.errors, [key]: value } })),
+    setLoading: (value) => set({ loading: value }),
     resetValues: () => set({ values: { role: "individual" } }),
     resetErrors: () => set({ errors: {} }),
 }));

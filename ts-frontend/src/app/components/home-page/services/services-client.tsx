@@ -1,5 +1,6 @@
 "use client";
 
+import { useAuthStore } from "@/app/store/useAuthStore";
 import { useRouter } from "next/navigation";
 import React from "react";
 import { BiCategory } from "react-icons/bi";
@@ -10,6 +11,7 @@ export default function ServicesClient({
   categories: CategoryData;
 }) {
   const router = useRouter();
+  const { currentUser } = useAuthStore();
 
   return (
     <div className="flex flex-col gap-y-[30px] sm:gap-y-[50px]">
@@ -17,13 +19,22 @@ export default function ServicesClient({
         ჩვენ შევაკეთებთ შენს ტექნიკას
       </h2>
       <div className="flex flex-wrap justify-center gap-[20px] sm:gap-[40px]">
-        {categories.data.map((item) => (
+        {categories.data.map((item, index) => (
           <div
             key={item.id}
-            className="rounded-[10px] border-[2px] border-gray-200 px-[10px] sm:px-[20px] py-[10px] flex flex-col items-center gap-y-[15px] sm:gap-y-[20px] cursor-pointer hover:hover:scale-110 duration-200 w-[calc((100%-20px)/2)] sm:w-[calc((100%-80px)/3)] lg:w-[calc((100%-160px)/5)]"
+            className="rounded-[10px] border-[2px] border-gray-200 px-[10px] sm:px-[20px] py-[10px] flex flex-col items-center gap-y-[15px] sm:gap-y-[20px] cursor-default hover:hover:scale-110 duration-200 w-[calc((100%-20px)/2)] sm:w-[calc((100%-80px)/3)] lg:w-[calc((100%-160px)/5)]"
           >
             <img
-              src={item.images && item.images[0]}
+              // src={item.images && item.images[0]}
+              src={`${
+                index == 0
+                  ? "/images/conditioner.png"
+                  : index == 1
+                  ? "/images/wurwlissarecxi.png"
+                  : index == 2
+                  ? "/images/tv.png"
+                  : index == 3 && "/images/macivari.png"
+              }`}
               alt={item.name}
               className="aspect-square sm:aspect-video lg:aspect-square object-contain w-[50px] sm:w-full"
             />
@@ -34,7 +45,14 @@ export default function ServicesClient({
         ))}
         <div
           onClick={() => {
-            router.push("/auth/login");
+            if (currentUser) {
+              if (currentUser?.role === "individual")
+                router.push("/dashboard/individual/orders");
+              else if (currentUser?.role === "company")
+                router.push("/dashboard/company/orders");
+            } else {
+              router.push("/auth/login");
+            }
           }}
           className="rounded-[10px] px-[10px] sm:px-[20px] py-[10px] flex flex-col items-center gap-y-[15px] sm:gap-y-[20px] bg-myLightBlue hover:bg-myBlue duration-200 text-white  cursor-pointer group hover:hover:scale-110 w-[calc((100%-20px)/2)] sm:w-[calc((100%-80px)/3)] lg:w-[calc((100%-160px)/5)]"
         >

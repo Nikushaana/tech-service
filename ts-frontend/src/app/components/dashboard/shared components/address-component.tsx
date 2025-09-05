@@ -4,6 +4,7 @@ import { LuPlus } from "react-icons/lu";
 import { PiMapPinFill } from "react-icons/pi";
 import { AiOutlineDelete } from "react-icons/ai";
 import { useAddressesStore } from "@/app/store/useAddressesStore";
+import { Loader2Icon } from "lucide-react";
 
 interface AddressComponentProps {
   type: "company" | "individual"; // type of addresses
@@ -14,6 +15,7 @@ export default function AddressComponent({ type }: AddressComponentProps) {
     addresses,
     fetchAddresses,
     toggleOpenCreateAddressModal,
+    loadingDelete,
     deleteAddress,
   } = useAddressesStore();
 
@@ -45,9 +47,14 @@ export default function AddressComponent({ type }: AddressComponentProps) {
               </div>
               <Button
                 onClick={() => deleteAddress(type, item.id)}
+                disabled={loadingDelete}
                 className="bg-[red] hover:bg-[#b91c1c] text-[20px] cursor-pointer"
               >
-                <AiOutlineDelete />
+                {loadingDelete ? (
+                  <Loader2Icon className="animate-spin" />
+                ) : (
+                  <AiOutlineDelete />
+                )}
               </Button>
             </div>
 

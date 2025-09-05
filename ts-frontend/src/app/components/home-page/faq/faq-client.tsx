@@ -4,11 +4,13 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "../../ui/button";
 import { IoIosArrowDown } from "react-icons/io";
+import { useAuthStore } from "@/app/store/useAuthStore";
 
 export default function FaqClient({ faqs }: { faqs: Faq[] }) {
   const router = useRouter();
   const [activeFaq, setActiveFaq] = useState<number | null>();
-
+  const { currentUser } = useAuthStore();
+  
   return (
     <div className="flex flex-col gap-y-[40px]">
       <h2 className="text-[28px] sm:text-[30px]">შესაძლებელია დაგაინტერესოს</h2>
@@ -45,7 +47,14 @@ export default function FaqClient({ faqs }: { faqs: Faq[] }) {
 
         <Button
           onClick={() => {
-            router.push("/auth/login");
+            if (currentUser) {
+              if (currentUser?.role === "individual")
+                router.push("/dashboard/individual/orders");
+              else if (currentUser?.role === "company")
+                router.push("/dashboard/company/orders");
+            } else {
+              router.push("/auth/login");
+            }
           }}
           className="flex h-[45px] px-[20px] sm:px-[30px] self-center cursor-pointer"
         >
