@@ -8,6 +8,7 @@ import { ToastContainer } from "react-toastify";
 import AuthRehydrate from "./components/auth-rehydrate";
 import LogOut from "./components/modals/log-out";
 import CreateAddress from "./components/modals/create-address";
+import CreateOrder from "./components/modals/create-order";
 
 export const metadata: Metadata = {
   title: "Tech Service | საოჯახო ტექნიკის სერვის-ცენტრი",
@@ -32,6 +33,7 @@ export default function RootLayout({
         <AuthRehydrate />
         <LogOut />
         <CreateAddress />
+        <CreateOrder />
       </body>
     </html>
   );

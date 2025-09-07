@@ -170,26 +170,15 @@ export default function IndividualPhoneUpdate() {
   };
 
   return (
-    <div className="flex flex-col gap-y-[20px] w-full">
-      <UserPhoneUpdate
-        title="მომხმარებლის ტელეფონის ნომერი"
-        values={values}
-        errors={errors}
-        sentCode={sentChangeNumberCode}
-        onChange={handleChange}
-      />
-      <Button
-        onClick={
-          sentChangeNumberCode
-            ? handleChangeIndividualNumber
-            : handleSendIndividualNumberCode
-        }
-        disabled={loading}
-        className="h-11 cursor-pointer self-end"
-      >
-        {loading && <Loader2Icon className="animate-spin" />}
-        {sentChangeNumberCode ? "შემოწმება" : "კოდის გაგზავნა"}
-      </Button>
-    </div>
+    <UserPhoneUpdate
+      title="მომხმარებლის ტელეფონის ნომერი"
+      values={values}
+      errors={errors}
+      sentCode={sentChangeNumberCode}
+      onChange={handleChange}
+      onSubmit1={handleChangeIndividualNumber}
+      onSubmit2={handleSendIndividualNumberCode}
+      loading={loading}
+    />
   );
 }

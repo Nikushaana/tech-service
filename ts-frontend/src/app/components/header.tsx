@@ -19,7 +19,11 @@ export default function Header() {
   const { currentUser } = useAuthStore();
 
   return (
-    <header className="z-10 w-full ">
+    <header
+      className={`z-10 w-full ${
+        pathname.split("/")[1] === "admin" ? "hidden" : ""
+      }`}
+    >
       <div className="max-w-[1140px] mx-auto flex items-center justify-between h-[100px] px-4">
         <img
           onClick={() => {

@@ -130,7 +130,7 @@ export default function CreateAddress() {
       ></div>
 
       <div
-        className={`bg-white rounded-2xl shadow-lg py-6 px-3 w-full sm:w-[600px] mx-[10px] z-[22] transition-transform duration-200 flex flex-col gap-y-[10px] ${
+        className={`bg-white rounded-2xl shadow-lg py-6 px-3 w-full sm:w-[600px] mx-[10px] z-[22] transition-transform duration-200 flex flex-col gap-y-[10px] max-h-[70vh] ${
           openCreateAddressModal
             ? "scale-100 opacity-100"
             : "scale-90 opacity-0"
@@ -138,66 +138,68 @@ export default function CreateAddress() {
       >
         <h2 className="text-lg font-semibold ">მისამართის დამატება</h2>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-[10px]">
-          <div className="col-span-1 sm:col-span-2">
+        <div className="flex-1 overflow-y-auto showScroll pr-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-[10px]">
+            <div className="col-span-1 sm:col-span-2">
+              <PanelFormInput
+                id="name"
+                value={values.name || ""}
+                onChange={handleChange}
+                label="მისამართის სახელი"
+                error={errors.name}
+              />
+            </div>
             <PanelFormInput
-              id="name"
-              value={values.name || ""}
+              id="city"
+              value={values.city || ""}
               onChange={handleChange}
-              label="მისამართის სახელი"
-              error={errors.name}
+              label="ქალაქი"
+              error={errors.city}
             />
-          </div>
-          <PanelFormInput
-            id="city"
-            value={values.city || ""}
-            onChange={handleChange}
-            label="ქალაქი"
-            error={errors.city}
-          />
-          <PanelFormInput
-            id="street"
-            value={values.street || ""}
-            onChange={handleChange}
-            label="ქუჩა"
-            error={errors.street}
-          />
-          <PanelFormInput
-            id="building_number"
-            value={values.building_number || ""}
-            onChange={handleChange}
-            label="შენობის ნომერი"
-            error={errors.building_number}
-          />
-          <PanelFormInput
-            id="building_entrance"
-            value={values.building_entrance || ""}
-            onChange={handleChange}
-            label="სადარბაზო"
-            error={errors.building_entrance}
-          />
-          <PanelFormInput
-            id="building_floor"
-            value={values.building_floor || ""}
-            onChange={handleChange}
-            label="სართული"
-            error={errors.building_floor}
-          />
-          <PanelFormInput
-            id="apartment_number"
-            value={values.apartment_number || ""}
-            onChange={handleChange}
-            label="ბინის ნომერი"
-            error={errors.apartment_number}
-          />
-          <div className="col-span-1 sm:col-span-2">
             <PanelFormInput
-              id="description"
-              value={values.description || ""}
+              id="street"
+              value={values.street || ""}
               onChange={handleChange}
-              label="აღწერა"
-              error={errors.description}
+              label="ქუჩა"
+              error={errors.street}
             />
+            <PanelFormInput
+              id="building_number"
+              value={values.building_number || ""}
+              onChange={handleChange}
+              label="შენობის ნომერი"
+              error={errors.building_number}
+            />
+            <PanelFormInput
+              id="building_entrance"
+              value={values.building_entrance || ""}
+              onChange={handleChange}
+              label="შესასვლელი"
+              error={errors.building_entrance}
+            />
+            <PanelFormInput
+              id="building_floor"
+              value={values.building_floor || ""}
+              onChange={handleChange}
+              label="სართული"
+              error={errors.building_floor}
+            />
+            <PanelFormInput
+              id="apartment_number"
+              value={values.apartment_number || ""}
+              onChange={handleChange}
+              label="ბინის ნომერი"
+              error={errors.apartment_number}
+            />
+            <div className="col-span-1 sm:col-span-2">
+              <PanelFormInput
+                id="description"
+                value={values.description || ""}
+                onChange={handleChange}
+                label="აღწერა"
+                error={errors.description}
+              />
+            </div>
           </div>
         </div>
 
@@ -226,14 +228,14 @@ export default function CreateAddress() {
                 description: "",
               }));
             }}
-            className="h-[45px] px-6 cursor-pointer"
+            className="h-[45px] px-6 cursor-pointer bg-red-500 hover:bg-[#b91c1c]"
           >
             გაუქმება
           </Button>
           <Button
             onClick={handleCreateAddress}
             disabled={loading}
-            className="h-[45px] px-6 bg-red-600 hover:bg-[#b91c1c] text-white cursor-pointer"
+            className="h-[45px] px-6 text-white cursor-pointer"
           >
             {loading && <Loader2Icon className="animate-spin" />}
             დამატება

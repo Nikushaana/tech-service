@@ -8,8 +8,9 @@ interface AddressesStoreState {
     addresses: any[];
     openCreateAddressModal: boolean;
     modalType: AddressType | null; // store the type here
+    loading: boolean;
 
-    loadingDelete: boolean;
+    loadingDelete: number | null;
 
     toggleOpenCreateAddressModal: (type?: AddressType) => void;
 
@@ -22,8 +23,9 @@ export const useAddressesStore = create<AddressesStoreState>((set, get) => ({
     addresses: [],
     openCreateAddressModal: false,
     modalType: null,
+    loading: true,
 
-    loadingDelete: false,
+    loadingDelete: null,
 
     toggleOpenCreateAddressModal: (type?: AddressType) =>
         set((state) => ({
@@ -33,15 +35,18 @@ export const useAddressesStore = create<AddressesStoreState>((set, get) => ({
 
     fetchAddresses: (type: AddressType) => {
         const axiosInstance = type === "company" ? axiosCompany : axiosIndividual;
+        set({ loading: true });
+
         return axiosInstance
             .get(`${type}/addresses`)
             .then((res) => set({ addresses: res.data }))
-            .catch(() => { });
+            .catch(() => { })
+            .finally(() => { set({ loading: false }); });
     },
 
     deleteAddress: (type: AddressType, id: number) => {
         const axiosInstance = type === "company" ? axiosCompany : axiosIndividual;
-        set({ loadingDelete: true });
+        set({ loadingDelete: id });
         return axiosInstance
             .delete(`${type}/addresses/${id}`)
             .then(() => get().fetchAddresses(type).then(() => {
@@ -55,7 +60,7 @@ export const useAddressesStore = create<AddressesStoreState>((set, get) => ({
                 }
             })
             .finally(() => {
-                set({ loadingDelete: false });
+                set({ loadingDelete: null });
             })
     },
 

@@ -116,7 +116,13 @@ export default function IndividualDetailsForm() {
         }
         fields={fields}
       />
-      <p>სტატუსი: {currentUser?.status ? "აქტიური" : "დაბლოკილი"}</p>
+      <p
+        className={`${
+          currentUser?.status ? "bg-green-700" : "bg-red-700"
+        } text-white self-start px-6 h-[40px] flex items-center rounded-[10px]`}
+      >
+        სტატუსი: {currentUser?.status ? "აქტიური" : "დაბლოკილი"}
+      </p>
       <Button
         onClick={handleUpdateIndividual}
         disabled={loading}

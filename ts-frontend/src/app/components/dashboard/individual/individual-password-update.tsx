@@ -109,21 +109,13 @@ export default function IndividualPasswordUpdate() {
     }
   };
   return (
-    <div className="flex flex-col gap-y-[20px] w-full">
-      <UserPasswordUpdate
-        title="პაროლის განახლება"
-        values={values}
-        errors={errors}
-        onChange={handleChange}
-      />
-      <Button
-        onClick={handleChangeIndividualPassword}
-        disabled={loading}
-        className="h-11 cursor-pointer self-end"
-      >
-        {loading && <Loader2Icon className="animate-spin" />}
-        განახლება
-      </Button>
-    </div>
+    <UserPasswordUpdate
+      title="პაროლის განახლება"
+      values={values}
+      errors={errors}
+      onChange={handleChange}
+      onSubmit={handleChangeIndividualPassword}
+      loading={loading}
+    />
   );
 }
