@@ -12,16 +12,16 @@ export class RegisterDto {
   password: string;
 
   @IsString()
-  @IsIn(['individual', 'company', 'technician'])
-  role: 'individual' | 'company' | 'technician';
+  @IsIn(['individual', 'company', 'technician', 'admin'])
+  role: 'individual' | 'company' | 'technician' | 'admin';
 
   // --- Individual & Technician fields ---
-  @ValidateIf((o) => o.role === 'individual' || o.role === 'technician')
+  @ValidateIf((o) => o.role === 'individual' || o.role === 'technician' || o.role === 'admin')
   @IsString()
   @IsNotEmpty()
   name: string;
 
-  @ValidateIf((o) => o.role === 'individual' || o.role === 'technician')
+  @ValidateIf((o) => o.role === 'individual' || o.role === 'technician' || o.role === 'admin')
   @IsString()
   @IsNotEmpty()
   lastName: string;

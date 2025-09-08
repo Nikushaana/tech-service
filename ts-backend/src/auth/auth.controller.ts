@@ -3,8 +3,6 @@ import { AuthService } from './auth.service';
 import { PhoneDto, ResetPasswordDto, VerifyCodeDto } from 'src/verification-code/dto/verification-code.dto';
 import { RegisterDto } from './dto/register.dto';
 import { LoginUserDto } from './dto/login-user.dto';
-import { RegisterAdminDto } from './dto/register-admin.dto';
-import { LoginAdminDto } from './dto/login-admin.dto';
 import { RolesGuard } from 'src/common/guards/roles.guard';
 import { TokenValidationGuard } from './guards/token-validation.guard';
 import { Roles } from 'src/common/decorators/roles.decorator';
@@ -58,21 +56,11 @@ export class AuthController {
 export class AdminAuthController {
     constructor(private readonly authService: AuthService) { }
 
-    @Post('register')
-    async registerAdmin(@Body() dto: RegisterAdminDto) {
-        return this.authService.adminRegister(dto);
-    }
-
-    @Post('login')
-    async AdminLogin(@Body() loginAdminDto: LoginAdminDto) {
-        return this.authService.adminLogin(loginAdminDto);
-    }
-
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('admin')
     @Delete('logout')
     async AdminLogout(@Headers('authorization') authHeader: string) {
-        return this.authService.adminLogout(authHeader);
+        return this.authService.logout(authHeader, 'admin');
     }
 }
 

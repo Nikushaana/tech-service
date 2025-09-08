@@ -15,8 +15,6 @@ import { TechnicianToken } from 'src/technician-token/entities/technician-token.
 import { VerificationCode } from 'src/verification-code/entities/verification-code.entity';
 import { VerificationCodeService } from 'src/verification-code/verification-code.service';
 import { PhoneDto, ResetPasswordDto, VerifyCodeDto } from 'src/verification-code/dto/verification-code.dto';
-import { RegisterAdminDto } from './dto/register-admin.dto';
-import { LoginAdminDto } from './dto/login-admin.dto';
 import { RegisterDto } from './dto/register.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 
@@ -71,79 +69,6 @@ export class AuthService {
         return this.verificationCodeService.verifyCode(verifyCodeDto, 'register');
     }
 
-    // admin
-
-    async adminRegister(dto: RegisterAdminDto) {
-        const existing = await this.adminRepo.findOne({
-            where: { email: dto.email },
-        });
-
-        if (existing) throw new ConflictException('Email is already in use');
-
-        const hashedPassword = await bcrypt.hash(dto.password, 10);
-
-        const admin = this.adminRepo.create({ ...dto, password: hashedPassword });
-
-        await this.adminRepo.save(admin);
-
-        return { message: 'Admin registered successfully', admin };
-    }
-
-    async adminLogin(loginAdminDto: LoginAdminDto) {
-        const admin = await this.adminRepo.findOne({
-            where: { email: loginAdminDto.email },
-        });
-
-        if (!admin) throw new UnauthorizedException('Invalid credintials');
-
-        const isMatch = await bcrypt.compare(
-            loginAdminDto.password,
-            admin.password,
-        );
-
-        if (!isMatch) throw new UnauthorizedException('Invalid credintials');
-
-        const payload = { id: admin.id, role: 'admin' };
-        const token = this.signToken(payload);
-
-        let adminToken = await this.adminTokenRepo.findOne({
-            where: { admin: { id: admin.id } },
-        });
-
-        if (adminToken) {
-            adminToken.token = token;
-            await this.adminTokenRepo.save(adminToken);
-        } else {
-            adminToken = this.adminTokenRepo.create({ admin: admin, token });
-            await this.adminTokenRepo.save(adminToken);
-        }
-
-        return {
-            message: 'Admin logged in successfully',
-            token,
-            admin: instanceToPlain(admin),
-        };
-    }
-
-    async adminLogout(authHeader: string) {
-        if (!authHeader) {
-            throw new UnauthorizedException('Authorization header missing');
-        }
-
-        const token = authHeader.split(' ')[1];
-        if (!token) {
-            throw new UnauthorizedException('Token not found');
-        }
-
-        const result = await this.adminTokenRepo.delete({ token });
-
-        if (result.affected === 0) {
-            throw new NotFoundException('Token not found in database');
-        }
-
-        return { message: 'Admin logged out successfully' };
-    }
-
     // users
 
     async register(registerDto: RegisterDto) {
@@ -157,7 +82,9 @@ export class AuthService {
         const exists =
             (await this.individualClientRepo.findOne({ where: { phone: registerDto.phone } })) ||
             (await this.companyClientRepo.findOne({ where: { phone: registerDto.phone } })) ||
-            (await this.technicianRepo.findOne({ where: { phone: registerDto.phone } }));
+            (await this.technicianRepo.findOne({ where: { phone: registerDto.phone } })) ||
+            (await this.adminRepo.findOne({ where: { phone: registerDto.phone } }))
+            ;
 
         if (exists) throw new BadRequestException('User already registered');
 
@@ -166,8 +93,8 @@ export class AuthService {
         let repo: Repository<any> | null = null;
         let userData: any = null;
 
-        if (role === 'individual' || role === 'technician') {
-            repo = role === 'individual' ? this.individualClientRepo : this.technicianRepo;
+        if (role === 'individual' || role === 'technician' || role === 'admin') {
+            repo = role === 'individual' ? this.individualClientRepo : role === 'admin' ? this.adminRepo : role === 'technician' ? this.technicianRepo : null;
             userData = {
                 phone: registerDto.phone,
                 name: registerDto.name,
@@ -203,8 +130,8 @@ export class AuthService {
 
     async login(loginUserDto: LoginUserDto) {
         // Find the user dynamically
-        let user: IndividualClient | CompanyClient | Technician | null = null;
-        let role: 'individual' | 'company' | 'technician' | null = null;
+        let user: IndividualClient | CompanyClient | Technician | Admin | null = null;
+        let role: 'individual' | 'company' | 'technician' | 'admin' | null = null;
 
         user = await this.individualClientRepo.findOne({ where: { phone: loginUserDto.phone } });
         if (user) role = 'individual';
@@ -214,6 +141,10 @@ export class AuthService {
             else {
                 user = await this.technicianRepo.findOne({ where: { phone: loginUserDto.phone } });
                 if (user) role = 'technician';
+                else {
+                    user = await this.adminRepo.findOne({ where: { phone: loginUserDto.phone } });
+                    if (user) role = 'admin';
+                }
             }
         }
 
@@ -240,13 +171,20 @@ export class AuthService {
             if (clientToken) clientToken.token = token;
             else clientToken = this.companyClientTokenRepo.create({ companyClient: user as CompanyClient, token });
             await this.companyClientTokenRepo.save(clientToken);
-        } else {
+        } else if (role === 'technician') {
             let technicianToken = await this.technicianTokenRepo.findOne({
                 where: { technician: { id: user.id } },
             });
             if (technicianToken) technicianToken.token = token;
             else technicianToken = this.technicianTokenRepo.create({ technician: user as Technician, token });
             await this.technicianTokenRepo.save(technicianToken);
+        } else if (role === 'admin') {
+            let adminToken = await this.adminTokenRepo.findOne({
+                where: { admin: { id: user.id } },
+            });
+            if (adminToken) adminToken.token = token;
+            else adminToken = this.adminTokenRepo.create({ admin: user as Admin, token });
+            await this.adminTokenRepo.save(adminToken);
         }
 
         return {
@@ -256,7 +194,7 @@ export class AuthService {
         };
     }
 
-    async logout(authHeader: string, role: 'individual' | 'company' | 'technician') {
+    async logout(authHeader: string, role: 'individual' | 'company' | 'technician' | 'admin') {
         if (!authHeader) {
             throw new UnauthorizedException('Authorization header missing');
         }
@@ -270,7 +208,8 @@ export class AuthService {
             role === 'individual'
                 ? await this.individualClientTokenRepo.delete({ token })
                 : role === 'company' ? await this.companyClientTokenRepo.delete({ token })
-                    : await this.technicianTokenRepo.delete({ token });
+                    : role === 'technician' ? await this.technicianTokenRepo.delete({ token })
+                        : await this.adminTokenRepo.delete({ token });
 
         if (result.affected === 0) {
             throw new NotFoundException('Token not found in database');

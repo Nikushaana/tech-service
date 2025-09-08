@@ -60,30 +60,6 @@ export class AdminService {
         return instanceToPlain(findAdmin);
     }
 
-    async updateAdmin(adminId: number, updateAdminDto: UpdateAdminDto) {
-        const admin = await this.baseUserService.getUser(adminId, this.adminRepo);
-
-        if (updateAdminDto.email && updateAdminDto.email !== admin.email) {
-            const emailExists = await this.adminRepo.findOne({
-                where: { email: updateAdminDto.email, id: Not(adminId) },
-            });
-            if (emailExists) throw new ConflictException('Email is already in use');
-        }
-
-        if (updateAdminDto.password) {
-            updateAdminDto.password = await bcrypt.hash(updateAdminDto.password, 10);
-        }
-
-        const updatedAdmin = this.adminRepo.merge(admin, updateAdminDto);
-
-        await this.adminRepo.save(updatedAdmin);
-
-        return {
-            message: 'Admin updated successfully',
-            user: instanceToPlain(updatedAdmin),
-        };
-    }
-
     // individuals
 
     async getAdminIndividuals() {
@@ -104,9 +80,16 @@ export class AdminService {
         if (updateAdminIndividualOrTechnicianDto.phone && updateAdminIndividualOrTechnicianDto.phone !== findOneIndividual.phone) {
             const phoneExists =
                 (await this.individualClientRepo.findOne({
-                    where: { phone: updateAdminIndividualOrTechnicianDto.phone, id: Not(individualId) },
+                    where: { phone: updateAdminIndividualOrTechnicianDto.phone },
                 })) ||
                 (await this.companyClientRepo.findOne({
+                    where: { phone: updateAdminIndividualOrTechnicianDto.phone },
+                }))
+                ||
+                (await this.technicianRepo.findOne({
+                    where: { phone: updateAdminIndividualOrTechnicianDto.phone },
+                })) ||
+                (await this.adminRepo.findOne({
                     where: { phone: updateAdminIndividualOrTechnicianDto.phone },
                 }));
 
@@ -150,7 +133,14 @@ export class AdminService {
                     where: { phone: updateAdminCompanyDto.phone },
                 })) ||
                 (await this.companyClientRepo.findOne({
-                    where: { phone: updateAdminCompanyDto.phone, id: Not(companyId) },
+                    where: { phone: updateAdminCompanyDto.phone },
+                }))
+                ||
+                (await this.technicianRepo.findOne({
+                    where: { phone: updateAdminCompanyDto.phone },
+                })) ||
+                (await this.adminRepo.findOne({
+                    where: { phone: updateAdminCompanyDto.phone },
                 }));
 
             if (phoneExists) throw new ConflictException('phone is already in use');
@@ -197,7 +187,10 @@ export class AdminService {
                 }))
                 ||
                 (await this.technicianRepo.findOne({
-                    where: { phone: updateAdminIndividualOrTechnicianDto.phone, id: Not(technicianId) },
+                    where: { phone: updateAdminIndividualOrTechnicianDto.phone },
+                })) ||
+                (await this.adminRepo.findOne({
+                    where: { phone: updateAdminIndividualOrTechnicianDto.phone },
                 }));
 
             if (phoneExists) throw new ConflictException('phone is already in use');

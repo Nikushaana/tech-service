@@ -1,4 +1,4 @@
-import { Exclude } from 'class-transformer';
+import { Exclude, Expose } from 'class-transformer';
 import { AdminToken } from 'src/admin-token/entities/admin-token.entity';
 import {
   Column,
@@ -15,7 +15,18 @@ export class Admin {
   id: number;
 
   @Column({ unique: true })
-  email: string;
+  phone: string;
+
+  @Column()
+  name: string;
+
+  @Column()
+  lastName: string;
+
+  @Expose()
+  get role(): string {
+    return "admin";
+  }
 
   @Exclude()
   @Column()

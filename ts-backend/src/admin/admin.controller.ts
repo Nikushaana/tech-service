@@ -27,13 +27,6 @@ export class AdminController {
         return this.adminService.getAdmin(req.user.id);
     }
 
-    @UseGuards(TokenValidationGuard, RolesGuard)
-    @Roles('admin')
-    @Patch('')
-    async updateAdmin(@Req() req: RequestInfo, @Body() updateAdminDto: UpdateAdminDto) {
-        return this.adminService.updateAdmin(req.user.id, updateAdminDto);
-    }
-
     // individuals
 
     @UseGuards(TokenValidationGuard, RolesGuard)
