@@ -311,22 +311,9 @@ export class AdminService {
         const category = await this.categoryRepo.findOne({ where: { id } });
         if (!category) throw new NotFoundException('Category not found');
 
-        // Convert status
-        let status: boolean | undefined = undefined;
-        if (updateCategoryDto.status !== undefined) {
-            if (updateCategoryDto.status === 'true') status = true;
-            else if (updateCategoryDto.status === 'false') status = false;
-            else throw new BadRequestException('status must be "true" or "false"');
-        }
-
-
         // Merge updates
-        this.categoryRepo.merge(category, {
-            ...updateCategoryDto,
-            status
-        });
-
-        await this.categoryRepo.save(category);
+        const updatedCategory = this.categoryRepo.merge(category, updateCategoryDto);
+        await this.categoryRepo.save(updatedCategory);
 
         return { message: 'Category updated successfully', category };
     }

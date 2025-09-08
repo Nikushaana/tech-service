@@ -14,7 +14,7 @@ export class Admin {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ unique: true })
+  @Column({ unique: true },)
   phone: string;
 
   @Column()
