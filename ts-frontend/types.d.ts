@@ -17,12 +17,22 @@ interface CategoryData {
 
 interface Faq {
   id: number;
-  answer: string;
   question: string;
+  answer: string;
   status: boolean;
-  created_at: string;
-  updated_at: string;
-}
+  order: number;
+  created_at: string; // ISO date string
+  updated_at: string; // ISO date string
+};
+
+interface Category {
+  id: number;
+  name: string;
+  images: null;
+  status: boolean;
+  created_at: string; // ISO date string
+  updated_at: string; // ISO date string
+};
 
 interface User {
   id: number;

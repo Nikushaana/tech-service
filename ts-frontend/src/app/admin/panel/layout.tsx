@@ -1,57 +1,29 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { Button } from "@/app/components/ui/button";
+import { useBurgerMenuStore } from "@/app/store/burgerMenuStore";
+import { useAuthStore } from "@/app/store/useAuthStore";
 import Link from "next/link";
-import { useAuthStore } from "../store/useAuthStore";
-import { Button } from "../components/ui/button";
-import { BsXLg } from "react-icons/bs";
-import { Menu } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { useEffect } from "react";
 import { HiMenu, HiX } from "react-icons/hi";
-import { useBurgerMenuStore } from "../store/burgerMenuStore";
 
-type SidebarLinksWithTitle = {
-  title?: string;
-  links: { name: string; href: string }[];
-};
-
-type Role = "individual" | "company" | "technician";
-
-const sidebarLinks: Record<Role, SidebarLinksWithTitle> = {
-  individual: {
-    title: "ჩემი გვერდი",
-    links: [
-      { name: "შეკვეთები", href: "/dashboard/individual/orders" },
-      { name: "მისამართები", href: "/dashboard/individual/addresses" },
-      { name: "პროფილი", href: "/dashboard/individual/profile" },
-    ],
-  },
-  company: {
-    title: "კომპანიის გვერდი",
-    links: [
-      { name: "შეკვეთები", href: "/dashboard/company/orders" },
-      { name: "მისამართები", href: "/dashboard/company/addresses" },
-      { name: "პროფილი", href: "/dashboard/company/profile" },
-    ],
-  },
-  technician: {
-    title: "ტექნიკოსი გვერდი",
-    links: [{ name: "პროფილი", href: "/dashboard/technician/profile" }],
-  },
-};
+const sidebarLinks = [
+  { name: "FAQ", href: "/admin/panel/faqs" },
+  { name: "კატეგორიები", href: "/admin/panel/categories" },
+  { name: "პროფილი", href: "/admin/panel/profile" },
+];
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const { role, loading, toggleLogOut } = useAuthStore();
-  const { openSideBar, toggleSideBar, closeSideBar } = useBurgerMenuStore();
 
-  const sidebar =
-    role && role !== "admin"
-      ? sidebarLinks[role]
-      : { title: "იტვირთება..", links: [] };
+  const { currentUser, loading, toggleLogOut } = useAuthStore();
+
+  const { openAdminSideBar, toggleAdminSideBar, closeAdminSideBar } =
+    useBurgerMenuStore();
 
   useEffect(() => {
-    if (openSideBar) {
+    if (openAdminSideBar) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "auto";
@@ -60,24 +32,24 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     return () => {
       document.body.style.overflow = "auto";
     };
-  }, [openSideBar]);
+  }, [openAdminSideBar]);
 
   return (
     <div className="flex flex-col items-center">
       <div
-        className={`max-w-[1920px] w-full flex flex-col min-h-[80vh] mt-[20px] mb-[100px] px-[10px] gap-[10px] duration-100 ${
+        className={`max-w-[1920px] w-full flex flex-col min-h-[100vh] p-[10px] gap-[10px] duration-100 ${
           loading && "brightness-70 blur-[2px] pointer-events-none"
         }`}
       >
         {/* Mobile Hamburger */}
         <div
-          onClick={() => toggleSideBar()}
+          onClick={() => toggleAdminSideBar()}
           className={`lg:hidden flex items-center self-start justify-center text-2xl duration-300 h-[45px] aspect-square ${
-            openSideBar &&
+            openAdminSideBar &&
             "rotate-[360deg] ml-64 bg-myLightBlue text-white rounded-[10px]"
           }`}
         >
-          {openSideBar ? <HiX /> : <HiMenu />}
+          {openAdminSideBar ? <HiX /> : <HiMenu />}
         </div>
 
         <div className="flex gap-[10px] flex-1">
@@ -85,22 +57,31 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           <aside
             className={`fixed lg:static top-0 left-0 h-full lg:h-auto w-64 bg-myLightBlue hover:bg-myBlue text-white flex flex-col px-[10px] py-[20px] shadow-xl rounded-r-xl lg:rounded-xl z-20 transform duration-150 
             ${
-              openSideBar
+              openAdminSideBar
                 ? "translate-x-0"
                 : "-translate-x-full lg:translate-x-0"
             }
           `}
           >
-            <h2 className="text-[20px] text-center font-bold mb-8 tracking-wide">
-              {sidebar.title}
+            <h2 className="text-[20px] text-center font-bold tracking-wide">
+              ადმინი
             </h2>
+            {currentUser && (
+              <p className="mb-8 text-center text-gray-200">
+                {currentUser?.name +
+                  " " +
+                  currentUser?.lastName +
+                  " " +
+                  currentUser?.phone}
+              </p>
+            )}
 
             <nav
               className={`flex flex-col gap-2 mb-6 duration-300 w-full ${
                 !loading ? "" : "ml-[-300px]"
               }`}
             >
-              {sidebar.links.map((link) => {
+              {sidebarLinks.map((link) => {
                 const isActive = pathname.startsWith(link.href);
                 return (
                   <Link
@@ -113,7 +94,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   : "hover:bg-myLightBlue hover:text-white"
               }
             `}
-                    onClick={() => closeSideBar()}
+                    onClick={() => closeAdminSideBar()}
                   >
                     {link.name}
                   </Link>
@@ -135,7 +116,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           {/* Main content */}
           <main
             className={`${
-              openSideBar && "pointer-events-none brightness-70"
+              openAdminSideBar && "pointer-events-none brightness-70"
             } flex-1 flex duration-200 bg-gray-50 px-[10px] py-[20px] sm:p-[20px] border-[1px] rounded-xl shadow-inner`}
           >
             {children}
