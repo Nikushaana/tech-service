@@ -16,7 +16,6 @@ export class Technician {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Expose({ groups: ['admin'] })
     @Column({ unique: true })
     phone: string;
 

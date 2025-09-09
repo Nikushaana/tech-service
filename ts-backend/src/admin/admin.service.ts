@@ -164,7 +164,7 @@ export class AdminService {
     async getAdminTechnicians(userFilterDto: UserFilterDto) {
         const findTechnicians = await this.baseUserService.getUsers(this.technicianRepo, userFilterDto);
 
-        return instanceToPlain(findTechnicians, { groups: ['admin'] });
+        return instanceToPlain(findTechnicians);
     }
 
     async getAdminOneTechnician(technicianId: number) {
