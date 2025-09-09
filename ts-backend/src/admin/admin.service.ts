@@ -11,7 +11,6 @@ import { Faq } from 'src/faq/entities/faq.entity';
 import { Address } from 'src/address/entities/address.entity';
 import { BaseUserService } from 'src/common/services/base-user/base-user.service';
 import { instanceToPlain } from 'class-transformer';
-import { UpdateAdminDto } from './dto/update-admin.dto';
 import * as bcrypt from 'bcrypt';
 import { UpdateAdminIndividualOrTechnicianDto } from './dto/update-admin-individual-or-technician.dto';
 import { UpdateAdminCompanyDto } from './dto/update-admin-company.dto';

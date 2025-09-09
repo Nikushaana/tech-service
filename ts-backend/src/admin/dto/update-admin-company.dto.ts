@@ -1,3 +1,4 @@
+import { Transform } from 'class-transformer';
 import { IsBoolean, IsNotEmpty, IsOptional, IsString, Matches, MinLength } from 'class-validator';
 
 export class UpdateAdminCompanyDto {
@@ -33,7 +34,8 @@ export class UpdateAdminCompanyDto {
     status: boolean;
 
     @IsOptional()
+    @Transform(({ value }) => value === '' ? undefined : value)
     @IsString()
-    @MinLength(6)
+    @MinLength(6, { message: 'Password must be at least 6 characters' })
     password: string;
 }

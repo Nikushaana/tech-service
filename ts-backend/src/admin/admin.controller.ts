@@ -1,7 +1,6 @@
 import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { AdminService } from './admin.service';
 import { TokenValidationGuard } from 'src/auth/guards/token-validation.guard';
-import { UpdateAdminDto } from './dto/update-admin.dto';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { RolesGuard } from 'src/common/guards/roles.guard';
 import { UpdateAdminIndividualOrTechnicianDto } from './dto/update-admin-individual-or-technician.dto';
