@@ -1,0 +1,223 @@
+"use client";
+
+import { axiosAdmin } from "@/app/api/axios";
+import { Loader2Icon } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import PanelFormInput from "@/app/components/inputs/panel-form-input";
+import { Switch } from "@/app/components/ui/switch";
+import { toast } from "react-toastify";
+import * as Yup from "yup";
+import { Button } from "@/app/components/ui/button";
+
+interface FaqPageProps {
+  params: Promise<{
+    companyId: string;
+  }>;
+}
+
+export default function Page({ params }: FaqPageProps) {
+  const resolvedParams = React.use(params);
+  const { companyId } = resolvedParams;
+
+  const [loading, setLoading] = useState<boolean>(true);
+  const [values, setValues] = useState({
+    companyName: "",
+    companyAgentName: "",
+    companyAgentLastName: "",
+    companyIdentificationCode: "",
+    phone: "",
+    password: "",
+    status: false,
+  });
+  const [errors, setErrors] = useState({
+    companyName: "",
+    companyAgentName: "",
+    companyAgentLastName: "",
+    companyIdentificationCode: "",
+    phone: "",
+    password: "",
+  });
+
+  const fetchCompany = () => {
+    setLoading(true);
+    axiosAdmin
+      .get(`/admin/companies/${companyId}`)
+      .then((res) => {
+        const data = res.data;
+        setValues({
+          companyName: data.companyName,
+          companyAgentName: data.companyAgentName,
+          companyAgentLastName: data.companyAgentLastName,
+          companyIdentificationCode: data.companyIdentificationCode,
+          phone: data.phone,
+          password: "",
+          status: data.status,
+        });
+        setLoading(false);
+      })
+      .catch(() => {})
+      .finally(() => {});
+  };
+
+  useEffect(() => {
+    fetchCompany();
+  }, [companyId]);
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { id, value } = e.target;
+    setValues((prev) => ({
+      ...prev,
+      [id]: value,
+    }));
+  };
+
+  // validation
+  const companySchema = Yup.object().shape({
+    companyName: Yup.string().required("კომპანიის სახელი აუცილებელია"),
+    companyIdentificationCode: Yup.string().required(
+      "კომპანიის საიდენტიფიკაციო კოდი აუცილებელია"
+    ),
+    companyAgentName: Yup.string().required(
+      "კომპანიის წარმომადგენლის სახელი აუცილებელია"
+    ),
+    companyAgentLastName: Yup.string().required(
+      "კომპანიის წარმომადგენლის გვარი აუცილებელია"
+    ),
+    phone: Yup.string()
+      .matches(/^5\d{8}$/, "ნომერი უნდა დაიწყოს 5-ით და იყოს 9 ციფრი")
+      .required("ტელეფონის ნომერი აუცილებელია"),
+    password: Yup.string()
+      .notRequired()
+      .test("len", "პაროლი უნდა შეიცავდეს მინიმუმ 6 სიმბოლოს", (val) => {
+        if (!val) return true; // allow empty
+        return val.length >= 6;
+      }),
+  });
+
+  const handleUpdateCompany = async () => {
+    setLoading(true);
+    try {
+      await companySchema.validate(values, { abortEarly: false });
+
+      axiosAdmin
+        .patch(`/admin/companies/${companyId}`, values)
+        .then(() => {
+          toast.success("კომპანია განახლდა", {
+            position: "bottom-right",
+            autoClose: 3000,
+          });
+          fetchCompany();
+          setErrors({
+            companyName: "",
+            companyAgentName: "",
+            companyAgentLastName: "",
+            companyIdentificationCode: "",
+            phone: "",
+            password: "",
+          });
+        })
+        .catch(() => {
+          toast.error("ვერ განახლდა", {
+            position: "bottom-right",
+            autoClose: 3000,
+          });
+          setLoading(false);
+        });
+    } catch (err: any) {
+      if (err.inner) {
+        const newErrors: any = {};
+        err.inner.forEach((e: any) => {
+          if (e.path) {
+            newErrors[e.path] = e.message;
+            toast.error(e.message, {
+              position: "bottom-right",
+              autoClose: 3000,
+            });
+          }
+        });
+        setErrors(newErrors);
+      }
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className={`w-full flex flex-col items-center gap-y-[20px]`}>
+      {loading ? (
+        <Loader2Icon className="animate-spin" />
+      ) : (
+        <>
+          <div className="flex items-center gap-2 text-sm">
+            <p>დაბლოკილი</p>
+            <Switch
+              checked={values.status}
+              onCheckedChange={(checked) =>
+                setValues((prev) => ({ ...prev, status: checked }))
+              }
+              className="cursor-pointer"
+            />
+            <p>აქტიური</p>
+          </div>
+
+          <PanelFormInput
+            id="companyName"
+            value={values.companyName}
+            onChange={handleChange}
+            label="კომპანიის სახელი"
+            error={errors.companyName}
+          />
+
+          <PanelFormInput
+            id="companyIdentificationCode"
+            value={values.companyIdentificationCode}
+            onChange={handleChange}
+            label="კომპანიის საიდენტიფიკაციო კოდი"
+            error={errors.companyIdentificationCode}
+          />
+          <PanelFormInput
+            id="companyAgentName"
+            value={values.companyAgentName}
+            onChange={handleChange}
+            label="კომპანიის წარმომადგენლის სახელი"
+            error={errors.companyAgentName}
+          />
+
+          <PanelFormInput
+            id="companyAgentLastName"
+            value={values.companyAgentLastName}
+            onChange={handleChange}
+            label="კომპანიის წარმომადგენლის გვარი"
+            error={errors.companyAgentLastName}
+          />
+
+          <PanelFormInput
+            id="phone"
+            value={values.phone}
+            onChange={handleChange}
+            label="ტელეფონის ნომერი"
+            error={errors.phone}
+          />
+          <PanelFormInput
+            id="password"
+            type="password"
+            value={values.password}
+            onChange={handleChange}
+            label="პაროლი"
+            error={errors.password}
+          />
+
+          <Button
+            onClick={handleUpdateCompany}
+            disabled={loading}
+            className="h-[45px] px-6 text-white cursor-pointer w-full sm:w-auto self-end"
+          >
+            {loading && <Loader2Icon className="animate-spin mr-2" />}
+            ცვლილების შენახვა
+          </Button>
+        </>
+      )}
+    </div>
+  );
+}

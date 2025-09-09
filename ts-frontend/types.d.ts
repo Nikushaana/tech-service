@@ -21,8 +21,8 @@ interface Faq {
   answer: string;
   status: boolean;
   order: number;
-  created_at: string; // ISO date string
-  updated_at: string; // ISO date string
+  created_at: string;
+  updated_at: string;
 };
 
 interface Category {
@@ -30,8 +30,22 @@ interface Category {
   name: string;
   images: null;
   status: boolean;
-  created_at: string; // ISO date string
-  updated_at: string; // ISO date string
+  created_at: string;
+  updated_at: string;
+};
+
+interface Address {
+  id: number;
+  name: string;
+  apartment_number: string;
+  building_entrance: string;
+  building_floor: string;
+  building_number: string;
+  city: string;
+  description: string;
+  street: string;
+  created_at: string;
+  updated_at: string;
 };
 
 interface User {
@@ -48,4 +62,21 @@ interface User {
   phone: string;
   role: string;
   status: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+interface Order {
+  id: number;
+  address: Address;
+  brand: string;
+  model: string;
+  status: string;
+  category: Category;
+  company: User | null;
+  individual: User | null;
+  technician: User | null;
+  description: string;
+  created_at: string;
+  updated_at: string;
 };

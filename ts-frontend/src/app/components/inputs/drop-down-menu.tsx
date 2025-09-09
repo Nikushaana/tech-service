@@ -37,7 +37,7 @@ export function Dropdown({
 
   const handleSelect = (val: string) => {
     setSelected(val);
-    
+
     const syntheticEvent = {
       target: { id, value: val },
     } as unknown as React.ChangeEvent<HTMLInputElement>;
@@ -45,17 +45,27 @@ export function Dropdown({
     onChange(syntheticEvent);
   };
 
+  const selectedItem = data?.find(
+    (item: any) => String(item.id) === String(selected)
+  );
+
+  // Format label text
+  const displayText =
+    selectedItem &&
+    (id === "technicianId"
+      ? `${selectedItem.name} ${selectedItem.lastName || ""}`
+      : selectedItem.name);
+
   return (
     <div className="w-full">
       <label className="text-myGray text-sm">{label}</label>
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
+        <DropdownMenuTrigger asChild className="w-full">
           <Input
-            value={
-              data?.find((item: any) => String(item.id) === String(selected))
-                ?.name || label
-            }
-            className={`${!selected && "text-gray-400 "} rounded-[8px] text-start border-2 mt-[5px] focus-visible:ring-0 shadow-none cursor-pointer px-2 h-9 ${
+            value={displayText || label}
+            className={`${
+              !selected && "text-gray-400 "
+            } rounded-[8px] text-start border-2 mt-[5px] focus-visible:ring-0 shadow-none cursor-pointer px-2 h-9 ${
               error ? "border-red-500" : "border-gray-300"
             }`}
           />
@@ -65,15 +75,22 @@ export function Dropdown({
             value={String(selected)}
             onValueChange={handleSelect}
           >
-            {data?.map((item: any) => (
-              <DropdownMenuRadioItem
-                key={item.id}
-                value={String(item.id)}
-                className="py-1 rounded-[6px] hover:bg-gray-100 cursor-pointer text-sm"
-              >
-                {item.name}
-              </DropdownMenuRadioItem>
-            ))}
+            {data?.map((item: any) => {
+              const optionText =
+                id === "technicianId"
+                  ? `${item.name} ${item.lastName || ""}`
+                  : item.name;
+              return (
+                <DropdownMenuRadioItem
+                  key={item.id}
+                  value={String(item.id)}
+                  className="py-1 rounded-[6px] hover:bg-gray-100 cursor-pointer text-sm"
+                  title={optionText}
+                >
+                  {optionText}
+                </DropdownMenuRadioItem>
+              );
+            })}
           </DropdownMenuRadioGroup>
         </DropdownMenuContent>
       </DropdownMenu>

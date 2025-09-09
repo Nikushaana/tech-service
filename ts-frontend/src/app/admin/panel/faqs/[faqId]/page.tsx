@@ -111,7 +111,7 @@ export default function Page({ params }: FaqPageProps) {
         <Loader2Icon className="animate-spin" />
       ) : (
         <>
-          <div className="flex flex-col sm:flex-row items-center justify-between w-full gap-4">
+          <div className="flex flex-col-reverse sm:flex-row items-center justify-between w-full gap-4">
             <div className="w-full sm:w-[120px]">
               <PanelFormInput
                 id="order"

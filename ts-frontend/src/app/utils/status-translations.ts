@@ -4,7 +4,7 @@ export const statusTranslations: Record<string, string> = {
   inspection: "მიმდინარეობს ინსპექტირება",
   waiting_customer_approval: "შესაკეთებლად ველოდებით თქვენს დასტურს",
   repair_in_progress: "მიმდინარეობს შეკეთება",
-  returning: "დაბრუნება",
+  returning: "დელივერის მოაქვს ტექნიკა",
   completed: "დასრულებული",
   cancelled: "გაუქმებული",
 };
