@@ -1,11 +1,12 @@
 import { Body, Controller, Delete, Headers, Post, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { PhoneDto, ResetPasswordDto, VerifyCodeDto } from 'src/verification-code/dto/verification-code.dto';
-import { RegisterDto } from './dto/register.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 import { RolesGuard } from 'src/common/guards/roles.guard';
 import { TokenValidationGuard } from './guards/token-validation.guard';
 import { Roles } from 'src/common/decorators/roles.decorator';
+import { RegisterIndAdmTechnDto } from './dto/register-ind-adm-techn.dto';
+import { RegisterCompanyDto } from './dto/register-company.dto';
 
 
 
@@ -25,13 +26,6 @@ export class AuthController {
         return this.authService.verifyRegisterCode(verifyCodeDto);
     }
 
-    @Post('register')
-    async Register(
-        @Body() RegisterDto: RegisterDto,
-    ) {
-        return this.authService.register(RegisterDto);
-    }
-
     // reset password
 
     @Post('send-reset-password-code')
@@ -44,17 +38,29 @@ export class AuthController {
         return this.authService.resetPassword(resetPasswordDto);
     }
 
-    // login
+    // login individual or company
 
-    @Post('login')
-    async Login(@Body() loginUserDto: LoginUserDto) {
-        return this.authService.login(loginUserDto);
+    @Post('login-client')
+    async IndividualOrCompanyLogin(@Body() loginUserDto: LoginUserDto) {
+        return this.authService.login(loginUserDto, "individualOrCompany");
     }
 }
 
 @Controller('auth/admin')
 export class AdminAuthController {
     constructor(private readonly authService: AuthService) { }
+
+    @Post('register')
+    async AdminRegister(
+        @Body() registerIndAdmTechnDto: RegisterIndAdmTechnDto,
+    ) {
+        return this.authService.register(registerIndAdmTechnDto, "admin");
+    }
+
+    @Post('login')
+    async AdminLogin(@Body() loginUserDto: LoginUserDto) {
+        return this.authService.login(loginUserDto, "admin");
+    }
 
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('admin')
@@ -68,6 +74,13 @@ export class AdminAuthController {
 export class IndividualAuthController {
     constructor(private readonly authService: AuthService) { }
 
+    @Post('register')
+    async IndividualRegister(
+        @Body() registerIndAdmTechnDto: RegisterIndAdmTechnDto,
+    ) {
+        return this.authService.register(registerIndAdmTechnDto, "individual");
+    }
+
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('individual')
     @Delete('logout')
@@ -79,6 +92,13 @@ export class IndividualAuthController {
 @Controller('auth/company')
 export class CompanyAuthController {
     constructor(private readonly authService: AuthService) { }
+
+    @Post('register')
+    async CompanyRegister(
+        @Body() registerCompanyDto: RegisterCompanyDto,
+    ) {
+        return this.authService.register(registerCompanyDto, "company");
+    }
 
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('company')
@@ -110,9 +130,14 @@ export class TechnicianAuthController {
     @Roles('admin')
     @Post('register')
     async TechnicianRegister(
-        @Body() registerDto: RegisterDto,
+        @Body() registerIndAdmTechnDto: RegisterIndAdmTechnDto,
     ) {
-        return this.authService.register(registerDto);
+        return this.authService.register(registerIndAdmTechnDto, "technician");
+    }
+
+    @Post('login')
+    async TechnicianLogin(@Body() loginUserDto: LoginUserDto) {
+        return this.authService.login(loginUserDto, "technician");
     }
 
     @UseGuards(TokenValidationGuard, RolesGuard)

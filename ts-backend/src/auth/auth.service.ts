@@ -15,8 +15,9 @@ import { TechnicianToken } from 'src/technician-token/entities/technician-token.
 import { VerificationCode } from 'src/verification-code/entities/verification-code.entity';
 import { VerificationCodeService } from 'src/verification-code/verification-code.service';
 import { PhoneDto, ResetPasswordDto, VerifyCodeDto } from 'src/verification-code/dto/verification-code.dto';
-import { RegisterDto } from './dto/register.dto';
 import { LoginUserDto } from './dto/login-user.dto';
+import { RegisterIndAdmTechnDto } from './dto/register-ind-adm-techn.dto';
+import { RegisterCompanyDto } from './dto/register-company.dto';
 
 @Injectable()
 export class AuthService {
@@ -71,56 +72,48 @@ export class AuthService {
 
     // users
 
-    async register(registerDto: RegisterDto) {
-        const { role } = registerDto;
-
+    async register(dto: RegisterCompanyDto | RegisterIndAdmTechnDto, role: 'individual' | 'company' | 'technician' | 'admin') {
         const codeEntry = await this.VerificationCodeRepo.findOne({
-            where: { phone: registerDto.phone, verified: true, type: 'register' },
+            where: { phone: dto.phone, verified: true, type: 'register' },
         });
         if (!codeEntry) throw new BadRequestException('Phone not verified');
 
         const exists =
-            (await this.individualClientRepo.findOne({ where: { phone: registerDto.phone } })) ||
-            (await this.companyClientRepo.findOne({ where: { phone: registerDto.phone } })) ||
-            (await this.technicianRepo.findOne({ where: { phone: registerDto.phone } })) ||
-            (await this.adminRepo.findOne({ where: { phone: registerDto.phone } }))
+            (await this.individualClientRepo.findOne({ where: { phone: dto.phone } })) ||
+            (await this.companyClientRepo.findOne({ where: { phone: dto.phone } })) ||
+            (await this.technicianRepo.findOne({ where: { phone: dto.phone } })) ||
+            (await this.adminRepo.findOne({ where: { phone: dto.phone } }))
             ;
 
         if (exists) throw new BadRequestException('User already registered');
 
-        const hashedPassword = await bcrypt.hash(registerDto.password, 10);
+        const { password, ...rest } = dto;
 
-        let repo: Repository<any> | null = null;
-        let userData: any = null;
+        const hashedPassword = await bcrypt.hash(password, 10);
 
-        if (role === 'individual' || role === 'technician' || role === 'admin') {
-            repo = role === 'individual' ? this.individualClientRepo : role === 'admin' ? this.adminRepo : role === 'technician' ? this.technicianRepo : null;
-            userData = {
-                phone: registerDto.phone,
-                name: registerDto.name,
-                lastName: registerDto.lastName,
-                password: hashedPassword,
-            };
-        } else if (role === 'company') {
-            repo = this.companyClientRepo;
-            userData = {
-                phone: registerDto.phone,
-                companyAgentName: registerDto.companyAgentName,
-                companyAgentLastName: registerDto.companyAgentLastName,
-                companyName: registerDto.companyName,
-                companyIdentificationCode: registerDto.companyIdentificationCode,
-                password: hashedPassword,
-            };
-        }
+        const repo: any =
+            role === 'individual'
+                ? this.individualClientRepo
+                : role === 'admin'
+                    ? this.adminRepo
+                    : role === 'technician'
+                        ? this.technicianRepo
+                        : role === 'company'
+                            ? this.companyClientRepo
+                            : null;
 
-        if (!repo || !userData) {
+        if (!repo) {
             throw new BadRequestException('Invalid role');
         }
 
-        const user = repo.create(userData);
+        const user = repo.create({
+            ...rest,
+            password: hashedPassword,
+        });
+
         await repo.save(user);
 
-        await this.VerificationCodeRepo.delete({ phone: registerDto.phone, type: 'register' });
+        await this.VerificationCodeRepo.delete({ phone: dto.phone, type: 'register' });
 
         return {
             message: `${role} registered successfully`,
@@ -128,67 +121,64 @@ export class AuthService {
         };
     }
 
-    async login(loginUserDto: LoginUserDto) {
-        // Find the user dynamically
-        let user: IndividualClient | CompanyClient | Technician | Admin | null = null;
-        let role: 'individual' | 'company' | 'technician' | 'admin' | null = null;
+    async login(loginUserDto: LoginUserDto, role: 'individualOrCompany' | 'technician' | 'admin') {
+        const userRepoMap: any = {
+            individual: this.individualClientRepo,
+            company: this.companyClientRepo,
+            technician: this.technicianRepo,
+            admin: this.adminRepo,
+        };
 
-        user = await this.individualClientRepo.findOne({ where: { phone: loginUserDto.phone } });
-        if (user) role = 'individual';
-        else {
-            user = await this.companyClientRepo.findOne({ where: { phone: loginUserDto.phone } });
-            if (user) role = 'company';
+        const tokenRepoMap: any = {
+            individual: this.individualClientTokenRepo,
+            company: this.companyClientTokenRepo,
+            technician: this.technicianTokenRepo,
+            admin: this.adminTokenRepo,
+        };
+
+        // 1. Determine which repo to use
+        let user: any = null;
+        let actualRole: 'individual' | 'company' | 'technician' | 'admin' = null as any;
+
+        if (role === 'admin' || role === 'technician') {
+            actualRole = role;
+            user = await userRepoMap[role].findOne({ where: { phone: loginUserDto.phone } });
+        } else if (role === 'individualOrCompany') {
+            user = await userRepoMap.individual.findOne({ where: { phone: loginUserDto.phone } });
+            if (user) actualRole = 'individual';
             else {
-                user = await this.technicianRepo.findOne({ where: { phone: loginUserDto.phone } });
-                if (user) role = 'technician';
-                else {
-                    user = await this.adminRepo.findOne({ where: { phone: loginUserDto.phone } });
-                    if (user) role = 'admin';
-                }
+                user = await userRepoMap.company.findOne({ where: { phone: loginUserDto.phone } });
+                if (user) actualRole = 'company';
             }
         }
 
-        if (!user || !role) throw new UnauthorizedException('Invalid credentials');
+        if (!user || !actualRole) throw new UnauthorizedException('Invalid credentials');
 
+        // 2. Check password
         const isMatch = await bcrypt.compare(loginUserDto.password, user.password);
         if (!isMatch) throw new UnauthorizedException('Invalid credentials');
 
-        const payload = { id: user.id, role };
+        // 3. Generate token
+        const payload = { id: user.id, role: actualRole };
         const token = this.signToken(payload);
 
-        // Save or update token with type narrowing
-        if (role === 'individual') {
-            let clientToken = await this.individualClientTokenRepo.findOne({
-                where: { individualClient: { id: user.id } },
-            });
-            if (clientToken) clientToken.token = token;
-            else clientToken = this.individualClientTokenRepo.create({ individualClient: user as IndividualClient, token });
-            await this.individualClientTokenRepo.save(clientToken);
-        } else if (role === 'company') {
-            let clientToken = await this.companyClientTokenRepo.findOne({
-                where: { companyClient: { id: user.id } },
-            });
-            if (clientToken) clientToken.token = token;
-            else clientToken = this.companyClientTokenRepo.create({ companyClient: user as CompanyClient, token });
-            await this.companyClientTokenRepo.save(clientToken);
-        } else if (role === 'technician') {
-            let technicianToken = await this.technicianTokenRepo.findOne({
-                where: { technician: { id: user.id } },
-            });
-            if (technicianToken) technicianToken.token = token;
-            else technicianToken = this.technicianTokenRepo.create({ technician: user as Technician, token });
-            await this.technicianTokenRepo.save(technicianToken);
-        } else if (role === 'admin') {
-            let adminToken = await this.adminTokenRepo.findOne({
-                where: { admin: { id: user.id } },
-            });
-            if (adminToken) adminToken.token = token;
-            else adminToken = this.adminTokenRepo.create({ admin: user as Admin, token });
-            await this.adminTokenRepo.save(adminToken);
-        }
+        // 4. Save or update token dynamically
+        const tokenRepo = tokenRepoMap[actualRole];
+        const tokenEntityKey = actualRole === 'technician' || actualRole === 'admin'
+            ? actualRole
+            : `${actualRole}Client`;
+
+        let tokenEntity = await tokenRepo.findOne({
+            where: { [tokenEntityKey]: { id: user.id } },
+        });
+
+        if (tokenEntity) tokenEntity.token = token;
+        else tokenEntity = tokenRepo.create({ [tokenEntityKey]: user, token });
+
+        await tokenRepo.save(tokenEntity);
 
         return {
-            message: `${role} logged in successfully`,
+            message: `${actualRole} logged in successfully`,
             token,
             user: instanceToPlain(user),
         };
