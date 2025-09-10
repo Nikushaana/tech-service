@@ -40,11 +40,22 @@ export default function Page() {
             key={company.id}
             className="w-full p-4 border rounded-xl shadow-sm bg-white flex items-center justify-between"
           >
-            <div>
-              <h2>{company.companyName}</h2>
-              <p className="text-sm">
-                {company.companyAgentName + " " + company.companyAgentLastName}
-              </p>
+            <div className="flex items-center gap-[10px]">
+              <img
+                src={
+                  (company.images && company.images[0]) || "/images/logo.png"
+                }
+                alt={company.name}
+                className="aspect-square object-contain w-[40px]"
+              />
+              <div>
+                <h2>{company.companyName}</h2>
+                <p className="text-sm">
+                  {company.companyAgentName +
+                    " " +
+                    company.companyAgentLastName}
+                </p>
+              </div>
             </div>
             <div className="flex items-center gap-[10px]">
               <p className="text-sm">

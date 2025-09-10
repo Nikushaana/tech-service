@@ -1,15 +1,11 @@
 "use client";
 
 import { axiosAdmin } from "@/app/api/axios";
-import PanelFormInput from "@/app/components/inputs/panel-form-input";
 import { Button } from "@/app/components/ui/button";
 import { Loader2Icon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
-import { AiOutlineDelete } from "react-icons/ai";
 import { BsPen } from "react-icons/bs";
-import { toast } from "react-toastify";
-import * as Yup from "yup";
 
 export default function Page() {
   const router = useRouter();
@@ -40,7 +36,17 @@ export default function Page() {
             key={individual.id}
             className="w-full p-4 border rounded-xl shadow-sm bg-white flex items-center justify-between"
           >
-            <p>{individual.name + " " + individual.lastName}</p>
+            <div className="flex items-center gap-[10px]">
+              <img
+                src={
+                  (individual.images && individual.images[0]) ||
+                  "/images/logo.png"
+                }
+                alt={individual.name}
+                className="aspect-square object-contain w-[40px]"
+              />
+              <p>{individual.name + " " + individual.lastName}</p>
+            </div>
             <div className="flex items-center gap-[10px]">
               <p className="text-sm">
                 {individual.status ? "აქტიური" : "დაბლოკილი"}

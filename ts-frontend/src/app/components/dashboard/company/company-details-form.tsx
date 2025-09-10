@@ -8,15 +8,30 @@ import { axiosCompany } from "@/app/api/axios";
 import * as Yup from "yup";
 import UserDetailsForm from "../shared components/user-details-form";
 import { Loader2Icon } from "lucide-react";
+import ImageSelector from "../../inputs/image-selector";
+
+interface CompanyValues {
+  companyName: string;
+  companyAgentName: string;
+  companyAgentLastName: string;
+  companyIdentificationCode: string;
+  images: string[];
+  deletedImages: string[];
+  newImages: File[];
+}
 
 export default function CompanyDetailsForm() {
   const { currentUser } = useAuthStore();
+  const rehydrateClient = useAuthStore((state) => state.rehydrateClient);
 
-  const [values, setValues] = useState({
+  const [values, setValues] = useState<CompanyValues>({
     companyName: "",
     companyIdentificationCode: "",
     companyAgentName: "",
     companyAgentLastName: "",
+    images: [],
+    deletedImages: [],
+    newImages: [],
   });
 
   useEffect(() => {
@@ -27,6 +42,7 @@ export default function CompanyDetailsForm() {
         companyIdentificationCode: currentUser.companyIdentificationCode || "",
         companyAgentName: currentUser.companyAgentName || "",
         companyAgentLastName: currentUser.companyAgentLastName || "",
+        images: currentUser.images || [],
       }));
     }
   }, [currentUser]);
@@ -74,18 +90,38 @@ export default function CompanyDetailsForm() {
 
       await updateCompanySchema.validate(values, { abortEarly: false });
 
+      const formData = new FormData();
+
+      if (values.deletedImages.length > 0) {
+        formData.append("imagesToDelete", JSON.stringify(values.deletedImages));
+      }
+
+      // Append new files
+      values.newImages.forEach((image) => {
+        formData.append("images", image);
+      });
+
+      // Append other values
+      formData.append("companyName", values.companyName);
+      formData.append("companyAgentName", values.companyAgentName);
+      formData.append("companyAgentLastName", values.companyAgentLastName);
+      formData.append(
+        "companyIdentificationCode",
+        values.companyIdentificationCode
+      );
+
       axiosCompany
-        .patch(`company`, {
-          companyName: values.companyName,
-          companyIdentificationCode: values.companyIdentificationCode,
-          companyAgentName: values.companyAgentName,
-          companyAgentLastName: values.companyAgentLastName,
-        })
+        .patch(`company`, formData)
         .then((res) => {
           toast.success(`ინფორმაცია განახლდა`, {
             position: "bottom-right",
             autoClose: 3000,
           });
+          rehydrateClient();
+          setValues((prev) => ({
+            ...prev,
+            newImages: [],
+          }));
         })
         .catch((error) => {
           toast.error("ინფორმაცია ვერ განახლდა", {
@@ -130,6 +166,29 @@ export default function CompanyDetailsForm() {
 
   return (
     <div className="flex flex-col gap-y-[20px]">
+      <ImageSelector
+        images={values.images}
+        setImages={(url: string) =>
+          setValues((prev) => ({
+            ...prev,
+            images: prev.images.filter((img: string) => img !== url),
+            deletedImages: [...prev.deletedImages, url],
+          }))
+        }
+        newImages={values.newImages}
+        setNewImages={{
+          add: (files: File[]) =>
+            setValues((prev) => ({
+              ...prev,
+              newImages: [...prev.newImages, ...files],
+            })),
+          remove: (file: File) =>
+            setValues((prev) => ({
+              ...prev,
+              newImages: prev.newImages.filter((f) => f !== file),
+            })),
+        }}
+      />
       <UserDetailsForm
         title="კომპანიის ინფორმაცია"
         values={values}

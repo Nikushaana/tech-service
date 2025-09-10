@@ -8,6 +8,7 @@ import { Switch } from "@/app/components/ui/switch";
 import { toast } from "react-toastify";
 import * as Yup from "yup";
 import { Button } from "@/app/components/ui/button";
+import ImageSelector from "@/app/components/inputs/image-selector";
 
 interface FaqPageProps {
   params: Promise<{
@@ -15,17 +16,31 @@ interface FaqPageProps {
   }>;
 }
 
+interface IndividualValues {
+  name: string;
+  lastName: string;
+  phone: string;
+  password: string;
+  status: boolean;
+  images: string[];
+  deletedImages: string[];
+  newImages: File[];
+}
+
 export default function Page({ params }: FaqPageProps) {
   const resolvedParams = React.use(params);
   const { individualId } = resolvedParams;
 
   const [loading, setLoading] = useState<boolean>(true);
-  const [values, setValues] = useState({
+  const [values, setValues] = useState<IndividualValues>({
     name: "",
     lastName: "",
     phone: "",
     password: "",
     status: false,
+    images: [],
+    deletedImages: [],
+    newImages: [],
   });
   const [errors, setErrors] = useState({
     name: "",
@@ -40,13 +55,18 @@ export default function Page({ params }: FaqPageProps) {
       .get(`/admin/individuals/${individualId}`)
       .then((res) => {
         const data = res.data;
-        setValues({
+
+        const imagesArray = Array.isArray(data.images) ? data.images : [];
+
+        setValues((prev) => ({
+          ...prev,
           name: data.name,
           lastName: data.lastName,
           phone: data.phone,
           password: "",
           status: data.status,
-        });
+          images: imagesArray,
+        }));
         setLoading(false);
       })
       .catch(() => {})
@@ -87,14 +107,40 @@ export default function Page({ params }: FaqPageProps) {
     try {
       await individualSchema.validate(values, { abortEarly: false });
 
+      const formData = new FormData();
+
+      if (values.deletedImages.length > 0) {
+        formData.append("imagesToDelete", JSON.stringify(values.deletedImages));
+      }
+
+      // Append new files
+      values.newImages.forEach((image) => {
+        formData.append("images", image);
+      });
+
+      // Append other values
+      formData.append("name", values.name);
+      formData.append("lastName", values.lastName);
+      formData.append("phone", values.phone);
+      if (values.password) {
+        formData.append("password", values.password);
+      }
+      formData.append("status", String(values.status));
+
       axiosAdmin
-        .patch(`/admin/individuals/${individualId}`, values)
+        .patch(`/admin/individuals/${individualId}`, formData)
         .then(() => {
           toast.success("ინდივიდუალი განახლდა", {
             position: "bottom-right",
             autoClose: 3000,
           });
+
           fetchIndividual();
+
+          setValues((prev) => ({
+            ...prev,
+            newImages: [],
+          }));
           setErrors({ name: "", lastName: "", phone: "", password: "" });
         })
         .catch(() => {
@@ -139,6 +185,30 @@ export default function Page({ params }: FaqPageProps) {
             />
             <p>აქტიური</p>
           </div>
+
+          <ImageSelector
+            images={values.images}
+            setImages={(url: string) =>
+              setValues((prev) => ({
+                ...prev,
+                images: prev.images.filter((img: string) => img !== url),
+                deletedImages: [...prev.deletedImages, url],
+              }))
+            }
+            newImages={values.newImages}
+            setNewImages={{
+              add: (files: File[]) =>
+                setValues((prev) => ({
+                  ...prev,
+                  newImages: [...prev.newImages, ...files],
+                })),
+              remove: (file: File) =>
+                setValues((prev) => ({
+                  ...prev,
+                  newImages: prev.newImages.filter((f) => f !== file),
+                })),
+            }}
+          />
 
           <PanelFormInput
             id="name"

@@ -160,7 +160,6 @@ export default function Page({ params }: CategoryPageProps) {
             <p>აქტიური</p>
           </div>
 
-          {/* Existing Images */}
           <ImageSelector
             images={values.images}
             setImages={(url: string) =>
@@ -184,8 +183,6 @@ export default function Page({ params }: CategoryPageProps) {
                 })),
             }}
           />
-
-          {/* problem */}
 
           <PanelFormInput
             id="name"

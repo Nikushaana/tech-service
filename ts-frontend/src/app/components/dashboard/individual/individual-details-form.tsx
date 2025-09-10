@@ -8,13 +8,26 @@ import { axiosIndividual } from "@/app/api/axios";
 import * as Yup from "yup";
 import UserDetailsForm from "../shared components/user-details-form";
 import { Loader2Icon } from "lucide-react";
+import ImageSelector from "../../inputs/image-selector";
+
+interface IndividualValues {
+  name: string;
+  lastName: string;
+  images: string[];
+  deletedImages: string[];
+  newImages: File[];
+}
 
 export default function IndividualDetailsForm() {
   const { currentUser } = useAuthStore();
+  const rehydrateClient = useAuthStore((state) => state.rehydrateClient);
 
-  const [values, setValues] = useState({
+  const [values, setValues] = useState<IndividualValues>({
     name: "",
     lastName: "",
+    images: [],
+    deletedImages: [],
+    newImages: [],
   });
 
   useEffect(() => {
@@ -23,6 +36,7 @@ export default function IndividualDetailsForm() {
         ...prev,
         name: currentUser.name || "",
         lastName: currentUser.lastName || "",
+        images: currentUser.images || [],
       }));
     }
   }, [currentUser]);
@@ -58,16 +72,33 @@ export default function IndividualDetailsForm() {
 
       await updateIndividualSchema.validate(values, { abortEarly: false });
 
+      const formData = new FormData();
+
+      if (values.deletedImages.length > 0) {
+        formData.append("imagesToDelete", JSON.stringify(values.deletedImages));
+      }
+
+      // Append new files
+      values.newImages.forEach((image) => {
+        formData.append("images", image);
+      });
+
+      // Append other values
+      formData.append("name", values.name);
+      formData.append("lastName", values.lastName);
+
       axiosIndividual
-        .patch(`individual`, {
-          name: values.name,
-          lastName: values.lastName,
-        })
+        .patch(`individual`, formData)
         .then((res) => {
           toast.success(`ინფორმაცია განახლდა`, {
             position: "bottom-right",
             autoClose: 3000,
           });
+          rehydrateClient();
+          setValues((prev) => ({
+            ...prev,
+            newImages: [],
+          }));
         })
         .catch((error) => {
           toast.error("ინფორმაცია ვერ განახლდა", {
@@ -105,6 +136,29 @@ export default function IndividualDetailsForm() {
 
   return (
     <div className="flex flex-col gap-y-[20px]">
+      <ImageSelector
+        images={values.images}
+        setImages={(url: string) =>
+          setValues((prev) => ({
+            ...prev,
+            images: prev.images.filter((img: string) => img !== url),
+            deletedImages: [...prev.deletedImages, url],
+          }))
+        }
+        newImages={values.newImages}
+        setNewImages={{
+          add: (files: File[]) =>
+            setValues((prev) => ({
+              ...prev,
+              newImages: [...prev.newImages, ...files],
+            })),
+          remove: (file: File) =>
+            setValues((prev) => ({
+              ...prev,
+              newImages: prev.newImages.filter((f) => f !== file),
+            })),
+        }}
+      />
       <UserDetailsForm
         title="მომხმარებლის ინფორმაცია"
         values={values}

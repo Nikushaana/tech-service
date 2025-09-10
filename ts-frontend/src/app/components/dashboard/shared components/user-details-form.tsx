@@ -3,8 +3,26 @@
 import React from "react";
 import PanelFormInput from "../../inputs/panel-form-input";
 
+interface CompanyValues {
+  companyName: string;
+  companyAgentName: string;
+  companyAgentLastName: string;
+  companyIdentificationCode: string;
+  images: string[];
+  deletedImages: string[];
+  newImages: File[];
+}
+
+interface IndividualValues {
+  name: string;
+  lastName: string;
+  images: string[];
+  deletedImages: string[];
+  newImages: File[];
+}
+
 interface UserDetailsFormProps {
-  values: Record<string, string>;
+  values: CompanyValues | IndividualValues;
   errors: Record<string, string>;
   onChange: (field: string, value: string) => void;
   fields: { id: string; label: string }[];
@@ -26,7 +44,7 @@ export default function UserDetailsForm({
           <PanelFormInput
             key={field.id}
             id={field.id}
-            value={values[field.id] || ""}
+            value={(values as any)[field.id] || ""}
             onChange={(e) => onChange(field.id, e.target.value)}
             label={field.label}
             error={errors[field.id]}

@@ -91,12 +91,12 @@ export default function Header() {
               currentUser ? "w-[45px] h-[45px]" : "w-0 h-0"
             } rounded-full hover:scale-105 duration-200 cursor-pointer overflow-hidden bg-myLightBlue text-white flex items-center justify-center text-[18px]`}
           >
-            {false ? (
+            {currentUser?.images ? (
               <img
                 onClick={() => {
                   router.push("/");
                 }}
-                src="/images/2.webp"
+                src={currentUser?.images[0]}
                 alt="logo"
                 className="w-full h-full object-cover"
               />

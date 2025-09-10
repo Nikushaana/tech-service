@@ -48,7 +48,17 @@ export default function Page() {
             key={technician.id}
             className="w-full p-4 border rounded-xl shadow-sm bg-white flex items-center justify-between"
           >
-            <p>{technician.name + " " + technician.lastName}</p>
+            <div className="flex items-center gap-[10px]">
+              <img
+                src={
+                  (technician.images && technician.images[0]) ||
+                  "/images/logo.png"
+                }
+                alt={technician.name}
+                className="aspect-square object-contain w-[40px]"
+              />
+              <p>{technician.name + " " + technician.lastName}</p>
+            </div>
             <div className="flex items-center gap-[10px]">
               <p className="text-sm">
                 {technician.status ? "აქტიური" : "დაბლოკილი"}
