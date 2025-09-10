@@ -14,266 +14,225 @@ interface LoginState {
         phone?: string;
         password?: string;
     };
-    loading: boolean;
+    formLoading: boolean;
     setValues: (key: string, value: string) => void;
     setErrors: (key: string, value: string) => void;
-    setLoading: (value: boolean) => void;
+    setFormLoading: (value: boolean) => void;
     resetValues: () => void;
     resetErrors: () => void;
+
+    login: (role: Role | "individualOrCompany") => void;
 }
 
 type AuthState = {
     currentUser: User | null;
-    role: Role | null;
-    loading: boolean;
+    authLoading: boolean;
     openLogOut: boolean;
-
+    setCurrentUser: (user: User | null) => void;
     toggleLogOut: () => void;
-    login: (role: Role, token: string) => void;
-    logout: () => void;
-    rehydrate: () => void;
+    setAuthLoading: (value: boolean) => void;
 
-    loginWithCredentials: (phone: string, password: string) => Promise<void>;
+    rehydrateClient: () => void;
+    rehydrateAdmin: () => void;
+    logout: () => void;
 };
 
 type Store = LoginState & AuthState;
 
+const loginSchema = Yup.object().shape({
+    phone: Yup.string()
+        .matches(/^5\d{8}$/, "ნომერი უნდა დაიწყოს 5-ით და იყოს 9 ციფრი")
+        .required("ტელეფონის ნომერი აუცილებელია"),
+    password: Yup.string().required("პაროლი აუცილებელია"),
+});
+
 export const useAuthStore = create<Store>((set, get) => ({
-    // ---------------- LOGIN FORM STATE ----------------
     values: {},
     errors: {},
-    loading: true,
+    formLoading: false,
     setValues: (key, value) =>
         set((state) => ({ values: { ...state.values, [key]: value } })),
     setErrors: (key, value) =>
         set((state) => ({ errors: { ...state.errors, [key]: value } })),
-    setLoading: (value) => set({ loading: value }),
+    setFormLoading: (value) => set({ formLoading: value }),
     resetValues: () => set({ values: {} }),
     resetErrors: () => set({ errors: {} }),
 
-    // ---------------- AUTH STATE ----------------
     currentUser: null,
-    role: null,
     openLogOut: false,
-
+    authLoading: true,
+    setCurrentUser: (user) => set({ currentUser: user }),
+    setAuthLoading: (value) => set({ authLoading: value }),
     toggleLogOut: () => set((state) => ({ openLogOut: !state.openLogOut })),
 
-    login: (role, token) => {
+    // login
+
+    login: (role: Role | "individualOrCompany") => {
+        const { values, resetErrors, setErrors, setFormLoading, setCurrentUser } = get();
         const roles: Role[] = ["individual", "company", "technician", "admin"];
+        roles.forEach((r) => localStorage.removeItem(`${r}Token`));
 
-        // Remove all other tokens
-        roles.forEach((r) => {
-            if (r !== role) localStorage.removeItem(`${r}Token`);
-        });
+        resetErrors();
+        setFormLoading(true);
 
-        const tokenKey = `${role}Token`;
-        localStorage.setItem(tokenKey, token);
-
-        const axiosInstance =
-            role === "individual"
-                ? axiosIndividual
-                : role === "company"
-                    ? axiosCompany
-                    : role === "technician"
-                        ? axiosTechnician : axiosAdmin;
-
-        set({ loading: true });
-
-        axiosInstance
-            .get(role)
-            .then(({ data }) => {
-                set({ currentUser: data, role });
-            })
-            .catch(() => {
-                localStorage.removeItem(tokenKey);
-            })
-            .finally(() => {
-                set({ loading: false });
-            });
-    },
-
-    logout: () => {
-        const { role } = get();
-        if (!role) return;
-
-        const axiosInstance =
-            role === "individual"
-                ? axiosIndividual
-                : role === "company"
-                    ? axiosCompany
-                    : role === "technician"
-                        ? axiosTechnician : axiosAdmin;
-
-        const tokenKey = `${role}Token`;
-        const token = localStorage.getItem(tokenKey);
-
-        if (token) {
-            set({ loading: true });
-            axiosInstance
-                .delete(`auth/${role}/logout`)
-                .finally(() => {
-                    localStorage.removeItem(tokenKey);
-                    set({ currentUser: null, role: null, loading: false });
-                    window.location.href = "/"
-                });
-        } else {
-            localStorage.removeItem(tokenKey);
-            set({ currentUser: null, role: null, loading: false });
-            window.location.href = "/"
-        }
-    },
-
-    rehydrate: () => {
-        const pathname = typeof window !== "undefined" ? window.location.pathname : "/";
-        const isAdminPath = pathname.startsWith("/admin");
-        const isUserPath = pathname.startsWith("/dashboard");
-
-        const roles: Role[] = ["individual", "company", "technician", "admin"];
-        set({ loading: true });
-
-        let foundToken = false;
-
-        for (const role of roles) {
-            const tokenKey = `${role}Token`;
-            const token = localStorage.getItem(tokenKey);
-
-            if (!token) continue;
-
-            // Admin should only rehydrate on /admin paths
-            if (role === "admin" && !isAdminPath) continue;
-
-            // Non-admin should not be on any /admin path
-            if (role !== "admin" && isAdminPath) continue;
-
-            const axiosInstance =
-                role === "individual"
-                    ? axiosIndividual
-                    : role === "company"
-                        ? axiosCompany
-                        : role === "technician"
-                            ? axiosTechnician : axiosAdmin;
-
-            foundToken = true;
-
-            axiosInstance
-                .get(role)
-                .then(({ data }) => {
-                    set({ currentUser: data, role });
-
-                    // Only redirect admin if they are actually admin
-                    if (data.role === "admin" && pathname == "/admin") {
-                        window.location.href = "/admin/panel/faqs";
-                    }
-
-                    if (isUserPath) {
-                        const pathParts = pathname.split("/");
-                        const pathRole = pathParts[2] as Role | undefined;
-                        if (!pathRole || pathRole !== role) {
-                            window.location.href = `/dashboard/${role}/${pathParts[3]}`;
-                        }
-                    }
-
-                })
-                .catch(() =>
-                    localStorage.removeItem(tokenKey)
-                )
-                .finally(() => set({ loading: false }));
-
-            break; // stop after the first valid token
-        }
-
-        if (!foundToken) {
-            set({ loading: false })
-            if (isAdminPath && pathname !== "/admin") {
-                window.location.href = "/admin";
-            }
-            if (isUserPath) {
-                window.location.href = "/auth/login";
-            }
-        };
-    },
-
-    // ----------------- LOGIN WITH PHONE/PASSWORD -----------------
-    loginWithCredentials: (phone, password) => {
-        set({ loading: true });
-        get().resetErrors();
-
-        const loginSchema = Yup.object().shape({
-            phone: Yup.string()
-                .matches(/^5\d{8}$/, "ნომერი უნდა დაიწყოს 5-ით და იყოს 9 ციფრი")
-                .required("ტელეფონის ნომერი აუცილებელია"),
-            password: Yup.string().required("პაროლი აუცილებელია"),
-        });
-
-        // RETURN the promise chain
-        return loginSchema
-            .validate({ phone, password }, { abortEarly: false })
+        loginSchema
+            .validate(values, { abortEarly: false })
             .then(() => {
-                return axiosFront.post("auth/login", { phone, password });
+                const url = role === "admin" ? "auth/admin/login" : "auth/login-client";
+                return axiosFront.post(url, values);
             })
             .then((res) => {
-                get().resetErrors();
+                const { data } = res;
+                localStorage.setItem(`${data.user.role}Token`, data.token);
+                setCurrentUser(data.user);
 
-                const role = res.data.user.role as Role;
-                const token = res.data.token;
+                toast.success("ავტორიზაცია შესრულდა", { position: "bottom-right", autoClose: 3000 });
 
-                // Check if the current pathname is /admin
-                const pathname = typeof window !== "undefined" ? window.location.pathname : "/";
-                const isAdminPath = pathname.startsWith("/admin");
-
-                if (isAdminPath && role !== "admin") {
-                    // Block non-admin login on admin page
-                    toast.error("თქვენ არ გაქვთ ადმინისტრატორის პრივილეგია", {
-                        position: "bottom-right",
-                        autoClose: 3000,
-                    });
-                    const tokenKey = `${role}Token`;
-                    localStorage.removeItem(tokenKey)
-                    return; // Stop login process
-                }
-                if (!isAdminPath && role == "admin") {
-                    // Block non-admin login on admin page
-                    toast.error("თქვენ არ გაქვთ მომხმარებლის პრივილეგია", {
-                        position: "bottom-right",
-                        autoClose: 3000,
-                    });
-                    const tokenKey = `${role}Token`;
-                    localStorage.removeItem(tokenKey)
-                    return; // Stop login process
-                }
-
-                // If allowed, continue login
-                get().login(role, token);
-
-                toast.success("ავტორიზაცია შესრულდა", {
-                    position: "bottom-right",
-                    autoClose: 3000,
-                });
-
-                // Redirect admin automatically
-                if (role === "admin" && isAdminPath) {
-                    window.location.href = "/admin/panel/faqs";
-                }
-                if (role === "company" || role === "individual") {
-                    window.location.href = "/";
-                }
+                const redirectUrl = data.user.role === "admin" ? "/admin/panel/orders" : "/";
+                window.location.href = redirectUrl;
             })
             .catch((err) => {
                 if (err.inner) {
-                    // Yup validation errors
                     err.inner.forEach((e: any) => {
-                        if (e.path) {
-                            get().setErrors(e.path, e.message);
-                            toast.error(e.message, { position: "bottom-right", autoClose: 3000 });
-                        }
+                        if (e.path) setErrors(e.path, e.message);
+                        toast.error(e.message, { position: "bottom-right", autoClose: 3000 });
                     });
                 } else {
-                    // Axios or other errors
                     toast.error("ავტორიზაცია ვერ შესრულდა", { position: "bottom-right", autoClose: 3000 });
-                    get().setErrors("phone", "შეცდომა");
-                    get().setErrors("password", "შეცდომა");
+                    setErrors("phone", "შეცდომა");
+                    setErrors("password", "შეცდომა");
                 }
             })
-            .finally(() => set({ loading: false }));
-    }
+            .finally(() => setFormLoading(false));
+    },
+
+    // logout
+
+    logout: () => {
+        const { currentUser, setCurrentUser, setAuthLoading } = get();
+        if (!currentUser) return;
+
+        const role = currentUser.role as Role;
+        const tokenKey = `${role}Token`;
+        const token = localStorage.getItem(tokenKey);
+
+        if (!token) {
+            setCurrentUser(null);
+            window.location.href = "/";
+            return;
+        }
+
+        const axiosMap = {
+            individual: axiosIndividual,
+            company: axiosCompany,
+            technician: axiosTechnician,
+            admin: axiosAdmin,
+        };
+        const axiosInstance = axiosMap[role];
+
+        setAuthLoading(true);
+
+        axiosInstance.delete(`auth/${role}/logout`)
+            .finally(() => {
+                localStorage.removeItem(tokenKey);
+                setCurrentUser(null);
+                setAuthLoading(false);
+                window.location.href = "/";
+            });
+    },
+
+    // client
+
+    rehydrateClient: () => {
+        set({ authLoading: true });
+
+        const individualToken = localStorage.getItem("individualToken");
+        const companyToken = localStorage.getItem("companyToken");
+
+        let axiosInstance;
+        let role: Role | null = null;
+        let token: string | null = null;
+
+        if (individualToken) {
+            axiosInstance = axiosIndividual;
+            role = "individual";
+            token = individualToken;
+        } else if (companyToken) {
+            axiosInstance = axiosCompany;
+            role = "company";
+            token = companyToken;
+        }
+
+        if (!token || !axiosInstance || !role) {
+            if (window.location.pathname.startsWith("/dashboard")) {
+                window.location.href = "/";
+            }
+            set({ authLoading: false, currentUser: null });
+            return;
+        }
+
+        axiosInstance
+            .get(`/${role}`)
+            .then(({ data }) => {
+                if (window.location.pathname.startsWith("/dashboard")) {
+                    const pathRole = window.location.pathname.split("/")[2] as Role | undefined;
+                    if (!pathRole || pathRole !== role) {
+                        window.location.href = `/dashboard/${role}/${window.location.pathname.split("/")[3]}`;
+                    }
+                }
+                set({ currentUser: data });
+            })
+            .catch(() => {
+                localStorage.removeItem(`${role}Token`);
+                set({ currentUser: null });
+                window.location.href = "/auth/login";
+            })
+            .finally(() => {
+                set({ authLoading: false });
+            });
+    },
+
+    // admin
+
+    rehydrateAdmin: () => {
+        set({ authLoading: true });
+
+        const adminToken = localStorage.getItem("adminToken");
+
+        let axiosInstance;
+        let role: Role | null = null;
+        let token: string | null = null;
+
+        if (adminToken) {
+            axiosInstance = axiosAdmin;
+            role = "admin";
+            token = adminToken;
+        }
+
+        if (!token || !axiosInstance || !role) {
+            if (window.location.pathname != "/admin") {
+                window.location.href = "/admin";
+            }
+            set({ authLoading: false, currentUser: null });
+            return;
+        }
+
+        axiosInstance
+            .get(`/${role}`)
+            .then(({ data }) => {
+                set({ currentUser: data });
+
+                if (window.location.pathname == "/admin") {
+                    window.location.href = "/admin/panel/orders";
+                }
+            })
+            .catch(() => {
+                localStorage.removeItem(`${role}Token`);
+                set({ currentUser: null });
+                window.location.href = "/admin";
+            })
+            .finally(() => {
+                set({ authLoading: false });
+            });
+    },
 }));

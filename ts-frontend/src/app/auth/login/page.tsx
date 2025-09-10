@@ -10,12 +10,7 @@ import { Loader2Icon } from "lucide-react";
 export default function Login() {
   const router = useRouter();
 
-  const { values, setValues, errors, loading, loginWithCredentials } =
-    useAuthStore();
-
-  const handleLogin = () => {
-    loginWithCredentials(values.phone || "", values.password || "");
-  };
+  const { values, setValues, errors, formLoading, login } = useAuthStore();
 
   return (
     <div className="w-full flex flex-col gap-y-5 relative">
@@ -48,13 +43,11 @@ export default function Login() {
       </p>
 
       <Button
-        onClick={() => {
-          handleLogin();
-        }}
-        disabled={loading}
+        onClick={() => login("individualOrCompany")}
+        disabled={formLoading}
         className="h-11 cursor-pointer"
       >
-        {loading && <Loader2Icon className="animate-spin" />}შესვლა
+        {formLoading && <Loader2Icon className="animate-spin" />}შესვლა
       </Button>
 
       {/* Footer link */}

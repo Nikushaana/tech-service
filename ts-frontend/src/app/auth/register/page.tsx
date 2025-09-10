@@ -35,7 +35,6 @@ export default function Register() {
       let payload: any = {
         phone: values.phone,
         password: values.password,
-        role: values.role,
       };
 
       if (values.role === "individual") {
@@ -54,8 +53,13 @@ export default function Register() {
         };
       }
 
+      const url =
+      values.role === "individual"
+        ? "/auth/individual/register"
+        : "/auth/company/register";
+
       axiosFront
-        .post(`auth/register`, payload)
+        .post(url, payload)
         .then((res) => {
           router.push("/auth/login");
           resetValues();

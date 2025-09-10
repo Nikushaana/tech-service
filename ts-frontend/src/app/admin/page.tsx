@@ -11,12 +11,7 @@ import { useAuthStore } from "../store/useAuthStore";
 export default function Page() {
   const router = useRouter();
 
-  const { values, setValues, errors, loading, loginWithCredentials } =
-    useAuthStore();
-
-  const handleLogin = () => {
-    loginWithCredentials(values.phone || "", values.password || "");
-  };
+  const { values, setValues, errors, formLoading, login } = useAuthStore();
 
   return (
     <div className="flex flex-col gap-y-5 items-center justify-center h-screen px-4">
@@ -48,12 +43,12 @@ export default function Page() {
 
         <Button
           onClick={() => {
-            handleLogin();
+            login("admin");
           }}
-          disabled={loading}
+          disabled={formLoading}
           className="h-11 cursor-pointer"
         >
-          {loading && <Loader2Icon className="animate-spin" />}შესვლა
+          {formLoading && <Loader2Icon className="animate-spin" />}შესვლა
         </Button>
       </div>
     </div>

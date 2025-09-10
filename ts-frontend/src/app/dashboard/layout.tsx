@@ -42,11 +42,13 @@ const sidebarLinks: Record<Role, SidebarLinksWithTitle> = {
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const { role, loading, toggleLogOut } = useAuthStore();
+  const { currentUser, authLoading, toggleLogOut } = useAuthStore();
   const { openSideBar, toggleSideBar, closeSideBar } = useBurgerMenuStore();
 
+  const role = currentUser?.role as Role | undefined;
+
   const sidebar =
-    role && role !== "admin"
+    role && sidebarLinks[role]
       ? sidebarLinks[role]
       : { title: "იტვირთება..", links: [] };
 
@@ -66,7 +68,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     <div className="flex flex-col items-center">
       <div
         className={`max-w-[1920px] w-full flex flex-col min-h-[80vh] mt-[20px] mb-[100px] px-[10px] gap-[10px] duration-100 ${
-          loading && "brightness-70 blur-[2px] pointer-events-none"
+          authLoading && "brightness-70 blur-[2px] pointer-events-none"
         }`}
       >
         {/* Mobile Hamburger */}
@@ -97,7 +99,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
             <nav
               className={`flex flex-col gap-2 mb-6 duration-300 w-full ${
-                !loading ? "" : "ml-[-300px]"
+                !authLoading ? "" : "ml-[-300px]"
               }`}
             >
               {sidebar.links.map((link) => {
@@ -125,7 +127,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               onClick={() => toggleLogOut()}
               className={`mt-auto rounded-lg font-semibold text-[#1e40af] bg-white w-full
         hover:bg-[#b91c1c] hover:text-white duration-300 cursor-pointer ${
-          !loading ? "" : "ml-[-300px]"
+          !authLoading ? "" : "ml-[-300px]"
         }`}
             >
               გასვლა

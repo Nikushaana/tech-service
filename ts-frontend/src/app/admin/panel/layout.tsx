@@ -9,18 +9,18 @@ import { useEffect } from "react";
 import { HiMenu, HiX } from "react-icons/hi";
 
 const sidebarLinks = [
-  { name: "FAQ", href: "/admin/panel/faqs" },
-  { name: "კატეგორიები", href: "/admin/panel/categories" },
+  { name: "შეკვეთები", href: "/admin/panel/orders" },
   { name: "ინდივიდუალები", href: "/admin/panel/individuals" },
   { name: "კომპანიები", href: "/admin/panel/companies" },
   { name: "ტექნიკოსები", href: "/admin/panel/technicians" },
-  { name: "შეკვეთები", href: "/admin/panel/orders" },
+  { name: "კატეგორიები", href: "/admin/panel/categories" },
+  { name: "FAQ", href: "/admin/panel/faqs" },
 ];
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
-  const { currentUser, loading, toggleLogOut } = useAuthStore();
+  const { currentUser, authLoading, toggleLogOut } = useAuthStore();
 
   const { openAdminSideBar, toggleAdminSideBar, closeAdminSideBar } =
     useBurgerMenuStore();
@@ -41,7 +41,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     <div className="flex flex-col items-center">
       <div
         className={`max-w-[1920px] w-full flex flex-col min-h-[100vh] p-[10px] gap-[10px] duration-100 ${
-          loading && "brightness-70 blur-[2px] pointer-events-none"
+          authLoading && "brightness-70 blur-[2px] pointer-events-none"
         }`}
       >
         {/* Mobile Hamburger */}
@@ -81,7 +81,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
             <nav
               className={`flex flex-col gap-2 mb-6 duration-300 w-full ${
-                !loading ? "" : "ml-[-300px]"
+                !authLoading ? "" : "ml-[-300px]"
               }`}
             >
               {sidebarLinks.map((link) => {
@@ -109,7 +109,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               onClick={() => toggleLogOut()}
               className={`mt-auto rounded-lg font-semibold text-[#1e40af] bg-white w-full
         hover:bg-[#b91c1c] hover:text-white duration-300 cursor-pointer ${
-          !loading ? "" : "ml-[-300px]"
+          !authLoading ? "" : "ml-[-300px]"
         }`}
             >
               გასვლა
