@@ -25,16 +25,7 @@ export default function ServicesClient({
             className="rounded-[10px] border-[2px] border-gray-200 px-[10px] sm:px-[20px] py-[10px] flex flex-col items-center gap-y-[15px] sm:gap-y-[20px] cursor-default hover:hover:scale-110 duration-200 w-[calc((100%-20px)/2)] sm:w-[calc((100%-80px)/3)] lg:w-[calc((100%-160px)/5)]"
           >
             <img
-              // src={item.images && item.images[0]}
-              src={`${
-                index == 0
-                  ? "/images/conditioner.png"
-                  : index == 1
-                  ? "/images/wurwlissarecxi.png"
-                  : index == 2
-                  ? "/images/tv.png"
-                  : index == 3 && "/images/macivari.png"
-              }`}
+              src={(item.images && item.images[0]) || "/images/logo.png"}
               alt={item.name}
               className="aspect-square sm:aspect-video lg:aspect-square object-contain w-[50px] sm:w-full"
             />

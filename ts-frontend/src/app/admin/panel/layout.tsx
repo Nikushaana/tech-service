@@ -10,11 +10,11 @@ import { HiMenu, HiX } from "react-icons/hi";
 
 const sidebarLinks = [
   { name: "შეკვეთები", href: "/admin/panel/orders" },
+  { name: "კატეგორიები", href: "/admin/panel/categories" },
+  { name: "FAQ", href: "/admin/panel/faqs" },
   { name: "ინდივიდუალები", href: "/admin/panel/individuals" },
   { name: "კომპანიები", href: "/admin/panel/companies" },
   { name: "ტექნიკოსები", href: "/admin/panel/technicians" },
-  { name: "კატეგორიები", href: "/admin/panel/categories" },
-  { name: "FAQ", href: "/admin/panel/faqs" },
 ];
 
 export default function Layout({ children }: { children: React.ReactNode }) {

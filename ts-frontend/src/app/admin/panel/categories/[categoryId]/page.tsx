@@ -8,6 +8,7 @@ import { Switch } from "@/app/components/ui/switch";
 import { toast } from "react-toastify";
 import * as Yup from "yup";
 import { Button } from "@/app/components/ui/button";
+import ImageSelector from "@/app/components/inputs/image-selector";
 
 interface CategoryPageProps {
   params: Promise<{
@@ -15,33 +16,54 @@ interface CategoryPageProps {
   }>;
 }
 
+interface CategoryValues {
+  name: string;
+  status: boolean;
+  images: string[];
+  deletedImages: string[];
+  newImages: File[];
+}
+
 export default function Page({ params }: CategoryPageProps) {
   const resolvedParams = React.use(params);
   const { categoryId } = resolvedParams;
 
   const [loading, setLoading] = useState<boolean>(true);
-  const [values, setValues] = useState({
+  const [values, setValues] = useState<CategoryValues>({
     name: "",
     status: false,
+    images: [],
+    deletedImages: [],
+    newImages: [],
   });
+
   const [errors, setErrors] = useState({
     name: "",
   });
 
-  useEffect(() => {
+  const fetchCategory = () => {
     setLoading(true);
     axiosAdmin
       .get(`/admin/categories/${categoryId}`)
       .then((res) => {
         const data = res.data;
-        setValues({
+
+        const imagesArray = Array.isArray(data.images) ? data.images : [];
+
+        setValues((prev) => ({
+          ...prev,
           status: data.status,
           name: data.name,
-        });
+          images: imagesArray,
+        }));
         setLoading(false);
       })
       .catch(() => {})
       .finally(() => {});
+  };
+
+  useEffect(() => {
+    fetchCategory();
   }, [categoryId]);
 
   const handleChange = (
@@ -64,18 +86,39 @@ export default function Page({ params }: CategoryPageProps) {
     try {
       await categorySchema.validate(values, { abortEarly: false });
 
+      const formData = new FormData();
+
+      if (values.deletedImages.length > 0) {
+        formData.append("imagesToDelete", JSON.stringify(values.deletedImages));
+      }
+
+      // Append new files
+      values.newImages.forEach((image) => {
+        formData.append("images", image);
+      });
+
+      // Append other values
+      formData.append("name", values.name);
+      formData.append("status", String(values.status));
+
       axiosAdmin
-        .patch(`/admin/categories/${categoryId}`, values)
+        .patch(`/admin/categories/${categoryId}`, formData)
         .then(() => {
           toast.success("კატეგორია განახლდა", {
             position: "bottom-right",
             autoClose: 3000,
           });
 
+          fetchCategory();
+
+          setValues((prev) => ({
+            ...prev,
+            newImages: [],
+          }));
           setErrors({ name: "" });
-          setLoading(false);
         })
         .catch(() => {
+          setLoading(false);
           toast.error("ვერ განახლდა", {
             position: "bottom-right",
             autoClose: 3000,
@@ -116,6 +159,33 @@ export default function Page({ params }: CategoryPageProps) {
             />
             <p>აქტიური</p>
           </div>
+
+          {/* Existing Images */}
+          <ImageSelector
+            images={values.images}
+            setImages={(url: string) =>
+              setValues((prev) => ({
+                ...prev,
+                images: prev.images.filter((img: string) => img !== url),
+                deletedImages: [...prev.deletedImages, url],
+              }))
+            }
+            newImages={values.newImages}
+            setNewImages={{
+              add: (files: File[]) =>
+                setValues((prev) => ({
+                  ...prev,
+                  newImages: [...prev.newImages, ...files],
+                })),
+              remove: (file: File) =>
+                setValues((prev) => ({
+                  ...prev,
+                  newImages: prev.newImages.filter((f) => f !== file),
+                })),
+            }}
+          />
+
+          {/* problem */}
 
           <PanelFormInput
             id="name"

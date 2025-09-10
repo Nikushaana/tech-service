@@ -147,7 +147,17 @@ export default function Page() {
             key={category.id}
             className="w-full p-4 border rounded-xl shadow-sm bg-white flex flex-col sm:flex-row gap-[10px] items-center justify-between"
           >
-            <h2 className="text-lg">{category.name}</h2>
+            <div className="flex items-center gap-[10px]">
+              <img
+                src={
+                  (category.images && category.images[0]) || "/images/logo.png"
+                }
+                alt={category.name}
+                className="aspect-square object-contain w-[40px]"
+              />
+              <h2 className="text-lg">{category.name}</h2>
+            </div>
+
             <div className="flex items-center gap-[10px]">
               <p className="text-sm">
                 {category.status ? "აქტიური" : "დაბლოკილი"}

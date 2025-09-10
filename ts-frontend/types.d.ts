@@ -28,7 +28,7 @@ interface Faq {
 interface Category {
   id: number;
   name: string;
-  images: null;
+  images: string[] | null;
   status: boolean;
   created_at: string;
   updated_at: string;
