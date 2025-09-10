@@ -261,10 +261,10 @@ export class AdminService {
         return instanceToPlain(findOneTechnician)
     }
 
-    async updateAdminOneTechnician(technicianId: number, updateAdminIndividualOrTechnicianDto: UpdateAdminIndividualOrTechnicianDto) {
-        const findOneIndividual = await this.baseUserService.getUser(technicianId, this.technicianRepo);
+    async updateAdminOneTechnician(technicianId: number, updateAdminIndividualOrTechnicianDto: UpdateAdminIndividualOrTechnicianDto, images: Express.Multer.File[] = []) {
+        const findOneTechnician = await this.baseUserService.getUser(technicianId, this.technicianRepo);
 
-        if (updateAdminIndividualOrTechnicianDto.phone && updateAdminIndividualOrTechnicianDto.phone !== findOneIndividual.phone) {
+        if (updateAdminIndividualOrTechnicianDto.phone && updateAdminIndividualOrTechnicianDto.phone !== findOneTechnician.phone) {
             const phoneExists =
                 (await this.individualClientRepo.findOne({
                     where: { phone: updateAdminIndividualOrTechnicianDto.phone },
@@ -287,13 +287,55 @@ export class AdminService {
             updateAdminIndividualOrTechnicianDto.password = await bcrypt.hash(updateAdminIndividualOrTechnicianDto.password, 10);
         }
 
-        const updatedAdminIndividual = this.technicianRepo.merge(findOneIndividual, updateAdminIndividualOrTechnicianDto);
+        let imagesToDeleteArray: string[] = [];
+        if (updateAdminIndividualOrTechnicianDto.imagesToDelete) {
+            try {
+                imagesToDeleteArray = JSON.parse(updateAdminIndividualOrTechnicianDto.imagesToDelete);
+            } catch (err) {
+                throw new BadRequestException('imagesToDelete must be a JSON string array');
+            }
+        }
 
-        await this.technicianRepo.save(updatedAdminIndividual);
+        // Then use imagesToDeleteArray in your deletion logic
+        if (imagesToDeleteArray.length > 0) {
+            await Promise.all(
+                imagesToDeleteArray.map(async (url) => {
+                    await this.cloudinaryService.deleteImageByUrl(url);
+                    findOneTechnician.images = findOneTechnician.images.filter((img) => img !== url);
+                }),
+            );
+        }
+
+        // ✅ Check max limit before uploading
+        const MAX_IMAGES = 1;
+        const existingCount = findOneTechnician.images?.length || 0;
+        const newCount = images?.length || 0;
+        const totalAfterUpdate = existingCount + newCount;
+
+        if (totalAfterUpdate > MAX_IMAGES) {
+            throw new BadRequestException(
+                `Allowed max ${MAX_IMAGES} image. (exists: ${existingCount}, new: ${newCount})`,
+            );
+        }
+
+        // Upload images to Cloudinary if any
+        const imageUrls = await this.cloudinaryService.uploadImages(
+            images,
+            'tech_service_project/images/technicians',
+        );
+
+        const updatedAdminTechnician = this.technicianRepo.merge(findOneTechnician, updateAdminIndividualOrTechnicianDto);
+
+        // Append new images to existing ones
+        if (imageUrls.length > 0) {
+            updatedAdminTechnician.images = [...(updatedAdminTechnician.images || []), ...imageUrls];
+        }
+
+        await this.technicianRepo.save(updatedAdminTechnician);
 
         return {
             message: 'Technician updated successfully',
-            user: instanceToPlain(updatedAdminIndividual),
+            user: instanceToPlain(updatedAdminTechnician),
         };
     }
 

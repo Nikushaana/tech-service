@@ -94,8 +94,9 @@ export class AdminController {
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('admin')
     @Patch('technicians/:id')
-    async updateAdminOneTechnician(@Param('id', ParseIntPipe) id: number, @Body() updateAdminIndividualOrTechnicianDto: UpdateAdminIndividualOrTechnicianDto) {
-        return this.adminService.updateAdminOneTechnician(id, updateAdminIndividualOrTechnicianDto);
+    @UseInterceptors(MultipleImagesUpload('images', 1))
+    async updateAdminOneTechnician(@Param('id', ParseIntPipe) id: number, @Body() updateAdminIndividualOrTechnicianDto: UpdateAdminIndividualOrTechnicianDto, @UploadedFiles() images: Express.Multer.File[]) {
+        return this.adminService.updateAdminOneTechnician(id, updateAdminIndividualOrTechnicianDto, images);
     }
 
     // orders
