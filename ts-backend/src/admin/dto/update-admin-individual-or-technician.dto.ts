@@ -20,6 +20,7 @@ export class UpdateAdminIndividualOrTechnicianDto {
 
     @IsOptional()
     @IsBoolean()
+    @Transform(({ value }) => value === 'true' || value === true)
     @IsNotEmpty()
     status: boolean;
 

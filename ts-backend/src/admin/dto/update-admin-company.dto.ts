@@ -30,6 +30,7 @@ export class UpdateAdminCompanyDto {
 
     @IsOptional()
     @IsBoolean()
+    @Transform(({ value }) => value === 'true' || value === true)
     @IsNotEmpty()
     status: boolean;
 
