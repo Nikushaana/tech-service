@@ -35,7 +35,6 @@ export default function AdminTechnicianRegister() {
       let payload: any = {
         phone: values.phone,
         password: values.password,
-        role: "technician",
         name: values.name,
         lastName: values.lastName,
       };
