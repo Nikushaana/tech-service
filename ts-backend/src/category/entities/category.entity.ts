@@ -15,7 +15,7 @@ export class Category {
     @Column({ default: false })
     status: boolean;
 
-    @Column('simple-array', { nullable: true })
+    @Column("simple-array", { nullable: true })
     images: string[];
 
     @CreateDateColumn()

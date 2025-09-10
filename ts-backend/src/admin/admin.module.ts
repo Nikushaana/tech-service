@@ -12,9 +12,10 @@ import { Faq } from 'src/faq/entities/faq.entity';
 import { Address } from 'src/address/entities/address.entity';
 import { BaseUserModule } from 'src/common/services/base-user/base-user.module';
 import { TokensModule } from 'src/common/tokens/token.module';
+import { CommonModule } from 'src/common/common.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Admin, IndividualClient, CompanyClient, Technician, Order, Category, Faq, Address]), BaseUserModule, TokensModule],
+  imports: [TypeOrmModule.forFeature([Admin, IndividualClient, CompanyClient, Technician, Order, Category, Faq, Address]), BaseUserModule, TokensModule, CommonModule],
   controllers: [AdminController],
   providers: [AdminService]
 })

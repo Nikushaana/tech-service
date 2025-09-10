@@ -1,3 +1,4 @@
+import { Transform } from 'class-transformer';
 import { IsBoolean, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class UpdateCategoryDto {
@@ -8,6 +9,11 @@ export class UpdateCategoryDto {
 
     @IsOptional()
     @IsBoolean()
+    @Transform(({ value }) => value === 'true' || value === true)
     @IsNotEmpty()
     status: boolean;
+
+    @IsOptional()
+    @IsString()
+    imagesToDelete: string;
 }

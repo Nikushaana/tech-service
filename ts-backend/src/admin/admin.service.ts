@@ -20,6 +20,7 @@ import { CreateCategoryDto } from 'src/category/dto/create-category.dto';
 import { UpdateCategoryDto } from 'src/category/dto/update-category.dto';
 import { CreateFaqDto } from 'src/faq/dto/create-faq.dto';
 import { UpdateFaqDto } from 'src/faq/dto/update-category.dto';
+import { CloudinaryProvider } from 'src/common/providers/cloudinary.provider';
 
 @Injectable()
 export class AdminService {
@@ -49,6 +50,8 @@ export class AdminService {
         private readonly addressRepo: Repository<Address>,
 
         private readonly baseUserService: BaseUserService,
+
+        private readonly cloudinaryProvider: CloudinaryProvider
     ) { }
 
     // admin
@@ -306,12 +309,73 @@ export class AdminService {
         return category
     }
 
-    async updateOneCategory(id: number, updateCategoryDto: UpdateCategoryDto) {
+    async updateOneCategory(id: number, updateCategoryDto: UpdateCategoryDto, images: Express.Multer.File[] = []) {
         const category = await this.categoryRepo.findOne({ where: { id } });
         if (!category) throw new NotFoundException('Category not found');
 
+        let imagesToDeleteArray: string[] = [];
+        if (updateCategoryDto.imagesToDelete) {
+            try {
+                imagesToDeleteArray = JSON.parse(updateCategoryDto.imagesToDelete);
+            } catch (err) {
+                throw new BadRequestException('imagesToDelete must be a JSON string array');
+            }
+        }
+
+        // Then use imagesToDeleteArray in your deletion logic
+        if (imagesToDeleteArray.length > 0) {
+            await Promise.all(
+                imagesToDeleteArray.map(async (url) => {
+                    try {
+                        const parts = url.split('/upload/');
+                        if (parts[1]) {
+                            const publicIdWithVersion = parts[1];
+                            const publicIdWithoutVersion = publicIdWithVersion.replace(/^v\d+\//, '');
+                            const publicId = publicIdWithoutVersion.replace(/\.[^/.]+$/, '');
+                            await this.cloudinaryProvider.cloudinary.uploader.destroy(publicId);
+                            // Remove from category.images array
+                            category.images = category.images.filter(img => img !== url);
+                        }
+                    } catch (err) {
+                        console.error('Error deleting image from Cloudinary:', err.message);
+                    }
+                }),
+            );
+        }
+
+        // ✅ Check max limit before uploading
+        const MAX_IMAGES = 1;
+        const existingCount = category.images?.length || 0;
+        const newCount = images?.length || 0;
+        const totalAfterUpdate = existingCount + newCount;
+
+        if (totalAfterUpdate > MAX_IMAGES) {
+            throw new BadRequestException(
+                `Allowed max ${MAX_IMAGES} image. (exists: ${existingCount}, new: ${newCount})`,
+            );
+        }
+
+        // Upload images to Cloudinary if any
+        let imageUrls: string[] = [];
+        if (images && images.length > 0) {
+            imageUrls = await Promise.all(
+                images.map(async (file) => {
+                    const result = await this.cloudinaryProvider.cloudinary.uploader.upload(file.path, {
+                        folder: `tech_service_project/images/categories`,
+                    });
+                    return result.secure_url;
+                }),
+            );
+        }
+
         // Merge updates
         const updatedCategory = this.categoryRepo.merge(category, updateCategoryDto);
+
+        // Append new images to existing ones
+        if (imageUrls.length > 0) {
+            updatedCategory.images = [...(updatedCategory.images || []), ...imageUrls];
+        }
+
         await this.categoryRepo.save(updatedCategory);
 
         return { message: 'Category updated successfully', category };
@@ -328,6 +392,25 @@ export class AdminService {
         // Check if there are related orders
         if (category.orders && category.orders.length > 0) {
             throw new BadRequestException('Cannot delete category with existing orders');
+        }
+
+        // Delete images from Cloudinary if any
+        if (category.images && category.images.length > 0) {
+            await Promise.all(
+                category.images.map(async (url) => {
+                    try {
+                        const parts = url.split('/upload/');
+                        if (parts[1]) {
+                            let publicIdWithVersion = parts[1];
+                            const publicIdWithoutVersion = publicIdWithVersion.replace(/^v\d+\//, '');
+                            const publicId = publicIdWithoutVersion.replace(/\.[^/.]+$/, "");
+                            await this.cloudinaryProvider.cloudinary.uploader.destroy(publicId);
+                        }
+                    } catch (err) {
+                        console.error('Error deleting image from Cloudinary:', err.message);
+                    }
+                }),
+            );
         }
 
         // Delete category
