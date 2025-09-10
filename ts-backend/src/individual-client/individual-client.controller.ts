@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Req, UploadedFiles, UseGuards, UseInterceptors } from '@nestjs/common';
 import { IndividualClientService } from './individual-client.service';
 import { TokenValidationGuard } from 'src/auth/guards/token-validation.guard';
 import { RolesGuard } from 'src/common/guards/roles.guard';
@@ -10,6 +10,7 @@ import { ChangeNumberDto, PhoneDto } from 'src/verification-code/dto/verificatio
 import { CreateOrderDto } from 'src/order/dto/create-order.dto';
 import { UpdateUserOrderDto } from 'src/order/dto/update-user-order.dto';
 import { CreateAddressDto } from 'src/address/dto/create-address.dto';
+import { MultipleImagesUpload } from 'src/common/interceptors/multiple-images-upload.factory';
 
 @Controller('individual')
 export class IndividualClientController {
@@ -29,8 +30,9 @@ export class IndividualClientController {
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('individual')
     @Patch('')
-    async updateIndividual(@Req() req: RequestInfo, @Body() updateIndividualDto: UpdateIndividualDto) {
-        return this.individualClientService.updateIndividual(req.user.id, updateIndividualDto);
+    @UseInterceptors(MultipleImagesUpload('images', 1))
+    async updateIndividual(@Req() req: RequestInfo, @Body() updateIndividualDto: UpdateIndividualDto, @UploadedFiles() images: Express.Multer.File[]) {
+        return this.individualClientService.updateIndividual(req.user.id, updateIndividualDto, images);
     }
 
     @UseGuards(TokenValidationGuard, RolesGuard)

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Patch, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Patch, Post, Req, UploadedFiles, UseGuards, UseInterceptors } from '@nestjs/common';
 import { TechnicianService } from './technician.service';
 import { RolesGuard } from 'src/common/guards/roles.guard';
 import { TokenValidationGuard } from 'src/auth/guards/token-validation.guard';
@@ -7,6 +7,7 @@ import type { RequestInfo } from 'src/common/types/request-info';
 import { UpdateTechnicianDto } from './dto/update-technician.dto';
 import { ChangePasswordDto } from 'src/common/services/base-user/dto/change-password.dto';
 import { ChangeNumberDto, PhoneDto } from 'src/verification-code/dto/verification-code.dto';
+import { MultipleImagesUpload } from 'src/common/interceptors/multiple-images-upload.factory';
 
 @Controller('technician')
 export class TechnicianController {
@@ -26,8 +27,9 @@ export class TechnicianController {
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('technician')
     @Patch('')
-    async updateTechnician(@Req() req: RequestInfo, @Body() updateTechnicianDto: UpdateTechnicianDto) {
-        return this.technicianService.updateTechnician(req.user.id, updateTechnicianDto);
+    @UseInterceptors(MultipleImagesUpload('images', 1))
+    async updateTechnician(@Req() req: RequestInfo, @Body() updateTechnicianDto: UpdateTechnicianDto, @UploadedFiles() images: Express.Multer.File[]) {
+        return this.technicianService.updateTechnician(req.user.id, updateTechnicianDto, images);
     }
 
     @UseGuards(TokenValidationGuard, RolesGuard)

@@ -28,8 +28,8 @@ export class TechnicianService {
         return instanceToPlain(findTechnician);
     }
 
-    async updateTechnician(technicianId: number, updateTechnicianDto: UpdateTechnicianDto) {
-        return this.baseUserService.updateUser(technicianId, this.technicianRepo, updateTechnicianDto);
+    async updateTechnician(technicianId: number, updateTechnicianDto: UpdateTechnicianDto, images: Express.Multer.File[] = []) {
+        return this.baseUserService.updateUser(technicianId, this.technicianRepo, updateTechnicianDto, images);
     }
 
     async changePassword(technicianId: number, changePasswordDto: ChangePasswordDto) {

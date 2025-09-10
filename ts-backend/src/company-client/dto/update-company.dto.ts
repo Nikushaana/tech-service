@@ -5,7 +5,7 @@ export class UpdateCompanyDto {
     @IsString()
     @IsNotEmpty()
     companyAgentName: string;
-    
+
     @IsOptional()
     @IsString()
     @IsNotEmpty()
@@ -20,4 +20,8 @@ export class UpdateCompanyDto {
     @IsString()
     @IsNotEmpty()
     companyIdentificationCode: string;
+
+    @IsOptional()
+    @IsString()
+    imagesToDelete: string;
 }

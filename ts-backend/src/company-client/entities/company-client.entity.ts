@@ -32,10 +32,11 @@ export class CompanyClient {
   @Column()
   companyIdentificationCode: string;
 
-  @Expose()
-  get role(): string {
-    return "company";
-  }
+  @Column("simple-array", { default: "" })
+  images: string[];
+
+  @Column({ default: 'company' })
+  role: string;
 
   @Column({ default: false })
   status: boolean;

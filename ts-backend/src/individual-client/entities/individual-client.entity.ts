@@ -26,10 +26,11 @@ export class IndividualClient {
   @Column()
   lastName: string;
 
-  @Expose()
-  get role(): string {
-    return "individual";
-  }
+  @Column("simple-array", { default: "" })
+  images: string[];
+
+  @Column({ default: 'individual' })
+  role: string;
 
   @Column({ default: false })
   status: boolean;

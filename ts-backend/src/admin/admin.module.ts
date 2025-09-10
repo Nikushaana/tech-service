@@ -13,9 +13,10 @@ import { Address } from 'src/address/entities/address.entity';
 import { BaseUserModule } from 'src/common/services/base-user/base-user.module';
 import { TokensModule } from 'src/common/tokens/token.module';
 import { CommonModule } from 'src/common/common.module';
+import { CloudinaryModule } from 'src/common/cloudinary/cloudinary.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Admin, IndividualClient, CompanyClient, Technician, Order, Category, Faq, Address]), BaseUserModule, TokensModule, CommonModule],
+  imports: [TypeOrmModule.forFeature([Admin, IndividualClient, CompanyClient, Technician, Order, Category, Faq, Address]), BaseUserModule, TokensModule, CommonModule, CloudinaryModule],
   controllers: [AdminController],
   providers: [AdminService]
 })

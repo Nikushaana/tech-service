@@ -34,6 +34,10 @@ export class UpdateAdminCompanyDto {
     status: boolean;
 
     @IsOptional()
+    @IsString()
+    imagesToDelete: string;
+
+    @IsOptional()
     @Transform(({ value }) => value === '' ? undefined : value)
     @IsString()
     @MinLength(6, { message: 'Password must be at least 6 characters' })

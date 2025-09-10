@@ -31,8 +31,8 @@ export class IndividualClientService {
         return instanceToPlain(findIndividual);
     }
 
-    async updateIndividual(individualId: number, updateIndividualDto: UpdateIndividualDto) {
-        return this.baseUserService.updateUser(individualId, this.individualClientRepo, updateIndividualDto);
+    async updateIndividual(individualId: number, updateIndividualDto: UpdateIndividualDto, images: Express.Multer.File[] = []) {
+        return this.baseUserService.updateUser(individualId, this.individualClientRepo, updateIndividualDto, images);
     }
 
     async changePassword(individualId: number, changePasswordDto: ChangePasswordDto) {

@@ -20,7 +20,8 @@ import { CreateCategoryDto } from 'src/category/dto/create-category.dto';
 import { UpdateCategoryDto } from 'src/category/dto/update-category.dto';
 import { CreateFaqDto } from 'src/faq/dto/create-faq.dto';
 import { UpdateFaqDto } from 'src/faq/dto/update-category.dto';
-import { CloudinaryProvider } from 'src/common/providers/cloudinary.provider';
+import { CloudinaryProvider } from 'src/common/cloudinary/cloudinary.provider';
+import { CloudinaryService } from 'src/common/cloudinary/cloudinary.service';
 
 @Injectable()
 export class AdminService {
@@ -51,7 +52,7 @@ export class AdminService {
 
         private readonly baseUserService: BaseUserService,
 
-        private readonly cloudinaryProvider: CloudinaryProvider
+        private readonly cloudinaryService: CloudinaryService,
     ) { }
 
     // admin
@@ -76,7 +77,7 @@ export class AdminService {
         return instanceToPlain(findOneIndividual)
     }
 
-    async updateAdminOneIndividual(individualId: number, updateAdminIndividualOrTechnicianDto: UpdateAdminIndividualOrTechnicianDto) {
+    async updateAdminOneIndividual(individualId: number, updateAdminIndividualOrTechnicianDto: UpdateAdminIndividualOrTechnicianDto, images: Express.Multer.File[] = []) {
         const findOneIndividual = await this.baseUserService.getUser(individualId, this.individualClientRepo);
 
         if (updateAdminIndividualOrTechnicianDto.phone && updateAdminIndividualOrTechnicianDto.phone !== findOneIndividual.phone) {
@@ -102,7 +103,49 @@ export class AdminService {
             updateAdminIndividualOrTechnicianDto.password = await bcrypt.hash(updateAdminIndividualOrTechnicianDto.password, 10);
         }
 
+        let imagesToDeleteArray: string[] = [];
+        if (updateAdminIndividualOrTechnicianDto.imagesToDelete) {
+            try {
+                imagesToDeleteArray = JSON.parse(updateAdminIndividualOrTechnicianDto.imagesToDelete);
+            } catch (err) {
+                throw new BadRequestException('imagesToDelete must be a JSON string array');
+            }
+        }
+
+        // Then use imagesToDeleteArray in your deletion logic
+        if (imagesToDeleteArray.length > 0) {
+            await Promise.all(
+                imagesToDeleteArray.map(async (url) => {
+                    await this.cloudinaryService.deleteImageByUrl(url);
+                    findOneIndividual.images = findOneIndividual.images.filter((img) => img !== url);
+                }),
+            );
+        }
+
+        // ✅ Check max limit before uploading
+        const MAX_IMAGES = 1;
+        const existingCount = findOneIndividual.images?.length || 0;
+        const newCount = images?.length || 0;
+        const totalAfterUpdate = existingCount + newCount;
+
+        if (totalAfterUpdate > MAX_IMAGES) {
+            throw new BadRequestException(
+                `Allowed max ${MAX_IMAGES} image. (exists: ${existingCount}, new: ${newCount})`,
+            );
+        }
+
+        // Upload images to Cloudinary if any
+        const imageUrls = await this.cloudinaryService.uploadImages(
+            images,
+            'tech_service_project/images/individuals',
+        );
+
         const updatedAdminIndividual = this.individualClientRepo.merge(findOneIndividual, updateAdminIndividualOrTechnicianDto);
+
+        // Append new images to existing ones
+        if (imageUrls.length > 0) {
+            updatedAdminIndividual.images = [...(updatedAdminIndividual.images || []), ...imageUrls];
+        }
 
         await this.individualClientRepo.save(updatedAdminIndividual);
 
@@ -126,7 +169,7 @@ export class AdminService {
         return instanceToPlain(findOneCompany)
     }
 
-    async updateAdminOneCompany(companyId: number, updateAdminCompanyDto: UpdateAdminCompanyDto) {
+    async updateAdminOneCompany(companyId: number, updateAdminCompanyDto: UpdateAdminCompanyDto, images: Express.Multer.File[] = []) {
         const findOneCompany = await this.baseUserService.getUser(companyId, this.companyClientRepo);
 
         if (updateAdminCompanyDto.phone && updateAdminCompanyDto.phone !== findOneCompany.phone) {
@@ -152,7 +195,49 @@ export class AdminService {
             updateAdminCompanyDto.password = await bcrypt.hash(updateAdminCompanyDto.password, 10);
         }
 
+        let imagesToDeleteArray: string[] = [];
+        if (updateAdminCompanyDto.imagesToDelete) {
+            try {
+                imagesToDeleteArray = JSON.parse(updateAdminCompanyDto.imagesToDelete);
+            } catch (err) {
+                throw new BadRequestException('imagesToDelete must be a JSON string array');
+            }
+        }
+
+        // Then use imagesToDeleteArray in your deletion logic
+        if (imagesToDeleteArray.length > 0) {
+            await Promise.all(
+                imagesToDeleteArray.map(async (url) => {
+                    await this.cloudinaryService.deleteImageByUrl(url);
+                    findOneCompany.images = findOneCompany.images.filter((img) => img !== url);
+                }),
+            );
+        }
+
+        // ✅ Check max limit before uploading
+        const MAX_IMAGES = 1;
+        const existingCount = findOneCompany.images?.length || 0;
+        const newCount = images?.length || 0;
+        const totalAfterUpdate = existingCount + newCount;
+
+        if (totalAfterUpdate > MAX_IMAGES) {
+            throw new BadRequestException(
+                `Allowed max ${MAX_IMAGES} image. (exists: ${existingCount}, new: ${newCount})`,
+            );
+        }
+
+        // Upload images to Cloudinary if any
+        const imageUrls = await this.cloudinaryService.uploadImages(
+            images,
+            'tech_service_project/images/companies',
+        );
+
         const updatedAdminCompany = this.companyClientRepo.merge(findOneCompany, updateAdminCompanyDto);
+
+        // Append new images to existing ones
+        if (imageUrls.length > 0) {
+            updatedAdminCompany.images = [...(updatedAdminCompany.images || []), ...imageUrls];
+        }
 
         await this.companyClientRepo.save(updatedAdminCompany);
 
@@ -326,19 +411,8 @@ export class AdminService {
         if (imagesToDeleteArray.length > 0) {
             await Promise.all(
                 imagesToDeleteArray.map(async (url) => {
-                    try {
-                        const parts = url.split('/upload/');
-                        if (parts[1]) {
-                            const publicIdWithVersion = parts[1];
-                            const publicIdWithoutVersion = publicIdWithVersion.replace(/^v\d+\//, '');
-                            const publicId = publicIdWithoutVersion.replace(/\.[^/.]+$/, '');
-                            await this.cloudinaryProvider.cloudinary.uploader.destroy(publicId);
-                            // Remove from category.images array
-                            category.images = category.images.filter(img => img !== url);
-                        }
-                    } catch (err) {
-                        console.error('Error deleting image from Cloudinary:', err.message);
-                    }
+                    await this.cloudinaryService.deleteImageByUrl(url);
+                    category.images = category.images.filter((img) => img !== url);
                 }),
             );
         }
@@ -356,17 +430,10 @@ export class AdminService {
         }
 
         // Upload images to Cloudinary if any
-        let imageUrls: string[] = [];
-        if (images && images.length > 0) {
-            imageUrls = await Promise.all(
-                images.map(async (file) => {
-                    const result = await this.cloudinaryProvider.cloudinary.uploader.upload(file.path, {
-                        folder: `tech_service_project/images/categories`,
-                    });
-                    return result.secure_url;
-                }),
-            );
-        }
+        const imageUrls = await this.cloudinaryService.uploadImages(
+            images,
+            'tech_service_project/images/categories',
+        );
 
         // Merge updates
         const updatedCategory = this.categoryRepo.merge(category, updateCategoryDto);
@@ -397,19 +464,7 @@ export class AdminService {
         // Delete images from Cloudinary if any
         if (category.images && category.images.length > 0) {
             await Promise.all(
-                category.images.map(async (url) => {
-                    try {
-                        const parts = url.split('/upload/');
-                        if (parts[1]) {
-                            let publicIdWithVersion = parts[1];
-                            const publicIdWithoutVersion = publicIdWithVersion.replace(/^v\d+\//, '');
-                            const publicId = publicIdWithoutVersion.replace(/\.[^/.]+$/, "");
-                            await this.cloudinaryProvider.cloudinary.uploader.destroy(publicId);
-                        }
-                    } catch (err) {
-                        console.error('Error deleting image from Cloudinary:', err.message);
-                    }
-                }),
+                category.images.map((url) => this.cloudinaryService.deleteImageByUrl(url)),
             );
         }
 

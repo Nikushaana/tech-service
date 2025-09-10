@@ -10,4 +10,8 @@ export class UpdateTechnicianDto {
     @IsString()
     @IsNotEmpty()
     lastName: string;
+
+    @IsOptional()
+    @IsString()
+    imagesToDelete: string;
 }

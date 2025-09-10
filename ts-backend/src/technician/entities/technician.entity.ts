@@ -25,10 +25,11 @@ export class Technician {
     @Column()
     lastName: string;
 
-    @Expose()
-    get role(): string {
-        return "technician";
-    }
+    @Column("simple-array", { default: "" })
+    images: string[];
+
+    @Column({ default: 'technician' })
+    role: string;
 
     @Column({ default: false })
     status: boolean;

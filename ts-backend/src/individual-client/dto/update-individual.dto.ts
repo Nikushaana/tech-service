@@ -10,4 +10,8 @@ export class UpdateIndividualDto {
     @IsString()
     @IsNotEmpty()
     lastName: string;
+
+    @IsOptional()
+    @IsString()
+    imagesToDelete: string;
 }

@@ -12,7 +12,7 @@ import { UpdateCategoryDto } from 'src/category/dto/update-category.dto';
 import { CreateFaqDto } from 'src/faq/dto/create-faq.dto';
 import { UpdateFaqDto } from 'src/faq/dto/update-category.dto';
 import type { RequestInfo } from 'src/common/types/request-info';
-import { MultipleImagesUpload } from 'src/common/interceptors/multiple-images-upload.interceptor';
+import { MultipleImagesUpload } from 'src/common/interceptors/multiple-images-upload.factory';
 
 @Controller('admin')
 export class AdminController {
@@ -46,8 +46,9 @@ export class AdminController {
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('admin')
     @Patch('individuals/:id')
-    async updateAdminOneIndividual(@Param('id', ParseIntPipe) id: number, @Body() updateAdminIndividualOrTechnicianDto: UpdateAdminIndividualOrTechnicianDto) {
-        return this.adminService.updateAdminOneIndividual(id, updateAdminIndividualOrTechnicianDto);
+    @UseInterceptors(MultipleImagesUpload('images', 1))
+    async updateAdminOneIndividual(@Param('id', ParseIntPipe) id: number, @Body() updateAdminIndividualOrTechnicianDto: UpdateAdminIndividualOrTechnicianDto, @UploadedFiles() images: Express.Multer.File[]) {
+        return this.adminService.updateAdminOneIndividual(id, updateAdminIndividualOrTechnicianDto, images);
     }
 
     // companies
@@ -69,8 +70,9 @@ export class AdminController {
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('admin')
     @Patch('companies/:id')
-    async updateAdminOneCompany(@Param('id', ParseIntPipe) id: number, @Body() updateAdminCompanyDto: UpdateAdminCompanyDto) {
-        return this.adminService.updateAdminOneCompany(id, updateAdminCompanyDto);
+    @UseInterceptors(MultipleImagesUpload('images', 1))
+    async updateAdminOneCompany(@Param('id', ParseIntPipe) id: number, @Body() updateAdminCompanyDto: UpdateAdminCompanyDto, @UploadedFiles() images: Express.Multer.File[]) {
+        return this.adminService.updateAdminOneCompany(id, updateAdminCompanyDto, images);
     }
 
     // technicians
@@ -146,7 +148,7 @@ export class AdminController {
     @Roles('admin')
     @Patch('categories/:id')
     @UseInterceptors(MultipleImagesUpload('images', 1))
-    async updateOneCategory(@Param('id', ParseIntPipe) id: number, @Body() updateCategoryDto: UpdateCategoryDto, @UploadedFiles() images: Express.Multer.File[],) {
+    async updateOneCategory(@Param('id', ParseIntPipe) id: number, @Body() updateCategoryDto: UpdateCategoryDto, @UploadedFiles() images: Express.Multer.File[]) {
         return this.adminService.updateOneCategory(id, updateCategoryDto, images);
     }
 

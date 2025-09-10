@@ -31,8 +31,8 @@ export class CompanyClientService {
         return instanceToPlain(findCompany);
     }
 
-    async updateCompany(companyId: number, updateCompanyDto: UpdateCompanyDto) {
-        return this.baseUserService.updateUser(companyId, this.companyClientRepo, updateCompanyDto);
+    async updateCompany(companyId: number, updateCompanyDto: UpdateCompanyDto, images: Express.Multer.File[] = []) {
+        return this.baseUserService.updateUser(companyId, this.companyClientRepo, updateCompanyDto, images);
     }
 
     async changePassword(companyId: number, changePasswordDto: ChangePasswordDto) {

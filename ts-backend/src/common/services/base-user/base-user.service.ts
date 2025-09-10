@@ -16,6 +16,7 @@ import { UpdateIndividualDto } from "src/individual-client/dto/update-individual
 import { CreateOrderDto } from "src/order/dto/create-order.dto";
 import { UpdateUserOrderDto } from "src/order/dto/update-user-order.dto";
 import { CreateAddressDto } from "src/address/dto/create-address.dto";
+import { CloudinaryService } from "src/common/cloudinary/cloudinary.service";
 
 interface WithIdAndPassword {
     id: number;
@@ -43,6 +44,8 @@ export class BaseUserService {
         private readonly addressRepo: Repository<Address>,
 
         private readonly verificationCodeService: VerificationCodeService,
+
+        private readonly cloudinaryService: CloudinaryService,
     ) { }
 
     async changePassword<T extends WithIdAndPassword>(
@@ -104,10 +107,52 @@ export class BaseUserService {
         return findUser;
     }
 
-    async updateUser(userId: number, repo: any, updateUserDto: UpdateCompanyDto | UpdateIndividualDto) {
+    async updateUser(userId: number, repo: any, updateUserDto: UpdateCompanyDto | UpdateIndividualDto, images: Express.Multer.File[] = []) {
         const user = await this.getUser(userId, repo)
 
+        let imagesToDeleteArray: string[] = [];
+        if (updateUserDto.imagesToDelete) {
+            try {
+                imagesToDeleteArray = JSON.parse(updateUserDto.imagesToDelete);
+            } catch (err) {
+                throw new BadRequestException('imagesToDelete must be a JSON string array');
+            }
+        }
+
+        // Then use imagesToDeleteArray in your deletion logic
+        if (imagesToDeleteArray.length > 0) {
+            await Promise.all(
+                imagesToDeleteArray.map(async (url) => {
+                    await this.cloudinaryService.deleteImageByUrl(url);
+                    user.images = user.images.filter((img) => img !== url);
+                }),
+            );
+        }
+
+        // ✅ Check max limit before uploading
+        const MAX_IMAGES = 1;
+        const existingCount = user.images?.length || 0;
+        const newCount = images?.length || 0;
+        const totalAfterUpdate = existingCount + newCount;
+
+        if (totalAfterUpdate > MAX_IMAGES) {
+            throw new BadRequestException(
+                `Allowed max ${MAX_IMAGES} image. (exists: ${existingCount}, new: ${newCount})`,
+            );
+        }
+
+        // Upload images to Cloudinary if any
+        const imageUrls = await this.cloudinaryService.uploadImages(
+            images,
+            `tech_service_project/images/${user.role == "company" ? "companies" : user.role == "individual" ? "individuals" : "technicians"}`,
+        );
+
         const updatedUser = repo.merge(user, updateUserDto);
+
+        // Append new images to existing ones
+        if (imageUrls.length > 0) {
+            updatedUser.images = [...(updatedUser.images || []), ...imageUrls];
+        }
 
         await repo.save(updatedUser);
 
