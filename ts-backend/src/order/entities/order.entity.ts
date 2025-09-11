@@ -27,6 +27,12 @@ export class Order {
   @Column()
   description: string;
 
+  @Column("simple-array", { default: "" })
+  images: string[];
+  
+  @Column("simple-array", { default: "" })
+  videos: string[];
+
   @CreateDateColumn()
   created_at: Date;
 

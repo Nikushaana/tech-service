@@ -11,6 +11,8 @@ import { CreateOrderDto } from 'src/order/dto/create-order.dto';
 import { UpdateUserOrderDto } from 'src/order/dto/update-user-order.dto';
 import { CreateAddressDto } from 'src/address/dto/create-address.dto';
 import { MultipleImagesUpload } from 'src/common/interceptors/multiple-images-upload.factory';
+import { MultipleVideosUpload } from 'src/common/interceptors/multiple-videos-upload.factory';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
 
 @Controller('company')
 export class CompanyClientController {
@@ -59,8 +61,17 @@ export class CompanyClientController {
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('company')
     @Post('create-order')
-    async createOrder(@Req() req: RequestInfo, @Body() createOrderDto: CreateOrderDto) {
-        return this.companyClientService.createOrder(req.user.id, createOrderDto);
+    @UseInterceptors(
+        FileFieldsInterceptor([
+            { name: 'images', maxCount: 3 },
+            { name: 'videos', maxCount: 1 },
+        ])
+
+    )
+    async createOrder(@Req() req: RequestInfo, @Body() createOrderDto: CreateOrderDto, @UploadedFiles() files: { images?: Express.Multer.File[], videos?: Express.Multer.File[] }) {
+        const images = files.images || [];
+        const videos = files.videos || [];
+        return this.companyClientService.createOrder(req.user.id, createOrderDto, images, videos);
     }
 
     @UseGuards(TokenValidationGuard, RolesGuard)

@@ -164,7 +164,7 @@ export class BaseUserService {
 
     // about orders
 
-    async createOrder(userId: number, repo: any, createOrderDto: CreateOrderDto) {
+    async createOrder(userId: number, repo: any, createOrderDto: CreateOrderDto, images: Express.Multer.File[] = [], videos: Express.Multer.File[] = []) {
         const user = await this.getUser(userId, repo)
 
         if (!user.status) {
@@ -190,6 +190,22 @@ export class BaseUserService {
         } else {
             order.individual = user;
         }
+
+        await this.orderRepo.save(order);
+
+        // Upload images to Cloudinary if any
+        const imageUrls = await this.cloudinaryService.uploadImages(
+            images,
+            `tech_service_project/images/orders/${order.id}`,
+        );
+
+        const videoUrls = await this.cloudinaryService.uploadVideos(
+            videos,
+            `tech_service_project/videos/orders/${order.id}`,
+        );
+
+        order.images = imageUrls;
+        order.videos = videoUrls;
 
         await this.orderRepo.save(order);
 

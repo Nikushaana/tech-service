@@ -53,8 +53,8 @@ export class CompanyClientService {
 
     // create order
 
-    async createOrder(companyId: number, createOrderDto: CreateOrderDto) {
-        return this.baseUserService.createOrder(companyId, this.companyClientRepo, createOrderDto);
+    async createOrder(companyId: number, createOrderDto: CreateOrderDto, images: Express.Multer.File[] = [], videos: Express.Multer.File[] = []) {
+        return this.baseUserService.createOrder(companyId, this.companyClientRepo, createOrderDto, images, videos);
     }
 
     async getOrders(companyId: number) {

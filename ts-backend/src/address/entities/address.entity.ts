@@ -8,13 +8,13 @@ export class Address {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column()
+    @Column({ nullable: true })
     apartment_number: string;
 
-    @Column()
+    @Column({ nullable: true })
     building_floor: string;
 
-    @Column()
+    @Column({ nullable: true })
     building_entrance: string;
 
     @Column()
