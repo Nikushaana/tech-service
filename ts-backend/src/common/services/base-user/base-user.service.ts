@@ -194,15 +194,13 @@ export class BaseUserService {
         await this.orderRepo.save(order);
 
         // Upload images to Cloudinary if any
-        const imageUrls = await this.cloudinaryService.uploadImages(
-            images,
-            `tech_service_project/images/orders/${order.id}`,
-        );
+        const imageUrls = images.length
+            ? await this.cloudinaryService.uploadImages(images, `tech_service_project/images/orders/${order.id}`)
+            : [];
 
-        const videoUrls = await this.cloudinaryService.uploadVideos(
-            videos,
-            `tech_service_project/videos/orders/${order.id}`,
-        );
+        const videoUrls = videos.length
+            ? await this.cloudinaryService.uploadVideos(videos, `tech_service_project/videos/orders/${order.id}`)
+            : [];
 
         order.images = imageUrls;
         order.videos = videoUrls;

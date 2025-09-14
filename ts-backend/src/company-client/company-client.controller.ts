@@ -11,8 +11,7 @@ import { CreateOrderDto } from 'src/order/dto/create-order.dto';
 import { UpdateUserOrderDto } from 'src/order/dto/update-user-order.dto';
 import { CreateAddressDto } from 'src/address/dto/create-address.dto';
 import { MultipleImagesUpload } from 'src/common/interceptors/multiple-images-upload.factory';
-import { MultipleVideosUpload } from 'src/common/interceptors/multiple-videos-upload.factory';
-import { FileFieldsInterceptor } from '@nestjs/platform-express';
+import { MultipleFilesUpload } from 'src/common/interceptors/MultipleFilesUpload.interceptor';
 
 @Controller('company')
 export class CompanyClientController {
@@ -62,11 +61,10 @@ export class CompanyClientController {
     @Roles('company')
     @Post('create-order')
     @UseInterceptors(
-        FileFieldsInterceptor([
-            { name: 'images', maxCount: 3 },
-            { name: 'videos', maxCount: 1 },
-        ])
-
+        MultipleFilesUpload([
+            { name: 'images', maxCount: 3, type: 'image' },
+            { name: 'videos', maxCount: 1, type: 'video' },
+        ]),
     )
     async createOrder(@Req() req: RequestInfo, @Body() createOrderDto: CreateOrderDto, @UploadedFiles() files: { images?: Express.Multer.File[], videos?: Express.Multer.File[] }) {
         const images = files.images || [];

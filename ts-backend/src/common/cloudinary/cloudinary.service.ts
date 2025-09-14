@@ -24,19 +24,13 @@ export class CloudinaryService {
         if (!files || files.length === 0) return [];
 
         return await Promise.all(
-            files.map(
-                (file) =>
-                    new Promise<string>((resolve, reject) => {
-                        const stream = this.cloudinaryProvider.cloudinary.uploader.upload_stream(
-                            { folder, resource_type: 'image' },
-                            (error, result) => {
-                                if (error) return reject(error);
-                                resolve(result!.secure_url);
-                            },
-                        );
-                        stream.end(file.buffer);
-                    }),
-            ),
+            files.map(async (file) => {
+                const result = await this.cloudinaryProvider.cloudinary.uploader.upload(file.path, {
+                    folder,
+                    resource_type: 'image',
+                });
+                return result.secure_url;
+            }),
         );
     }
 
@@ -44,19 +38,13 @@ export class CloudinaryService {
         if (!files || files.length === 0) return [];
 
         return await Promise.all(
-            files.map(
-                (file) =>
-                    new Promise<string>((resolve, reject) => {
-                        const stream = this.cloudinaryProvider.cloudinary.uploader.upload_stream(
-                            { folder, resource_type: 'video' },
-                            (error, result) => {
-                                if (error) return reject(error);
-                                resolve(result!.secure_url);
-                            },
-                        );
-                        stream.end(file.buffer);
-                    }),
-            ),
+            files.map(async (file) => {
+                const result = await this.cloudinaryProvider.cloudinary.uploader.upload(file.path, {
+                    folder,
+                    resource_type: 'video',
+                });
+                return result.secure_url;
+            }),
         );
     }
 }

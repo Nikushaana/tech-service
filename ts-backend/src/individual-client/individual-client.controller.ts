@@ -11,7 +11,7 @@ import { CreateOrderDto } from 'src/order/dto/create-order.dto';
 import { UpdateUserOrderDto } from 'src/order/dto/update-user-order.dto';
 import { CreateAddressDto } from 'src/address/dto/create-address.dto';
 import { MultipleImagesUpload } from 'src/common/interceptors/multiple-images-upload.factory';
-import { MultipleVideosUpload } from 'src/common/interceptors/multiple-videos-upload.factory';
+import { MultipleFilesUpload } from 'src/common/interceptors/MultipleFilesUpload.interceptor';
 
 @Controller('individual')
 export class IndividualClientController {
@@ -62,7 +62,12 @@ export class IndividualClientController {
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('individual')
     @Post('create-order')
-    @UseInterceptors(MultipleImagesUpload('images', 3), MultipleVideosUpload('videos', 1))
+    @UseInterceptors(
+        MultipleFilesUpload([
+            { name: 'images', maxCount: 3, type: 'image' },
+            { name: 'videos', maxCount: 1, type: 'video' },
+        ]),
+    )
     async createOrder(@Req() req: RequestInfo, @Body() createOrderDto: CreateOrderDto, @UploadedFiles() files: { images?: Express.Multer.File[], videos?: Express.Multer.File[] }) {
         const images = files.images || [];
         const videos = files.videos || [];
