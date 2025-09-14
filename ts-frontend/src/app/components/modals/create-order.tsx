@@ -10,6 +10,18 @@ import { Loader2Icon } from "lucide-react";
 import { useOrdersStore } from "@/app/store/useOrdersStore";
 import { Dropdown } from "../inputs/drop-down-menu";
 import { useCategoriesStore } from "@/app/store/useCategoriesStore";
+import ImageSelector from "../inputs/image-selector";
+import VideoSelector from "../inputs/video.selector";
+
+interface CreateOrderValues {
+  categoryId: string | number;
+  addressId: string | number;
+  brand: string;
+  model: string;
+  description: string;
+  newImages: File[];
+  newVideos: File[];
+}
 
 export default function CreateOrder() {
   const {
@@ -22,12 +34,14 @@ export default function CreateOrder() {
   const { addresses } = useAddressesStore();
   const { categories } = useCategoriesStore();
 
-  const [values, setValues] = useState({
+  const [values, setValues] = useState<CreateOrderValues>({
     categoryId: "",
     addressId: "",
     brand: "",
     model: "",
     description: "",
+    newImages: [],
+    newVideos: [],
   });
 
   const [errors, setErrors] = useState({
@@ -63,6 +77,12 @@ export default function CreateOrder() {
     model: Yup.string().required("მოდელი აუცილებელია"),
     description: Yup.string().required("აღწერა აუცილებელია"),
     addressId: Yup.string().required("მისამართი აუცილებელია"),
+    newImages: Yup.array()
+      .max(3, "შეგიძლიათ ატვირთოთ მაქსიმუმ 3 სურათი")
+      .of(Yup.mixed().required()),
+    newVideos: Yup.array()
+      .max(1, "შეგიძლიათ ატვირთოთ მხოლოდ 1 ვიდეო")
+      .of(Yup.mixed().required()),
   });
 
   const handleCreateOrder = async () => {
@@ -70,7 +90,24 @@ export default function CreateOrder() {
     try {
       await createOrderSchema.validate(values, { abortEarly: false });
 
-      await createOrder(modalType!, values); // or "individual" depending on user
+      const formData = new FormData();
+      formData.append("categoryId", String(values.categoryId));
+      formData.append("brand", values.brand);
+      formData.append("model", values.model);
+      formData.append("description", values.description);
+      formData.append("addressId", String(values.addressId));
+
+      // Append new files
+      values.newImages.forEach((image) => {
+        formData.append("images", image);
+      });
+
+      // Append new files
+      values.newVideos.forEach((video) => {
+        formData.append("videos", video);
+      });
+
+      await createOrder(modalType!, formData); // or "individual" depending on user
       toggleOpenCreateOrderModal();
 
       // reset form values
@@ -80,6 +117,8 @@ export default function CreateOrder() {
         model: "",
         description: "",
         addressId: "",
+        newImages: [],
+        newVideos: [],
       });
 
       setErrors({
@@ -135,50 +174,84 @@ export default function CreateOrder() {
       ></div>
 
       <div
-        className={`bg-white rounded-2xl shadow-lg py-6 px-3 w-full sm:w-[600px] mx-[10px] z-[22] transition-transform duration-200 flex flex-col gap-y-[10px] max-h-[70vh] ${
+        className={`bg-white rounded-2xl shadow-lg py-6 px-3 w-full sm:w-[600px] mx-[10px] z-[22] transition-transform duration-200 flex flex-col gap-y-[10px] max-h-[80vh] ${
           openCreateOrderModal ? "scale-100 opacity-100" : "scale-90 opacity-0"
         }`}
       >
         <h2 className="text-lg font-semibold ">შეკვეთის დამატება</h2>
         <div className="flex-1 overflow-y-auto showScroll pr-2">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-[10px]">
-            <Dropdown
-              data={categories.data}
-              id="categoryId"
-              value={values.categoryId || ""}
-              onChange={handleChange}
-              label="კატეგორია"
-              error={errors.categoryId}
-            />
-            <PanelFormInput
-              id="brand"
-              value={values.brand || ""}
-              onChange={handleChange}
-              label="ბრენდი"
-              error={errors.brand}
-            />
-            <PanelFormInput
-              id="model"
-              value={values.model || ""}
-              onChange={handleChange}
-              label="მოდელი"
-              error={errors.model}
-            />
-            <Dropdown
-              data={addresses}
-              id="addressId"
-              value={values.addressId || ""}
-              onChange={handleChange}
-              label="მისამართი"
-              error={errors.addressId}
-            />
-            <div className="col-span-1 sm:col-span-2">
-              <PanelFormInput
-                id="description"
-                value={values.description || ""}
+          <div className="flex flex-col gap-y-[10px]">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-[10px]">
+              <Dropdown
+                data={categories.data}
+                id="categoryId"
+                value={values.categoryId || ""}
                 onChange={handleChange}
-                label="აღწერა"
-                error={errors.description}
+                label="კატეგორია"
+                error={errors.categoryId}
+              />
+              <PanelFormInput
+                id="brand"
+                value={values.brand || ""}
+                onChange={handleChange}
+                label="ბრენდი"
+                error={errors.brand}
+              />
+              <PanelFormInput
+                id="model"
+                value={values.model || ""}
+                onChange={handleChange}
+                label="მოდელი"
+                error={errors.model}
+              />
+              <Dropdown
+                data={addresses}
+                id="addressId"
+                value={values.addressId || ""}
+                onChange={handleChange}
+                label="მისამართი"
+                error={errors.addressId}
+              />
+              <div className="col-span-1 sm:col-span-2">
+                <PanelFormInput
+                  id="description"
+                  value={values.description || ""}
+                  onChange={handleChange}
+                  label="აღწერა"
+                  error={errors.description}
+                />
+              </div>
+            </div>
+            <div className="flex flex-col gap-[10px] overflow-x-scroll showXScroll">
+              <ImageSelector
+                newImages={values.newImages}
+                setNewImages={{
+                  add: (files: File[]) =>
+                    setValues((prev) => ({
+                      ...prev,
+                      newImages: [...prev.newImages, ...files],
+                    })),
+                  remove: (file: File) =>
+                    setValues((prev) => ({
+                      ...prev,
+                      newImages: prev.newImages.filter((f) => f !== file),
+                    })),
+                }}
+              />
+              <VideoSelector
+                newVideos={values.newVideos} // use the correct field
+                setNewVideos={{
+                  add: (files: File[]) =>
+                    setValues((prev) => ({
+                      ...prev,
+                      newVideos: [...prev.newVideos, ...files],
+                    })),
+                  remove: (file: File) =>
+                    setValues((prev) => ({
+                      ...prev,
+                      newVideos: prev.newVideos.filter((f) => f !== file),
+                    })),
+                }}
               />
             </div>
           </div>

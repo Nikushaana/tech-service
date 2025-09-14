@@ -42,7 +42,9 @@ export const useOrdersStore = create<OrdersStoreState>((set, get) => ({
     createOrder: async (type, data) => {
         const axiosInstance = type === "company" ? axiosCompany : axiosIndividual;
         try {
-            await axiosInstance.post(`${type}/create-order`, data);
+            await axiosInstance.post(`${type}/create-order`, data, {
+                headers: { "Content-Type": "multipart/form-data" },
+            });
             await get().fetchOrders(type);
             toast.success("შეკვეთა დაემატა", { position: "bottom-right", autoClose: 3000 });
         } catch (error: any) {

@@ -237,6 +237,27 @@ export default function Page({ params }: OrderPageProps) {
           <div>
             <h3 className="font-semibold mb-1">შეკვეთის აღწერა</h3>
             <p>{order.description}</p>
+            <div className="flex flex-wrap gap-4 mt-2">
+              {/* Videos */}
+              {order.videos?.map((videoUrl: string) => (
+                <video
+                  key={videoUrl}
+                  src={videoUrl}
+                  controls
+                  className="w-[200px] h-[130px] object-contain rounded border"
+                />
+              ))}
+
+              {/* Images */}
+              {order.images?.map((imageUrl: string) => (
+                <img
+                  key={imageUrl}
+                  src={imageUrl}
+                  alt="Order image"
+                  className="w-[200px] h-[130px] object-contain rounded border"
+                />
+              ))}
+            </div>
           </div>
 
           <div className="flex flex-col sm:flex-row gap-[10px]">
