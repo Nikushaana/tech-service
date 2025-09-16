@@ -66,7 +66,7 @@ export default function UsersCommentsSection() {
         >
           {comments.map((item) => (
             <SwiperSlide key={item.id}>
-              <div className="rounded-[10px] border-[2px] border-gray-200 p-[15px] sm:p-[20px] flex flex-col justify-between gap-y-[10px]">
+              <div className="rounded-[10px] border-[2px] border-gray-200 bg-white p-[15px] sm:p-[20px] flex flex-col justify-between gap-y-[10px]">
                 <p className="h-[190px] sm:h-[140px] overflow-hidden">
                   {item.comment}
                 </p>

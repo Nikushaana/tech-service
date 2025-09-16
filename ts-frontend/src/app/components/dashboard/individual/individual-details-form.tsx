@@ -58,6 +58,9 @@ export default function IndividualDetailsForm() {
   const updateIndividualSchema = Yup.object().shape({
     name: Yup.string().required("სახელი აუცილებელია"),
     lastName: Yup.string().required("გვარი აუცილებელია"),
+    newImages: Yup.array()
+      .max(1, "შეგიძლიათ ატვირთოთ მაქსიმუმ 1 სურათი")
+      .of(Yup.mixed().required()),
   });
 
   const handleUpdateIndividual = async () => {

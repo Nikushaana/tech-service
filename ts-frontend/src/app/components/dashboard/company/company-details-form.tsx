@@ -74,6 +74,9 @@ export default function CompanyDetailsForm() {
     companyAgentLastName: Yup.string().required(
       "კომპანიის წარმომადგენლის გვარი აუცილებელია"
     ),
+    newImages: Yup.array()
+      .max(1, "შეგიძლიათ ატვირთოთ მაქსიმუმ 1 სურათი")
+      .of(Yup.mixed().required()),
   });
 
   const handleUpdateCompany = async () => {
