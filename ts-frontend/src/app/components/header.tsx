@@ -31,7 +31,7 @@ export default function Header() {
           }}
           src="/images/logo.png"
           alt="logo"
-          className="h-[60px] cursor-pointer bg-[red]"
+          className="h-[60px] cursor-pointer bg-[green]"
         />
 
         {/* Desktop Menu */}
