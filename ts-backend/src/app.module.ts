@@ -12,6 +12,7 @@ import { CompanyClientModule } from './company-client/company-client.module';
 import { FrontModule } from './front/front.module';
 import { IndividualClientModule } from './individual-client/individual-client.module';
 import { TechnicianModule } from './technician/technician.module';
+import { GoogleApisModule } from './google-apis/google-apis.module';
 
 @Module({
   imports: [
@@ -61,6 +62,8 @@ import { TechnicianModule } from './technician/technician.module';
     FrontModule,
 
     TechnicianModule,
+
+    GoogleApisModule,
   ],
   controllers: [AppController],
   providers: [AppService],
