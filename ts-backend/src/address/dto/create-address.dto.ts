@@ -1,4 +1,15 @@
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsNotEmpty, IsNumber, IsOptional, IsString, ValidateNested } from 'class-validator';
+
+class LocationDto {
+    @IsNumber()
+    @IsNotEmpty()
+    lat: number;
+
+    @IsNumber()
+    @IsNotEmpty()
+    lng: number;
+}
 
 export class CreateAddressDto {
     @IsOptional()
@@ -32,4 +43,9 @@ export class CreateAddressDto {
     @IsString()
     @IsNotEmpty()
     description: string;
+
+    @ValidateNested()
+    @Type(() => LocationDto)
+    @IsNotEmpty()
+    location: LocationDto;
 }

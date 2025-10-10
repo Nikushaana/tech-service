@@ -3,6 +3,11 @@ import { IndividualClient } from "src/individual-client/entities/individual-clie
 import { Order } from "src/order/entities/order.entity";
 import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
+class Location {
+    lat: number;
+    lng: number;
+}
+
 @Entity('addresses')
 export class Address {
     @PrimaryGeneratedColumn()
@@ -31,6 +36,9 @@ export class Address {
 
     @Column()
     description: string;
+
+    @Column({ type: 'json' })
+    location: Location;
 
     @CreateDateColumn()
     created_at: Date;
