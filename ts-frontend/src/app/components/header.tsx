@@ -31,7 +31,7 @@ export default function Header() {
           }}
           src="/images/logo.png"
           alt="logo"
-          className="h-[60px] cursor-pointer bg-[green]"
+          className="h-[60px] cursor-pointer"
         />
 
         {/* Desktop Menu */}
@@ -56,11 +56,7 @@ export default function Header() {
         </nav>
 
         {/* Request Button (Desktop) */}
-        <div
-          className={`flex items-center duration-200 ${
-            currentUser ? "gap-[10px]" : "gap-0"
-          }`}
-        >
+        <div className="flex items-center gap-[10px] duration-200">
           <Button
             onClick={() => {
               if (currentUser) {
@@ -74,7 +70,7 @@ export default function Header() {
             }}
             className="hidden md:flex h-[45px] px-[20px] sm:px-[30px] cursor-pointer"
           >
-            მოითხოვე სერვისი
+            {currentUser ? "მოითხოვე სერვისი" : "ავტორიზაცია"}
           </Button>
 
           <div

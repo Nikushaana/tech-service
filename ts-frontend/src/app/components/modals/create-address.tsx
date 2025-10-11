@@ -3,11 +3,13 @@
 import React, { useEffect, useState } from "react";
 import { Button } from "../ui/button";
 import { useAddressesStore } from "@/app/store/useAddressesStore";
-import { axiosCompany } from "@/app/api/axios";
 import * as Yup from "yup";
 import { toast } from "react-toastify";
 import PanelFormInput from "../inputs/panel-form-input";
 import { Loader2Icon } from "lucide-react";
+import Map from "../map/map";
+import { Dropdown2 } from "../inputs/drop-down-2";
+import { axiosFront } from "@/app/api/axios";
 
 export default function CreateAddress() {
   const {
@@ -26,6 +28,7 @@ export default function CreateAddress() {
     building_floor: "",
     apartment_number: "",
     description: "",
+    location: null as LatLng | null,
   });
 
   const [errors, setErrors] = useState({
@@ -37,13 +40,122 @@ export default function CreateAddress() {
     building_floor: "",
     apartment_number: "",
     description: "",
+    location: "",
+  });
+
+  const [helperValues, setHelperValues] = useState({
+    searchCity: "",
+    searchStreet: "",
+    cityLocation: null as LatLng | null,
+    streetLocation: null as LatLng | null,
+    isSelectingCity: false,
+    isSelectingStreet: false,
   });
 
   const [loading, setLoading] = useState(false);
+  const [citiesData, setCitiesData] = useState<any>([]);
+  const [streetsData, setStreetsData] = useState<any[]>([]);
+  const [cityLoading, setCityLoading] = useState(false);
+  const [streetLoading, setStreetLoading] = useState(false);
+
+  /** FETCH CITY SUGGESTIONS **/
+  useEffect(() => {
+    if (helperValues.isSelectingCity) return;
+
+    const delayDebounce = setTimeout(async () => {
+      if (helperValues.searchCity.length >= 2) {
+        try {
+          setCityLoading(true);
+          const res = await axiosFront.get(
+            `/google-api/cities?city=${helperValues.searchCity}`
+          );
+          setCitiesData(res.data || []);
+        } catch (err) {
+          toast.error("ქალაქები ვერ მოიძებნა");
+        } finally {
+          setCityLoading(false);
+        }
+      } else {
+        setCitiesData([]);
+      }
+    }, 400);
+
+    return () => clearTimeout(delayDebounce);
+  }, [helperValues.searchCity, helperValues.isSelectingCity]);
+
+  /** FETCH STREET SUGGESTIONS **/
+  useEffect(() => {
+    if (helperValues.isSelectingStreet || !values.city) return;
+
+    const delayDebounce = setTimeout(async () => {
+      if (helperValues.searchStreet.length >= 2) {
+        try {
+          setStreetLoading(true);
+          const res = await axiosFront.get(
+            `/google-api/streets?city=${values.city}&street=${helperValues.searchStreet}`
+          );
+          setStreetsData(res.data || []);
+        } catch (err) {
+          toast.error("ქუჩები ვერ მოიძებნა");
+        } finally {
+          setStreetLoading(false);
+        }
+      } else {
+        setStreetsData([]);
+      }
+    }, 400);
+
+    return () => clearTimeout(delayDebounce);
+  }, [helperValues.searchStreet, helperValues.isSelectingStreet, values.city]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
+
+    if (id === "location" && typeof value === "object") {
+      setValues((prev) => ({ ...prev, location: value as LatLng }));
+      return;
+    }
+
     setValues((prev) => ({ ...prev, [id]: value }));
+  };
+
+  // --- Helper Handlers ---
+
+  // 🔹 Generic handler for dropdown (city / street)
+  const handleDropdownChange = (
+    key: "searchCity" | "searchStreet",
+    value: string
+  ) => {
+    setHelperValues((prev) => ({
+      ...prev,
+      [key]: value,
+      [`isSelecting${key === "searchCity" ? "City" : "Street"}`]: false,
+    }));
+
+    // Reset form value (city/street) when typing
+    setValues((prev) => ({
+      ...prev,
+      [key === "searchCity" ? "city" : "street"]: "",
+    }));
+  };
+
+  // 🔹 Generic handler for selecting dropdown item
+  const handleDropdownSelect = (
+    key: "searchCity" | "searchStreet",
+    item: any
+  ) => {
+    setValues((prev) => ({
+      ...prev,
+      [key === "searchCity" ? "city" : "street"]: item.name,
+    }));
+
+    setHelperValues((prev) => ({
+      ...prev,
+      [key]: item.name,
+      [`${key === "searchCity" ? "cityLocation" : "streetLocation"}`]:
+        item.location,
+      [`isSelecting${key === "searchCity" ? "City" : "Street"}`]: true,
+    }));
   };
 
   const createAddressSchema = Yup.object().shape({
@@ -52,17 +164,22 @@ export default function CreateAddress() {
     street: Yup.string().required("ქუჩა აუცილებელია"),
     building_number: Yup.string().required("შენობის ნომერი აუცილებელია"),
     description: Yup.string().required("აღწერა აუცილებელია"),
+    location: Yup.object()
+      .shape({
+        lat: Yup.number().required(),
+        lng: Yup.number().required(),
+      })
+      .required("გთხოვთ აირჩიოთ მდებარეობა რუკაზე"),
   });
 
   const handleCreateAddress = async () => {
     setLoading(true);
     try {
       await createAddressSchema.validate(values, { abortEarly: false });
-
-      await createAddress(modalType!, values); // or "individual" depending on user
+      await createAddress(modalType!, values);
       toggleOpenCreateAddressModal();
 
-      // reset form values
+      // reset form
       setValues({
         name: "",
         city: "",
@@ -72,8 +189,8 @@ export default function CreateAddress() {
         building_floor: "",
         apartment_number: "",
         description: "",
+        location: null,
       });
-
       setErrors({
         name: "",
         city: "",
@@ -83,7 +200,19 @@ export default function CreateAddress() {
         building_floor: "",
         apartment_number: "",
         description: "",
+        location: "",
       });
+      setHelperValues({
+        searchCity: "",
+        searchStreet: "",
+        cityLocation: null,
+        streetLocation: null,
+        isSelectingCity: false,
+        isSelectingStreet: false,
+      });
+
+      setCitiesData([]);
+      setStreetsData([]);
 
       setLoading(false);
     } catch (err: any) {
@@ -105,12 +234,7 @@ export default function CreateAddress() {
   };
 
   useEffect(() => {
-    if (openCreateAddressModal) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "auto";
-    }
-
+    document.body.style.overflow = openCreateAddressModal ? "hidden" : "auto";
     return () => {
       document.body.style.overflow = "auto";
     };
@@ -126,11 +250,11 @@ export default function CreateAddress() {
         className={`absolute inset-0 bg-black transition-opacity ${
           openCreateAddressModal ? "opacity-50" : "opacity-0"
         }`}
-        onClick={() => toggleOpenCreateAddressModal()} // closes when clicking outside
+        onClick={() => toggleOpenCreateAddressModal()}
       ></div>
 
       <div
-        className={`bg-white rounded-2xl shadow-lg py-6 px-3 w-full sm:w-[600px] mx-[10px] z-[22] transition-transform duration-200 flex flex-col gap-y-[10px] max-h-[70vh] ${
+        className={`bg-white rounded-2xl shadow-lg py-6 px-3 w-full sm:w-[600px] mx-[10px] z-[22] transition-transform duration-200 flex flex-col gap-y-[10px] max-h-[90vh] ${
           openCreateAddressModal
             ? "scale-100 opacity-100"
             : "scale-90 opacity-0"
@@ -149,20 +273,44 @@ export default function CreateAddress() {
                 error={errors.name}
               />
             </div>
-            <PanelFormInput
-              id="city"
-              value={values.city || ""}
-              onChange={handleChange}
+            <Dropdown2
+              id="searchCity"
+              data={citiesData}
+              value={helperValues.searchCity}
+              onChange={(e) =>
+                handleDropdownChange("searchCity", e.target.value)
+              }
+              onSelect={(item) => handleDropdownSelect("searchCity", item)}
               label="ქალაქი"
+              isLoading={cityLoading}
               error={errors.city}
             />
-            <PanelFormInput
-              id="street"
-              value={values.street || ""}
-              onChange={handleChange}
+            <Dropdown2
+              id="searchStreet"
+              data={streetsData}
+              value={helperValues.searchStreet}
+              onChange={(e) =>
+                handleDropdownChange("searchStreet", e.target.value)
+              }
+              onSelect={(item) => handleDropdownSelect("searchStreet", item)}
               label="ქუჩა"
+              isLoading={streetLoading}
               error={errors.street}
             />
+            <div className="col-span-1 sm:col-span-2 h-[200px] bg-myLightBlue rounded-[8px] overflow-hidden">
+              <Map
+                uiControl={true}
+                id="location"
+                markerCoordinates={values.location || undefined}
+                centerCoordinates={
+                  helperValues.streetLocation ||
+                  helperValues.cityLocation ||
+                  undefined
+                }
+                onChange={handleChange}
+              />
+            </div>
+
             <PanelFormInput
               id="building_number"
               value={values.building_number || ""}
@@ -174,7 +322,7 @@ export default function CreateAddress() {
               id="building_entrance"
               value={values.building_entrance || ""}
               onChange={handleChange}
-              label="შესასვლელი"
+              label="სადარბაზოს ნომერი"
               error={errors.building_entrance}
             />
             <PanelFormInput
@@ -215,7 +363,6 @@ export default function CreateAddress() {
                 building_number: "",
                 description: "",
               }));
-
               setValues((prev) => ({
                 ...prev,
                 name: "",

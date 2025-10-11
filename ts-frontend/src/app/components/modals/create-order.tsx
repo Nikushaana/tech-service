@@ -8,7 +8,7 @@ import { toast } from "react-toastify";
 import PanelFormInput from "../inputs/panel-form-input";
 import { Loader2Icon } from "lucide-react";
 import { useOrdersStore } from "@/app/store/useOrdersStore";
-import { Dropdown } from "../inputs/drop-down-menu";
+import { Dropdown } from "../inputs/drop-down";
 import { useCategoriesStore } from "@/app/store/useCategoriesStore";
 import ImageSelector from "../inputs/image-selector";
 import VideoSelector from "../inputs/video.selector";

@@ -22,7 +22,7 @@ export default function PanelFormInput({
 }: FormInputProps) {
   return (
     <div className="w-full">
-      <label htmlFor={id} className="text-myGray text-sm ">
+      <label htmlFor={id} className="text-myGray text-sm">
         {label}
       </label>
       <Input

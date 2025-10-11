@@ -43,6 +43,7 @@ interface Address {
   building_number: string;
   city: string;
   description: string;
+  location: LatLng;
   street: string;
   created_at: string;
   updated_at: string;
@@ -81,3 +82,8 @@ interface Order {
   created_at: string;
   updated_at: string;
 };
+
+interface LatLng {
+  lat: number;
+  lng: number;
+}

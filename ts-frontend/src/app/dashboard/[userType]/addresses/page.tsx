@@ -1,5 +1,6 @@
 "use client";
 
+import Map from "@/app/components/map/map";
 import { Button } from "@/app/components/ui/button";
 import { useAddressesStore } from "@/app/store/useAddressesStore";
 import { Loader2Icon } from "lucide-react";
@@ -30,7 +31,7 @@ export default function Page({ params }: PageProps) {
   useEffect(() => {
     fetchAddresses(userType); // fetch correct type on mount
   }, [userType]);
-  
+
   return (
     <div
       className={`w-full flex flex-col gap-y-[30px] items-center ${
@@ -62,10 +63,10 @@ export default function Page({ params }: PageProps) {
 
           {addresses.length > 0 && (
             <div className="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-[20px] max-w-[400px] lg:max-w-none w-full lg:w-auto items-stretch">
-              {addresses.map((item: any) => (
+              {addresses.map((item: Address) => (
                 <div
                   key={item.id}
-                  className="bg-white border border-gray-200 shadow-sm hover:shadow-lg transition-transform duration-200 h-full lg:max-w-[400px] lg:w-full transform hover:-translate-y-1 rounded-xl p-[14px] flex flex-col gap-2"
+                  className="bg-white border border-gray-200 shadow-sm hover:shadow-lg transition-transform duration-200 h-full lg:max-w-[400px] lg:w-full transform hover:-translate-y-1 rounded-xl p-[14px] flex flex-col gap-1"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-[10px]">
@@ -87,20 +88,55 @@ export default function Page({ params }: PageProps) {
                     </Button>
                   </div>
 
-                  <p>
-                    {item.city}, {item.street}
+                  <p className="text-sm">
+                    ქალაქი:{" "}
+                    <span className="text-base font-semibold">{item.city}</span>
                   </p>
-                  <p>შენობის ნომერი: {item.building_number}</p>
+                  <p className="text-sm">
+                    ქუჩა:{" "}
+                    <span className="text-base font-semibold">
+                      {item.street}
+                    </span>
+                  </p>
+                  <p className="text-sm">
+                    შენობის ნომერი:{" "}
+                    <span className="text-base font-semibold">
+                      {item.building_number}
+                    </span>
+                  </p>
                   {item.building_entrance && (
-                    <p>სადარბაზოს ნომერი: {item.building_entrance}</p>
+                    <p className="text-sm">
+                      სადარბაზოს ნომერი:{" "}
+                      <span className="text-base font-semibold">
+                        {item.building_entrance}
+                      </span>
+                    </p>
                   )}
-                  {item.building_floor && <p>სართული: {item.building_floor}</p>}
+                  {item.building_floor && (
+                    <p className="text-sm">
+                      სართული:{" "}
+                      <span className="text-base font-semibold">
+                        {item.building_floor}
+                      </span>
+                    </p>
+                  )}
                   {item.apartment_number && (
-                    <p>ბინის ნომერი: {item.apartment_number}</p>
+                    <p className="text-sm">
+                      ბინის ნომერი:{" "}
+                      <span className="text-base font-semibold">
+                        {item.apartment_number}
+                      </span>
+                    </p>
                   )}
                   <p className="flex-1 p-[5px] bg-gray-100 rounded-[8px]">
                     {item.description}
                   </p>
+                  <div className="h-[100px] bg-myLightBlue rounded-[8px] overflow-hidden">
+                    <Map
+                      centerCoordinates={item.location}
+                      markerCoordinates={item.location}
+                    />
+                  </div>
                 </div>
               ))}
             </div>
