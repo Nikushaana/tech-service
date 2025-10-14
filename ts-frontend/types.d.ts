@@ -74,6 +74,8 @@ interface Order {
   brand: string;
   model: string;
   status: string;
+  images: string[];
+  videos: string[];
   category: Category;
   company: User | null;
   individual: User | null;

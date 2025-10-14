@@ -10,6 +10,7 @@ import * as Yup from "yup";
 import { Button } from "@/app/components/ui/button";
 import { toast } from "react-toastify";
 import { useOrderStatusOptionsStore } from "@/app/store/orderStatusOptionsStore";
+import Map from "@/app/components/map/map";
 
 interface OrderPageProps {
   params: Promise<{
@@ -199,7 +200,7 @@ export default function Page({ params }: OrderPageProps) {
                 ? order.individual?.name + " " + order.individual?.lastName
                 : order.company &&
                   order.company?.companyName +
-                    " | საიდენტიფიკაციო კოდი:" +
+                    " | საიდენტიფიკაციო კოდი: " +
                     order.company?.companyIdentificationCode}
             </p>
             {order.company && (
@@ -217,19 +218,40 @@ export default function Page({ params }: OrderPageProps) {
           </div>
 
           {/* Address */}
-          <div>
+          <div className="flex flex-col">
             <h3>მისამართი</h3>
-            <p>{order.address?.name}</p>
-            <p>{order.address?.description}</p>
-            <p>
-              {order.address?.street}, {"N" + order.address?.building_number}
-              {order.address?.building_entrance &&
-                `, შესასვლელი: ${order.address?.building_entrance}`}
-              {order.address?.building_floor &&
-                `, სართული: ${order.address?.building_floor}`}
-              {order.address?.apartment_number &&
-                `, ბინის ნომერი: ${order.address?.apartment_number}`}
-              , {order.address?.city}
+            <p>{order?.address?.name}</p>
+            <p>ქალაქი: {order?.address?.city}</p>
+            <p>ქუჩა: {order?.address?.street}</p>
+            <p>შენობის ნომერი: {order?.address?.building_number}</p>
+            {order?.address?.building_entrance && (
+              <p>სადარბაზო: {order?.address?.building_entrance}</p>
+            )}
+            {order?.address?.building_floor && (
+              <p>სართული: {order?.address?.building_floor}</p>
+            )}
+            {order?.address?.apartment_number && (
+              <p>ბინის ნომერი: {order?.address?.apartment_number}</p>
+            )}
+            <p className="p-[5px] bg-gray-100 rounded-[8px]">
+              {order?.address?.description}
+            </p>
+            <div className="h-[100px] mt-2 bg-myLightBlue rounded-[8px] overflow-hidden">
+              <Map
+                centerCoordinates={order?.address.location}
+                markerCoordinates={order?.address.location}
+              />
+            </div>
+            <p
+              onClick={() =>
+                window.open(
+                  `https://www.google.com/maps/dir/?api=1&destination=${order?.address?.location?.lat},${order?.address?.location?.lng}`,
+                  "_blank"
+                )
+              }
+              className="underline text-sm hover:text-myGray mt-2 self-end cursor-pointer"
+            >
+              რუკაზე ნახვა
             </p>
           </div>
 
@@ -237,14 +259,14 @@ export default function Page({ params }: OrderPageProps) {
           <div>
             <h3 className="font-semibold mb-1">შეკვეთის აღწერა</h3>
             <p>{order.description}</p>
-            <div className="flex flex-wrap gap-4 mt-2">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-2">
               {/* Videos */}
               {order.videos?.map((videoUrl: string) => (
                 <video
                   key={videoUrl}
                   src={videoUrl}
                   controls
-                  className="w-[200px] h-[130px] object-contain rounded border"
+                  className="h-[80px] sm:h-[130px] w-full object-cover rounded border"
                 />
               ))}
 
@@ -254,7 +276,7 @@ export default function Page({ params }: OrderPageProps) {
                   key={imageUrl}
                   src={imageUrl}
                   alt="Order image"
-                  className="w-[200px] h-[130px] object-contain rounded border"
+                  className="h-[80px] sm:h-[130px] w-full object-cover rounded border"
                 />
               ))}
             </div>
