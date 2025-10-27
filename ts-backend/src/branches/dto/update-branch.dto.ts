@@ -37,15 +37,15 @@ export class UpdateBranchDto {
     @IsNotEmpty()
     description: string;
 
-    @IsNumber()
+    @IsString()
     @IsOptional()
     @IsNotEmpty()
-    coverage_radius_km: number;
+    coverage_radius_km: string;
 
-    @IsNumber()
+    @IsString()
     @IsOptional()
     @IsNotEmpty()
-    delivery_price: number;
+    delivery_price: string;
 
     @ValidateNested()
     @Type(() => LocationDto)

@@ -32,13 +32,13 @@ export class CreateBranchDto {
     @IsNotEmpty()
     description: string;
 
-    @IsNumber()
+    @IsString()
     @IsNotEmpty()
-    coverage_radius_km: number;
+    coverage_radius_km: string;
 
-    @IsNumber()
+    @IsString()
     @IsNotEmpty()
-    delivery_price: number;
+    delivery_price: string;
 
     @ValidateNested()
     @Type(() => LocationDto)

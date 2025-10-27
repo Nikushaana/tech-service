@@ -34,11 +34,11 @@ export class Branch {
     @Column({ type: 'json' })
     location: Location;
 
-    @Column({ default: 0 })
-    coverage_radius_km: number;
+    @Column()
+    coverage_radius_km: string;
 
-    @Column({ default: 0 })
-    delivery_price: number;
+    @Column()
+    delivery_price: string;
 
     @CreateDateColumn()
     created_at: Date;
