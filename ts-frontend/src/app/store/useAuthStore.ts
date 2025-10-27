@@ -185,7 +185,6 @@ export const useAuthStore = create<Store>((set, get) => ({
             .catch(() => {
                 localStorage.removeItem(`${role}Token`);
                 set({ currentUser: null });
-                window.location.href = "/auth/login";
             })
             .finally(() => {
                 set({ authLoading: false });

@@ -6,10 +6,13 @@ import { scrollToSection } from "@/app/utils/scroll";
 import { usePathname, useRouter } from "next/navigation";
 import React, { useEffect } from "react";
 import { Button } from "../ui/button";
+import { useAuthStore } from "@/app/store/useAuthStore";
+import { toast } from "react-toastify";
 
 export default function BurgerMenu() {
   const menu = useMenuStore((state) => state.menu);
   const { isOpen, closeBurgerMenu } = useBurgerMenuStore();
+  const { currentUser } = useAuthStore();
   const pathname = usePathname();
   const router = useRouter();
 
@@ -51,12 +54,25 @@ export default function BurgerMenu() {
 
           <Button
             onClick={() => {
-              router.push("/auth/login");
+              if (currentUser) {
+                const path =
+                  currentUser.role === "individual"
+                    ? "/dashboard/individual/orders"
+                    : "/dashboard/company/orders";
+
+                router.push(path);
+              } else {
+                router.push("/auth/login");
+                toast.warning("ასარჩევად გაიარე ავტორიზაცია", {
+                  position: "bottom-right",
+                  autoClose: 3000,
+                });
+              }
               closeBurgerMenu();
             }}
             className="flex h-[45px] cursor-pointer"
           >
-            მოითხოვე სერვისი
+            აირჩიე სერვისი
           </Button>
 
           <nav className="flex flex-col gap-6">

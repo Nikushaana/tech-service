@@ -55,7 +55,7 @@ export default function Page() {
                   "/images/logo.png"
                 }
                 alt={technician.name}
-                className="aspect-square object-contain w-[40px]"
+                className="aspect-square object-cover rounded-full w-[40px]"
               />
               <p>{technician.name + " " + technician.lastName}</p>
             </div>

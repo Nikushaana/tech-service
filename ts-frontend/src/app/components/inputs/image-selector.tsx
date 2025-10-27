@@ -54,9 +54,9 @@ export default function ImageSelector({
       ))}
 
       {/* New images preview */}
-      {newImages.map((file) => (
+      {newImages.map((file, index) => (
         <div
-          key={file.name}
+          key={index}
           className="w-[200px] h-[130px] rounded relative overflow-hidden shadow border-[1px]"
         >
           <Button

@@ -44,7 +44,7 @@ export default function Page() {
                 onClick={() => {
                   router.push(`/admin/panel/orders/${order.id}`);
                 }}
-                className="bg-[gray] hover:bg-[#696767] text-[20px] cursor-pointer"
+                className="bg-[gray] hover:bg-[#696767] text-[20px] p-0! w-[40px] h-[40px] cursor-pointer"
               >
                 <BsEye />
               </Button>

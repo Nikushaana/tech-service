@@ -1,12 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { useAuthStore } from "../store/useAuthStore";
 import { Button } from "../components/ui/button";
-import { BsXLg } from "react-icons/bs";
-import { Menu } from "lucide-react";
 import { HiMenu, HiX } from "react-icons/hi";
 import { useBurgerMenuStore } from "../store/burgerMenuStore";
 
@@ -21,16 +19,18 @@ const sidebarLinks: Record<Role, SidebarLinksWithTitle> = {
   individual: {
     title: "ჩემი გვერდი",
     links: [
-      { name: "შეკვეთები", href: "/dashboard/individual/orders" },
+      { name: "ჩემი სერვისები", href: "/dashboard/individual/orders" },
       { name: "მისამართები", href: "/dashboard/individual/addresses" },
+      { name: "შეაფასე Tech Service", href: "/dashboard/individual/reviews" },
       { name: "პროფილი", href: "/dashboard/individual/profile" },
     ],
   },
   company: {
     title: "კომპანიის გვერდი",
     links: [
-      { name: "შეკვეთები", href: "/dashboard/company/orders" },
+      { name: "ჩემი სერვისები", href: "/dashboard/company/orders" },
       { name: "მისამართები", href: "/dashboard/company/addresses" },
+      { name: "შეაფასე Tech Service", href: "/dashboard/company/reviews" },
       { name: "პროფილი", href: "/dashboard/company/profile" },
     ],
   },

@@ -72,7 +72,7 @@ export default function Page({ params }: PageProps) {
             <LuPlus
               className={`${orders.length > 0 ? "text-[18px]" : "text-[22px]"}`}
             />{" "}
-            შეკვეთის დამატება
+            აირჩიე სერვისი
           </Button>
 
           {orders.length > 0 && (
@@ -93,7 +93,7 @@ export default function Page({ params }: PageProps) {
                       onClick={() => {
                         router.push(`/dashboard/${userType}/orders/${item.id}`);
                       }}
-                      className="bg-[gray] hover:bg-[#696767] text-[20px] cursor-pointer"
+                      className="bg-[gray] hover:bg-[#696767] text-[20px] p-0! w-[40px] h-[40px] cursor-pointer"
                     >
                       <BsEye />
                     </Button>

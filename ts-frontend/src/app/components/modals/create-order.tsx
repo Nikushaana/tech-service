@@ -10,10 +10,11 @@ import { Loader2Icon } from "lucide-react";
 import { useOrdersStore } from "@/app/store/useOrdersStore";
 import { Dropdown } from "../inputs/drop-down";
 import { useCategoriesStore } from "@/app/store/useCategoriesStore";
-import ImageSelector from "../inputs/image-selector";
-import VideoSelector from "../inputs/video.selector";
+import OrderImagesSelector from "../inputs/order-images-selector";
+import OrderVideosSelector from "../inputs/order-videos-selector";
 
 interface CreateOrderValues {
+  serviceType: string | number;
   categoryId: string | number;
   addressId: string | number;
   brand: string;
@@ -35,6 +36,7 @@ export default function CreateOrder() {
   const { categories } = useCategoriesStore();
 
   const [values, setValues] = useState<CreateOrderValues>({
+    serviceType: "",
     categoryId: "",
     addressId: "",
     brand: "",
@@ -45,6 +47,7 @@ export default function CreateOrder() {
   });
 
   const [errors, setErrors] = useState({
+    serviceType: "",
     categoryId: "",
     addressId: "",
     brand: "",
@@ -63,7 +66,7 @@ export default function CreateOrder() {
     setValues((prev) => ({
       ...prev,
       [id]:
-        id === "categoryId" || id === "addressId"
+        id === "categoryId" || id === "addressId" || id == "serviceType"
           ? value === ""
             ? ""
             : Number(value)
@@ -72,6 +75,7 @@ export default function CreateOrder() {
   };
 
   const createOrderSchema = Yup.object().shape({
+    serviceType: Yup.string().required("სერვისის ტიპი აუცილებელია"),
     categoryId: Yup.string().required("კატეგორია აუცილებელია"),
     brand: Yup.string().required("ბრენდი აუცილებელია"),
     model: Yup.string().required("მოდელი აუცილებელია"),
@@ -91,6 +95,7 @@ export default function CreateOrder() {
       await createOrderSchema.validate(values, { abortEarly: false });
 
       const formData = new FormData();
+      formData.append("serviceType", String(values.serviceType));
       formData.append("categoryId", String(values.categoryId));
       formData.append("brand", values.brand);
       formData.append("model", values.model);
@@ -107,11 +112,12 @@ export default function CreateOrder() {
         formData.append("videos", video);
       });
 
-      await createOrder(modalType!, formData); // or "individual" depending on user
+      await createOrder(modalType!, formData);
       toggleOpenCreateOrderModal();
 
       // reset form values
       setValues({
+        serviceType: "",
         categoryId: "",
         brand: "",
         model: "",
@@ -122,6 +128,7 @@ export default function CreateOrder() {
       });
 
       setErrors({
+        serviceType: "",
         categoryId: "",
         brand: "",
         model: "",
@@ -178,10 +185,26 @@ export default function CreateOrder() {
           openCreateOrderModal ? "scale-100 opacity-100" : "scale-90 opacity-0"
         }`}
       >
-        <h2 className="text-lg font-semibold ">შეკვეთის დამატება</h2>
+        <h2 className="text-lg font-semibold ">შეავსე განაცხადი</h2>
+        <p className="text-sm text-myLightGray">
+          სერვისის არჩევიდან მაქსიმუმ 24 საათში ჩვენ დაგიკავშირდებით
+        </p>
         <div className="flex-1 overflow-y-auto showScroll pr-2">
           <div className="flex flex-col gap-y-[10px]">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-[10px]">
+              <div className="col-span-1 sm:col-span-2">
+                <Dropdown
+                  data={[
+                    { id: 1, name: "მონტაჟი" },
+                    { id: 2, name: "შეკეთება" },
+                  ]}
+                  id="serviceType"
+                  value={values.serviceType || ""}
+                  onChange={handleChange}
+                  label="სერვისის ტიპი"
+                  error={errors.serviceType}
+                />
+              </div>
               <Dropdown
                 data={categories.data}
                 id="categoryId"
@@ -217,13 +240,19 @@ export default function CreateOrder() {
                   id="description"
                   value={values.description || ""}
                   onChange={handleChange}
-                  label="აღწერა"
+                  label={
+                    values.serviceType == 1
+                      ? "მონტაჟის დეტალები"
+                      : values.serviceType == 2
+                      ? "პრობლემის აღწერა"
+                      : "აღწერა"
+                  }
                   error={errors.description}
                 />
               </div>
             </div>
             <div className="flex flex-col gap-[10px] overflow-x-scroll showXScroll">
-              <ImageSelector
+              <OrderImagesSelector
                 newImages={values.newImages}
                 setNewImages={{
                   add: (files: File[]) =>
@@ -238,7 +267,7 @@ export default function CreateOrder() {
                     })),
                 }}
               />
-              <VideoSelector
+              <OrderVideosSelector
                 newVideos={values.newVideos} // use the correct field
                 setNewVideos={{
                   add: (files: File[]) =>
@@ -263,6 +292,7 @@ export default function CreateOrder() {
               toggleOpenCreateOrderModal();
               setErrors((prev) => ({
                 ...prev,
+                serviceType: "",
                 categoryId: "",
                 brand: "",
                 model: "",
@@ -272,6 +302,7 @@ export default function CreateOrder() {
 
               setValues((prev) => ({
                 ...prev,
+                serviceType: "",
                 categoryId: "",
                 brand: "",
                 model: "",

@@ -4,6 +4,7 @@ import React from "react";
 import { Button } from "../ui/button";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/app/store/useAuthStore";
+import { toast } from "react-toastify";
 
 export default function HeroSection() {
   const router = useRouter();
@@ -39,17 +40,23 @@ export default function HeroSection() {
         <Button
           onClick={() => {
             if (currentUser) {
-              if (currentUser?.role === "individual")
-                router.push("/dashboard/individual/orders");
-              else if (currentUser?.role === "company")
-                router.push("/dashboard/company/orders");
+              const path =
+                currentUser.role === "individual"
+                  ? "/dashboard/individual/orders"
+                  : "/dashboard/company/orders";
+
+              router.push(path);
             } else {
               router.push("/auth/login");
+              toast.warning("ასარჩევად გაიარე ავტორიზაცია", {
+                position: "bottom-right",
+                autoClose: 3000,
+              });
             }
           }}
           className="md:hidden flex h-[45px] px-[20px] sm:px-[30px] self-center cursor-pointer"
         >
-          მოითხოვე სერვისი
+          აირჩიე სერვისი
         </Button>
       </div>
     </div>

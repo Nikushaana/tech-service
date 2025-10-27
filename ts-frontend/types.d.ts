@@ -85,6 +85,17 @@ interface Order {
   updated_at: string;
 };
 
+interface Review {
+  id: number;
+  review: string;
+  stars: number;
+  status: boolean;
+  company?: User | null;
+  individual?: User | null;
+  created_at: string;
+  updated_at: string;
+};
+
 interface LatLng {
   lat: number;
   lng: number;

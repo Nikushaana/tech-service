@@ -10,18 +10,18 @@ import {
 import { GoMail } from "react-icons/go";
 import { useMenuStore } from "../store/useMenuStore";
 import { scrollToSection } from "../utils/scroll";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 export default function Footer() {
   const pathname = usePathname();
+  const router = useRouter();
   const menu = useMenuStore((state) => state.menu);
 
   const [other] = useState([
-    { id: 1, text: "ჩვენი კომპანია" },
-    { id: 2, text: "კონფიდენციალურობის პოლიტიკა" },
-    { id: 3, text: "წესები და პირობები" },
-    { id: 4, text: "ჩვენს შესახებ" },
-    { id: 5, text: "პასუხისმგებლობის შეზღუდვა" },
+    { id: 1, text: "ჩვენს შესახებ", url: "/about-us" },
+    { id: 2, text: "კონფიდენციალურობის პოლიტიკა", url: "" },
+    { id: 3, text: "წესები და პირობები", url: "" },
+    { id: 4, text: "პასუხისმგებლობის შეზღუდვა", url: "" },
   ]);
 
   return (
@@ -33,7 +33,7 @@ export default function Footer() {
         <div className="flex flex-col gap-6 md:gap-10 w-full md:w-auto">
           <img src="/images/logo.png" alt="logo" className="w-[60px]" />
           <p className="text-myLightGray text-sm md:text-base max-w-[250px]">
-            Tech Service — პირველი სრულად ციფრული სერვისი თქვენი ტექნიკის
+            Tech Service — პირველი სრულიად ციფრული სერვისი თქვენი ტექნიკის
             შესაკეთებლად
           </p>
           <div className="flex flex-col gap-y-[10px]">
@@ -74,11 +74,12 @@ export default function Footer() {
           {/* Other Info */}
           <div className="flex flex-col gap-3">
             <h2 className="text-[20px] md:text-[25px] text-myGray font-semibold">
-              სხვა ინფორმაცია
+              დამატებითი ინფორმაცია
             </h2>
             {other.map((item) => (
               <p
                 key={item.id}
+                onClick={() => router.push(item.url)}
                 className="cursor-pointer text-myLightGray hover:text-myLightBlue duration-100 text-sm md:text-base"
               >
                 {item.text}

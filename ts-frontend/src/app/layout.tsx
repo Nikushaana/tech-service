@@ -10,6 +10,7 @@ import CreateAddress from "./components/modals/create-address";
 import CreateOrder from "./components/modals/create-order";
 import AuthRehydrate from "./components/auth-rehydrate";
 import { LoadScript } from "@react-google-maps/api";
+import CreateReview from "./components/modals/create-review";
 
 export const metadata: Metadata = {
   title: "Tech Service | საოჯახო ტექნიკის სერვის-ცენტრი",
@@ -35,6 +36,7 @@ export default function RootLayout({
         <LogOut />
         <CreateAddress />
         <CreateOrder />
+        <CreateReview />
       </body>
     </html>
   );

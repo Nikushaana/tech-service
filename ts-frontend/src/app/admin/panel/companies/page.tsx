@@ -46,7 +46,7 @@ export default function Page() {
                   (company.images && company.images[0]) || "/images/logo.png"
                 }
                 alt={company.name}
-                className="aspect-square object-contain w-[40px]"
+                className="aspect-square object-cover rounded-full w-[40px]"
               />
               <div>
                 <h2>{company.companyName}</h2>

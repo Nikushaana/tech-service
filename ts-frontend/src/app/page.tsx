@@ -1,9 +1,9 @@
 import HeroSection from "./components/home-page/hero-section";
 import WhyChooseSection from "./components/home-page/why-choose-section";
 import StatsSection from "./components/home-page/stats-section";
-import UsersCommentsSection from "./components/home-page/users-comments-section";
 import ServicesSection from "./components/home-page/services/services-section";
 import FaqSection from "./components/home-page/faq/faq-section";
+import UsersCommentsSection from "./components/home-page/users-comments/users-comments-section";
 
 export default function Home() {
   return (
