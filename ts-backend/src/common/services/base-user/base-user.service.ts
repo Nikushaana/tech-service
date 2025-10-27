@@ -17,6 +17,8 @@ import { CreateOrderDto } from "src/order/dto/create-order.dto";
 import { UpdateUserOrderDto } from "src/order/dto/update-user-order.dto";
 import { CreateAddressDto } from "src/address/dto/create-address.dto";
 import { CloudinaryService } from "src/common/cloudinary/cloudinary.service";
+import { CreateReviewDto } from "src/reviews/dto/create-review.dto";
+import { Review } from "src/reviews/entities/review.entity";
 
 interface WithIdAndPassword {
     id: number;
@@ -42,6 +44,9 @@ export class BaseUserService {
 
         @InjectRepository(Address)
         private readonly addressRepo: Repository<Address>,
+
+        @InjectRepository(Review)
+        private readonly reviewRepo: Repository<Review>,
 
         private readonly verificationCodeService: VerificationCodeService,
 
@@ -302,12 +307,12 @@ export class BaseUserService {
 
         const relationKey = "companyName" in user ? "company" : "individual";
 
-        const address = await this.addressRepo.find({
+        const addresses = await this.addressRepo.find({
             where: { [relationKey]: { id: userId } },
             order: { created_at: 'DESC' },
         });
 
-        return address;
+        return addresses;
     }
 
     async getOneAddress(userId: number, id: number, repo: any) {
@@ -352,5 +357,39 @@ export class BaseUserService {
             message: 'Address deleted successfully',
             address,
         };
+    }
+
+    // about review
+
+    async createReview(userId: number, repo: any, createReviewDto: CreateReviewDto) {
+        const user = await repo.findOne({ where: { id: userId } });
+        if (!user) throw new BadRequestException('User not found');
+
+        const review = this.reviewRepo.create({
+            ...createReviewDto
+        });
+
+        if ("companyName" in user) {
+            review.company = user;
+        } else {
+            review.individual = user;
+        }
+
+        await this.reviewRepo.save(review);
+
+        return { message: `Review created successfully`, review: instanceToPlain(review) };
+    }
+
+    async getReviews(userId: number, repo: any) {
+        const user = await this.getUser(userId, repo)
+
+        const relationKey = "companyName" in user ? "company" : "individual";
+
+        const reviews = await this.reviewRepo.find({
+            where: { [relationKey]: { id: userId } },
+            order: { created_at: 'DESC' },
+        });
+
+        return reviews;
     }
 }

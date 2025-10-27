@@ -11,6 +11,7 @@ import { ChangeNumberDto, PhoneDto } from 'src/verification-code/dto/verificatio
 import { CreateOrderDto } from 'src/order/dto/create-order.dto';
 import { UpdateUserOrderDto } from 'src/order/dto/update-user-order.dto';
 import { CreateAddressDto } from 'src/address/dto/create-address.dto';
+import { CreateReviewDto } from 'src/reviews/dto/create-review.dto';
 
 @Injectable()
 export class IndividualClientService {
@@ -85,5 +86,15 @@ export class IndividualClientService {
 
     async deleteOneAddress(individualId: number, id: number) {
         return this.baseUserService.deleteOneAddress(individualId, id, this.individualClientRepo);
+    }
+    
+    // create review
+
+    async createReview(individualId: number, createReviewDto: CreateReviewDto) {
+        return this.baseUserService.createReview(individualId, this.individualClientRepo, createReviewDto);
+    }
+
+    async getReviews(individualId: number) {
+        return this.baseUserService.getReviews(individualId, this.individualClientRepo);
     }
 }

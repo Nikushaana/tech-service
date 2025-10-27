@@ -18,7 +18,12 @@ export class FrontController {
     }
 
     @Get('technicians')
-    async getAdminTechnicians(@Query() userFilterDto: UserFilterDto) {
+    async getTechnicians(@Query() userFilterDto: UserFilterDto) {
         return this.frontService.getTechnicians(userFilterDto);
+    }
+    
+    @Get('reviews')
+    async getReviews() {
+        return this.frontService.getReviews();
     }
 }

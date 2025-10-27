@@ -5,6 +5,7 @@ import { Category } from 'src/category/entities/category.entity';
 import { BaseUserService } from 'src/common/services/base-user/base-user.service';
 import { UserFilterDto } from 'src/common/services/base-user/dto/user-filter.dto';
 import { Faq } from 'src/faq/entities/faq.entity';
+import { Review } from 'src/reviews/entities/review.entity';
 import { Technician } from 'src/technician/entities/technician.entity';
 import { Repository } from 'typeorm';
 
@@ -19,6 +20,9 @@ export class FrontService {
 
         @InjectRepository(Faq)
         private faqRepo: Repository<Faq>,
+
+        @InjectRepository(Review)
+        private reviewRepo: Repository<Review>,
 
         private readonly baseUserService: BaseUserService,
     ) { }
@@ -57,5 +61,15 @@ export class FrontService {
         const findTechnicians = await this.baseUserService.getUsers(this.technicianRepo, userFilterDto);
 
         return instanceToPlain(findTechnicians, { groups: ['front'] });
+    }
+
+    async getReviews() {
+        const reviews = await this.reviewRepo.find({
+            where: { status: true },
+            order: { created_at: 'DESC' },
+            relations: ['company', 'individual'],
+        });
+
+        return instanceToPlain(reviews);
     }
 }

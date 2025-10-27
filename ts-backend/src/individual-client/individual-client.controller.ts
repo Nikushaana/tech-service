@@ -12,6 +12,7 @@ import { UpdateUserOrderDto } from 'src/order/dto/update-user-order.dto';
 import { CreateAddressDto } from 'src/address/dto/create-address.dto';
 import { MultipleImagesUpload } from 'src/common/interceptors/multiple-images-upload.factory';
 import { MultipleFilesUpload } from 'src/common/interceptors/MultipleFilesUpload.interceptor';
+import { CreateReviewDto } from 'src/reviews/dto/create-review.dto';
 
 @Controller('individual')
 export class IndividualClientController {
@@ -123,5 +124,21 @@ export class IndividualClientController {
     @Delete('addresses/:id')
     async deleteOneAddress(@Req() req: RequestInfo, @Param('id', ParseIntPipe) id: number) {
         return this.individualClientService.deleteOneAddress(req.user.id, id);
+    }
+
+    // review
+
+    @UseGuards(TokenValidationGuard, RolesGuard)
+    @Roles('individual')
+    @Post('create-review')
+    async createReview(@Req() req: RequestInfo, @Body() createReviewDto: CreateReviewDto) {
+        return this.individualClientService.createReview(req.user.id, createReviewDto);
+    }
+
+    @UseGuards(TokenValidationGuard, RolesGuard)
+    @Roles('individual')
+    @Get('reviews')
+    async getReviews(@Req() req: RequestInfo) {
+        return this.individualClientService.getReviews(req.user.id);
     }
 }

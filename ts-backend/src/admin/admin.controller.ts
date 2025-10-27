@@ -13,6 +13,7 @@ import { CreateFaqDto } from 'src/faq/dto/create-faq.dto';
 import { UpdateFaqDto } from 'src/faq/dto/update-category.dto';
 import type { RequestInfo } from 'src/common/types/request-info';
 import { MultipleImagesUpload } from 'src/common/interceptors/multiple-images-upload.factory';
+import { UpdateReviewDto } from 'src/reviews/dto/update-review.dto';
 
 @Controller('admin')
 export class AdminController {
@@ -211,5 +212,35 @@ export class AdminController {
     @Get('addresses/:id')
     async getUserAddresses(@Param('id', ParseIntPipe) id: number, @Query('role') role: 'individual' | 'company') {
         return this.adminService.getUserAddresses(id, role);
+    }
+
+    // reviews
+
+    @UseGuards(TokenValidationGuard, RolesGuard)
+    @Roles('admin')
+    @Get('reviews')
+    async getReviews() {
+        return this.adminService.getReviews();
+    }
+
+    @UseGuards(TokenValidationGuard, RolesGuard)
+    @Roles('admin')
+    @Get('reviews/:id')
+    async getOneReview(@Param('id', ParseIntPipe) id: number) {
+        return this.adminService.getOneReview(id);
+    }
+
+    @UseGuards(TokenValidationGuard, RolesGuard)
+    @Roles('admin')
+    @Patch('reviews/:id')
+    async updateOneReview(@Param('id', ParseIntPipe) id: number, @Body() updateReviewDto: UpdateReviewDto) {
+        return this.adminService.updateOneReview(id, updateReviewDto);
+    }
+
+    @UseGuards(TokenValidationGuard, RolesGuard)
+    @Roles('admin')
+    @Delete('reviews/:id')
+    async deleteReview(@Param('id', ParseIntPipe) id: number) {
+        return this.adminService.deleteReview(id);
     }
 }

@@ -22,6 +22,8 @@ import { CreateFaqDto } from 'src/faq/dto/create-faq.dto';
 import { UpdateFaqDto } from 'src/faq/dto/update-category.dto';
 import { CloudinaryProvider } from 'src/common/cloudinary/cloudinary.provider';
 import { CloudinaryService } from 'src/common/cloudinary/cloudinary.service';
+import { Review } from 'src/reviews/entities/review.entity';
+import { UpdateReviewDto } from 'src/reviews/dto/update-review.dto';
 
 @Injectable()
 export class AdminService {
@@ -49,6 +51,9 @@ export class AdminService {
 
         @InjectRepository(Address)
         private readonly addressRepo: Repository<Address>,
+
+        @InjectRepository(Review)
+        private readonly reviewRepo: Repository<Review>,
 
         private readonly baseUserService: BaseUserService,
 
@@ -601,5 +606,61 @@ export class AdminService {
         });
 
         return addresses;
+    }
+
+    // reviews
+
+    async getReviews() {
+        const reviews = await this.reviewRepo.find({
+            order: { created_at: 'DESC' }, relations: ['individual', 'company'],
+        });
+
+        return reviews;
+    }
+
+    async getOneReview(id: number) {
+        const review = await this.reviewRepo.findOne({
+            where: { id }, relations: ['individual', 'company']
+        });
+        if (!review) throw new NotFoundException('Review not found');
+
+        return instanceToPlain(review)
+    }
+
+    async updateOneReview(
+        id: number,
+        updateReviewDto: UpdateReviewDto
+    ) {
+        const review = await this.reviewRepo.findOne({
+            where: { id },
+        });
+        if (!review) throw new NotFoundException('Review not found');
+
+        // Merge updates
+        this.reviewRepo.merge(review, {
+            ...updateReviewDto
+        });
+
+        await this.reviewRepo.save(review);
+
+        return {
+            message: 'Review updated successfully',
+            review
+        };
+    }
+
+    async deleteReview(id: number) {
+        const review = await this.reviewRepo.findOne({
+            where: { id },
+        });
+
+        if (!review) throw new NotFoundException('Review not found');
+
+        // Delete faq
+        await this.reviewRepo.remove(review);
+
+        return {
+            message: 'Review deleted successfully',
+        };
     }
 }
