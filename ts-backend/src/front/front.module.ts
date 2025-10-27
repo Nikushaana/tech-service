@@ -7,9 +7,10 @@ import { Technician } from 'src/technician/entities/technician.entity';
 import { Faq } from 'src/faq/entities/faq.entity';
 import { BaseUserModule } from 'src/common/services/base-user/base-user.module';
 import { Review } from 'src/reviews/entities/review.entity';
+import { Branch } from 'src/branches/entities/branches.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Category, Technician, Faq, Review]), BaseUserModule],
+  imports: [TypeOrmModule.forFeature([Category, Technician, Faq, Review, Branch]), BaseUserModule],
   providers: [FrontService],
   controllers: [FrontController]
 })

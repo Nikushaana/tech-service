@@ -1,8 +1,9 @@
-import { IsOptional, IsString, IsInt, Min, Max, IsBoolean } from 'class-validator';
+import { IsOptional, IsString, IsInt, Min, Max, IsBoolean, IsNotEmpty } from 'class-validator';
 
 export class UpdateReviewDto {
     @IsOptional()
     @IsString()
+    @IsNotEmpty()
     review?: string;
 
     @IsOptional()

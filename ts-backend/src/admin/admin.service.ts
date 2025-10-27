@@ -24,6 +24,9 @@ import { CloudinaryProvider } from 'src/common/cloudinary/cloudinary.provider';
 import { CloudinaryService } from 'src/common/cloudinary/cloudinary.service';
 import { Review } from 'src/reviews/entities/review.entity';
 import { UpdateReviewDto } from 'src/reviews/dto/update-review.dto';
+import { CreateBranchDto } from 'src/branches/dto/create-branch.dto';
+import { Branch } from 'src/branches/entities/branches.entity';
+import { UpdateBranchDto } from 'src/branches/dto/update-branch.dto';
 
 @Injectable()
 export class AdminService {
@@ -54,6 +57,9 @@ export class AdminService {
 
         @InjectRepository(Review)
         private readonly reviewRepo: Repository<Review>,
+
+        @InjectRepository(Branch)
+        private readonly branchRepo: Repository<Branch>,
 
         private readonly baseUserService: BaseUserService,
 
@@ -661,6 +667,73 @@ export class AdminService {
 
         return {
             message: 'Review deleted successfully',
+        };
+    }
+
+    // branches
+
+    async createBranch(createBranchDto: CreateBranchDto) {
+        const existing = await this.branchRepo.findOne({ where: { name: createBranchDto.name } });
+        if (existing) throw new BadRequestException('Branch already exists');
+
+        const branch = this.branchRepo.create({
+            ...createBranchDto
+        });
+
+        await this.branchRepo.save(branch);
+
+        return { message: 'Branch created successfully', branch };
+    }
+
+    async getBranches() {
+        const branches = await this.branchRepo.find();
+
+        return branches;
+    }
+
+    async getOneBranch(id: number) {
+        const branch = await this.branchRepo.findOne({
+            where: { id }
+        });
+        if (!branch) throw new NotFoundException('Branch not found');
+
+        return branch
+    }
+
+    async updateOneBranch(
+        id: number,
+        updateBranchDto: UpdateBranchDto
+    ) {
+        const branch = await this.branchRepo.findOne({
+            where: { id },
+        });
+        if (!branch) throw new NotFoundException('Branch not found');
+
+        // Merge updates
+        this.branchRepo.merge(branch, {
+            ...updateBranchDto
+        });
+
+        await this.branchRepo.save(branch);
+
+        return {
+            message: 'Branch updated successfully',
+            branch
+        };
+    }
+
+    async deleteBranch(id: number) {
+        const branch = await this.branchRepo.findOne({
+            where: { id },
+        });
+
+        if (!branch) throw new NotFoundException('Branch not found');
+
+        // Delete branch
+        await this.branchRepo.remove(branch);
+
+        return {
+            message: 'Branch deleted successfully',
         };
     }
 }

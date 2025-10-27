@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { instanceToPlain } from 'class-transformer';
+import { Branch } from 'src/branches/entities/branches.entity';
 import { Category } from 'src/category/entities/category.entity';
 import { BaseUserService } from 'src/common/services/base-user/base-user.service';
 import { UserFilterDto } from 'src/common/services/base-user/dto/user-filter.dto';
@@ -23,6 +24,9 @@ export class FrontService {
 
         @InjectRepository(Review)
         private reviewRepo: Repository<Review>,
+
+        @InjectRepository(Branch)
+        private branchRepo: Repository<Branch>,
 
         private readonly baseUserService: BaseUserService,
     ) { }
@@ -71,5 +75,11 @@ export class FrontService {
         });
 
         return instanceToPlain(reviews);
+    }
+
+    async getBranches() {
+        const branches = await this.branchRepo.find();
+
+        return branches;
     }
 }

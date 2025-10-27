@@ -14,6 +14,8 @@ import { UpdateFaqDto } from 'src/faq/dto/update-category.dto';
 import type { RequestInfo } from 'src/common/types/request-info';
 import { MultipleImagesUpload } from 'src/common/interceptors/multiple-images-upload.factory';
 import { UpdateReviewDto } from 'src/reviews/dto/update-review.dto';
+import { CreateBranchDto } from 'src/branches/dto/create-branch.dto';
+import { UpdateBranchDto } from 'src/branches/dto/update-branch.dto';
 
 @Controller('admin')
 export class AdminController {
@@ -242,5 +244,42 @@ export class AdminController {
     @Delete('reviews/:id')
     async deleteReview(@Param('id', ParseIntPipe) id: number) {
         return this.adminService.deleteReview(id);
+    }
+
+    // branches
+
+    @UseGuards(TokenValidationGuard, RolesGuard)
+    @Roles('admin')
+    @Post('create-branch')
+    async createBranch(@Body() createBranchDto: CreateBranchDto) {
+        return this.adminService.createBranch(createBranchDto);
+    }
+
+    @UseGuards(TokenValidationGuard, RolesGuard)
+    @Roles('admin')
+    @Get('branches')
+    async getBranches() {
+        return this.adminService.getBranches();
+    }
+
+    @UseGuards(TokenValidationGuard, RolesGuard)
+    @Roles('admin')
+    @Get('branches/:id')
+    async getOneBranch(@Param('id', ParseIntPipe) id: number) {
+        return this.adminService.getOneBranch(id);
+    }
+
+    @UseGuards(TokenValidationGuard, RolesGuard)
+    @Roles('admin')
+    @Patch('branches/:id')
+    async updateOneBranch(@Param('id', ParseIntPipe) id: number, @Body() updateBranchDto: UpdateBranchDto) {
+        return this.adminService.updateOneBranch(id, updateBranchDto);
+    }
+
+    @UseGuards(TokenValidationGuard, RolesGuard)
+    @Roles('admin')
+    @Delete('branches/:id')
+    async deleteBranch(@Param('id', ParseIntPipe) id: number) {
+        return this.adminService.deleteBranch(id);
     }
 }

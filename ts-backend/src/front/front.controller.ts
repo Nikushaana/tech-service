@@ -26,4 +26,9 @@ export class FrontController {
     async getReviews() {
         return this.frontService.getReviews();
     }
+    
+    @Get('branches')
+    async getBranches() {
+        return this.frontService.getBranches();
+    }
 }

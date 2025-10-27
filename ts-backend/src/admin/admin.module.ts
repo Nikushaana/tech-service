@@ -15,9 +15,10 @@ import { TokensModule } from 'src/common/tokens/token.module';
 import { CommonModule } from 'src/common/common.module';
 import { CloudinaryModule } from 'src/common/cloudinary/cloudinary.module';
 import { Review } from 'src/reviews/entities/review.entity';
+import { Branch } from 'src/branches/entities/branches.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Admin, IndividualClient, CompanyClient, Technician, Order, Category, Faq, Address, Review]), BaseUserModule, TokensModule, CommonModule, CloudinaryModule],
+  imports: [TypeOrmModule.forFeature([Admin, IndividualClient, CompanyClient, Technician, Order, Category, Faq, Address, Review, Branch]), BaseUserModule, TokensModule, CommonModule, CloudinaryModule],
   controllers: [AdminController],
   providers: [AdminService]
 })
