@@ -9,35 +9,22 @@ import {
 } from "@react-google-maps/api";
 import { Loader2Icon } from "lucide-react";
 import { toast } from "react-toastify";
+import { useQuery } from "@tanstack/react-query";
+import { fetchBranches } from "@/app/api/branches";
 
 interface MapProps {
   id?: string;
   uiControl?: boolean;
+  checkCoverageRadius?: boolean;
   centerCoordinates?: LatLng;
   markerCoordinates?: LatLng;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-const filials = [
-  {
-    id: 1,
-    name: "Telavi",
-    lat: 41.921723899941945,
-    lng: 45.483651509989606,
-    radius_km: 28,
-  },
-  {
-    id: 2,
-    name: "Tbilisi",
-    lat: 41.723112929454636,
-    lng: 44.72531435779539,
-    radius_km: 14,
-  },
-];
-
 export default function Map({
   id,
   uiControl,
+  checkCoverageRadius,
   centerCoordinates,
   markerCoordinates,
   onChange,
@@ -48,6 +35,11 @@ export default function Map({
   });
 
   const mapRef = useRef<google.maps.Map | null>(null);
+
+  const { data: branches } = useQuery({
+    queryKey: ["branches"],
+    queryFn: fetchBranches,
+  });
 
   const [currentPosition, setCurrentPosition] = React.useState<LatLng | null>(
     null
@@ -95,23 +87,25 @@ export default function Map({
         lng: e.latLng.lng(),
       };
 
-      // Check if click is inside any filial circle
-      const insideCircle = filials.some((f) => {
-        const distance = google.maps.geometry.spherical.computeDistanceBetween(
-          new google.maps.LatLng(f.lat, f.lng),
-          new google.maps.LatLng(clickedPoint.lat, clickedPoint.lng)
-        );
-        return distance <= f.radius_km * 1000; // meters
-      });
-
-      if (!insideCircle) {
-        toast.warning("დასვი პინი იქ, სადაც სერვისი ხელმისაწვდომია.", {
-          position: "bottom-right",
-          autoClose: 3000,
+      if (checkCoverageRadius) {
+        // Check if click is inside any filial circle
+        const insideCircle = branches.some((f: Branch) => {
+          const distance =
+            google.maps.geometry.spherical.computeDistanceBetween(
+              new google.maps.LatLng(f.location.lat, f.location.lng),
+              new google.maps.LatLng(clickedPoint.lat, clickedPoint.lng)
+            );
+          return distance <= Number(f.coverage_radius_km) * 1000; // meters
         });
-        return;
-      } // Ignore clicks outside circles
 
+        if (!insideCircle) {
+          toast.warning("დასვი პინი იქ, სადაც სერვისი ხელმისაწვდომია.", {
+            position: "bottom-right",
+            autoClose: 3000,
+          });
+          return;
+        } // Ignore clicks outside circles
+      }
       const syntheticEvent = {
         target: { id, value: clickedPoint },
       } as unknown as React.ChangeEvent<HTMLInputElement>;
@@ -148,11 +142,11 @@ export default function Map({
     >
       {markerCoordinates && <Marker position={markerCoordinates} />}
 
-      {filials.map((f) => (
+      {branches?.map((f: Branch) => (
         <React.Fragment key={f.id}>
           <Circle
-            center={{ lat: f.lat, lng: f.lng }}
-            radius={f.radius_km * 1000}
+            center={{ lat: f.location.lat, lng: f.location.lng }}
+            radius={Number(f.coverage_radius_km) * 1000}
             options={{
               fillColor: "#ffffff",
               fillOpacity: 0.01,

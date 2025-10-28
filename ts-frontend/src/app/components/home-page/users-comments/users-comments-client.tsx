@@ -44,7 +44,7 @@ export default function UsersCommentsClient({
             {reviews.map((item) => (
               <SwiperSlide key={item.id}>
                 <div className="rounded-[10px] border-[2px] border-gray-200 bg-white p-[15px] sm:p-[20px] flex flex-col justify-between gap-y-[10px]">
-                  <p className="line-clamp-11">{item.review}</p>
+                  <p className="line-clamp-8">{item.review}</p>
                   <div className="flex flex-col md:flex-row gap-[10px] items-center justify-between mt-4">
                     <div className="flex items-center gap-[10px]">
                       <div className="w-[35px] h-[35px] sm:w-[40px] sm:h-[40px] rounded-full overflow-hidden bg-myLightBlue text-white flex items-center justify-center text-[18px]">

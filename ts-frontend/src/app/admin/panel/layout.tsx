@@ -13,6 +13,7 @@ const sidebarLinks = [
   { name: "კატეგორიები", href: "/admin/panel/categories" },
   { name: "FAQ", href: "/admin/panel/faqs" },
   { name: "შეფასებები", href: "/admin/panel/reviews" },
+  { name: "ფილიალები", href: "/admin/panel/branches" },
   { name: "კერძო პირები", href: "/admin/panel/individuals" },
   { name: "კომპანიები", href: "/admin/panel/companies" },
   { name: "ტექნიკოსები", href: "/admin/panel/technicians" },

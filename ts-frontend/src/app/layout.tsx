@@ -9,8 +9,8 @@ import LogOut from "./components/modals/log-out";
 import CreateAddress from "./components/modals/create-address";
 import CreateOrder from "./components/modals/create-order";
 import AuthRehydrate from "./components/auth-rehydrate";
-import { LoadScript } from "@react-google-maps/api";
 import CreateReview from "./components/modals/create-review";
+import Providers from "./providers/providers";
 
 export const metadata: Metadata = {
   title: "Tech Service | საოჯახო ტექნიკის სერვის-ცენტრი",
@@ -25,18 +25,20 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="flex flex-col items-center ">
-        <Header />
-        <div className="w-full flex flex-col">{children}</div>
-        <Footer />
-        {/* other components */}
-        <ScrollToTop />
-        <BurgerMenu />
-        <ToastContainer />
-        <AuthRehydrate />
-        <LogOut />
-        <CreateAddress />
-        <CreateOrder />
-        <CreateReview />
+        <Providers>
+          <Header />
+          <div className="w-full flex flex-col">{children}</div>
+          <Footer />
+          {/* other components */}
+          <ScrollToTop />
+          <BurgerMenu />
+          <ToastContainer />
+          <AuthRehydrate />
+          <LogOut />
+          <CreateAddress />
+          <CreateOrder />
+          <CreateReview />
+        </Providers>
       </body>
     </html>
   );

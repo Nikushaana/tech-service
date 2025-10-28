@@ -300,6 +300,7 @@ export default function CreateAddress() {
             <div className="col-span-1 sm:col-span-2 h-[200px] bg-myLightBlue rounded-[8px] overflow-hidden">
               <Map
                 uiControl={true}
+                checkCoverageRadius={true}
                 id="location"
                 markerCoordinates={values.location || undefined}
                 centerCoordinates={

@@ -1,12 +1,3 @@
-interface Category {
-  id: number;
-  name: string;
-  images: string[];
-  status: boolean;
-  created_at: string;
-  updated_at: string;
-}
-
 interface CategoryData {
   data: Category[];
   total: number;
@@ -45,6 +36,20 @@ interface Address {
   description: string;
   location: LatLng;
   street: string;
+  created_at: string;
+  updated_at: string;
+};
+
+interface Branch {
+  id: number;
+  name: string;
+  city: string;
+  street: string;
+  building_number: string;
+  description: string;
+  coverage_radius_km: string;
+  delivery_price: string;
+  location: LatLng;
   created_at: string;
   updated_at: string;
 };
