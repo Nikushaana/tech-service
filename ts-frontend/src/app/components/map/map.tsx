@@ -67,8 +67,8 @@ export default function Map({
     }
   }, [centerCoordinates]);
 
-  const centerPosition = centerCoordinates ||
-    currentPosition || { lat: 41.723112929454636, lng: 44.72531435779539 };
+  const centerPosition =
+    centerCoordinates || currentPosition || branches && branches[0].location;
 
   const options = {
     disableDefaultUI: true,

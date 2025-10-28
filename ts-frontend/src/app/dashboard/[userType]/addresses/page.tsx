@@ -62,11 +62,11 @@ export default function Page({ params }: PageProps) {
           </Button>
 
           {addresses.length > 0 && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-[20px] max-w-[400px] lg:max-w-none w-full lg:w-auto items-stretch">
+            <div className="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-[20px] w-full items-stretch">
               {addresses.map((item: Address) => (
                 <div
                   key={item.id}
-                  className="bg-white border border-gray-200 shadow-sm hover:shadow-lg transition-transform duration-200 h-full lg:max-w-[400px] lg:w-full transform hover:-translate-y-1 rounded-xl p-[14px] flex flex-col gap-1"
+                  className="bg-white border border-gray-200 shadow-sm hover:shadow-lg transition-transform duration-200 h-full w-full transform hover:-translate-y-1 rounded-xl p-[14px] flex flex-col gap-1"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-[10px]">
