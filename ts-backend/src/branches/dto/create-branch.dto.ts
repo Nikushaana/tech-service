@@ -24,6 +24,7 @@ export class CreateBranchDto {
     @IsNotEmpty()
     street: string;
 
+    
     @IsString()
     @IsNotEmpty()
     building_number: string;
