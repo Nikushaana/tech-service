@@ -5,7 +5,7 @@ export default function page() {
     <div className="flex flex-col items-center">
       <div className="max-w-[1140px] px-4">
         <div>
-          <h1>ჩვენ შესახებ</h1>
+          <h1>ჩვენ შესახებ </h1>
           <p>
             კომპანია Tech Service არის ტექნიკის სერვისცენტრი, რომელიც საშუალებას
             აძლევს როგორც კერძო პირებს, ისე კომპანიებს, 24/7-ზე მიიღონ სერვისი.
