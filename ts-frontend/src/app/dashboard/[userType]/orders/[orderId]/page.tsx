@@ -6,6 +6,9 @@ import { Loader2Icon } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import dayjs from "dayjs";
 import Map from "@/app/components/map/map";
+import { Button } from "@/app/components/ui/button";
+import { BsPen } from "react-icons/bs";
+import { useUpdateOrderStore } from "@/app/store/useUpdateOrderStore";
 
 interface OrderPageProps {
   params: Promise<{
@@ -17,6 +20,8 @@ interface OrderPageProps {
 export default function Page({ params }: OrderPageProps) {
   const resolvedParams = React.use(params);
   const { userType, orderId } = resolvedParams;
+
+  const { toggleOpenUpdateOrderModal, refetchTrigger } = useUpdateOrderStore();
 
   const [order, setOrder] = useState<Order>();
   const [loading, setLoading] = useState<boolean>(true);
@@ -34,7 +39,7 @@ export default function Page({ params }: OrderPageProps) {
         setLoading(false);
       })
       .catch((err) => console.error(err));
-  }, [userType, orderId]);
+  }, [userType, orderId, refetchTrigger]);
 
   return (
     <div
@@ -47,9 +52,27 @@ export default function Page({ params }: OrderPageProps) {
       ) : (
         <>
           {/* Header */}
-          <h2 className={`flex justify-end text-sm`}>
-            {(order && statusTranslations[order.status]) || order?.status}
-          </h2>
+          <div
+            className={`flex items-center ${
+              order?.status == "pending"
+                ? "flex-col sm:flex-row gap-2 justify-between"
+                : "justify-end"
+            }`}
+          >
+            {order?.status == "pending" && (
+              <p
+                onClick={() => {
+                  toggleOpenUpdateOrderModal(userType, order);
+                }}
+                className="cursor-pointer text-[12px] hover:underline underline md:no-underline"
+              >
+                ინფორმაციის ცვლილება
+              </p>
+            )}
+            <h2 className="text-sm">
+              {(order && statusTranslations[order.status]) || order?.status}
+            </h2>
+          </div>
 
           {/* Main Info */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

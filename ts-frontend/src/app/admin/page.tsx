@@ -1,11 +1,10 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Button } from "../components/ui/button";
 import { Loader2Icon } from "lucide-react";
 import FormInput from "../components/inputs/form-input";
-import * as Yup from "yup";
 import { useAuthStore } from "../store/useAuthStore";
 
 export default function Page() {

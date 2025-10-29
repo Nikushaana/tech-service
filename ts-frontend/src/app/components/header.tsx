@@ -18,12 +18,11 @@ export default function Header() {
 
   const { currentUser } = useAuthStore();
 
+  const firstSegment = pathname.split("/")[1];
+  const isHidden = firstSegment === "admin" || firstSegment === "staff";
+
   return (
-    <header
-      className={`z-10 w-full ${
-        pathname.split("/")[1] === "admin" ? "hidden" : ""
-      }`}
-    >
+    <header className={`z-10 w-full ${isHidden ? "hidden" : ""}`}>
       <div className="max-w-[1140px] mx-auto flex items-center justify-between h-[100px] px-4">
         <img
           onClick={() => {

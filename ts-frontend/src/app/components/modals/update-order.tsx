@@ -12,36 +12,49 @@ import { Dropdown } from "../inputs/drop-down";
 import { useCategoriesStore } from "@/app/store/useCategoriesStore";
 import OrderImagesSelector from "../inputs/order-images-selector";
 import OrderVideosSelector from "../inputs/order-videos-selector";
+import { useUpdateOrderStore } from "@/app/store/useUpdateOrderStore";
 
-interface CreateOrderValues {
+interface UpdateOrderValues {
   serviceType: string | number;
   categoryId: string | number;
   addressId: string | number;
   brand: string;
   model: string;
   description: string;
+  images: string[];
+  videos: string[];
   newImages: File[];
   newVideos: File[];
 }
 
-export default function CreateOrder() {
+export default function UpdateOrder() {
   const {
-    openCreateOrderModal,
-    toggleOpenCreateOrderModal,
+    currentOrder,
+    openUpdateOrderModal,
+    toggleOpenUpdateOrderModal,
     modalType,
-    createOrder,
-  } = useOrdersStore();
+    updateOrder,
+  } = useUpdateOrderStore();
 
-  const { addresses } = useAddressesStore();
-  const { categories } = useCategoriesStore();
+  const { addresses, fetchAddresses } = useAddressesStore();
+  const { categories, fetchCategories } = useCategoriesStore();
 
-  const [values, setValues] = useState<CreateOrderValues>({
+  useEffect(() => {
+    if (modalType) {
+      fetchAddresses(modalType);
+    }
+    fetchCategories();
+  }, [modalType]);
+
+  const [values, setValues] = useState<UpdateOrderValues>({
     serviceType: "",
     categoryId: "",
     addressId: "",
     brand: "",
     model: "",
     description: "",
+    images: [],
+    videos: [],
     newImages: [],
     newVideos: [],
   });
@@ -56,6 +69,37 @@ export default function CreateOrder() {
   });
 
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (openUpdateOrderModal && currentOrder) {
+      setValues({
+        serviceType: currentOrder.service_type == "მონტაჟი" ? 1 : 2,
+        categoryId: currentOrder.category.id || "",
+        addressId: currentOrder.address.id || "",
+        brand: currentOrder.brand || "",
+        model: currentOrder.model || "",
+        description: currentOrder.description || "",
+        images: currentOrder.images || [],
+        videos: currentOrder.videos || [],
+        newImages: [],
+        newVideos: [],
+      });
+    } else if (!openUpdateOrderModal) {
+      // reset on close
+      setValues({
+        serviceType: "",
+        categoryId: "",
+        addressId: "",
+        brand: "",
+        model: "",
+        description: "",
+        images: [],
+        videos: [],
+        newImages: [],
+        newVideos: [],
+      });
+    }
+  }, [openUpdateOrderModal, currentOrder]);
 
   const handleChange = (
     e:
@@ -74,7 +118,7 @@ export default function CreateOrder() {
     }));
   };
 
-  const createOrderSchema = Yup.object().shape({
+  const updateOrderSchema = Yup.object().shape({
     serviceType: Yup.string().required("აირჩიე სერვისის ტიპი"),
     categoryId: Yup.string().required("კატეგორია აუცილებელია"),
     brand: Yup.string().required("ბრენდი აუცილებელია"),
@@ -82,17 +126,33 @@ export default function CreateOrder() {
     description: Yup.string().required("აღწერა აუცილებელია"),
     addressId: Yup.string().required("მისამართი აუცილებელია"),
     newImages: Yup.array()
-      .max(3, "შეგიძლიათ ატვირთოთ მაქსიმუმ 3 სურათი")
-      .of(Yup.mixed()),
+      .of(Yup.mixed())
+      .test(
+        "max-total-images",
+        "შეგიძლიათ ატვირთოთ მაქსიმუმ 3 სურათი",
+        function (newImages) {
+          const { images } = this.parent; // get existing images
+          const total = (images?.length || 0) + (newImages?.length || 0);
+          return total <= 3;
+        }
+      ),
     newVideos: Yup.array()
-      .max(1, "შეგიძლიათ ატვირთოთ მხოლოდ 1 ვიდეო")
-      .of(Yup.mixed()),
+      .of(Yup.mixed())
+      .test(
+        "max-total-videos",
+        "შეგიძლიათ ატვირთოთ მხოლოდ 1 ვიდეო",
+        function (newVideos) {
+          const { videos } = this.parent; // get existing videos
+          const total = (videos?.length || 0) + (newVideos?.length || 0);
+          return total <= 1;
+        }
+      ),
   });
 
-  const handleCreateOrder = async () => {
+  const handleUpdateOrder = async () => {
     setLoading(true);
     try {
-      await createOrderSchema.validate(values, { abortEarly: false });
+      await updateOrderSchema.validate(values, { abortEarly: false });
 
       const formData = new FormData();
       formData.append(
@@ -105,6 +165,23 @@ export default function CreateOrder() {
       formData.append("description", values.description);
       formData.append("addressId", String(values.addressId));
 
+      formData.append(
+        "imagesToDelete",
+        JSON.stringify(
+          currentOrder.images.filter(
+            (img: string) => !values.images.includes(img)
+          )
+        )
+      );
+      formData.append(
+        "videosToDelete",
+        JSON.stringify(
+          currentOrder.videos.filter(
+            (img: string) => !values.videos.includes(img)
+          )
+        )
+      );
+
       // Append new files
       values.newImages.forEach((image) => {
         formData.append("images", image);
@@ -115,8 +192,8 @@ export default function CreateOrder() {
         formData.append("videos", video);
       });
 
-      await createOrder(modalType!, formData);
-      toggleOpenCreateOrderModal();
+      await updateOrder(modalType!, formData);
+      toggleOpenUpdateOrderModal();
 
       // reset form values
       setValues({
@@ -126,6 +203,8 @@ export default function CreateOrder() {
         model: "",
         description: "",
         addressId: "",
+        images: [],
+        videos: [],
         newImages: [],
         newVideos: [],
       });
@@ -159,7 +238,7 @@ export default function CreateOrder() {
   };
 
   useEffect(() => {
-    if (openCreateOrderModal) {
+    if (openUpdateOrderModal) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "auto";
@@ -168,30 +247,28 @@ export default function CreateOrder() {
     return () => {
       document.body.style.overflow = "auto";
     };
-  }, [openCreateOrderModal]);
+  }, [openUpdateOrderModal]);
 
   return (
     <div
       className={`${
-        openCreateOrderModal ? "" : "opacity-0 pointer-events-none"
+        openUpdateOrderModal ? "" : "opacity-0 pointer-events-none"
       } fixed inset-0 z-20 flex items-center justify-center`}
     >
       <div
         className={`absolute inset-0 bg-black transition-opacity ${
-          openCreateOrderModal ? "opacity-50" : "opacity-0"
+          openUpdateOrderModal ? "opacity-50" : "opacity-0"
         }`}
-        onClick={() => toggleOpenCreateOrderModal()} // closes when clicking outside
+        onClick={() => toggleOpenUpdateOrderModal()} // closes when clicking outside
       ></div>
 
       <div
         className={`bg-white rounded-2xl shadow-lg py-6 px-3 w-full sm:w-[600px] mx-[10px] z-[22] transition-transform duration-200 flex flex-col gap-y-[10px] max-h-[80vh] ${
-          openCreateOrderModal ? "scale-100 opacity-100" : "scale-90 opacity-0"
+          openUpdateOrderModal ? "scale-100 opacity-100" : "scale-90 opacity-0"
         }`}
       >
-        <h2 className="text-lg font-semibold ">შეავსე განაცხადი</h2>
-        <p className="text-sm text-myLightGray">
-          სერვისის არჩევიდან მაქსიმუმ 24 საათში ჩვენ დაგიკავშირდებით
-        </p>
+        <h2 className="text-lg font-semibold ">შეცვალე ინფორმაცია</h2>
+
         <div className="flex-1 overflow-y-auto showScroll pr-2">
           <div className="flex flex-col gap-y-[10px]">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-[10px]">
@@ -257,6 +334,7 @@ export default function CreateOrder() {
             <div className="flex flex-col gap-[10px] overflow-x-scroll showXScroll">
               <OrderImagesSelector
                 newImages={values.newImages}
+                images={values.images}
                 setNewImages={{
                   add: (files: File[]) =>
                     setValues((prev) => ({
@@ -269,9 +347,17 @@ export default function CreateOrder() {
                       newImages: prev.newImages.filter((f) => f !== file),
                     })),
                 }}
+                setImages={{
+                  remove: (url: string) =>
+                    setValues((prev) => ({
+                      ...prev,
+                      images: prev.images.filter((f) => f !== url),
+                    })),
+                }}
               />
               <OrderVideosSelector
                 newVideos={values.newVideos} // use the correct field
+                videos={values.videos}
                 setNewVideos={{
                   add: (files: File[]) =>
                     setValues((prev) => ({
@@ -284,6 +370,13 @@ export default function CreateOrder() {
                       newVideos: prev.newVideos.filter((f) => f !== file),
                     })),
                 }}
+                setVideos={{
+                  remove: (url: string) =>
+                    setValues((prev) => ({
+                      ...prev,
+                      videos: prev.videos.filter((f) => f !== url),
+                    })),
+                }}
               />
             </div>
           </div>
@@ -292,7 +385,7 @@ export default function CreateOrder() {
         <div className="flex gap-3 justify-end mt-4">
           <Button
             onClick={() => {
-              toggleOpenCreateOrderModal();
+              toggleOpenUpdateOrderModal();
               setErrors((prev) => ({
                 ...prev,
                 serviceType: "",
@@ -318,12 +411,12 @@ export default function CreateOrder() {
             გაუქმება
           </Button>
           <Button
-            onClick={handleCreateOrder}
+            onClick={handleUpdateOrder}
             disabled={loading}
             className="h-[45px] px-6 text-white cursor-pointer"
           >
             {loading && <Loader2Icon className="animate-spin" />}
-            დამატება
+            განახლება
           </Button>
         </div>
       </div>

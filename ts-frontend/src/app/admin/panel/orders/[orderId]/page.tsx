@@ -88,7 +88,11 @@ export default function Page({ params }: OrderPageProps) {
   };
 
   const updateOrderSchema = Yup.object().shape({
-    technicianId: Yup.number().required("ტექნიკოსი აუცილებელია"),
+    technicianId: Yup.number()
+      .transform((value, originalValue) =>
+        originalValue === "" ? undefined : value
+      )
+      .required("ტექნიკოსი აუცილებელია"),
     status: Yup.string().required("სტატუსი აუცილებელია"),
   });
 

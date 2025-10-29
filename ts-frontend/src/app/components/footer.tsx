@@ -24,10 +24,11 @@ export default function Footer() {
     { id: 4, text: "პასუხისმგებლობის შეზღუდვა", url: "" },
   ]);
 
+  const firstSegment = pathname.split("/")[1];
+  const isHidden = firstSegment === "admin" || firstSegment === "staff";
+
   return (
-    <footer
-      className={`w-full ${pathname.split("/")[1] === "admin" ? "hidden" : ""}`}
-    >
+    <footer className={`w-full ${isHidden ? "hidden" : ""}`}>
       <div className="max-w-[1140px] bg-gray-100 border-[1px] border-gray-300 shadow-inner mx-auto flex flex-col md:flex-row justify-between items-start md:items-center px-4 py-10 md:py-20 gap-10 md:gap-0 rounded-t-[40px]">
         {/* Logo & Social */}
         <div className="flex flex-col gap-6 md:gap-10 w-full md:w-auto">

@@ -11,6 +11,7 @@ import CreateOrder from "./components/modals/create-order";
 import AuthRehydrate from "./components/auth-rehydrate";
 import CreateReview from "./components/modals/create-review";
 import Providers from "./providers/providers";
+import UpdateOrder from "./components/modals/update-order";
 
 export const metadata: Metadata = {
   title: "Tech Service | საოჯახო ტექნიკის სერვის-ცენტრი",
@@ -37,6 +38,7 @@ export default function RootLayout({
           <LogOut />
           <CreateAddress />
           <CreateOrder />
+          <UpdateOrder />
           <CreateReview />
         </Providers>
       </body>

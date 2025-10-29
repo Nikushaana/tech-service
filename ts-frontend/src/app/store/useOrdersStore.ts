@@ -48,7 +48,9 @@ export const useOrdersStore = create<OrdersStoreState>((set, get) => ({
             await get().fetchOrders(type);
             toast.success("შეკვეთა დაემატა", { position: "bottom-right", autoClose: 3000 });
         } catch (error: any) {
-            if (error.response.data.message == "Inactive user cannot create orders") {
+            if (error.response.data.message == "Address is outside all branch coverage areas. Please choose a closer location.") {
+                toast.error("აირჩიე მისამართი რომელიც სერვისის დაფარვის ზონაშია", { position: "bottom-right", autoClose: 3000 });
+            } else if (error.response.data.message == "Inactive user cannot create orders") {
                 toast.error("თქვენ ვერ დაამატებთ შეკვეთას, რადგან თქვენი პროფილი გასააქტიურებელია", { position: "bottom-right", autoClose: 3000 });
             } else {
                 toast.error("შეკვეთა ვერ დაემატა", { position: "bottom-right", autoClose: 3000 });
