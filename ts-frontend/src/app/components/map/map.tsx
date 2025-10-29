@@ -68,7 +68,9 @@ export default function Map({
   }, [centerCoordinates]);
 
   const centerPosition =
-    centerCoordinates || currentPosition || branches && branches[0].location;
+    centerCoordinates ||
+    currentPosition ||
+    (branches && branches[0] && branches[0].location);
 
   const options = {
     disableDefaultUI: true,
@@ -89,6 +91,12 @@ export default function Map({
 
       if (checkCoverageRadius) {
         // Check if click is inside any filial circle
+        if (!branches.length)
+          return toast.warning("დროებით ჩვენი სერვისი მიუწვდომელია.", {
+            position: "bottom-right",
+            autoClose: 3000,
+          });
+
         const insideCircle = branches.some((f: Branch) => {
           const distance =
             google.maps.geometry.spherical.computeDistanceBetween(
