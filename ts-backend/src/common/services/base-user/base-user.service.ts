@@ -132,7 +132,7 @@ export class BaseUserService {
         if (imagesToDeleteArray.length > 0) {
             await Promise.all(
                 imagesToDeleteArray.map(async (url) => {
-                    await this.cloudinaryService.deleteImageByUrl(url);
+                    await this.cloudinaryService.deleteByUrl(url);
                     user.images = user.images.filter((img) => img !== url);
                 }),
             );
@@ -187,6 +187,26 @@ export class BaseUserService {
 
         const address = await this.addressRepo.findOne({ where: { id: createOrderDto.addressId, [relationKey]: { id: userId } } });
         if (!address) throw new NotFoundException('Address not found');
+
+        const branches = await this.branchRepo.find();
+        if (!branches.length) throw new BadRequestException('No branches available — cannot add order');
+
+        // Check if location is within any branch coverage
+        const isWithinCoverage = branches.some((branch) => {
+            const distance = this.getDistanceFromLatLonInKm(
+                address.location.lat,
+                address.location.lng,
+                branch.location.lat,
+                branch.location.lng
+            );
+            return distance <= Number(branch.coverage_radius_km);
+        });
+
+        if (!isWithinCoverage) {
+            throw new BadRequestException(
+                'Address is outside all branch coverage areas. Please choose a closer location.'
+            );
+        }
 
         const order = this.orderRepo.create({
             ...createOrderDto,
@@ -245,8 +265,12 @@ export class BaseUserService {
         return order
     }
 
-    async updateOneOrder(userId: number, id: number, repo: any, updateUserOrderDto: UpdateUserOrderDto) {
+    async updateOneOrder(userId: number, id: number, repo: any, updateUserOrderDto: UpdateUserOrderDto, images: Express.Multer.File[] = [], videos: Express.Multer.File[] = []) {
         const user = await this.getUser(userId, repo)
+
+        if (!user.status) {
+            throw new BadRequestException('Inactive user cannot update orders');
+        }
 
         const relationKey = "companyName" in user ? "company" : "individual";
 
@@ -272,8 +296,94 @@ export class BaseUserService {
                 where: { id: updateUserOrderDto.addressId, [relationKey]: { id: userId } },
             });
             if (!address) throw new NotFoundException('Address not found');
+
+            const branches = await this.branchRepo.find();
+            if (!branches.length) throw new BadRequestException('No branches available — cannot add order');
+
+            // Check if location is within any branch coverage
+            const isWithinCoverage = branches.some((branch) => {
+                const distance = this.getDistanceFromLatLonInKm(
+                    address.location.lat,
+                    address.location.lng,
+                    branch.location.lat,
+                    branch.location.lng
+                );
+                return distance <= Number(branch.coverage_radius_km);
+            });
+
+            if (!isWithinCoverage) {
+                throw new BadRequestException(
+                    'Address is outside all branch coverage areas. Please choose a closer location.'
+                );
+            }
+
             order.address = address;
         }
+
+        // Handle deleted media
+        let imagesToDeleteArray: string[] = [];
+        let videosToDeleteArray: string[] = [];
+
+        if (updateUserOrderDto.imagesToDelete) {
+            try {
+                imagesToDeleteArray = JSON.parse(updateUserOrderDto.imagesToDelete);
+            } catch (err) {
+                throw new BadRequestException('imagesToDelete must be a JSON string array');
+            }
+        }
+
+        if (updateUserOrderDto.videosToDelete) {
+            try {
+                videosToDeleteArray = JSON.parse(updateUserOrderDto.videosToDelete);
+            } catch (err) {
+                throw new BadRequestException('videosToDeleteArray must be a JSON string array');
+            }
+        }
+
+        // Then use imagesToDeleteArray and videosToDeleteArray in your deletion logic
+        if (imagesToDeleteArray.length > 0) {
+            await Promise.all(
+                imagesToDeleteArray.map(async (url) => {
+                    await this.cloudinaryService.deleteByUrl(url);
+                    order.images = order.images.filter((img) => img !== url);
+                }),
+            );
+        }
+        if (videosToDeleteArray.length > 0) {
+            await Promise.all(
+                videosToDeleteArray.map(async (url) => {
+                    await this.cloudinaryService.deleteByUrl(url);
+                    order.videos = order.videos.filter((img) => img !== url);
+                }),
+            );
+        }
+
+        // Upload images to Cloudinary if any
+        const newImageUrls = images.length
+            ? await this.cloudinaryService.uploadImages(images, `tech_service_project/images/orders/${order.id}`)
+            : [];
+
+        const newVideoUrls = videos.length
+            ? await this.cloudinaryService.uploadVideos(videos, `tech_service_project/videos/orders/${order.id}`)
+            : [];
+
+        // Merge with existing media but respect total limits
+        const existingImages = order.images || [];
+        const existingVideos = order.videos || [];
+
+        const totalImages = existingImages.length + newImageUrls.length;
+        const totalVideos = existingVideos.length + newVideoUrls.length;
+
+        if (totalImages > 3) {
+            throw new BadRequestException('Total number of images cannot exceed 3');
+        }
+
+        if (totalVideos > 1) {
+            throw new BadRequestException('Total number of videos cannot exceed 1');
+        }
+
+        order.images = [...existingImages, ...newImageUrls];
+        order.videos = [...existingVideos, ...newVideoUrls];
 
         const { categoryId, addressId, ...rest } = updateUserOrderDto;
         this.orderRepo.merge(order, rest);

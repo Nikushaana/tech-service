@@ -90,8 +90,16 @@ export class CompanyClientController {
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('company')
     @Patch('orders/:id')
-    async updateOneOrder(@Req() req: RequestInfo, @Param('id', ParseIntPipe) id: number, @Body() updateUserOrderDto: UpdateUserOrderDto) {
-        return this.companyClientService.updateOneOrder(req.user.id, id, updateUserOrderDto);
+    @UseInterceptors(
+        MultipleFilesUpload([
+            { name: 'images', maxCount: 3, type: 'image' },
+            { name: 'videos', maxCount: 1, type: 'video' },
+        ]),
+    )
+    async updateOneOrder(@Req() req: RequestInfo, @Param('id', ParseIntPipe) id: number, @Body() updateUserOrderDto: UpdateUserOrderDto, @UploadedFiles() files: { images?: Express.Multer.File[], videos?: Express.Multer.File[] }) {
+        const images = files.images || [];
+        const videos = files.videos || [];
+        return this.companyClientService.updateOneOrder(req.user.id, id, updateUserOrderDto, images, videos);
     }
 
     // address

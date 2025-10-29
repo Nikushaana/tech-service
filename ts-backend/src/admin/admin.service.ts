@@ -127,7 +127,7 @@ export class AdminService {
         if (imagesToDeleteArray.length > 0) {
             await Promise.all(
                 imagesToDeleteArray.map(async (url) => {
-                    await this.cloudinaryService.deleteImageByUrl(url);
+                    await this.cloudinaryService.deleteByUrl(url);
                     findOneIndividual.images = findOneIndividual.images.filter((img) => img !== url);
                 }),
             );
@@ -219,7 +219,7 @@ export class AdminService {
         if (imagesToDeleteArray.length > 0) {
             await Promise.all(
                 imagesToDeleteArray.map(async (url) => {
-                    await this.cloudinaryService.deleteImageByUrl(url);
+                    await this.cloudinaryService.deleteByUrl(url);
                     findOneCompany.images = findOneCompany.images.filter((img) => img !== url);
                 }),
             );
@@ -311,7 +311,7 @@ export class AdminService {
         if (imagesToDeleteArray.length > 0) {
             await Promise.all(
                 imagesToDeleteArray.map(async (url) => {
-                    await this.cloudinaryService.deleteImageByUrl(url);
+                    await this.cloudinaryService.deleteByUrl(url);
                     findOneTechnician.images = findOneTechnician.images.filter((img) => img !== url);
                 }),
             );
@@ -464,7 +464,7 @@ export class AdminService {
         if (imagesToDeleteArray.length > 0) {
             await Promise.all(
                 imagesToDeleteArray.map(async (url) => {
-                    await this.cloudinaryService.deleteImageByUrl(url);
+                    await this.cloudinaryService.deleteByUrl(url);
                     category.images = category.images.filter((img) => img !== url);
                 }),
             );
@@ -517,7 +517,7 @@ export class AdminService {
         // Delete images from Cloudinary if any
         if (category.images && category.images.length > 0) {
             await Promise.all(
-                category.images.map((url) => this.cloudinaryService.deleteImageByUrl(url)),
+                category.images.map((url) => this.cloudinaryService.deleteByUrl(url)),
             );
         }
 

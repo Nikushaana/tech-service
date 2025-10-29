@@ -26,6 +26,9 @@ export class Order {
 
   @Column()
   description: string;
+  
+  @Column()
+  service_type: string;
 
   @Column("simple-array", { default: "" })
   images: string[];

@@ -66,8 +66,8 @@ export class CompanyClientService {
         return this.baseUserService.getOneOrder(companyId, id, this.companyClientRepo);
     }
 
-    async updateOneOrder(companyId: number, id: number, updateUserOrderDto: UpdateUserOrderDto) {
-        return this.baseUserService.updateOneOrder(companyId, id, this.companyClientRepo, updateUserOrderDto);
+    async updateOneOrder(companyId: number, id: number, updateUserOrderDto: UpdateUserOrderDto, images: Express.Multer.File[] = [], videos: Express.Multer.File[] = []) {
+        return this.baseUserService.updateOneOrder(companyId, id, this.companyClientRepo, updateUserOrderDto, images, videos);
     }
 
     // create address

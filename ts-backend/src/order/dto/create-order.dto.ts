@@ -1,7 +1,12 @@
 import { Transform } from 'class-transformer';
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsIn, IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 export class CreateOrderDto {
+    @IsString()
+    @IsNotEmpty()
+    @IsIn(['მონტაჟი', 'შეკეთება'])
+    service_type: string;
+
     @IsNumber()
     @Transform(({ value }) => Number(value))
     @IsNotEmpty()

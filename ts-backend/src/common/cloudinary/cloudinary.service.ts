@@ -5,7 +5,7 @@ import { CloudinaryProvider } from './cloudinary.provider';
 export class CloudinaryService {
     constructor(private readonly cloudinaryProvider: CloudinaryProvider) { }
 
-    async deleteImageByUrl(url: string): Promise<void> {
+    async deleteByUrl(url: string): Promise<void> {
         try {
             const parts = url.split('/upload/');
             if (!parts[1]) return;
@@ -14,7 +14,13 @@ export class CloudinaryService {
             const publicIdWithoutVersion = publicIdWithVersion.replace(/^v\d+\//, '');
             const publicId = publicIdWithoutVersion.replace(/\.[^/.]+$/, '');
 
-            await this.cloudinaryProvider.cloudinary.uploader.destroy(publicId);
+            const isVideo = url.includes('/video/');
+            const resourceType = isVideo ? 'video' : 'image';
+
+            await this.cloudinaryProvider.cloudinary.uploader.destroy(publicId, {
+                resource_type: resourceType,
+            });
+
         } catch (err) {
             console.error('Cloudinary delete error:', err.message);
         }
