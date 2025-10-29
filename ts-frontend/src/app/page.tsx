@@ -15,7 +15,7 @@ export default function Home() {
       <div className="max-w-[1140px] w-full flex flex-col gap-y-[100px] sm:gap-y-[150px] px-4">
         <ServicesSection />
 
-        <div id="whychoose" className="scroll-mt-[180px]">
+        <div id="whychoose" className="scroll-mt-[180px] ">
           <WhyChooseSection />
         </div>
       </div>
