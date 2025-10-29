@@ -19,6 +19,7 @@ import { CreateAddressDto } from "src/address/dto/create-address.dto";
 import { CloudinaryService } from "src/common/cloudinary/cloudinary.service";
 import { CreateReviewDto } from "src/reviews/dto/create-review.dto";
 import { Review } from "src/reviews/entities/review.entity";
+import { Branch } from "src/branches/entities/branches.entity";
 
 interface WithIdAndPassword {
     id: number;
@@ -47,6 +48,9 @@ export class BaseUserService {
 
         @InjectRepository(Review)
         private readonly reviewRepo: Repository<Review>,
+
+        @InjectRepository(Branch)
+        private branchRepo: Repository<Branch>,
 
         private readonly verificationCodeService: VerificationCodeService,
 
@@ -281,11 +285,52 @@ export class BaseUserService {
         };
     }
 
+    // Distance between two lat/lng in km
+    private getDistanceFromLatLonInKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
+        const R = 6371; // Radius of Earth in km
+        const dLat = this.deg2rad(lat2 - lat1);
+        const dLon = this.deg2rad(lon2 - lon1);
+        const a =
+            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(this.deg2rad(lat1)) *
+            Math.cos(this.deg2rad(lat2)) *
+            Math.sin(dLon / 2) *
+            Math.sin(dLon / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return R * c;
+    }
+
+    private deg2rad(deg: number): number {
+        return deg * (Math.PI / 180);
+    }
+
     // about address
 
     async createAddress(userId: number, repo: any, createAddressDto: CreateAddressDto) {
         const user = await repo.findOne({ where: { id: userId } });
         if (!user) throw new BadRequestException('User not found');
+
+        const branches = await this.branchRepo.find();
+        if (!branches.length) throw new BadRequestException('No branches available — cannot add address');
+
+        const { location } = createAddressDto;
+
+        // Check if location is within any branch coverage
+        const isWithinCoverage = branches.some((branch) => {
+            const distance = this.getDistanceFromLatLonInKm(
+                location.lat,
+                location.lng,
+                branch.location.lat,
+                branch.location.lng
+            );
+            return distance <= Number(branch.coverage_radius_km);
+        });
+
+        if (!isWithinCoverage) {
+            throw new BadRequestException(
+                'Address is outside all branch coverage areas. Please choose a closer location.'
+            );
+        }
 
         const address = this.addressRepo.create({
             ...createAddressDto
