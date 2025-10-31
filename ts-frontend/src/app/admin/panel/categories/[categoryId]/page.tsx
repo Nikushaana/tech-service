@@ -142,66 +142,66 @@ export default function Page({ params }: CategoryPageProps) {
     }
   };
 
+  if (loading)
+    return (
+      <div className="flex justify-center w-full mt-10">
+        <Loader2Icon className="animate-spin size-6 text-gray-600" />
+      </div>
+    );
+
   return (
     <div className={`w-full flex flex-col items-center gap-y-[20px]`}>
-      {loading ? (
-        <Loader2Icon className="animate-spin" />
-      ) : (
-        <>
-          <div className="flex items-center gap-2 text-sm">
-            <p>დაბლოკილი</p>
-            <Switch
-              checked={values.status}
-              onCheckedChange={(checked) =>
-                setValues((prev) => ({ ...prev, status: checked }))
-              }
-              className="cursor-pointer"
-            />
-            <p>აქტიური</p>
-          </div>
+      <div className="flex items-center gap-2 text-sm">
+        <p>დაბლოკილი</p>
+        <Switch
+          checked={values.status}
+          onCheckedChange={(checked) =>
+            setValues((prev) => ({ ...prev, status: checked }))
+          }
+          className="cursor-pointer"
+        />
+        <p>აქტიური</p>
+      </div>
 
-          <ImageSelector
-            images={values.images}
-            setImages={(url: string) =>
-              setValues((prev) => ({
-                ...prev,
-                images: prev.images.filter((img: string) => img !== url),
-                deletedImages: [...prev.deletedImages, url],
-              }))
-            }
-            newImages={values.newImages}
-            setNewImages={{
-              add: (files: File[]) =>
-                setValues((prev) => ({
-                  ...prev,
-                  newImages: [...prev.newImages, ...files],
-                })),
-              remove: (file: File) =>
-                setValues((prev) => ({
-                  ...prev,
-                  newImages: prev.newImages.filter((f) => f !== file),
-                })),
-            }}
-          />
+      <ImageSelector
+        images={values.images}
+        setImages={(url: string) =>
+          setValues((prev) => ({
+            ...prev,
+            images: prev.images.filter((img: string) => img !== url),
+            deletedImages: [...prev.deletedImages, url],
+          }))
+        }
+        newImages={values.newImages}
+        setNewImages={{
+          add: (files: File[]) =>
+            setValues((prev) => ({
+              ...prev,
+              newImages: [...prev.newImages, ...files],
+            })),
+          remove: (file: File) =>
+            setValues((prev) => ({
+              ...prev,
+              newImages: prev.newImages.filter((f) => f !== file),
+            })),
+        }}
+      />
 
-          <PanelFormInput
-            id="name"
-            value={values.name}
-            onChange={handleChange}
-            label="კატეგორია"
-            error={errors.name}
-          />
+      <PanelFormInput
+        id="name"
+        value={values.name}
+        onChange={handleChange}
+        label="კატეგორია"
+        error={errors.name}
+      />
 
-          <Button
-            onClick={handleUpdateCategory}
-            disabled={loading}
-            className="h-[45px] px-6 text-white cursor-pointer w-full sm:w-auto self-end"
-          >
-            {loading && <Loader2Icon className="animate-spin mr-2" />}
-            ცვლილების შენახვა
-          </Button>
-        </>
-      )}
+      <Button
+        onClick={handleUpdateCategory}
+        disabled={loading}
+        className="h-[45px] px-6 text-white cursor-pointer w-full sm:w-auto self-end"
+      >
+        ცვლილების შენახვა
+      </Button>
     </div>
   );
 }

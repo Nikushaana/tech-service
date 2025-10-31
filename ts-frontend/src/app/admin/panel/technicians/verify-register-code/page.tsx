@@ -76,7 +76,7 @@ export default function VerifyAdminTechnicianRegisterCode() {
   };
 
   return (
-    <div className="flex flex-col self-start items-center p-[10px] rounded-xl shadow gap-y-5 relative w-full max-w-lg mx-auto bg-white">
+    <div className="flex flex-col self-start items-center p-[10px] rounded-xl shadow border border-gray-200 gap-y-5 relative w-full max-w-lg mx-auto bg-white">
       <h1 className="text-center text-xl sm:text-2xl font-semibold">
         ტექნიკოსის რეგისტრაცია
       </h1>

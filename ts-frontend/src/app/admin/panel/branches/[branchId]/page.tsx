@@ -4,11 +4,9 @@ import { axiosAdmin, axiosFront } from "@/app/api/axios";
 import { Loader2Icon } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import PanelFormInput from "@/app/components/inputs/panel-form-input";
-import { Switch } from "@/app/components/ui/switch";
 import { toast } from "react-toastify";
 import * as Yup from "yup";
 import { Button } from "@/app/components/ui/button";
-import ImageSelector from "@/app/components/inputs/image-selector";
 import { Dropdown2 } from "@/app/components/inputs/drop-down-2";
 import Map from "@/app/components/map/map";
 
@@ -279,97 +277,97 @@ export default function Page({ params }: BranchPageProps) {
     }
   };
 
-  return (
-    <div className={`w-full flex flex-col items-center`}>
-      {loading ? (
-        <Loader2Icon className="animate-spin" />
-      ) : (
-        <div className="bg-white rounded-xl shadow-md p-4 sm:p-6 grid grid-cols-1 sm:grid-cols-2 gap-[10px] w-full max-w-2xl mx-auto">
-          <div className="col-span-1 sm:col-span-2">
-            <PanelFormInput
-              id="name"
-              value={values.name || ""}
-              onChange={handleChange}
-              label="მისამართის სახელი"
-              error={errors.name}
-            />
-          </div>
-          <Dropdown2
-            id="searchCity"
-            data={citiesData}
-            value={helperValues.searchCity}
-            onChange={(e) => handleDropdownChange("searchCity", e.target.value)}
-            onSelect={(item) => handleDropdownSelect("searchCity", item)}
-            label="ქალაქი"
-            isLoading={cityLoading}
-            error={errors.city}
-          />
-          <Dropdown2
-            id="searchStreet"
-            data={streetsData}
-            value={helperValues.searchStreet}
-            onChange={(e) =>
-              handleDropdownChange("searchStreet", e.target.value)
-            }
-            onSelect={(item) => handleDropdownSelect("searchStreet", item)}
-            label="ქუჩა"
-            isLoading={streetLoading}
-            error={errors.street}
-          />
-          <div className="col-span-1 sm:col-span-2 h-[200px] bg-myLightBlue rounded-[8px] overflow-hidden">
-            <Map
-              uiControl={true}
-              id="location"
-              markerCoordinates={values.location || undefined}
-              centerCoordinates={
-                helperValues.streetLocation ||
-                helperValues.cityLocation ||
-                undefined
-              }
-              onChange={handleChange}
-            />
-          </div>
+  if (loading)
+    return (
+      <div className="flex justify-center w-full mt-10">
+        <Loader2Icon className="animate-spin size-6 text-gray-600" />
+      </div>
+    );
 
+  return (
+    <div className={`w-full h-full flex flex-col items-center justify-center`}>
+      <div className="bg-white rounded-xl shadow-md p-4 sm:p-6 grid grid-cols-1 sm:grid-cols-2 gap-[10px] w-full max-w-2xl mx-auto">
+        <div className="col-span-1 sm:col-span-2">
           <PanelFormInput
-            id="building_number"
-            value={values.building_number || ""}
+            id="name"
+            value={values.name || ""}
             onChange={handleChange}
-            label="შენობის ნომერი"
-            error={errors.building_number}
+            label="მისამართის სახელი"
+            error={errors.name}
           />
-          <PanelFormInput
-            id="description"
-            value={values.description || ""}
-            onChange={handleChange}
-            label="აღწერა"
-            error={errors.description}
-          />
-          <PanelFormInput
-            id="coverage_radius_km"
-            value={values.coverage_radius_km || ""}
-            onChange={handleChange}
-            label="დაფარვის რადიუსი (კმ)"
-            error={errors.coverage_radius_km}
-          />
-          <PanelFormInput
-            id="delivery_price"
-            value={values.delivery_price || ""}
-            onChange={handleChange}
-            label="კურიერის გადასახადი (კმ)"
-            error={errors.delivery_price}
-          />
-          <div className="col-span-1 sm:col-span-2">
-            <Button
-              onClick={handleUpdateBranch}
-              disabled={loading}
-              className="h-[45px] px-6 text-white cursor-pointer flex place-self-end"
-            >
-              {loading && <Loader2Icon className="animate-spin mr-2" />}
-              ცვლილების შენახვა
-            </Button>
-          </div>
         </div>
-      )}
+        <Dropdown2
+          id="searchCity"
+          data={citiesData}
+          value={helperValues.searchCity}
+          onChange={(e) => handleDropdownChange("searchCity", e.target.value)}
+          onSelect={(item) => handleDropdownSelect("searchCity", item)}
+          label="ქალაქი"
+          isLoading={cityLoading}
+          error={errors.city}
+        />
+        <Dropdown2
+          id="searchStreet"
+          data={streetsData}
+          value={helperValues.searchStreet}
+          onChange={(e) => handleDropdownChange("searchStreet", e.target.value)}
+          onSelect={(item) => handleDropdownSelect("searchStreet", item)}
+          label="ქუჩა"
+          isLoading={streetLoading}
+          error={errors.street}
+        />
+        <div className="col-span-1 sm:col-span-2 h-[200px] bg-myLightBlue rounded-[8px] overflow-hidden">
+          <Map
+            uiControl={true}
+            id="location"
+            markerCoordinates={values.location || undefined}
+            centerCoordinates={
+              helperValues.streetLocation ||
+              helperValues.cityLocation ||
+              undefined
+            }
+            onChange={handleChange}
+          />
+        </div>
+
+        <PanelFormInput
+          id="building_number"
+          value={values.building_number || ""}
+          onChange={handleChange}
+          label="შენობის ნომერი"
+          error={errors.building_number}
+        />
+        <PanelFormInput
+          id="description"
+          value={values.description || ""}
+          onChange={handleChange}
+          label="აღწერა"
+          error={errors.description}
+        />
+        <PanelFormInput
+          id="coverage_radius_km"
+          value={values.coverage_radius_km || ""}
+          onChange={handleChange}
+          label="დაფარვის რადიუსი (კმ)"
+          error={errors.coverage_radius_km}
+        />
+        <PanelFormInput
+          id="delivery_price"
+          value={values.delivery_price || ""}
+          onChange={handleChange}
+          label="კურიერის გადასახადი (კმ)"
+          error={errors.delivery_price}
+        />
+        <div className="col-span-1 sm:col-span-2">
+          <Button
+            onClick={handleUpdateBranch}
+            disabled={loading}
+            className="h-[45px] px-6 text-white cursor-pointer flex place-self-end"
+          >
+            ცვლილების შენახვა
+          </Button>
+        </div>
+      </div>
     </div>
   );
 }

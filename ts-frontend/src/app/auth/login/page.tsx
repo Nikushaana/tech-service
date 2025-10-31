@@ -6,6 +6,7 @@ import { Button } from "@/app/components/ui/button";
 import { useAuthStore } from "@/app/store/useAuthStore";
 import FormInput from "@/app/components/inputs/form-input";
 import { Loader2Icon } from "lucide-react";
+import Link from "next/link";
 
 export default function Login() {
   const router = useRouter();
@@ -33,17 +34,12 @@ export default function Login() {
         error={errors.password}
       />
 
-      <p
-        onClick={() => {
-          router.push("/auth/send-reset-password-code");
-        }}
-        className="self-end cursor-pointer hover:underline text-sm"
-      >
-        დაგავიწყდა პაროლი?
-      </p>
+      <Link href={"/auth/send-reset-password-code"} className="self-end">
+        <p className="hover:underline text-sm">დაგავიწყდა პაროლი?</p>
+      </Link>
 
       <Button
-        onClick={() => login("individualOrCompany")}
+        onClick={() => login("individualOrCompany", router)}
         disabled={formLoading}
         className="h-11 cursor-pointer"
       >
@@ -51,14 +47,14 @@ export default function Login() {
       </Button>
 
       {/* Footer link */}
-      <p
-        onClick={() => {
-          router.push("/auth/send-register-code");
-        }}
-        className="absolute bottom-[-95px] self-center text-center cursor-pointer border-b-[1px] border-transparent hover:border-gray-700 text-sm  mt-3 z-10 text-stroke"
+      <Link
+        href={"/auth/send-register-code"}
+        className="absolute bottom-[-95px] z-10 self-center text-center mt-3"
       >
-        არ გაქვს ანგარიში? - გაიარე რეგისტრაცია
-      </p>
+        <p className="border-b-[1px] border-transparent hover:border-gray-700 text-sm text-stroke">
+          არ გაქვს ანგარიში? - გაიარე რეგისტრაცია
+        </p>
+      </Link>
     </div>
   );
 }

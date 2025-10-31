@@ -3,8 +3,10 @@
 import { useAuthStore } from "@/app/store/useAuthStore";
 import React, { useEffect } from "react";
 import { Button } from "../ui/button";
+import { useRouter } from "next/navigation";
 
 export default function LogOut() {
+  const router = useRouter();
   const { openLogOut, toggleLogOut, logout } = useAuthStore();
 
   useEffect(() => {
@@ -47,7 +49,7 @@ export default function LogOut() {
           </Button>
           <Button
             onClick={() => {
-              logout(), toggleLogOut();
+              logout(router), toggleLogOut();
             }}
             className="h-[45px] px-6 bg-red-600 hover:bg-[#b91c1c] text-white cursor-pointer"
           >

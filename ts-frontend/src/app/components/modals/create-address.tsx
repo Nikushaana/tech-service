@@ -244,7 +244,7 @@ export default function CreateAddress() {
     <div
       className={`${
         openCreateAddressModal ? "" : "opacity-0 pointer-events-none"
-      } fixed inset-0 z-20 flex items-center justify-center`}
+      } fixed inset-0 z-30 flex items-center justify-center`}
     >
       <div
         className={`absolute inset-0 bg-black transition-opacity ${

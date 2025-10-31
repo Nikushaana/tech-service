@@ -9,6 +9,7 @@ import { axiosFront } from "@/app/api/axios";
 import { toast } from "react-toastify";
 import { sendCodeSchema } from "@/app/utils/validation";
 import { Loader2Icon } from "lucide-react";
+import Link from "next/link";
 
 export default function SendResetPasswordCode() {
   const router = useRouter();
@@ -109,14 +110,14 @@ export default function SendResetPasswordCode() {
       </Button>
 
       {/* Footer link */}
-      <p
-        onClick={() => {
-          router.push("/auth/login");
-        }}
-        className="absolute bottom-[-95px] self-center text-center cursor-pointer border-b-[1px] border-transparent hover:border-gray-700 text-sm  mt-3 z-10 text-stroke"
+      <Link
+        href={"/auth/login"}
+        className="absolute bottom-[-95px] self-center mt-3 z-10"
       >
-        გაქვს ანგარიში? - გაიარე ავტორიზაცია
-      </p>
+        <p className="text-center border-b-[1px] border-transparent hover:border-gray-700 text-sm text-stroke">
+          გაქვს ანგარიში? - გაიარე ავტორიზაცია
+        </p>
+      </Link>
     </div>
   );
 }

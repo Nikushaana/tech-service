@@ -87,7 +87,7 @@ export default function AdminTechnicianRegister() {
   };
 
   return (
-    <div className="w-full flex flex-col self-start items-center p-[10px] rounded-xl shadow gap-y-5 relative max-w-lg mx-auto bg-white">
+    <div className="w-full flex flex-col self-start items-center p-[10px] rounded-xl shadow border border-gray-200 gap-y-5 relative max-w-lg mx-auto bg-white">
       <h1 className="text-center text-xl sm:text-2xl font-semibold">
         Tech Service-ში ტექნიკოსის რეგისტრაცია
       </h1>

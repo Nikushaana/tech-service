@@ -7,6 +7,7 @@ import * as Yup from "yup";
 import { toast } from "react-toastify";
 import PanelFormInput from "../inputs/panel-form-input";
 import { Loader2Icon } from "lucide-react";
+import { MdAddLocationAlt } from "react-icons/md";
 import { useOrdersStore } from "@/app/store/useOrdersStore";
 import { Dropdown } from "../inputs/drop-down";
 import { useCategoriesStore } from "@/app/store/useCategoriesStore";
@@ -31,6 +32,8 @@ export default function CreateOrder() {
     modalType,
     createOrder,
   } = useOrdersStore();
+  const { openCreateAddressModal, toggleOpenCreateAddressModal } =
+    useAddressesStore();
 
   const { addresses } = useAddressesStore();
   const { categories } = useCategoriesStore();
@@ -159,16 +162,11 @@ export default function CreateOrder() {
   };
 
   useEffect(() => {
-    if (openCreateOrderModal) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "auto";
-    }
-
+    document.body.style.overflow = openCreateOrderModal ? "hidden" : "auto";
     return () => {
       document.body.style.overflow = "auto";
     };
-  }, [openCreateOrderModal]);
+  }, [openCreateOrderModal, openCreateAddressModal]);
 
   return (
     <div
@@ -230,14 +228,40 @@ export default function CreateOrder() {
                 label="მოდელი"
                 error={errors.model}
               />
-              <Dropdown
-                data={addresses}
-                id="addressId"
-                value={values.addressId || ""}
-                onChange={handleChange}
-                label="მისამართი"
-                error={errors.addressId}
-              />
+              <div
+                onClick={() => {
+                  addresses.length <= 0 &&
+                    modalType &&
+                    toggleOpenCreateAddressModal(modalType);
+                }}
+                className="flex items-end gap-1"
+              >
+                <div
+                  className={`flex-1 ${
+                    addresses.length <= 0 && "pointer-events-none"
+                  }`}
+                >
+                  <Dropdown
+                    data={addresses}
+                    id="addressId"
+                    value={values.addressId || ""}
+                    onChange={handleChange}
+                    label="მისამართი"
+                    error={errors.addressId}
+                  />
+                </div>
+                <Button
+                  onClick={() => {
+                    addresses.length > 0 &&
+                      modalType &&
+                      toggleOpenCreateAddressModal(modalType);
+                  }}
+                  variant="secondary"
+                  className="h-9 aspect-square rounded-[8px] bg-myLightBlue hover:bg-myBlue text-white text-[18px]"
+                >
+                  <MdAddLocationAlt />
+                </Button>
+              </div>
               <div className="col-span-1 sm:col-span-2">
                 <PanelFormInput
                   id="description"

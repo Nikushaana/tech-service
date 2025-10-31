@@ -105,61 +105,61 @@ export default function Page({ params }: FaqPageProps) {
     }
   };
 
+  if (loading)
+    return (
+      <div className="flex justify-center w-full mt-10">
+        <Loader2Icon className="animate-spin size-6 text-gray-600" />
+      </div>
+    );
+
   return (
     <div className={`w-full flex flex-col items-center gap-y-[20px]`}>
-      {loading ? (
-        <Loader2Icon className="animate-spin" />
-      ) : (
-        <>
-          <div className="flex flex-col-reverse sm:flex-row items-center justify-between w-full gap-4">
-            <div className="w-full sm:w-[120px]">
-              <PanelFormInput
-                id="order"
-                value={String(values.order)}
-                onChange={handleChange}
-                label="რიგი"
-              />
-            </div>
-
-            <div className="flex items-center gap-2 text-sm">
-              <p>დაბლოკილი</p>
-              <Switch
-                checked={values.status}
-                onCheckedChange={(checked) =>
-                  setValues((prev) => ({ ...prev, status: checked }))
-                }
-                className="cursor-pointer"
-              />
-              <p>აქტიური</p>
-            </div>
-          </div>
-
+      <div className="flex flex-col-reverse sm:flex-row items-center justify-between w-full gap-4">
+        <div className="w-full sm:w-[120px]">
           <PanelFormInput
-            id="question"
-            value={values.question}
+            id="order"
+            value={String(values.order)}
             onChange={handleChange}
-            label="შეკითხვა"
-            error={errors.question}
+            label="რიგი"
           />
+        </div>
 
-          <PanelFormInput
-            id="answer"
-            value={values.answer}
-            onChange={handleChange}
-            label="პასუხი"
-            error={errors.answer}
+        <div className="flex items-center gap-2 text-sm">
+          <p>დაბლოკილი</p>
+          <Switch
+            checked={values.status}
+            onCheckedChange={(checked) =>
+              setValues((prev) => ({ ...prev, status: checked }))
+            }
+            className="cursor-pointer"
           />
+          <p>აქტიური</p>
+        </div>
+      </div>
 
-          <Button
-            onClick={handleUpdateFaq}
-            disabled={loading}
-            className="h-[45px] px-6 text-white cursor-pointer w-full sm:w-auto self-end"
-          >
-            {loading && <Loader2Icon className="animate-spin mr-2" />}
-            ცვლილების შენახვა
-          </Button>
-        </>
-      )}
+      <PanelFormInput
+        id="question"
+        value={values.question}
+        onChange={handleChange}
+        label="შეკითხვა"
+        error={errors.question}
+      />
+
+      <PanelFormInput
+        id="answer"
+        value={values.answer}
+        onChange={handleChange}
+        label="პასუხი"
+        error={errors.answer}
+      />
+
+      <Button
+        onClick={handleUpdateFaq}
+        disabled={loading}
+        className="h-[45px] px-6 text-white cursor-pointer w-full sm:w-auto self-end"
+      >
+        ცვლილების შენახვა
+      </Button>
     </div>
   );
 }

@@ -3,17 +3,23 @@
 import { axiosAdmin } from "@/app/api/axios";
 import PanelFormInput from "@/app/components/inputs/panel-form-input";
 import { Button } from "@/app/components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/app/components/ui/table";
 import { Loader2Icon } from "lucide-react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { AiOutlineDelete } from "react-icons/ai";
-import { BsPen } from "react-icons/bs";
+import { BsEye } from "react-icons/bs";
 import { toast } from "react-toastify";
 import * as Yup from "yup";
 
 export default function Page() {
-  const router = useRouter();
-
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -117,9 +123,16 @@ export default function Page() {
       .finally(() => {});
   };
 
+  if (loading)
+    return (
+      <div className="flex justify-center w-full mt-10">
+        <Loader2Icon className="animate-spin size-6 text-gray-600" />
+      </div>
+    );
+
   return (
     <div className="flex flex-col items-center gap-y-[20px] w-full">
-      <div className="bg-white rounded-xl shadow-md p-4 sm:p-6 flex flex-col gap-2 w-full max-w-2xl mx-auto">
+      <div className="bg-white rounded-xl shadow-md border border-gray-200 p-4 sm:p-6 flex flex-col gap-2 w-full max-w-2xl mx-auto">
         <PanelFormInput
           id="name"
           value={values.name}
@@ -134,54 +147,79 @@ export default function Page() {
             disabled={loading}
             className="h-[45px] px-6 text-white cursor-pointer w-full sm:w-auto"
           >
-            {loading && <Loader2Icon className="animate-spin mr-2" />}
             დამატება
           </Button>
         </div>
       </div>
-      {loading ? (
-        <Loader2Icon className="animate-spin" />
-      ) : (
-        categories.map((category) => (
-          <div
-            key={category.id}
-            className="w-full p-4 border rounded-xl shadow-sm bg-white flex flex-col sm:flex-row gap-[10px] items-center justify-between"
-          >
-            <div className="flex items-center gap-[10px]">
-              <img
-                src={
-                  (category.images && category.images[0]) || "/images/logo.png"
-                }
-                alt={category.name}
-                className="aspect-square object-contain w-[40px]"
-              />
-              <h2 className="text-lg">{category.name}</h2>
-            </div>
-
-            <div className="flex items-center gap-[10px]">
-              <p className="text-sm">
-                {category.status ? "აქტიური" : "დაბლოკილი"}
-              </p>
-              <Button
-                onClick={() => {
-                  router.push(`/admin/panel/categories/${category.id}`);
-                }}
-                className="bg-[gray] hover:bg-[#696767] text-[20px] cursor-pointer"
-              >
-                <BsPen />
-              </Button>
-              <Button
-                onClick={() => {
-                  handleDeleteCategory(category.id);
-                }}
-                className="bg-[red] hover:bg-[#b91c1c] text-[20px] cursor-pointer"
-              >
-                <AiOutlineDelete />
-              </Button>
-            </div>
-          </div>
-        ))
-      )}
+      <div className="w-full bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6">
+        <h2 className="text-xl font-semibold mb-4">კატეგორიები</h2>
+        <div className="overflow-x-auto w-full">
+          <Table className="min-w-[900px] table-auto">
+            <TableHeader>
+              <TableRow>
+                <TableHead className="font-semibold">ID</TableHead>
+                <TableHead className="font-semibold">ფოტო</TableHead>
+                <TableHead className="font-semibold">კატეგორია</TableHead>
+                <TableHead className="font-semibold">სტატუსი</TableHead>
+                <TableHead className="text-right"></TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {categories.length === 0 ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={8}
+                    className="text-center py-6 text-gray-500"
+                  >
+                    ინფორმაცია არ მოიძებნა
+                  </TableCell>
+                </TableRow>
+              ) : (
+                categories.map((category) => (
+                  <TableRow key={category.id} className="hover:bg-gray-50">
+                    <TableCell>{category.id}</TableCell>
+                    <TableCell>
+                      <img
+                        src={
+                          (category.images && category.images[0]) ||
+                          "/images/logo.png"
+                        }
+                        alt={category.name}
+                        className="aspect-square object-contain w-[40px]"
+                      />
+                    </TableCell>
+                    <TableCell>{category.name}</TableCell>
+                    <TableCell>
+                      {category.status ? "აქტიური" : "დაბლოკილი"}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Link href={`/admin/panel/categories/${category.id}`}>
+                        <Button
+                          variant="secondary"
+                          size="icon"
+                          className="hover:bg-gray-100 mr-3"
+                        >
+                          <BsEye className="size-4" />
+                        </Button>
+                      </Link>
+                      <Button
+                        onClick={() => {
+                          handleDeleteCategory(category.id);
+                        }}
+                        variant="secondary"
+                        size="icon"
+                        className="bg-[red] hover:bg-[#b91c1c]"
+                      >
+                        <AiOutlineDelete className="size-4" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      </div>
     </div>
   );
 }

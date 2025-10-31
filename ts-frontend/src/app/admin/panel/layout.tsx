@@ -9,12 +9,12 @@ import { useEffect } from "react";
 import { HiMenu, HiX } from "react-icons/hi";
 
 const sidebarLinks = [
-  { name: "სერვისები", href: "/admin/panel/orders" },
+  { name: "მომხმარებლების სერვისები", href: "/admin/panel/orders" },
   { name: "კატეგორიები", href: "/admin/panel/categories" },
-  { name: "FAQ", href: "/admin/panel/faqs" },
+  { name: "FAQs", href: "/admin/panel/faqs" },
   { name: "შეფასებები", href: "/admin/panel/reviews" },
   { name: "ფილიალები", href: "/admin/panel/branches" },
-  { name: "კერძო პირები", href: "/admin/panel/individuals" },
+  { name: "კერძო მომხმარებლები", href: "/admin/panel/individuals" },
   { name: "კომპანიები", href: "/admin/panel/companies" },
   { name: "ტექნიკოსები", href: "/admin/panel/technicians" },
 ];
@@ -122,7 +122,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           <main
             className={`${
               openAdminSideBar && "pointer-events-none brightness-70"
-            } flex-1 flex duration-200 bg-gray-50 px-[10px] py-[20px] sm:p-[20px] border-[1px] rounded-xl shadow-inner`}
+            } flex-1 flex flex-col overflow-x-auto duration-200 bg-gray-50 p-2 border-[1px] rounded-xl shadow-inner`}
           >
             {children}
           </main>

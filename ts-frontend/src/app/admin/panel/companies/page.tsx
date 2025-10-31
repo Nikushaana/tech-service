@@ -1,19 +1,23 @@
 "use client";
 
 import { axiosAdmin } from "@/app/api/axios";
-import PanelFormInput from "@/app/components/inputs/panel-form-input";
 import { Button } from "@/app/components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/app/components/ui/table";
 import { Loader2Icon } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
-import { AiOutlineDelete } from "react-icons/ai";
-import { BsPen } from "react-icons/bs";
-import { toast } from "react-toastify";
-import * as Yup from "yup";
+import { BsEye } from "react-icons/bs";
+import { IoPersonSharp } from "react-icons/io5";
 
 export default function Page() {
-  const router = useRouter();
-
   const [companies, setCompanies] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -30,49 +34,82 @@ export default function Page() {
     fetchCompanies();
   }, []);
 
+  if (loading)
+    return (
+      <div className="flex justify-center w-full mt-10">
+        <Loader2Icon className="animate-spin size-6 text-gray-600" />
+      </div>
+    );
+
   return (
-    <div className="flex flex-col items-center gap-y-[20px] w-full">
-      {loading ? (
-        <Loader2Icon className="animate-spin" />
-      ) : (
-        companies.map((company) => (
-          <div
-            key={company.id}
-            className="w-full p-4 border rounded-xl shadow-sm bg-white flex items-center justify-between"
-          >
-            <div className="flex items-center gap-[10px]">
-              <img
-                src={
-                  (company.images && company.images[0]) || "/images/logo.png"
-                }
-                alt={company.name}
-                className="aspect-square object-cover rounded-full w-[40px]"
-              />
-              <div>
-                <h2>{company.companyName}</h2>
-                <p className="text-sm">
-                  {company.companyAgentName +
-                    " " +
-                    company.companyAgentLastName}
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-[10px]">
-              <p className="text-sm">
-                {company.status ? "აქტიური" : "დაბლოკილი"}
-              </p>
-              <Button
-                onClick={() => {
-                  router.push(`/admin/panel/companies/${company.id}`);
-                }}
-                className="bg-[gray] hover:bg-[#696767] text-[20px] cursor-pointer"
-              >
-                <BsPen />
-              </Button>
-            </div>
-          </div>
-        ))
-      )}
+    <div className="w-full bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6">
+      <h2 className="text-xl font-semibold mb-4">კომპანიები</h2>
+      <div className="overflow-x-auto w-full">
+        <Table className="min-w-[900px] table-auto">
+          <TableHeader>
+            <TableRow>
+              <TableHead className="font-semibold">ID</TableHead>
+              <TableHead className="font-semibold">ფოტო</TableHead>
+              <TableHead className="font-semibold">სახელი</TableHead>
+              <TableHead className="font-semibold">
+                წარმომადგენლის სახელი
+              </TableHead>
+              <TableHead className="font-semibold">
+                წარმომადგენლის გვარი
+              </TableHead>
+              <TableHead className="text-right"></TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {companies.length === 0 ? (
+              <TableRow>
+                <TableCell
+                  colSpan={8}
+                  className="text-center py-6 text-gray-500"
+                >
+                  ინფორმაცია არ მოიძებნა
+                </TableCell>
+              </TableRow>
+            ) : (
+              companies.map((company) => (
+                <TableRow key={company.id} className="hover:bg-gray-50">
+                  <TableCell>{company.id}</TableCell>
+                  <TableCell>
+                    <div className="w-[35px] h-[35px] rounded-full overflow-hidden bg-myLightBlue text-white flex items-center justify-center">
+                      {company.images && company.images[0] ? (
+                        <img
+                          src={company.images[0]}
+                          alt={company.companyName}
+                          className="w-full h-full"
+                        />
+                      ) : (
+                        <IoPersonSharp />
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell>{company.companyName}</TableCell>
+                  <TableCell>{company.companyAgentName}</TableCell>
+                  <TableCell>{company.companyAgentLastName}</TableCell>
+                  <TableCell>
+                    {company.status ? "აქტიური" : "დაბლოკილი"}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <Link href={`/admin/panel/companies/${company.id}`}>
+                      <Button
+                        variant="secondary"
+                        size="icon"
+                        className="hover:bg-gray-100 mr-3"
+                      >
+                        <BsEye className="size-4" />
+                      </Button>
+                    </Link>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   );
 }

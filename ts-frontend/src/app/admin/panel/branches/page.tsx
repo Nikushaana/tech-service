@@ -5,19 +5,25 @@ import { Dropdown2 } from "@/app/components/inputs/drop-down-2";
 import PanelFormInput from "@/app/components/inputs/panel-form-input";
 import Map from "@/app/components/map/map";
 import { Button } from "@/app/components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/app/components/ui/table";
 import { Loader2Icon } from "lucide-react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { AiOutlineDelete } from "react-icons/ai";
-import { BsPen } from "react-icons/bs";
+import { BsEye } from "react-icons/bs";
 import { toast } from "react-toastify";
 import * as Yup from "yup";
 
 export default function Page() {
-  const router = useRouter();
   const [branches, setBranches] = useState<Branch[]>([]);
   const [loading, setLoading] = useState(true);
-  const [loadingDelete, setLoadingDelete] = useState<null | number>(null);
 
   const fetchBranches = () => {
     setLoading(true);
@@ -252,7 +258,7 @@ export default function Page() {
 
   // delete branch
   const handleDeleteBranch = async (id: number) => {
-    setLoadingDelete(id);
+    setLoading(true);
     axiosAdmin
       .delete(`/admin/branches/${id}`)
       .then(() => {
@@ -267,14 +273,21 @@ export default function Page() {
           position: "bottom-right",
           autoClose: 3000,
         });
-        setLoadingDelete(null);
+        setLoading(false);
       })
       .finally(() => {});
   };
 
+  if (loading)
+    return (
+      <div className="flex justify-center w-full mt-10">
+        <Loader2Icon className="animate-spin size-6 text-gray-600" />
+      </div>
+    );
+
   return (
     <div className="flex flex-col items-center gap-y-[20px] w-full">
-      <div className="bg-white rounded-xl shadow-md p-4 sm:p-6 grid grid-cols-1 sm:grid-cols-2 gap-[10px] w-full max-w-2xl mx-auto">
+      <div className="bg-white rounded-xl shadow-md border border-gray-200 p-4 sm:p-6 grid grid-cols-1 sm:grid-cols-2 gap-[10px] w-full max-w-2xl mx-auto">
         <div className="col-span-1 sm:col-span-2">
           <PanelFormInput
             id="name"
@@ -358,43 +371,60 @@ export default function Page() {
         </div>
       </div>
 
-      {loading ? (
-        <Loader2Icon className="animate-spin" />
-      ) : (
-        branches.length > 0 && (
-          <div className="flex flex-col gap-5 w-full">
-            {branches.map((item: Branch) => (
-              <div
-                key={item.id}
-                className="bg-white border border-gray-200 shadow-sm hover:shadow-lg transition-transform duration-200 transform hover:-translate-y-1 rounded-xl p-[14px] flex items-center justify-between"
-              >
-                <h2 className="text-[20px]">{item.name}</h2>
-                <div className="flex items-center gap-2">
-                  <Button
-                    onClick={() => {
-                      router.push(`/admin/panel/branches/${item.id}`);
-                    }}
-                    className="bg-[gray] hover:bg-[#696767] text-[20px] cursor-pointer"
+      <div className="w-full bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6">
+        <h2 className="text-xl font-semibold mb-4">ფილიალები</h2>
+        <div className="overflow-x-auto w-full">
+          <Table className="min-w-[900px] table-auto">
+            <TableHeader>
+              <TableRow>
+                <TableHead className="font-semibold">ID</TableHead>
+                <TableHead className="font-semibold">სახელი</TableHead>
+                <TableHead className="text-right"></TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {branches.length === 0 ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={8}
+                    className="text-center py-6 text-gray-500"
                   >
-                    <BsPen />
-                  </Button>
-                  <Button
-                    onClick={() => handleDeleteBranch(item.id)}
-                    disabled={loadingDelete == item.id}
-                    className="bg-[red] hover:bg-[#b91c1c] text-[20px] cursor-pointer"
-                  >
-                    {loadingDelete == item.id ? (
-                      <Loader2Icon className="animate-spin" />
-                    ) : (
-                      <AiOutlineDelete />
-                    )}
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )
-      )}
+                    ინფორმაცია არ მოიძებნა
+                  </TableCell>
+                </TableRow>
+              ) : (
+                branches.map((branch) => (
+                  <TableRow key={branch.id} className="hover:bg-gray-50">
+                    <TableCell>{branch.id}</TableCell>
+                    <TableCell>{branch.name}</TableCell>
+                    <TableCell className="text-right">
+                      <Link href={`/admin/panel/branches/${branch.id}`}>
+                        <Button
+                          variant="secondary"
+                          size="icon"
+                          className="hover:bg-gray-100 mr-3"
+                        >
+                          <BsEye className="size-4" />
+                        </Button>
+                      </Link>
+                      <Button
+                        onClick={() => {
+                          handleDeleteBranch(branch.id);
+                        }}
+                        variant="secondary"
+                        size="icon"
+                        className="bg-[red] hover:bg-[#b91c1c]"
+                      >
+                        <AiOutlineDelete className="size-4" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      </div>
     </div>
   );
 }

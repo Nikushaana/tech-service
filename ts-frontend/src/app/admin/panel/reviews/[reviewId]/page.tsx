@@ -1,7 +1,6 @@
 "use client";
 
 import { axiosAdmin } from "@/app/api/axios";
-import { statusTranslations } from "@/app/utils/status-translations";
 import { Loader2Icon } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import dayjs from "dayjs";
@@ -9,8 +8,6 @@ import { Dropdown } from "@/app/components/inputs/drop-down";
 import * as Yup from "yup";
 import { Button } from "@/app/components/ui/button";
 import { toast } from "react-toastify";
-import { useOrderStatusOptionsStore } from "@/app/store/orderStatusOptionsStore";
-import Map from "@/app/components/map/map";
 import StarRating from "@/app/components/inputs/star-rating";
 import PanelFormInput from "@/app/components/inputs/panel-form-input";
 
@@ -147,97 +144,89 @@ export default function Page({ params }: OrderPageProps) {
     }
   };
 
+  if (loading)
+    return (
+      <div className="flex justify-center w-full mt-10">
+        <Loader2Icon className="animate-spin size-6 text-gray-600" />
+      </div>
+    );
+
   return (
     <div
-      className={`border rounded-lg shadow px-[10px] py-[20px] sm:p-[20px] bg-white w-full max-w-3xl mx-auto flex flex-col gap-y-4 ${
-        loading && "flex items-center justify-center"
-      }`}
+      className={`border rounded-lg shadow px-[10px] py-[20px] sm:p-[20px] bg-white w-full max-w-3xl mx-auto flex flex-col gap-y-4`}
     >
-      {loading ? (
-        <Loader2Icon className="animate-spin" />
-      ) : (
-        <>
-          {/* Header */}
-          <h2 className={`flex justify-end text-sm`}>
-            {review.status ? "გამოქვეყნებულია" : "გამოუქვეყნებელია"}
-          </h2>
+      {/* Header */}
+      <h2 className={`flex justify-end text-sm`}>
+        {review.status ? "გამოქვეყნებულია" : "გამოუქვეყნებელია"}
+      </h2>
 
-          {/* Main Info */}
-          <div>
-            <p className="text-sm">
-              დაემატა:{" "}
-              <span className="text-base font-semibold">
-                {dayjs(review.created_at).format("DD.MM.YYYY - HH:mm:ss")}
-              </span>
-            </p>
-            <p className="text-sm">
-              განახლდა:{" "}
-              <span className="text-base font-semibold">
-                {dayjs(review.updated_at).format("DD.MM.YYYY - HH:mm:ss")}
-              </span>
-            </p>
-          </div>
+      {/* Main Info */}
+      <div>
+        <p className="text-sm">
+          დაემატა:{" "}
+          <span className="text-base font-semibold">
+            {dayjs(review.created_at).format("DD.MM.YYYY - HH:mm:ss")}
+          </span>
+        </p>
+        <p className="text-sm">
+          განახლდა:{" "}
+          <span className="text-base font-semibold">
+            {dayjs(review.updated_at).format("DD.MM.YYYY - HH:mm:ss")}
+          </span>
+        </p>
+      </div>
 
-          {/* User */}
-          <div>
-            <h3>
-              {review.individual ? "ინდივიდუალური მომხმარებელი" : "კომპანია"}
-            </h3>
-            <p>
-              {review.individual
-                ? review.individual?.name + " " + review.individual?.lastName
-                : review.company && review.company?.companyName}
-            </p>
+      {/* User */}
+      <div>
+        <h3>{review.individual ? "ინდივიდუალური მომხმარებელი" : "კომპანია"}</h3>
+        <p>
+          {review.individual
+            ? review.individual?.name + " " + review.individual?.lastName
+            : review.company && review.company?.companyName}
+        </p>
 
-            <p>
-              {review.individual
-                ? review.individual?.phone
-                : review.company?.phone}
-            </p>
-          </div>
+        <p>
+          {review.individual ? review.individual?.phone : review.company?.phone}
+        </p>
+      </div>
 
-          {/* review */}
-          <div className="flex flex-col gap-y-2">
-            <PanelFormInput
-              id="review"
-              value={values.review}
-              onChange={handleChange}
-              label="შეფასება"
-              error={errors.review}
-            />
-            <StarRating
-              value={values.stars || 5}
-              onChange={(star) =>
-                setValues((prev) => ({ ...prev, stars: star }))
-              }
-            />
-          </div>
+      {/* review */}
+      <div className="flex flex-col gap-y-2">
+        <PanelFormInput
+          id="review"
+          value={values.review}
+          onChange={handleChange}
+          label="შეფასება"
+          error={errors.review}
+        />
+        <StarRating
+          value={values.stars || 5}
+          onChange={(star) => setValues((prev) => ({ ...prev, stars: star }))}
+        />
+      </div>
 
-          <div className="flex flex-col sm:flex-row gap-[10px]">
-            <Dropdown
-              data={[
-                { id: 1, name: "დაბლოკვა" },
-                { id: 2, name: "გამოქვეყნება" },
-              ]}
-              id="status"
-              value={values.status}
-              onChange={handleChange}
-              label="სტატუსი"
-            />
-          </div>
+      <div className="flex flex-col sm:flex-row gap-[10px]">
+        <Dropdown
+          data={[
+            { id: 1, name: "დაბლოკვა" },
+            { id: 2, name: "გამოქვეყნება" },
+          ]}
+          id="status"
+          value={values.status}
+          onChange={handleChange}
+          label="სტატუსი"
+        />
+      </div>
 
-          <Button
-            onClick={() => {
-              handleAdminUpdateReview();
-            }}
-            disabled={loading}
-            className="h-11 cursor-pointer self-end"
-          >
-            {loading && <Loader2Icon className="animate-spin" />}ცვლილებების
-            შენახვა
-          </Button>
-        </>
-      )}
+      <Button
+        onClick={() => {
+          handleAdminUpdateReview();
+        }}
+        disabled={loading}
+        className="h-11 cursor-pointer self-end"
+      >
+        ცვლილებების შენახვა
+      </Button>
     </div>
   );
 }

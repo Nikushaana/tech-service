@@ -9,6 +9,7 @@ import * as Yup from "yup";
 import UserDetailsForm from "../shared components/user-details-form";
 import { Loader2Icon } from "lucide-react";
 import ImageSelector from "../../inputs/image-selector";
+import { useRouter } from "next/navigation";
 
 interface IndividualValues {
   name: string;
@@ -19,6 +20,7 @@ interface IndividualValues {
 }
 
 export default function IndividualDetailsForm() {
+  const router = useRouter();
   const { currentUser } = useAuthStore();
   const rehydrateClient = useAuthStore((state) => state.rehydrateClient);
 
@@ -97,7 +99,7 @@ export default function IndividualDetailsForm() {
             position: "bottom-right",
             autoClose: 3000,
           });
-          rehydrateClient();
+          rehydrateClient(router);
           setValues((prev) => ({
             ...prev,
             newImages: [],

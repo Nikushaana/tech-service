@@ -21,7 +21,7 @@ interface LoginState {
     resetValues: () => void;
     resetErrors: () => void;
 
-    login: (role: Role | "individualOrCompany") => void;
+    login: (role: Role | "individualOrCompany", router?: any) => void;
 }
 
 type AuthState = {
@@ -32,9 +32,9 @@ type AuthState = {
     toggleLogOut: () => void;
     setAuthLoading: (value: boolean) => void;
 
-    rehydrateClient: () => void;
-    rehydrateAdmin: () => void;
-    logout: () => void;
+    rehydrateClient: (router?: any) => void;
+    rehydrateAdmin: (router?: any) => void;
+    logout: (router?: any) => void;
 };
 
 type Store = LoginState & AuthState;
@@ -67,7 +67,7 @@ export const useAuthStore = create<Store>((set, get) => ({
 
     // login
 
-    login: (role: Role | "individualOrCompany") => {
+    login: (role: Role | "individualOrCompany", router?: any) => {
         const { values, resetErrors, setErrors, setFormLoading, setCurrentUser } = get();
         const roles: Role[] = ["individual", "company", "technician", "admin"];
         roles.forEach((r) => localStorage.removeItem(`${r}Token`));
@@ -86,10 +86,14 @@ export const useAuthStore = create<Store>((set, get) => ({
                 localStorage.setItem(`${data.user.role}Token`, data.token);
                 setCurrentUser(data.user);
 
+                get().resetValues();
+                get().resetErrors();
+
                 toast.success("ავტორიზაცია შესრულდა", { position: "bottom-right", autoClose: 3000 });
 
                 const redirectUrl = data.user.role === "admin" ? "/admin/panel/orders" : "/";
-                window.location.href = redirectUrl;
+
+                router.push(redirectUrl);
             })
             .catch((err) => {
                 if (err.inner) {
@@ -108,7 +112,7 @@ export const useAuthStore = create<Store>((set, get) => ({
 
     // logout
 
-    logout: () => {
+    logout: (router?: any) => {
         const { currentUser, setCurrentUser, setAuthLoading } = get();
         if (!currentUser) return;
 
@@ -118,7 +122,7 @@ export const useAuthStore = create<Store>((set, get) => ({
 
         if (!token) {
             setCurrentUser(null);
-            window.location.href = "/";
+            router.push("/");
             return;
         }
 
@@ -136,14 +140,16 @@ export const useAuthStore = create<Store>((set, get) => ({
             .finally(() => {
                 localStorage.removeItem(tokenKey);
                 setCurrentUser(null);
+                get().resetValues();
+                get().resetErrors();
                 setAuthLoading(false);
-                window.location.href = "/";
+                router.push("/");
             });
     },
 
     // client
 
-    rehydrateClient: () => {
+    rehydrateClient: (router?: any) => {
         set({ authLoading: true });
 
         const individualToken = localStorage.getItem("individualToken");
@@ -165,7 +171,7 @@ export const useAuthStore = create<Store>((set, get) => ({
 
         if (!token || !axiosInstance || !role) {
             if (window.location.pathname.startsWith("/dashboard")) {
-                window.location.href = "/";
+                router.push("/");
             }
             set({ authLoading: false, currentUser: null });
             return;
@@ -177,7 +183,7 @@ export const useAuthStore = create<Store>((set, get) => ({
                 if (window.location.pathname.startsWith("/dashboard")) {
                     const pathRole = window.location.pathname.split("/")[2] as Role | undefined;
                     if (!pathRole || pathRole !== role) {
-                        window.location.href = `/dashboard/${role}/${window.location.pathname.split("/")[3]}`;
+                        router.push(`/dashboard/${role}/${window.location.pathname.split("/")[3]}`);
                     }
                 }
                 set({ currentUser: data });
@@ -193,7 +199,7 @@ export const useAuthStore = create<Store>((set, get) => ({
 
     // admin
 
-    rehydrateAdmin: () => {
+    rehydrateAdmin: (router?: any) => {
         set({ authLoading: true });
 
         const adminToken = localStorage.getItem("adminToken");
@@ -210,7 +216,7 @@ export const useAuthStore = create<Store>((set, get) => ({
 
         if (!token || !axiosInstance || !role) {
             if (window.location.pathname != "/admin") {
-                window.location.href = "/admin";
+                router.push("/admin");
             }
             set({ authLoading: false, currentUser: null });
             return;
@@ -222,13 +228,13 @@ export const useAuthStore = create<Store>((set, get) => ({
                 set({ currentUser: data });
 
                 if (window.location.pathname == "/admin") {
-                    window.location.href = "/admin/panel/orders";
+                    router.push("/admin/panel/orders");
                 }
             })
             .catch(() => {
                 localStorage.removeItem(`${role}Token`);
                 set({ currentUser: null });
-                window.location.href = "/admin";
+                router.push("/admin");
             })
             .finally(() => {
                 set({ authLoading: false });

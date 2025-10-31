@@ -42,7 +42,7 @@ export default function Page() {
 
         <Button
           onClick={() => {
-            login("admin");
+            login("admin", router);
           }}
           disabled={formLoading}
           className="h-11 cursor-pointer"

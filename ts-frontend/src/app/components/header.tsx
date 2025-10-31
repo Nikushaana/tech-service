@@ -9,6 +9,7 @@ import { useBurgerMenuStore } from "../store/burgerMenuStore";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuthStore } from "../store/useAuthStore";
 import { IoPersonSharp } from "react-icons/io5";
+import Link from "next/link";
 
 export default function Header() {
   const menu = useMenuStore((state) => state.menu);
@@ -21,17 +22,18 @@ export default function Header() {
   const firstSegment = pathname.split("/")[1];
   const isHidden = firstSegment === "admin" || firstSegment === "staff";
 
+  const path = currentUser
+    ? currentUser.role === "individual"
+      ? "/dashboard/individual/orders"
+      : "/dashboard/company/orders"
+    : "/auth/login";
+
   return (
     <header className={`z-10 w-full ${isHidden ? "hidden" : ""}`}>
       <div className="max-w-[1140px] mx-auto flex items-center justify-between h-[100px] px-4">
-        <img
-          onClick={() => {
-            router.push("/");
-          }}
-          src="/images/logo.png"
-          alt="logo"
-          className="h-[60px] cursor-pointer"
-        />
+        <Link href={"/"}>
+          <img src="/images/logo.png" alt="logo" className="h-[60px]" />
+        </Link>
 
         {/* Desktop Menu */}
         <nav className="hidden md:flex gap-6">
@@ -56,39 +58,19 @@ export default function Header() {
 
         {/* Request Button (Desktop) */}
         <div className="flex items-center gap-[10px] duration-200">
-          <Button
-            onClick={() => {
-              if (currentUser) {
-                const path =
-                  currentUser.role === "individual"
-                    ? "/dashboard/individual/orders"
-                    : "/dashboard/company/orders";
+          <Link href={path}>
+            <Button className="hidden md:flex h-[45px] px-[20px] sm:px-[30px]">
+              {currentUser ? "აირჩიე სერვისი" : "ავტორიზაცია"}
+            </Button>
+          </Link>
 
-                router.push(path);
-              } else {
-                router.push("/auth/login");
-              }
-            }}
-            className="hidden md:flex h-[45px] px-[20px] sm:px-[30px] cursor-pointer"
-          >
-            {currentUser ? "აირჩიე სერვისი" : "ავტორიზაცია"}
-          </Button>
-
-          <div
-            onClick={() => {
-              // Navigate to the dashboard based on user role
-              if (currentUser?.role === "individual")
-                router.push("/dashboard/individual/profile");
-              else if (currentUser?.role === "company")
-                router.push("/dashboard/company/profile");
-              else if (currentUser?.role === "technician")
-                router.push("/dashboard/technician/profile");
-            }}
+          <Link
+            href={`/dashboard/${currentUser?.role}/profile`}
             className={`${
               currentUser ? "w-[45px] h-[45px]" : "w-0 h-0"
             } rounded-full hover:scale-105 duration-200 cursor-pointer overflow-hidden bg-myLightBlue text-white flex items-center justify-center text-[18px]`}
           >
-            {currentUser?.images ? (
+            {currentUser?.images && currentUser?.images[0] ? (
               <img
                 onClick={() => {
                   router.push("/");
@@ -100,7 +82,7 @@ export default function Header() {
             ) : (
               <IoPersonSharp />
             )}
-          </div>
+          </Link>
 
           {/* Mobile Hamburger */}
           <div

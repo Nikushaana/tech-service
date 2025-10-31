@@ -76,6 +76,7 @@ interface User {
 interface Order {
   id: number;
   address: Address;
+  service_type: string;
   brand: string;
   model: string;
   status: string;

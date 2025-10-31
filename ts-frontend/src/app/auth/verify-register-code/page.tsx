@@ -9,6 +9,7 @@ import { axiosFront } from "@/app/api/axios";
 import { toast } from "react-toastify";
 import { verifyCodeSchema } from "@/app/utils/validation";
 import { Loader2Icon } from "lucide-react";
+import Link from "next/link";
 
 export default function VerifyRegisterCode() {
   const router = useRouter();
@@ -103,14 +104,16 @@ export default function VerifyRegisterCode() {
       </Button>
 
       {/* Footer link */}
+      <Link
+        href={"/auth/login"}
+        className="absolute bottom-[-95px] self-center mt-3 z-10"
+      >
       <p
-        onClick={() => {
-          router.push("/auth/login");
-        }}
-        className="absolute bottom-[-95px] self-center text-center cursor-pointer border-b-[1px] border-transparent hover:border-gray-700 text-sm  mt-3 z-10 text-stroke"
+        className="text-center cursor-pointer border-b-[1px] border-transparent hover:border-gray-700 text-sm text-stroke"
       >
         გაქვს ანგარიში? - გაიარე ავტორიზაცია
       </p>
+      </Link>
     </div>
   );
 }

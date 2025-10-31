@@ -168,89 +168,89 @@ export default function Page({ params }: FaqPageProps) {
     }
   };
 
+  if (loading)
+    return (
+      <div className="flex justify-center w-full mt-10">
+        <Loader2Icon className="animate-spin size-6 text-gray-600" />
+      </div>
+    );
+
   return (
     <div className={`w-full flex flex-col items-center gap-y-[20px]`}>
-      {loading ? (
-        <Loader2Icon className="animate-spin" />
-      ) : (
-        <>
-          <div className="flex items-center gap-2 text-sm">
-            <p>დაბლოკილი</p>
-            <Switch
-              checked={values.status}
-              onCheckedChange={(checked) =>
-                setValues((prev) => ({ ...prev, status: checked }))
-              }
-              className="cursor-pointer"
-            />
-            <p>აქტიური</p>
-          </div>
+      <div className="flex items-center gap-2 text-sm">
+        <p>დაბლოკილი</p>
+        <Switch
+          checked={values.status}
+          onCheckedChange={(checked) =>
+            setValues((prev) => ({ ...prev, status: checked }))
+          }
+          className="cursor-pointer"
+        />
+        <p>აქტიური</p>
+      </div>
 
-          <ImageSelector
-            images={values.images}
-            setImages={(url: string) =>
-              setValues((prev) => ({
-                ...prev,
-                images: prev.images.filter((img: string) => img !== url),
-                deletedImages: [...prev.deletedImages, url],
-              }))
-            }
-            newImages={values.newImages}
-            setNewImages={{
-              add: (files: File[]) =>
-                setValues((prev) => ({
-                  ...prev,
-                  newImages: [...prev.newImages, ...files],
-                })),
-              remove: (file: File) =>
-                setValues((prev) => ({
-                  ...prev,
-                  newImages: prev.newImages.filter((f) => f !== file),
-                })),
-            }}
-          />
+      <ImageSelector
+        images={values.images}
+        setImages={(url: string) =>
+          setValues((prev) => ({
+            ...prev,
+            images: prev.images.filter((img: string) => img !== url),
+            deletedImages: [...prev.deletedImages, url],
+          }))
+        }
+        newImages={values.newImages}
+        setNewImages={{
+          add: (files: File[]) =>
+            setValues((prev) => ({
+              ...prev,
+              newImages: [...prev.newImages, ...files],
+            })),
+          remove: (file: File) =>
+            setValues((prev) => ({
+              ...prev,
+              newImages: prev.newImages.filter((f) => f !== file),
+            })),
+        }}
+      />
 
-          <PanelFormInput
-            id="name"
-            value={values.name}
-            onChange={handleChange}
-            label="სახელი"
-            error={errors.name}
-          />
+      <PanelFormInput
+        id="name"
+        value={values.name}
+        onChange={handleChange}
+        label="სახელი"
+        error={errors.name}
+      />
 
-          <PanelFormInput
-            id="lastName"
-            value={values.lastName}
-            onChange={handleChange}
-            label="გვარი"
-            error={errors.lastName}
-          />
-          <PanelFormInput
-            id="phone"
-            value={values.phone}
-            onChange={handleChange}
-            label="ტელეფონის ნომერი"
-            error={errors.phone}
-          />
-          <PanelFormInput
-            id="password"
-            type="password"
-            value={values.password}
-            onChange={handleChange}
-            label="პაროლი"
-            error={errors.password}
-          />
+      <PanelFormInput
+        id="lastName"
+        value={values.lastName}
+        onChange={handleChange}
+        label="გვარი"
+        error={errors.lastName}
+      />
+      <PanelFormInput
+        id="phone"
+        value={values.phone}
+        onChange={handleChange}
+        label="ტელეფონის ნომერი"
+        error={errors.phone}
+      />
+      <PanelFormInput
+        id="password"
+        type="password"
+        value={values.password}
+        onChange={handleChange}
+        label="პაროლი"
+        error={errors.password}
+      />
 
-          <Button
-            onClick={handleUpdateIndividual}
-            disabled={loading}
-            className="h-[45px] px-6 text-white cursor-pointer w-full sm:w-auto self-end"
-          >
-            {loading && <Loader2Icon className="animate-spin mr-2" />}
-            ცვლილების შენახვა
-          </Button>
-        </>
-      )}
+      <Button
+        onClick={handleUpdateIndividual}
+        disabled={loading}
+        className="h-[45px] px-6 text-white cursor-pointer w-full sm:w-auto self-end"
+      >
+        ცვლილების შენახვა
+      </Button>
     </div>
   );
 }

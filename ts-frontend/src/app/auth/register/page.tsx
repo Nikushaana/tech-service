@@ -11,6 +11,7 @@ import { toast } from "react-toastify";
 import { registerSchema } from "@/app/utils/validation";
 import FormInput from "@/app/components/inputs/form-input";
 import { Loader2Icon } from "lucide-react";
+import Link from "next/link";
 
 export default function Register() {
   const router = useRouter();
@@ -54,9 +55,9 @@ export default function Register() {
       }
 
       const url =
-      values.role === "individual"
-        ? "/auth/individual/register"
-        : "/auth/company/register";
+        values.role === "individual"
+          ? "/auth/individual/register"
+          : "/auth/company/register";
 
       axiosFront
         .post(url, payload)
@@ -211,14 +212,14 @@ export default function Register() {
       </Button>
 
       {/* Footer link */}
-      <p
-        onClick={() => {
-          router.push("/auth/login");
-        }}
-        className="absolute bottom-[-95px] self-center text-center cursor-pointer border-b-[1px] border-transparent hover:border-gray-700 text-sm  mt-3 z-10 text-stroke"
+      <Link
+        href={"/auth/login"}
+        className="absolute bottom-[-95px] self-center mt-3 z-10"
       >
-        გაქვს ანგარიში? - გაიარე ავტორიზაცია
-      </p>
+        <p className="text-center cursor-pointer border-b-[1px] border-transparent hover:border-gray-700 text-sm text-stroke">
+          გაქვს ანგარიში? - გაიარე ავტორიზაცია
+        </p>
+      </Link>
     </div>
   );
 }
