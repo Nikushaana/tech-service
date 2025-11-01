@@ -2,6 +2,7 @@ import { Address } from 'src/address/entities/address.entity';
 import { Category } from 'src/category/entities/category.entity';
 import { OrderStatus } from 'src/common/types/order-status.enum';
 import { CompanyClient } from 'src/company-client/entities/company-client.entity';
+import { Delivery } from 'src/delivery/entities/delivery.entity';
 import { IndividualClient } from 'src/individual-client/entities/individual-client.entity';
 import { Technician } from 'src/technician/entities/technician.entity';
 import {
@@ -59,4 +60,7 @@ export class Order {
 
   @ManyToOne(() => Technician, (technician) => technician.orders, { nullable: true })
   technician: Technician | null;
+  
+  @ManyToOne(() => Delivery, (delivery) => delivery.orders, { nullable: true })
+  delivery: Delivery | null;
 }

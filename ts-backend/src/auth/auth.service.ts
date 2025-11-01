@@ -16,8 +16,10 @@ import { VerificationCode } from 'src/verification-code/entities/verification-co
 import { VerificationCodeService } from 'src/verification-code/verification-code.service';
 import { PhoneDto, ResetPasswordDto, VerifyCodeDto } from 'src/verification-code/dto/verification-code.dto';
 import { LoginUserDto } from './dto/login-user.dto';
-import { RegisterIndAdmTechnDto } from './dto/register-ind-adm-techn.dto';
 import { RegisterCompanyDto } from './dto/register-company.dto';
+import { Delivery } from 'src/delivery/entities/delivery.entity';
+import { DeliveryToken } from 'src/delivery-token/entities/delivery-token.entity';
+import { RegisterIndAdmTechDelDto } from './dto/register-ind-adm-tech-del.dto';
 
 @Injectable()
 export class AuthService {
@@ -48,6 +50,12 @@ export class AuthService {
         @InjectRepository(TechnicianToken)
         private technicianTokenRepo: Repository<TechnicianToken>,
 
+        @InjectRepository(Delivery)
+        private deliveryRepo: Repository<Delivery>,
+
+        @InjectRepository(DeliveryToken)
+        private deliveryTokenRepo: Repository<DeliveryToken>,
+
         @InjectRepository(VerificationCode)
         private VerificationCodeRepo: Repository<VerificationCode>,
 
@@ -72,7 +80,7 @@ export class AuthService {
 
     // users
 
-    async register(dto: RegisterCompanyDto | RegisterIndAdmTechnDto, role: 'individual' | 'company' | 'technician' | 'admin') {
+    async register(dto: RegisterCompanyDto | RegisterIndAdmTechDelDto, role: 'individual' | 'company' | 'technician' | 'delivery' | 'admin') {
         const codeEntry = await this.VerificationCodeRepo.findOne({
             where: { phone: dto.phone, verified: true, type: 'register' },
         });
@@ -82,6 +90,7 @@ export class AuthService {
             (await this.individualClientRepo.findOne({ where: { phone: dto.phone } })) ||
             (await this.companyClientRepo.findOne({ where: { phone: dto.phone } })) ||
             (await this.technicianRepo.findOne({ where: { phone: dto.phone } })) ||
+            (await this.deliveryRepo.findOne({ where: { phone: dto.phone } })) ||
             (await this.adminRepo.findOne({ where: { phone: dto.phone } }))
             ;
 
@@ -98,9 +107,11 @@ export class AuthService {
                     ? this.adminRepo
                     : role === 'technician'
                         ? this.technicianRepo
-                        : role === 'company'
-                            ? this.companyClientRepo
-                            : null;
+                        : role === 'delivery'
+                            ? this.deliveryRepo
+                            : role === 'company'
+                                ? this.companyClientRepo
+                                : null;
 
         if (!repo) {
             throw new BadRequestException('Invalid role');
@@ -121,11 +132,12 @@ export class AuthService {
         };
     }
 
-    async login(loginUserDto: LoginUserDto, role: 'individualOrCompany' | 'technician' | 'admin') {
+    async login(loginUserDto: LoginUserDto, role: 'individualOrCompany' | 'technician' | 'delivery' | 'admin') {
         const userRepoMap: any = {
             individual: this.individualClientRepo,
             company: this.companyClientRepo,
             technician: this.technicianRepo,
+            delivery: this.deliveryRepo,
             admin: this.adminRepo,
         };
 
@@ -133,14 +145,15 @@ export class AuthService {
             individual: this.individualClientTokenRepo,
             company: this.companyClientTokenRepo,
             technician: this.technicianTokenRepo,
+            delivery: this.deliveryTokenRepo,
             admin: this.adminTokenRepo,
         };
 
         // 1. Determine which repo to use
         let user: any = null;
-        let actualRole: 'individual' | 'company' | 'technician' | 'admin' = null as any;
+        let actualRole: 'individual' | 'company' | 'technician' | 'delivery' | 'admin' = null as any;
 
-        if (role === 'admin' || role === 'technician') {
+        if (role === 'admin' || role === 'technician' || role === 'delivery') {
             actualRole = role;
             user = await userRepoMap[role].findOne({ where: { phone: loginUserDto.phone } });
         } else if (role === 'individualOrCompany') {
@@ -164,7 +177,7 @@ export class AuthService {
 
         // 4. Save or update token dynamically
         const tokenRepo = tokenRepoMap[actualRole];
-        const tokenEntityKey = actualRole === 'technician' || actualRole === 'admin'
+        const tokenEntityKey = actualRole === 'technician' || actualRole === 'admin' || actualRole === 'delivery'
             ? actualRole
             : `${actualRole}Client`;
 
@@ -184,7 +197,7 @@ export class AuthService {
         };
     }
 
-    async logout(authHeader: string, role: 'individual' | 'company' | 'technician' | 'admin') {
+    async logout(authHeader: string, role: 'individual' | 'company' | 'technician' | 'delivery' | 'admin') {
         if (!authHeader) {
             throw new UnauthorizedException('Authorization header missing');
         }
@@ -199,7 +212,8 @@ export class AuthService {
                 ? await this.individualClientTokenRepo.delete({ token })
                 : role === 'company' ? await this.companyClientTokenRepo.delete({ token })
                     : role === 'technician' ? await this.technicianTokenRepo.delete({ token })
-                        : await this.adminTokenRepo.delete({ token });
+                        : role === 'delivery' ? await this.deliveryTokenRepo.delete({ token })
+                            : await this.adminTokenRepo.delete({ token });
 
         if (result.affected === 0) {
             throw new NotFoundException('Token not found in database');
@@ -226,10 +240,11 @@ export class AuthService {
         const individual = await this.individualClientRepo.findOne({ where: { phone: resetPasswordDto.phone } });
         const company = await this.companyClientRepo.findOne({ where: { phone: resetPasswordDto.phone } });
         const technician = await this.technicianRepo.findOne({ where: { phone: resetPasswordDto.phone } });
+        const delivery = await this.deliveryRepo.findOne({ where: { phone: resetPasswordDto.phone } });
 
         let user;
         let repo;
-        let role: 'individual' | 'company' | 'technician';
+        let role: 'individual' | 'company' | 'technician' | 'delivery';
 
         if (individual) {
             user = individual;
@@ -243,6 +258,10 @@ export class AuthService {
             user = technician;
             repo = this.technicianRepo;
             role = 'technician';
+        } else if (delivery) {
+            user = delivery;
+            repo = this.deliveryRepo;
+            role = 'delivery';
         } else {
             throw new BadRequestException('User not found');
         }

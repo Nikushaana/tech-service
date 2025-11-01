@@ -13,6 +13,7 @@ import { FrontModule } from './front/front.module';
 import { IndividualClientModule } from './individual-client/individual-client.module';
 import { TechnicianModule } from './technician/technician.module';
 import { GoogleApisModule } from './google-apis/google-apis.module';
+import { DeliveryModule } from './delivery/delivery.module';
 
 @Module({
   imports: [
@@ -64,6 +65,8 @@ import { GoogleApisModule } from './google-apis/google-apis.module';
     TechnicianModule,
 
     GoogleApisModule,
+
+    DeliveryModule,
   ],
   controllers: [AppController],
   providers: [AppService],

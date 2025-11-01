@@ -3,7 +3,6 @@ import { AdminService } from './admin.service';
 import { TokenValidationGuard } from 'src/auth/guards/token-validation.guard';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { RolesGuard } from 'src/common/guards/roles.guard';
-import { UpdateAdminIndividualOrTechnicianDto } from './dto/update-admin-individual-or-technician.dto';
 import { UpdateAdminCompanyDto } from './dto/update-admin-company.dto';
 import { UserFilterDto } from 'src/common/services/base-user/dto/user-filter.dto';
 import { UpdateAdminOrderDto } from 'src/order/dto/update-admin-order.dto';
@@ -16,6 +15,7 @@ import { MultipleImagesUpload } from 'src/common/interceptors/multiple-images-up
 import { UpdateReviewDto } from 'src/reviews/dto/update-review.dto';
 import { CreateBranchDto } from 'src/branches/dto/create-branch.dto';
 import { UpdateBranchDto } from 'src/branches/dto/update-branch.dto';
+import { UpdateAdminIndividualTechnicianDeliveryDto } from './dto/update-adm-ind-tech-del.dto';
 
 @Controller('admin')
 export class AdminController {
@@ -50,8 +50,8 @@ export class AdminController {
     @Roles('admin')
     @Patch('individuals/:id')
     @UseInterceptors(MultipleImagesUpload('images', 1))
-    async updateAdminOneIndividual(@Param('id', ParseIntPipe) id: number, @Body() updateAdminIndividualOrTechnicianDto: UpdateAdminIndividualOrTechnicianDto, @UploadedFiles() images: Express.Multer.File[]) {
-        return this.adminService.updateAdminOneIndividual(id, updateAdminIndividualOrTechnicianDto, images);
+    async updateAdminOneIndividual(@Param('id', ParseIntPipe) id: number, @Body() updateAdminIndividualTechnicianDeliveryDto: UpdateAdminIndividualTechnicianDeliveryDto, @UploadedFiles() images: Express.Multer.File[]) {
+        return this.adminService.updateAdminOneIndividual(id, updateAdminIndividualTechnicianDeliveryDto, images);
     }
 
     // companies
@@ -98,8 +98,32 @@ export class AdminController {
     @Roles('admin')
     @Patch('technicians/:id')
     @UseInterceptors(MultipleImagesUpload('images', 1))
-    async updateAdminOneTechnician(@Param('id', ParseIntPipe) id: number, @Body() updateAdminIndividualOrTechnicianDto: UpdateAdminIndividualOrTechnicianDto, @UploadedFiles() images: Express.Multer.File[]) {
-        return this.adminService.updateAdminOneTechnician(id, updateAdminIndividualOrTechnicianDto, images);
+    async updateAdminOneTechnician(@Param('id', ParseIntPipe) id: number, @Body() updateAdminIndividualTechnicianDeliveryDto: UpdateAdminIndividualTechnicianDeliveryDto, @UploadedFiles() images: Express.Multer.File[]) {
+        return this.adminService.updateAdminOneTechnician(id, updateAdminIndividualTechnicianDeliveryDto, images);
+    }
+
+    // deliveries
+
+    @UseGuards(TokenValidationGuard, RolesGuard)
+    @Roles('admin')
+    @Get('deliveries')
+    async getAdminDeliveries(@Query() userFilterDto: UserFilterDto) {
+        return this.adminService.getAdminDeliveries(userFilterDto);
+    }
+
+    @UseGuards(TokenValidationGuard, RolesGuard)
+    @Roles('admin')
+    @Get('deliveries/:id')
+    async getAdminOneDelivery(@Param('id', ParseIntPipe) id: number) {
+        return this.adminService.getAdminOneDelivery(id);
+    }
+
+    @UseGuards(TokenValidationGuard, RolesGuard)
+    @Roles('admin')
+    @Patch('deliveries/:id')
+    @UseInterceptors(MultipleImagesUpload('images', 1))
+    async updateAdminOneDelivery(@Param('id', ParseIntPipe) id: number, @Body() updateAdminIndividualTechnicianDeliveryDto: UpdateAdminIndividualTechnicianDeliveryDto, @UploadedFiles() images: Express.Multer.File[]) {
+        return this.adminService.updateAdminOneDelivery(id, updateAdminIndividualTechnicianDeliveryDto, images);
     }
 
     // orders

@@ -5,8 +5,8 @@ import { LoginUserDto } from './dto/login-user.dto';
 import { RolesGuard } from 'src/common/guards/roles.guard';
 import { TokenValidationGuard } from './guards/token-validation.guard';
 import { Roles } from 'src/common/decorators/roles.decorator';
-import { RegisterIndAdmTechnDto } from './dto/register-ind-adm-techn.dto';
 import { RegisterCompanyDto } from './dto/register-company.dto';
+import { RegisterIndAdmTechDelDto } from './dto/register-ind-adm-tech-del.dto';
 
 
 
@@ -52,9 +52,9 @@ export class AdminAuthController {
 
     @Post('register')
     async AdminRegister(
-        @Body() registerIndAdmTechnDto: RegisterIndAdmTechnDto,
+        @Body() registerIndAdmTechDelDto: RegisterIndAdmTechDelDto,
     ) {
-        return this.authService.register(registerIndAdmTechnDto, "admin");
+        return this.authService.register(registerIndAdmTechDelDto, "admin");
     }
 
     @Post('login')
@@ -76,9 +76,9 @@ export class IndividualAuthController {
 
     @Post('register')
     async IndividualRegister(
-        @Body() registerIndAdmTechnDto: RegisterIndAdmTechnDto,
+        @Body() registerIndAdmTechDelDto: RegisterIndAdmTechDelDto,
     ) {
-        return this.authService.register(registerIndAdmTechnDto, "individual");
+        return this.authService.register(registerIndAdmTechDelDto, "individual");
     }
 
     @UseGuards(TokenValidationGuard, RolesGuard)
@@ -130,9 +130,9 @@ export class TechnicianAuthController {
     @Roles('admin')
     @Post('register')
     async TechnicianRegister(
-        @Body() registerIndAdmTechnDto: RegisterIndAdmTechnDto,
+        @Body() registerIndAdmTechDelDto: RegisterIndAdmTechDelDto,
     ) {
-        return this.authService.register(registerIndAdmTechnDto, "technician");
+        return this.authService.register(registerIndAdmTechDelDto, "technician");
     }
 
     @Post('login')
@@ -145,5 +145,45 @@ export class TechnicianAuthController {
     @Delete('logout')
     async TechnicianLogout(@Headers('authorization') authHeader: string) {
         return this.authService.logout(authHeader, 'technician');
+    }
+}
+
+@Controller('auth/delivery')
+export class DeliveryAuthController {
+    constructor(private readonly authService: AuthService) { }
+
+    @UseGuards(TokenValidationGuard, RolesGuard)
+    @Roles('admin')
+    @Post('send-register-code')
+    async DeliverySendRegisterCode(@Body() phoneDto: PhoneDto) {
+        return this.authService.sendRegisterCode(phoneDto);
+    }
+
+    @UseGuards(TokenValidationGuard, RolesGuard)
+    @Roles('admin')
+    @Post('verify-register-code')
+    async DeliveryVerifyRegisterCode(@Body() verifyCodeDto: VerifyCodeDto) {
+        return this.authService.verifyRegisterCode(verifyCodeDto);
+    }
+
+    @UseGuards(TokenValidationGuard, RolesGuard)
+    @Roles('admin')
+    @Post('register')
+    async DeliveryRegister(
+        @Body() registerIndAdmTechDelDto: RegisterIndAdmTechDelDto,
+    ) {
+        return this.authService.register(registerIndAdmTechDelDto, "delivery");
+    }
+
+    @Post('login')
+    async DeliveryLogin(@Body() loginUserDto: LoginUserDto) {
+        return this.authService.login(loginUserDto, "delivery");
+    }
+
+    @UseGuards(TokenValidationGuard, RolesGuard)
+    @Roles('delivery')
+    @Delete('logout')
+    async DeliveryLogout(@Headers('authorization') authHeader: string) {
+        return this.authService.logout(authHeader, 'delivery');
     }
 }

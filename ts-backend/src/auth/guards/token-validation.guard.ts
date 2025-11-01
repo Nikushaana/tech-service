@@ -3,6 +3,7 @@ import { AuthGuard } from "@nestjs/passport";
 import { InjectRepository } from "@nestjs/typeorm";
 import { AdminToken } from "src/admin-token/entities/admin-token.entity";
 import { CompanyClientToken } from "src/company-client-token/entities/company-client-token.entity";
+import { DeliveryToken } from "src/delivery-token/entities/delivery-token.entity";
 import { IndividualClientToken } from "src/individual-client-token/entities/individual-client-token.entity";
 import { TechnicianToken } from "src/technician-token/entities/technician-token.entity";
 import { Repository } from "typeorm";
@@ -21,6 +22,9 @@ export class TokenValidationGuard extends AuthGuard('jwt') {
 
         @InjectRepository(TechnicianToken)
         private technicianTokenRepo: Repository<TechnicianToken>,
+        
+        @InjectRepository(DeliveryToken)
+        private deliveryTokenRepo: Repository<DeliveryToken>,
     ) {
         super();
     }
@@ -42,7 +46,7 @@ export class TokenValidationGuard extends AuthGuard('jwt') {
         const token = authHeader.split(' ')[1];
         if (!token) throw new UnauthorizedException('Token not found');
 
-        const role = user.role as 'admin' | 'individual' | 'company' | 'technician';
+        const role = user.role as 'admin' | 'individual' | 'company' | 'technician' | 'delivery';
 
         let tokenExists = false;
         if (role === 'admin') {
@@ -53,6 +57,8 @@ export class TokenValidationGuard extends AuthGuard('jwt') {
             tokenExists = !!(await this.companyTokenRepo.findOne({ where: { token } }));
         } else if (role === 'technician') {
             tokenExists = !!(await this.technicianTokenRepo.findOne({ where: { token } }));
+        } else if (role === 'delivery') {
+            tokenExists = !!(await this.deliveryTokenRepo.findOne({ where: { token } }));
         }
 
         if (!tokenExists) {

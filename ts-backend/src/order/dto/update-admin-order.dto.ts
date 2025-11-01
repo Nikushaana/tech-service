@@ -15,6 +15,10 @@ export class UpdateAdminOrderDto {
     @IsOptional()
     @IsNumber({}, { each: false })
     technicianId: number | null;
+    
+    @IsOptional()
+    @IsNumber({}, { each: false })
+    deliveryId: number | null;
 
     @IsOptional()
     @IsString()

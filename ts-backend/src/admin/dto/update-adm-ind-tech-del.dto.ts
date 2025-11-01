@@ -1,7 +1,7 @@
 import { Transform } from 'class-transformer';
 import { IsBoolean, IsNotEmpty, IsOptional, IsString, Matches, MinLength } from 'class-validator';
 
-export class UpdateAdminIndividualOrTechnicianDto {
+export class UpdateAdminIndividualTechnicianDeliveryDto {
     @IsOptional()
     @Matches(/^5[0-9]{8}$/, {
         message: 'Phone number must start with 5 and be 9 digits long',

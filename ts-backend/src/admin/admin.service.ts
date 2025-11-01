@@ -12,7 +12,6 @@ import { Address } from 'src/address/entities/address.entity';
 import { BaseUserService } from 'src/common/services/base-user/base-user.service';
 import { instanceToPlain } from 'class-transformer';
 import * as bcrypt from 'bcrypt';
-import { UpdateAdminIndividualOrTechnicianDto } from './dto/update-admin-individual-or-technician.dto';
 import { UpdateAdminCompanyDto } from './dto/update-admin-company.dto';
 import { UserFilterDto } from 'src/common/services/base-user/dto/user-filter.dto';
 import { UpdateAdminOrderDto } from 'src/order/dto/update-admin-order.dto';
@@ -27,6 +26,8 @@ import { UpdateReviewDto } from 'src/reviews/dto/update-review.dto';
 import { CreateBranchDto } from 'src/branches/dto/create-branch.dto';
 import { Branch } from 'src/branches/entities/branches.entity';
 import { UpdateBranchDto } from 'src/branches/dto/update-branch.dto';
+import { UpdateAdminIndividualTechnicianDeliveryDto } from './dto/update-adm-ind-tech-del.dto';
+import { Delivery } from 'src/delivery/entities/delivery.entity';
 
 @Injectable()
 export class AdminService {
@@ -42,6 +43,9 @@ export class AdminService {
 
         @InjectRepository(Technician)
         private technicianRepo: Repository<Technician>,
+
+        @InjectRepository(Delivery)
+        private deliveryRepo: Repository<Delivery>,
 
         @InjectRepository(Order)
         private readonly orderRepo: Repository<Order>,
@@ -88,36 +92,36 @@ export class AdminService {
         return instanceToPlain(findOneIndividual)
     }
 
-    async updateAdminOneIndividual(individualId: number, updateAdminIndividualOrTechnicianDto: UpdateAdminIndividualOrTechnicianDto, images: Express.Multer.File[] = []) {
+    async updateAdminOneIndividual(individualId: number, updateAdminIndividualTechnicianDeliveryDto: UpdateAdminIndividualTechnicianDeliveryDto, images: Express.Multer.File[] = []) {
         const findOneIndividual = await this.baseUserService.getUser(individualId, this.individualClientRepo);
 
-        if (updateAdminIndividualOrTechnicianDto.phone && updateAdminIndividualOrTechnicianDto.phone !== findOneIndividual.phone) {
+        if (updateAdminIndividualTechnicianDeliveryDto.phone && updateAdminIndividualTechnicianDeliveryDto.phone !== findOneIndividual.phone) {
             const phoneExists =
                 (await this.individualClientRepo.findOne({
-                    where: { phone: updateAdminIndividualOrTechnicianDto.phone },
+                    where: { phone: updateAdminIndividualTechnicianDeliveryDto.phone },
                 })) ||
                 (await this.companyClientRepo.findOne({
-                    where: { phone: updateAdminIndividualOrTechnicianDto.phone },
+                    where: { phone: updateAdminIndividualTechnicianDeliveryDto.phone },
                 }))
                 ||
                 (await this.technicianRepo.findOne({
-                    where: { phone: updateAdminIndividualOrTechnicianDto.phone },
+                    where: { phone: updateAdminIndividualTechnicianDeliveryDto.phone },
                 })) ||
                 (await this.adminRepo.findOne({
-                    where: { phone: updateAdminIndividualOrTechnicianDto.phone },
+                    where: { phone: updateAdminIndividualTechnicianDeliveryDto.phone },
                 }));
 
             if (phoneExists) throw new ConflictException('phone is already in use');
         }
 
-        if (updateAdminIndividualOrTechnicianDto.password) {
-            updateAdminIndividualOrTechnicianDto.password = await bcrypt.hash(updateAdminIndividualOrTechnicianDto.password, 10);
+        if (updateAdminIndividualTechnicianDeliveryDto.password) {
+            updateAdminIndividualTechnicianDeliveryDto.password = await bcrypt.hash(updateAdminIndividualTechnicianDeliveryDto.password, 10);
         }
 
         let imagesToDeleteArray: string[] = [];
-        if (updateAdminIndividualOrTechnicianDto.imagesToDelete) {
+        if (updateAdminIndividualTechnicianDeliveryDto.imagesToDelete) {
             try {
-                imagesToDeleteArray = JSON.parse(updateAdminIndividualOrTechnicianDto.imagesToDelete);
+                imagesToDeleteArray = JSON.parse(updateAdminIndividualTechnicianDeliveryDto.imagesToDelete);
             } catch (err) {
                 throw new BadRequestException('imagesToDelete must be a JSON string array');
             }
@@ -151,7 +155,7 @@ export class AdminService {
             'tech_service_project/images/individuals',
         );
 
-        const updatedAdminIndividual = this.individualClientRepo.merge(findOneIndividual, updateAdminIndividualOrTechnicianDto);
+        const updatedAdminIndividual = this.individualClientRepo.merge(findOneIndividual, updateAdminIndividualTechnicianDeliveryDto);
 
         // Append new images to existing ones
         if (imageUrls.length > 0) {
@@ -272,36 +276,36 @@ export class AdminService {
         return instanceToPlain(findOneTechnician)
     }
 
-    async updateAdminOneTechnician(technicianId: number, updateAdminIndividualOrTechnicianDto: UpdateAdminIndividualOrTechnicianDto, images: Express.Multer.File[] = []) {
+    async updateAdminOneTechnician(technicianId: number, updateAdminIndividualTechnicianDeliveryDto: UpdateAdminIndividualTechnicianDeliveryDto, images: Express.Multer.File[] = []) {
         const findOneTechnician = await this.baseUserService.getUser(technicianId, this.technicianRepo);
 
-        if (updateAdminIndividualOrTechnicianDto.phone && updateAdminIndividualOrTechnicianDto.phone !== findOneTechnician.phone) {
+        if (updateAdminIndividualTechnicianDeliveryDto.phone && updateAdminIndividualTechnicianDeliveryDto.phone !== findOneTechnician.phone) {
             const phoneExists =
                 (await this.individualClientRepo.findOne({
-                    where: { phone: updateAdminIndividualOrTechnicianDto.phone },
+                    where: { phone: updateAdminIndividualTechnicianDeliveryDto.phone },
                 })) ||
                 (await this.companyClientRepo.findOne({
-                    where: { phone: updateAdminIndividualOrTechnicianDto.phone },
+                    where: { phone: updateAdminIndividualTechnicianDeliveryDto.phone },
                 }))
                 ||
                 (await this.technicianRepo.findOne({
-                    where: { phone: updateAdminIndividualOrTechnicianDto.phone },
+                    where: { phone: updateAdminIndividualTechnicianDeliveryDto.phone },
                 })) ||
                 (await this.adminRepo.findOne({
-                    where: { phone: updateAdminIndividualOrTechnicianDto.phone },
+                    where: { phone: updateAdminIndividualTechnicianDeliveryDto.phone },
                 }));
 
             if (phoneExists) throw new ConflictException('phone is already in use');
         }
 
-        if (updateAdminIndividualOrTechnicianDto.password) {
-            updateAdminIndividualOrTechnicianDto.password = await bcrypt.hash(updateAdminIndividualOrTechnicianDto.password, 10);
+        if (updateAdminIndividualTechnicianDeliveryDto.password) {
+            updateAdminIndividualTechnicianDeliveryDto.password = await bcrypt.hash(updateAdminIndividualTechnicianDeliveryDto.password, 10);
         }
 
         let imagesToDeleteArray: string[] = [];
-        if (updateAdminIndividualOrTechnicianDto.imagesToDelete) {
+        if (updateAdminIndividualTechnicianDeliveryDto.imagesToDelete) {
             try {
-                imagesToDeleteArray = JSON.parse(updateAdminIndividualOrTechnicianDto.imagesToDelete);
+                imagesToDeleteArray = JSON.parse(updateAdminIndividualTechnicianDeliveryDto.imagesToDelete);
             } catch (err) {
                 throw new BadRequestException('imagesToDelete must be a JSON string array');
             }
@@ -335,7 +339,7 @@ export class AdminService {
             'tech_service_project/images/technicians',
         );
 
-        const updatedAdminTechnician = this.technicianRepo.merge(findOneTechnician, updateAdminIndividualOrTechnicianDto);
+        const updatedAdminTechnician = this.technicianRepo.merge(findOneTechnician, updateAdminIndividualTechnicianDeliveryDto);
 
         // Append new images to existing ones
         if (imageUrls.length > 0) {
@@ -350,12 +354,110 @@ export class AdminService {
         };
     }
 
+    // deliveries
+
+    async getAdminDeliveries(userFilterDto: UserFilterDto) {
+        const findDeliveries = await this.baseUserService.getUsers(this.deliveryRepo, userFilterDto);
+
+        return instanceToPlain(findDeliveries);
+    }
+
+    async getAdminOneDelivery(deliveryId: number) {
+        const findOneDelivery = await this.baseUserService.getUser(deliveryId, this.deliveryRepo);
+
+        return instanceToPlain(findOneDelivery)
+    }
+
+    async updateAdminOneDelivery(deliveryId: number, updateAdminIndividualTechnicianDeliveryDto: UpdateAdminIndividualTechnicianDeliveryDto, images: Express.Multer.File[] = []) {
+        const findOneDelivery = await this.baseUserService.getUser(deliveryId, this.deliveryRepo);
+
+        if (updateAdminIndividualTechnicianDeliveryDto.phone && updateAdminIndividualTechnicianDeliveryDto.phone !== findOneDelivery.phone) {
+            const phoneExists =
+                (await this.individualClientRepo.findOne({
+                    where: { phone: updateAdminIndividualTechnicianDeliveryDto.phone },
+                }))
+                ||
+                (await this.companyClientRepo.findOne({
+                    where: { phone: updateAdminIndividualTechnicianDeliveryDto.phone },
+                }))
+                ||
+                (await this.technicianRepo.findOne({
+                    where: { phone: updateAdminIndividualTechnicianDeliveryDto.phone },
+                }))
+                ||
+                (await this.deliveryRepo.findOne({
+                    where: { phone: updateAdminIndividualTechnicianDeliveryDto.phone },
+                }))
+                ||
+                (await this.adminRepo.findOne({
+                    where: { phone: updateAdminIndividualTechnicianDeliveryDto.phone },
+                }));
+
+            if (phoneExists) throw new ConflictException('phone is already in use');
+        }
+
+        if (updateAdminIndividualTechnicianDeliveryDto.password) {
+            updateAdminIndividualTechnicianDeliveryDto.password = await bcrypt.hash(updateAdminIndividualTechnicianDeliveryDto.password, 10);
+        }
+
+        let imagesToDeleteArray: string[] = [];
+        if (updateAdminIndividualTechnicianDeliveryDto.imagesToDelete) {
+            try {
+                imagesToDeleteArray = JSON.parse(updateAdminIndividualTechnicianDeliveryDto.imagesToDelete);
+            } catch (err) {
+                throw new BadRequestException('imagesToDelete must be a JSON string array');
+            }
+        }
+
+        // Then use imagesToDeleteArray in your deletion logic
+        if (imagesToDeleteArray.length > 0) {
+            await Promise.all(
+                imagesToDeleteArray.map(async (url) => {
+                    await this.cloudinaryService.deleteByUrl(url);
+                    findOneDelivery.images = findOneDelivery.images.filter((img) => img !== url);
+                }),
+            );
+        }
+
+        // ✅ Check max limit before uploading
+        const MAX_IMAGES = 1;
+        const existingCount = findOneDelivery.images?.length || 0;
+        const newCount = images?.length || 0;
+        const totalAfterUpdate = existingCount + newCount;
+
+        if (totalAfterUpdate > MAX_IMAGES) {
+            throw new BadRequestException(
+                `Allowed max ${MAX_IMAGES} image. (exists: ${existingCount}, new: ${newCount})`,
+            );
+        }
+
+        // Upload images to Cloudinary if any
+        const imageUrls = await this.cloudinaryService.uploadImages(
+            images,
+            'tech_service_project/images/deliveries',
+        );
+
+        const updatedAdminDelivery = this.deliveryRepo.merge(findOneDelivery, updateAdminIndividualTechnicianDeliveryDto);
+
+        // Append new images to existing ones
+        if (imageUrls.length > 0) {
+            updatedAdminDelivery.images = [...(updatedAdminDelivery.images || []), ...imageUrls];
+        }
+
+        await this.deliveryRepo.save(updatedAdminDelivery);
+
+        return {
+            message: 'Delivery updated successfully',
+            user: instanceToPlain(updatedAdminDelivery),
+        };
+    }
+
     // orders
 
     async getOrders() {
         const orders = await this.orderRepo.find({
             order: { created_at: 'DESC' },
-            relations: ['individual', 'company', 'technician'],
+            relations: ['individual', 'company', 'technician', 'delivery'],
         });
 
         return instanceToPlain(orders);
@@ -364,7 +466,7 @@ export class AdminService {
     async getOneOrder(id: number) {
         const order = await this.orderRepo.findOne({
             where: { id },
-            relations: ['individual', 'company', 'technician'],
+            relations: ['individual', 'company', 'technician', 'delivery'],
         });
         if (!order) throw new NotFoundException('Order not found');
 
@@ -378,7 +480,7 @@ export class AdminService {
         });
         if (!order) throw new NotFoundException('Order not found');
 
-        const { addressId, technicianId, ...rest } = updateAdminOrderDto;
+        const { addressId, technicianId, deliveryId, ...rest } = updateAdminOrderDto;
 
         if (addressId) {
             const relationKey = order.company ? 'company' : 'individual';
@@ -403,6 +505,18 @@ export class AdminService {
                 });
                 if (!technician) throw new NotFoundException('Technician not found or inactive');
                 order.technician = technician;
+            }
+        }
+        
+        if (deliveryId !== undefined) {
+            if (deliveryId === null) {
+                order.delivery = null;
+            } else {
+                const delivery = await this.deliveryRepo.findOne({
+                    where: { id: deliveryId, status: true }
+                });
+                if (!delivery) throw new NotFoundException('Delivery not found or inactive');
+                order.delivery = delivery;
             }
         }
 

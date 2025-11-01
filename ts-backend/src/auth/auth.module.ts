@@ -13,8 +13,10 @@ import { VerificationCode } from 'src/verification-code/entities/verification-co
 import { VerificationCodeModule } from 'src/verification-code/verification-code.module';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { AdminAuthController, AuthController, CompanyAuthController, IndividualAuthController, TechnicianAuthController } from './auth.controller';
+import { AdminAuthController, AuthController, CompanyAuthController, DeliveryAuthController, IndividualAuthController, TechnicianAuthController } from './auth.controller';
 import { JwtStrategy } from './strategies/jwt.strategy';
+import { Delivery } from 'src/delivery/entities/delivery.entity';
+import { DeliveryToken } from 'src/delivery-token/entities/delivery-token.entity';
 
 @Module({
   imports: [
@@ -27,6 +29,8 @@ import { JwtStrategy } from './strategies/jwt.strategy';
       CompanyClientToken,
       Technician,
       TechnicianToken,
+      Delivery,
+      DeliveryToken,
       VerificationCode,
     ]),
     VerificationCodeModule,
@@ -45,6 +49,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
     AdminAuthController,
     IndividualAuthController,
     CompanyAuthController,
-    TechnicianAuthController]
+    TechnicianAuthController,
+    DeliveryAuthController]
 })
 export class AuthModule { }
