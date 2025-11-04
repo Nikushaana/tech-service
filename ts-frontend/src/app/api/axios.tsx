@@ -40,6 +40,16 @@ axiosTechnician.interceptors.request.use((config) => {
   return config;
 });
 
+// Delivery
+export const axiosDelivery = axios.create({
+  baseURL: `${process.env.NEXT_PUBLIC_API_URL}/`,
+});
+axiosDelivery.interceptors.request.use((config) => {
+  const token = localStorage.getItem("deliveryToken");
+  if (token) config.headers.Authorization = `Bearer ${token}`;
+  return config;
+});
+
 // Admin
 export const axiosAdmin = axios.create({
   baseURL: `${process.env.NEXT_PUBLIC_API_URL}/`,

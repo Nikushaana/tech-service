@@ -28,14 +28,17 @@ export default function Page({ params }: OrderPageProps) {
   const [loading, setLoading] = useState<boolean>(true);
 
   const [technicians, setTechnicians] = useState<User[]>([]);
+  const [deliveries, setDeliveries] = useState<User[]>([]);
 
   const [values, setValues] = useState({
     technicianId: "",
+    deliveryId: "",
     status: "",
   });
 
   const [errors, setErrors] = useState({
     technicianId: "",
+    deliveryId: "",
     status: "",
   });
 
@@ -49,6 +52,7 @@ export default function Page({ params }: OrderPageProps) {
         setOrder(res.data);
         setValues({
           technicianId: res.data.technician?.id || "",
+          deliveryId: res.data.delivery?.id || "",
           status: res.data.status || "",
         });
         setLoading(false);
@@ -73,6 +77,19 @@ export default function Page({ params }: OrderPageProps) {
     fetchTechnicians();
   }, []);
 
+  // fetch deliveries
+  const fetchDeliveries = () => {
+    axiosAdmin
+      .get("/admin/deliveries?status=true")
+      .then(({ data }) => setDeliveries(data))
+      .catch((err) => {})
+      .finally(() => {});
+  };
+
+  useEffect(() => {
+    fetchDeliveries();
+  }, []);
+
   // update order
 
   const handleChange = (
@@ -83,7 +100,8 @@ export default function Page({ params }: OrderPageProps) {
     const { id, value } = e.target;
     setValues((prev) => ({
       ...prev,
-      [id]: id === "technicianId" ? Number(value) : value,
+      [id]:
+        id === "technicianId" || id === "deliveryId" ? Number(value) : value,
     }));
   };
 
@@ -93,6 +111,11 @@ export default function Page({ params }: OrderPageProps) {
         originalValue === "" ? undefined : value
       )
       .required("ტექნიკოსი აუცილებელია"),
+    deliveryId: Yup.number()
+      .transform((value, originalValue) =>
+        originalValue === "" ? undefined : value
+      )
+      .required("კურიერი აუცილებელია"),
     status: Yup.string().required("სტატუსი აუცილებელია"),
   });
 
@@ -102,12 +125,14 @@ export default function Page({ params }: OrderPageProps) {
       // Yup validation
       setErrors({
         technicianId: "",
+        deliveryId: "",
         status: "",
       });
       await updateOrderSchema.validate(values, { abortEarly: false });
 
       let payload: any = {
         technicianId: values.technicianId,
+        deliveryId: values.deliveryId,
         status: values.status,
       };
 
@@ -123,6 +148,7 @@ export default function Page({ params }: OrderPageProps) {
 
           setErrors({
             technicianId: "",
+            deliveryId: "",
             status: "",
           });
         })
@@ -134,6 +160,7 @@ export default function Page({ params }: OrderPageProps) {
 
           setErrors({
             technicianId: "შეცდომა",
+            deliveryId: "შეცდომა",
             status: "შეცდომა",
           });
 
@@ -341,6 +368,14 @@ export default function Page({ params }: OrderPageProps) {
       </div>
 
       <div className="flex flex-col sm:flex-row gap-[10px]">
+        <Dropdown
+          data={deliveries}
+          id="deliveryId"
+          value={order.delivery?.id || ""}
+          onChange={handleChange}
+          label="კურიერი"
+          error={errors.deliveryId}
+        />
         <Dropdown
           data={technicians}
           id="technicianId"

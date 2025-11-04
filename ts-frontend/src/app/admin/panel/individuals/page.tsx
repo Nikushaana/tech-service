@@ -51,6 +51,7 @@ export default function Page() {
               <TableHead className="font-semibold">ფოტო</TableHead>
               <TableHead className="font-semibold">სახელი</TableHead>
               <TableHead className="font-semibold">გვარი</TableHead>
+              <TableHead className="font-semibold">სტატუსი</TableHead>
               <TableHead className="text-right"></TableHead>
             </TableRow>
           </TableHeader>

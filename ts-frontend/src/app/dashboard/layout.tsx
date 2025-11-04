@@ -13,7 +13,7 @@ type SidebarLinksWithTitle = {
   links: { name: string; href: string }[];
 };
 
-type Role = "individual" | "company" | "technician";
+type Role = "individual" | "company";
 
 const sidebarLinks: Record<Role, SidebarLinksWithTitle> = {
   individual: {
@@ -33,10 +33,6 @@ const sidebarLinks: Record<Role, SidebarLinksWithTitle> = {
       { name: "შეაფასე Tech Service", href: "/dashboard/company/reviews" },
       { name: "პროფილი", href: "/dashboard/company/profile" },
     ],
-  },
-  technician: {
-    title: "ტექნიკოსი გვერდი",
-    links: [{ name: "პროფილი", href: "/dashboard/technician/profile" }],
   },
 };
 
@@ -138,7 +134,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           <main
             className={`${
               openSideBar && "pointer-events-none brightness-70"
-            } flex-1 flex duration-200 bg-gray-50 px-[10px] py-[20px] sm:p-[20px] border-[1px] rounded-xl shadow-inner`}
+            } flex-1 flex overflow-x-auto duration-200 bg-gray-50 px-[10px] py-[20px] sm:p-[20px] border-[1px] rounded-xl shadow-inner`}
           >
             {children}
           </main>

@@ -17,20 +17,20 @@ import { BsEye } from "react-icons/bs";
 import { IoPersonSharp } from "react-icons/io5";
 
 export default function Page() {
-  const [technicians, setTechnicians] = useState<User[]>([]);
+  const [deliveries, setDeliveries] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchTechnicians = () => {
+  const fetchDeliveries = () => {
     setLoading(true);
     axiosAdmin
-      .get("/admin/technicians")
-      .then(({ data }) => setTechnicians(data))
+      .get("/admin/deliveries")
+      .then(({ data }) => setDeliveries(data))
       .catch((err) => {})
       .finally(() => setLoading(false));
   };
 
   useEffect(() => {
-    fetchTechnicians();
+    fetchDeliveries();
   }, []);
 
   if (loading)
@@ -43,15 +43,15 @@ export default function Page() {
   return (
     <div className="flex flex-col items-center gap-y-[20px] w-full">
       <Link
-        href={"/admin/panel/technicians/send-register-code"}
+        href={"/admin/panel/deliveries/send-register-code"}
         className="w-full sm:w-auto self-end"
       >
         <Button className="h-[45px] px-6 text-white">
-          ტექნიკოსის რეგისტრაცია
+          კურიერის რეგისტრაცია
         </Button>
       </Link>
       <div className="w-full bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6">
-        <h2 className="text-xl font-semibold mb-4">ტექნიკოსები</h2>
+        <h2 className="text-xl font-semibold mb-4">კურიერები</h2>
         <div className="overflow-x-auto w-full">
           <Table className="min-w-[900px] table-auto">
             <TableHeader>
@@ -65,7 +65,7 @@ export default function Page() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {technicians.length === 0 ? (
+              {deliveries.length === 0 ? (
                 <TableRow>
                   <TableCell
                     colSpan={8}
@@ -75,15 +75,15 @@ export default function Page() {
                   </TableCell>
                 </TableRow>
               ) : (
-                technicians.map((technician) => (
-                  <TableRow key={technician.id} className="hover:bg-gray-50">
-                    <TableCell>{technician.id}</TableCell>
+                deliveries.map((delivery) => (
+                  <TableRow key={delivery.id} className="hover:bg-gray-50">
+                    <TableCell>{delivery.id}</TableCell>
                     <TableCell>
                       <div className="w-[35px] h-[35px] rounded-full overflow-hidden bg-myLightBlue text-white flex items-center justify-center">
-                        {technician.images && technician.images[0] ? (
+                        {delivery.images && delivery.images[0] ? (
                           <img
-                            src={technician.images[0]}
-                            alt={technician.name}
+                            src={delivery.images[0]}
+                            alt={delivery.name}
                             className="w-full h-full"
                           />
                         ) : (
@@ -91,13 +91,13 @@ export default function Page() {
                         )}
                       </div>
                     </TableCell>
-                    <TableCell>{technician.name}</TableCell>
-                    <TableCell>{technician.lastName}</TableCell>
+                    <TableCell>{delivery.name}</TableCell>
+                    <TableCell>{delivery.lastName}</TableCell>
                     <TableCell>
-                      {technician.status ? "აქტიური" : "დაბლოკილი"}
+                      {delivery.status ? "აქტიური" : "დაბლოკილი"}
                     </TableCell>
                     <TableCell className="text-right">
-                      <Link href={`/admin/panel/technicians/${technician.id}`}>
+                      <Link href={`/admin/panel/deliveries/${delivery.id}`}>
                         <Button
                           variant="secondary"
                           size="icon"

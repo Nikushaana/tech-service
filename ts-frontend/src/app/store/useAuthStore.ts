@@ -1,9 +1,9 @@
 import { create } from "zustand";
-import { axiosAdmin, axiosCompany, axiosFront, axiosIndividual, axiosTechnician } from "../api/axios";
+import { axiosAdmin, axiosCompany, axiosDelivery, axiosFront, axiosIndividual, axiosTechnician } from "../api/axios";
 import { toast } from "react-toastify";
 import * as Yup from "yup";
 
-type Role = "individual" | "company" | "technician" | "admin";
+type Role = "individual" | "company" | "technician" | "delivery" | "admin";
 
 interface LoginState {
     values: {
@@ -69,7 +69,7 @@ export const useAuthStore = create<Store>((set, get) => ({
 
     login: (role: Role | "individualOrCompany", router?: any) => {
         const { values, resetErrors, setErrors, setFormLoading, setCurrentUser } = get();
-        const roles: Role[] = ["individual", "company", "technician", "admin"];
+        const roles: Role[] = ["individual", "company", "technician", "delivery", "admin"];
         roles.forEach((r) => localStorage.removeItem(`${r}Token`));
 
         resetErrors();
@@ -78,7 +78,16 @@ export const useAuthStore = create<Store>((set, get) => ({
         loginSchema
             .validate(values, { abortEarly: false })
             .then(() => {
-                const url = role === "admin" ? "auth/admin/login" : "auth/login-client";
+                const roleUrls: Record<string, string> = {
+                    admin: "auth/admin/login",
+                    individual: "auth/login-client",
+                    company: "auth/login-client",
+                    technician: "auth/technician/login",
+                    delivery: "auth/delivery/login",
+                };
+
+                const url = roleUrls[role] || "auth/login-client";
+
                 return axiosFront.post(url, values);
             })
             .then((res) => {
@@ -91,7 +100,15 @@ export const useAuthStore = create<Store>((set, get) => ({
 
                 toast.success("ავტორიზაცია შესრულდა", { position: "bottom-right", autoClose: 3000 });
 
-                const redirectUrl = data.user.role === "admin" ? "/admin/panel/orders" : "/";
+                const roleRedirects: Record<string, string> = {
+                    admin: "/admin/panel/orders",
+                    individual: "/",
+                    company: "/",
+                    technician: "/staff/technician/orders",
+                    delivery: "/staff/delivery/orders",
+                };
+
+                const redirectUrl = roleRedirects[data.user.role] || "/";
 
                 router.push(redirectUrl);
             })
@@ -130,6 +147,7 @@ export const useAuthStore = create<Store>((set, get) => ({
             individual: axiosIndividual,
             company: axiosCompany,
             technician: axiosTechnician,
+            delivery: axiosDelivery,
             admin: axiosAdmin,
         };
         const axiosInstance = axiosMap[role];

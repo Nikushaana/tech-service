@@ -51,7 +51,7 @@ export function Dropdown({
   // Format label text
   const displayText =
     selectedItem &&
-    (id === "technicianId"
+    (id === "technicianId" || id === "deliveryId"
       ? `${selectedItem.name} ${selectedItem.lastName || ""}`
       : selectedItem.name);
 
@@ -76,7 +76,7 @@ export function Dropdown({
           >
             {data?.map((item: any) => {
               const optionText =
-                id === "technicianId"
+                id === "technicianId" || id === "deliveryId"
                   ? `${item.name} ${item.lastName || ""}`
                   : item.name;
               return (

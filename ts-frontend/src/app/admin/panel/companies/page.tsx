@@ -57,6 +57,7 @@ export default function Page() {
               <TableHead className="font-semibold">
                 წარმომადგენლის გვარი
               </TableHead>
+              <TableHead className="font-semibold">სტატუსი</TableHead>
               <TableHead className="text-right"></TableHead>
             </TableRow>
           </TableHeader>

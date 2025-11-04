@@ -17,6 +17,7 @@ const sidebarLinks = [
   { name: "კერძო მომხმარებლები", href: "/admin/panel/individuals" },
   { name: "კომპანიები", href: "/admin/panel/companies" },
   { name: "ტექნიკოსები", href: "/admin/panel/technicians" },
+  { name: "კურიერები", href: "/admin/panel/deliveries" },
 ];
 
 export default function Layout({ children }: { children: React.ReactNode }) {
