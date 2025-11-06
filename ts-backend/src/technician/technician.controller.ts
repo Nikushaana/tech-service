@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Patch, Post, Req, UploadedFiles, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseIntPipe, Patch, Post, Req, UploadedFiles, UseGuards, UseInterceptors } from '@nestjs/common';
 import { TechnicianService } from './technician.service';
 import { RolesGuard } from 'src/common/guards/roles.guard';
 import { TokenValidationGuard } from 'src/auth/guards/token-validation.guard';
@@ -51,5 +51,21 @@ export class TechnicianController {
     @Post('change-number')
     async changeNumber(@Req() req: RequestInfo, @Body() changeNumberDto: ChangeNumberDto) {
         return this.technicianService.changeNumber(req.user.id, changeNumberDto);
+    }
+
+    // order
+
+    @UseGuards(TokenValidationGuard, RolesGuard)
+    @Roles('technician')
+    @Get('orders')
+    async getOrders(@Req() req: RequestInfo) {
+        return this.technicianService.getOrders(req.user.id);
+    }
+
+    @UseGuards(TokenValidationGuard, RolesGuard)
+    @Roles('technician')
+    @Get('orders/:id')
+    async getOneOrder(@Req() req: RequestInfo, @Param('id', ParseIntPipe) id: number) {
+        return this.technicianService.getOneOrder(req.user.id, id);
     }
 }

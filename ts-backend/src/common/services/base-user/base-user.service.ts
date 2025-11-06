@@ -91,7 +91,7 @@ export class BaseUserService {
 
         return {
             message: `user phone number changed successfully`,
-            client: instanceToPlain(user),
+            user: instanceToPlain(user),
         };
     }
 

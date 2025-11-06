@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Delivery } from './entities/delivery.entity';
 import { Repository } from 'typeorm';
@@ -8,12 +8,16 @@ import { ChangePasswordDto } from 'src/common/services/base-user/dto/change-pass
 import { instanceToPlain } from 'class-transformer';
 import { UpdateDeliveryDto } from './dto/update-delivery.dto';
 import { ChangeNumberDto, PhoneDto } from 'src/verification-code/dto/verification-code.dto';
+import { Order } from 'src/order/entities/order.entity';
 
 @Injectable()
 export class DeliveryService {
     constructor(
         @InjectRepository(Delivery)
         private deliveryRepo: Repository<Delivery>,
+
+        @InjectRepository(Order)
+        private readonly orderRepo: Repository<Order>,
 
         private readonly baseUserService: BaseUserService,
 
@@ -46,5 +50,27 @@ export class DeliveryService {
 
     async changeNumber(deliveryId: number, changeNumberDto: ChangeNumberDto) {
         return this.baseUserService.changeNumber(this.deliveryRepo, deliveryId, changeNumberDto);
+    }
+
+    // order
+
+    async getOrders(deliveryId: number) {
+        const orders = await this.orderRepo.find({
+            where: { delivery: { id: deliveryId } },
+            order: { created_at: 'DESC' },
+            relations: ['individual', 'company', 'technician'],
+        });
+
+        return instanceToPlain(orders);
+    }
+
+    async getOneOrder(deliveryId: number, id: number) {
+        const order = await this.orderRepo.findOne({
+            where: { id, delivery: { id: deliveryId } },
+            relations: ['individual', 'company', 'technician'],
+        });
+        if (!order) throw new NotFoundException('Order not found');
+
+        return instanceToPlain(order)
     }
 }

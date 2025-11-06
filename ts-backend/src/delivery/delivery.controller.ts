@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Patch, Post, Req, UploadedFiles, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseIntPipe, Patch, Post, Req, UploadedFiles, UseGuards, UseInterceptors } from '@nestjs/common';
 import { DeliveryService } from './delivery.service';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { MultipleImagesUpload } from 'src/common/interceptors/multiple-images-upload.factory';
@@ -51,5 +51,21 @@ export class DeliveryController {
     @Post('change-number')
     async changeNumber(@Req() req: RequestInfo, @Body() changeNumberDto: ChangeNumberDto) {
         return this.deliveryService.changeNumber(req.user.id, changeNumberDto);
+    }
+
+    // order
+
+    @UseGuards(TokenValidationGuard, RolesGuard)
+    @Roles('delivery')
+    @Get('orders')
+    async getOrders(@Req() req: RequestInfo) {
+        return this.deliveryService.getOrders(req.user.id);
+    }
+
+    @UseGuards(TokenValidationGuard, RolesGuard)
+    @Roles('delivery')
+    @Get('orders/:id')
+    async getOneOrder(@Req() req: RequestInfo, @Param('id', ParseIntPipe) id: number) {
+        return this.deliveryService.getOneOrder(req.user.id, id);
     }
 }
