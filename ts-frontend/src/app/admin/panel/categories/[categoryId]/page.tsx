@@ -9,12 +9,7 @@ import { toast } from "react-toastify";
 import * as Yup from "yup";
 import { Button } from "@/app/components/ui/button";
 import ImageSelector from "@/app/components/inputs/image-selector";
-
-interface CategoryPageProps {
-  params: Promise<{
-    categoryId: string;
-  }>;
-}
+import { useParams } from "next/navigation";
 
 interface CategoryValues {
   name: string;
@@ -24,9 +19,10 @@ interface CategoryValues {
   newImages: File[];
 }
 
-export default function Page({ params }: CategoryPageProps) {
-  const resolvedParams = React.use(params);
-  const { categoryId } = resolvedParams;
+export default function Page() {
+  const { categoryId } = useParams<{
+    categoryId: string;
+  }>();
 
   const [loading, setLoading] = useState<boolean>(true);
   const [values, setValues] = useState<CategoryValues>({
@@ -44,7 +40,7 @@ export default function Page({ params }: CategoryPageProps) {
   const fetchCategory = () => {
     setLoading(true);
     axiosAdmin
-      .get(`/admin/categories/${categoryId}`)
+      .get(`admin/categories/${categoryId}`)
       .then((res) => {
         const data = res.data;
 
@@ -102,7 +98,7 @@ export default function Page({ params }: CategoryPageProps) {
       formData.append("status", String(values.status));
 
       axiosAdmin
-        .patch(`/admin/categories/${categoryId}`, formData)
+        .patch(`admin/categories/${categoryId}`, formData)
         .then(() => {
           toast.success("კატეგორია განახლდა", {
             position: "bottom-right",

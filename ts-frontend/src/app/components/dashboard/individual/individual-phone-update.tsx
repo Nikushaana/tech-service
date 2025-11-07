@@ -1,14 +1,11 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import PanelFormInput from "../../inputs/panel-form-input";
-import { Button } from "../../ui/button";
 import { useAuthStore } from "@/app/store/useAuthStore";
 import { toast } from "react-toastify";
 import { axiosIndividual } from "@/app/api/axios";
 import { sendCodeSchema, verifyCodeSchema } from "@/app/utils/validation";
 import UserPhoneUpdate from "../shared components/user-phone-update";
-import { Loader2Icon } from "lucide-react";
 
 export default function IndividualPhoneUpdate() {
   const { currentUser } = useAuthStore();

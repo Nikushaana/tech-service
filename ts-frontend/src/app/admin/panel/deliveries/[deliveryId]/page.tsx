@@ -9,12 +9,7 @@ import { toast } from "react-toastify";
 import * as Yup from "yup";
 import { Button } from "@/app/components/ui/button";
 import ImageSelector from "@/app/components/inputs/image-selector";
-
-interface FaqPageProps {
-  params: Promise<{
-    deliveryId: string;
-  }>;
-}
+import { useParams } from "next/navigation";
 
 interface DeliveryValues {
   name: string;
@@ -27,9 +22,10 @@ interface DeliveryValues {
   newImages: File[];
 }
 
-export default function Page({ params }: FaqPageProps) {
-  const resolvedParams = React.use(params);
-  const { deliveryId } = resolvedParams;
+export default function Page() {
+  const { deliveryId } = useParams<{
+    deliveryId: string;
+  }>();
 
   const [loading, setLoading] = useState<boolean>(true);
   const [values, setValues] = useState<DeliveryValues>({
@@ -52,7 +48,7 @@ export default function Page({ params }: FaqPageProps) {
   const fetchDelivery = () => {
     setLoading(true);
     axiosAdmin
-      .get(`/admin/deliveries/${deliveryId}`)
+      .get(`admin/deliveries/${deliveryId}`)
       .then((res) => {
         const data = res.data;
 
@@ -128,7 +124,7 @@ export default function Page({ params }: FaqPageProps) {
       formData.append("status", String(values.status));
 
       axiosAdmin
-        .patch(`/admin/deliveries/${deliveryId}`, formData)
+        .patch(`admin/deliveries/${deliveryId}`, formData)
         .then(() => {
           toast.success("კურიერი განახლდა", {
             position: "bottom-right",

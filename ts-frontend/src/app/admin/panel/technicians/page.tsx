@@ -23,7 +23,7 @@ export default function Page() {
   const fetchTechnicians = () => {
     setLoading(true);
     axiosAdmin
-      .get("/admin/technicians")
+      .get("admin/technicians")
       .then(({ data }) => setTechnicians(data))
       .catch((err) => {})
       .finally(() => setLoading(false));
@@ -101,7 +101,7 @@ export default function Page() {
                         <Button
                           variant="secondary"
                           size="icon"
-                          className="hover:bg-gray-100 mr-3"
+                          className="hover:bg-gray-100 cursor-pointer"
                         >
                           <BsEye className="size-4" />
                         </Button>

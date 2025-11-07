@@ -24,7 +24,7 @@ export default function Page() {
   const fetchOrder = () => {
     setLoading(true);
     axiosAdmin
-      .get("/admin/orders")
+      .get("admin/orders")
       .then(({ data }) => setOrders(data))
       .catch((err) => {})
       .finally(() => setLoading(false));
@@ -91,7 +91,7 @@ export default function Page() {
                       <Button
                         variant="secondary"
                         size="icon"
-                        className="hover:bg-gray-100"
+                        className="hover:bg-gray-100 cursor-pointer"
                       >
                         <BsEye className="size-4" />
                       </Button>

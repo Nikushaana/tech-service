@@ -1,6 +1,6 @@
 "use client";
 
-import { axiosAdmin } from "@/app/api/axios";
+import { axiosDelivery, axiosTechnician } from "@/app/api/axios";
 import { Button } from "@/app/components/ui/button";
 import {
   Table,
@@ -10,27 +10,32 @@ import {
   TableHeader,
   TableRow,
 } from "@/app/components/ui/table";
+import { statusTranslations } from "@/app/utils/status-translations";
+import dayjs from "dayjs";
 import { Loader2Icon } from "lucide-react";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { BsEye } from "react-icons/bs";
-import { IoPersonSharp } from "react-icons/io5";
 
 export default function Page() {
-  const [individuals, setIndividuals] = useState<User[]>([]);
+  const { staffType } = useParams<{ staffType: "technician" | "delivery" }>();
+  const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchIndividuals = () => {
+  const api = staffType === "technician" ? axiosTechnician : axiosDelivery;
+
+  const fetchOrder = () => {
     setLoading(true);
-    axiosAdmin
-      .get("admin/individuals")
-      .then(({ data }) => setIndividuals(data))
+    api
+      .get(`${staffType}/orders`)
+      .then(({ data }) => setOrders(data))
       .catch((err) => {})
       .finally(() => setLoading(false));
   };
 
   useEffect(() => {
-    fetchIndividuals();
+    fetchOrder();
   }, []);
 
   if (loading)
@@ -42,21 +47,24 @@ export default function Page() {
 
   return (
     <div className="w-full bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6">
-      <h2 className="text-xl font-semibold mb-4">კერძო მომხმარებლები</h2>
+      <h2 className="text-xl font-semibold mb-4">ჩემი სერვისები</h2>
       <div className="overflow-x-auto w-full">
         <Table className="min-w-[900px] table-auto">
           <TableHeader>
             <TableRow>
               <TableHead className="font-semibold">ID</TableHead>
-              <TableHead className="font-semibold">ფოტო</TableHead>
-              <TableHead className="font-semibold">სახელი</TableHead>
-              <TableHead className="font-semibold">გვარი</TableHead>
+              <TableHead className="font-semibold">ტიპი</TableHead>
+              <TableHead className="font-semibold">კატეგორია</TableHead>
+              <TableHead className="font-semibold">ბრენდი</TableHead>
+              <TableHead className="font-semibold">მოდელი</TableHead>
               <TableHead className="font-semibold">სტატუსი</TableHead>
+              <TableHead className="font-semibold">განაცხადის თარიღი</TableHead>
+              <TableHead className="font-semibold">ცვლილების თარიღი</TableHead>
               <TableHead className="text-right"></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {individuals.length === 0 ? (
+            {orders.length === 0 ? (
               <TableRow>
                 <TableCell
                   colSpan={8}
@@ -66,29 +74,24 @@ export default function Page() {
                 </TableCell>
               </TableRow>
             ) : (
-              individuals.map((individual) => (
-                <TableRow key={individual.id} className="hover:bg-gray-50">
-                  <TableCell>{individual.id}</TableCell>
+              orders.map((order) => (
+                <TableRow key={order.id} className="hover:bg-gray-50">
+                  <TableCell>{order.id}</TableCell>
+                  <TableCell>{order.service_type}</TableCell>
+                  <TableCell>{order.category.name}</TableCell>
+                  <TableCell>{order.brand}</TableCell>
+                  <TableCell>{order.model}</TableCell>
                   <TableCell>
-                    <div className="w-[35px] h-[35px] rounded-full overflow-hidden bg-myLightBlue text-white flex items-center justify-center">
-                      {individual.images && individual.images[0] ? (
-                        <img
-                          src={individual.images[0]}
-                          alt={individual.name}
-                          className="w-full h-full"
-                        />
-                      ) : (
-                        <IoPersonSharp />
-                      )}
-                    </div>
+                    {statusTranslations[order.status] || order.status}
                   </TableCell>
-                  <TableCell>{individual.name}</TableCell>
-                  <TableCell>{individual.lastName}</TableCell>
                   <TableCell>
-                    {individual.status ? "აქტიური" : "დაბლოკილი"}
+                    {dayjs(order.created_at).format("DD.MM.YYYY HH:mm")}
+                  </TableCell>
+                  <TableCell>
+                    {dayjs(order.updated_at).format("DD.MM.YYYY HH:mm")}
                   </TableCell>
                   <TableCell className="text-right">
-                    <Link href={`/admin/panel/individuals/${individual.id}`}>
+                    <Link href={`/staff/${staffType}/orders/${order.id}`}>
                       <Button
                         variant="secondary"
                         size="icon"

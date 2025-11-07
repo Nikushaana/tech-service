@@ -3,12 +3,16 @@
 import React, { useEffect, useState } from "react";
 import { useAuthStore } from "@/app/store/useAuthStore";
 import { toast } from "react-toastify";
-import { axiosCompany } from "@/app/api/axios";
+import { axiosDelivery, axiosTechnician } from "@/app/api/axios";
 import { sendCodeSchema, verifyCodeSchema } from "@/app/utils/validation";
-import UserPhoneUpdate from "../shared components/user-phone-update";
+import { useParams } from "next/navigation";
+import PanelFormInput from "../inputs/panel-form-input";
+import { Button } from "../ui/button";
+import { Loader2Icon } from "lucide-react";
 
-export default function CompanyPhoneUpdate() {
+export default function StaffPhoneUpdate() {
   const { currentUser } = useAuthStore();
+  const { staffType } = useParams<{ staffType: "technician" | "delivery" }>();
 
   const [values, setValues] = useState({
     phone: "",
@@ -31,15 +35,18 @@ export default function CompanyPhoneUpdate() {
 
   const [loading, setLoading] = useState(false);
 
-  const handleChange = (field: string, value: string) => {
-    setValues((prev) => ({ ...prev, [field]: value }));
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { id, value } = e.target;
+    setValues((prev) => ({ ...prev, [id]: value }));
   };
 
   // phone update
 
   const [sentChangeNumberCode, setSentChangeNumberCode] = useState("");
 
-  const handleSendCompanyAgentNumberCode = async () => {
+  const api = staffType === "technician" ? axiosTechnician : axiosDelivery;
+
+  const handleSendStaffNumberCode = async () => {
     setLoading(true);
     try {
       // Yup validation
@@ -52,8 +59,8 @@ export default function CompanyPhoneUpdate() {
         abortEarly: false,
       });
 
-      axiosCompany
-        .post(`company/send-change-number-code`, {
+      api
+        .post(`${staffType}/send-change-number-code`, {
           phone: values.phone,
         })
         .then((res) => {
@@ -103,7 +110,7 @@ export default function CompanyPhoneUpdate() {
     }
   };
 
-  const handleChangeCompanyAgentNumber = async () => {
+  const handleChangeStaffNumber = async () => {
     setLoading(true);
     try {
       // Yup validation
@@ -117,8 +124,8 @@ export default function CompanyPhoneUpdate() {
         abortEarly: false,
       });
 
-      axiosCompany
-        .post(`company/change-number`, {
+      api
+        .post(`${staffType}/change-number`, {
           phone: values.phone,
           code: values.code,
         })
@@ -167,15 +174,53 @@ export default function CompanyPhoneUpdate() {
   };
 
   return (
-    <UserPhoneUpdate
-      title="კომპანიის წარმომადგენლის ტელეფონის ნომერი"
-      values={values}
-      errors={errors}
-      sentCode={sentChangeNumberCode}
-      onChange={handleChange}
-      onSubmit1={handleChangeCompanyAgentNumber}
-      onSubmit2={handleSendCompanyAgentNumberCode}
-      loading={loading}
-    />
+    <div className="flex flex-col gap-y-[20px] w-full">
+      <div className="flex flex-col gap-y-[10px] w-full">
+        <h2>
+          {staffType == "technician" ? "ტექნიკოსის" : "კურიერის"} ტელეფონის
+          ნომერი
+        </h2>
+        <p className="text-center text-sm">
+          {sentChangeNumberCode
+            ? "შეიყვანე ტელეფონის ნომერზე გამოგზავნილი კოდი"
+            : "თუ გსურს ტელეფონის ნომრის განახლება საჭიროა ახალი ნომრის დადასტურება ვალიდური კოდით"}
+        </p>
+
+        {/* For debug, can remove */}
+        {sentChangeNumberCode && <p>{sentChangeNumberCode}</p>}
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-[20px]">
+          {sentChangeNumberCode ? (
+            <PanelFormInput
+              id="code"
+              value={values.code}
+              onChange={handleChange}
+              label="კოდი"
+              error={errors.code}
+            />
+          ) : (
+            <PanelFormInput
+              id="phone"
+              value={values.phone}
+              onChange={handleChange}
+              label="ტელეფონის ნომერი"
+              error={errors.phone}
+            />
+          )}
+        </div>
+      </div>
+      <Button
+        onClick={
+          sentChangeNumberCode
+            ? handleChangeStaffNumber
+            : handleSendStaffNumberCode
+        }
+        disabled={loading}
+        className="h-11 cursor-pointer self-end"
+      >
+        {loading && <Loader2Icon className="animate-spin" />}
+        {sentChangeNumberCode ? "შემოწმება" : "კოდის გაგზავნა"}
+      </Button>
+    </div>
   );
 }

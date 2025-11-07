@@ -8,16 +8,12 @@ import { Switch } from "@/app/components/ui/switch";
 import { toast } from "react-toastify";
 import * as Yup from "yup";
 import { Button } from "@/app/components/ui/button";
+import { useParams } from "next/navigation";
 
-interface FaqPageProps {
-  params: Promise<{
+export default function Page() {
+  const { faqId } = useParams<{
     faqId: string;
-  }>;
-}
-
-export default function Page({ params }: FaqPageProps) {
-  const resolvedParams = React.use(params);
-  const { faqId } = resolvedParams;
+  }>();
 
   const [loading, setLoading] = useState<boolean>(true);
   const [values, setValues] = useState({
@@ -34,7 +30,7 @@ export default function Page({ params }: FaqPageProps) {
   useEffect(() => {
     setLoading(true);
     axiosAdmin
-      .get(`/admin/faqs/${faqId}`)
+      .get(`admin/faqs/${faqId}`)
       .then((res) => {
         const data = res.data;
         setValues({
@@ -71,7 +67,7 @@ export default function Page({ params }: FaqPageProps) {
       await faqSchema.validate(values, { abortEarly: false });
 
       axiosAdmin
-        .patch(`/admin/faqs/${faqId}`, values)
+        .patch(`admin/faqs/${faqId}`, values)
         .then(() => {
           toast.success("FAQ განახლდა", {
             position: "bottom-right",

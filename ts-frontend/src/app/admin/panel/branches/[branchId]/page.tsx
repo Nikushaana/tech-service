@@ -9,12 +9,7 @@ import * as Yup from "yup";
 import { Button } from "@/app/components/ui/button";
 import { Dropdown2 } from "@/app/components/inputs/drop-down-2";
 import Map from "@/app/components/map/map";
-
-interface BranchPageProps {
-  params: Promise<{
-    branchId: string;
-  }>;
-}
+import { useParams } from "next/navigation";
 
 interface BranchValues {
   name: string;
@@ -27,9 +22,10 @@ interface BranchValues {
   location: LatLng | null;
 }
 
-export default function Page({ params }: BranchPageProps) {
-  const resolvedParams = React.use(params);
-  const { branchId } = resolvedParams;
+export default function Page() {
+  const { branchId } = useParams<{
+    branchId: string;
+  }>();
 
   const [loading, setLoading] = useState<boolean>(true);
   const [values, setValues] = useState<BranchValues>({
@@ -71,7 +67,7 @@ export default function Page({ params }: BranchPageProps) {
   const fetchBranch = () => {
     setLoading(true);
     axiosAdmin
-      .get(`/admin/branches/${branchId}`)
+      .get(`admin/branches/${branchId}`)
       .then((res) => {
         setValues((prev) => ({
           ...prev,
@@ -107,7 +103,7 @@ export default function Page({ params }: BranchPageProps) {
         try {
           setCityLoading(true);
           const res = await axiosFront.get(
-            `/google-api/cities?city=${helperValues.searchCity}`
+            `google-api/cities?city=${helperValues.searchCity}`
           );
           setCitiesData(res.data || []);
         } catch (err) {
@@ -132,7 +128,7 @@ export default function Page({ params }: BranchPageProps) {
         try {
           setStreetLoading(true);
           const res = await axiosFront.get(
-            `/google-api/streets?city=${values.city}&street=${helperValues.searchStreet}`
+            `google-api/streets?city=${values.city}&street=${helperValues.searchStreet}`
           );
           setStreetsData(res.data || []);
         } catch (err) {
@@ -221,7 +217,7 @@ export default function Page({ params }: BranchPageProps) {
       await branchSchema.validate(values, { abortEarly: false });
 
       axiosAdmin
-        .patch(`/admin/branches/${branchId}`, values)
+        .patch(`admin/branches/${branchId}`, values)
         .then(() => {
           toast.success("ფილიალი განახლდა", {
             position: "bottom-right",

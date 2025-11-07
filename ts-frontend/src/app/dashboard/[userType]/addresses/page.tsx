@@ -4,20 +4,16 @@ import Map from "@/app/components/map/map";
 import { Button } from "@/app/components/ui/button";
 import { useAddressesStore } from "@/app/store/useAddressesStore";
 import { Loader2Icon } from "lucide-react";
+import { useParams } from "next/navigation";
 import React, { useEffect } from "react";
 import { AiOutlineDelete } from "react-icons/ai";
 import { LuPlus } from "react-icons/lu";
 import { PiMapPinFill } from "react-icons/pi";
 
-interface PageProps {
-  params: Promise<{
+export default function Page() {
+  const { userType } = useParams<{
     userType: "company" | "individual";
-  }>;
-}
-
-export default function Page({ params }: PageProps) {
-  const resolvedParams = React.use(params);
-  const { userType } = resolvedParams;
+  }>();
 
   const {
     addresses,

@@ -27,7 +27,7 @@ export default function Page() {
   const fetchReviews = () => {
     setLoading(true);
     axiosAdmin
-      .get("/admin/reviews")
+      .get("admin/reviews")
       .then(({ data }) => setReviews(data))
       .catch((err) => {})
       .finally(() => setLoading(false));
@@ -41,7 +41,7 @@ export default function Page() {
   const handleDeleteReview = async (id: number) => {
     setLoading(true);
     axiosAdmin
-      .delete(`/admin/reviews/${id}`)
+      .delete(`admin/reviews/${id}`)
       .then(() => {
         toast.success("შეფასება წაიშალა", {
           position: "bottom-right",
@@ -148,7 +148,7 @@ export default function Page() {
                       <Button
                         variant="secondary"
                         size="icon"
-                        className="hover:bg-gray-100 mr-3"
+                        className="hover:bg-gray-100 cursor-pointer"
                       >
                         <BsEye className="size-4" />
                       </Button>
@@ -159,7 +159,7 @@ export default function Page() {
                       }}
                       variant="secondary"
                       size="icon"
-                      className="bg-[red] hover:bg-[#b91c1c]"
+                      className="bg-[red] hover:bg-[#b91c1c] ml-3 cursor-pointer"
                     >
                       <AiOutlineDelete className="size-4" />
                     </Button>

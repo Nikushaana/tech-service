@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { Button } from "../components/ui/button";
 import { Loader2Icon } from "lucide-react";
@@ -10,6 +10,7 @@ import { Checkbox } from "../components/ui/checkbox";
 
 export default function Page() {
   const router = useRouter();
+  const pathname = usePathname();
 
   const { values, setValues, errors, formLoading, login } = useAuthStore();
 
@@ -62,7 +63,11 @@ export default function Page() {
 
         <Button
           onClick={() => {
-            login(role == "technician" ? "technician" : "delivery", router);
+            login(
+              role == "technician" ? "technician" : "delivery",
+              router,
+              pathname
+            );
           }}
           disabled={formLoading}
           className="h-11 cursor-pointer"

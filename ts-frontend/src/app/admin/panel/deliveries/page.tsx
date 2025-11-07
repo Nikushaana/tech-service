@@ -23,7 +23,7 @@ export default function Page() {
   const fetchDeliveries = () => {
     setLoading(true);
     axiosAdmin
-      .get("/admin/deliveries")
+      .get("admin/deliveries")
       .then(({ data }) => setDeliveries(data))
       .catch((err) => {})
       .finally(() => setLoading(false));
@@ -84,7 +84,7 @@ export default function Page() {
                           <img
                             src={delivery.images[0]}
                             alt={delivery.name}
-                            className="w-full h-full"
+                            className="w-full h-full object-cover"
                           />
                         ) : (
                           <IoPersonSharp />
@@ -101,7 +101,7 @@ export default function Page() {
                         <Button
                           variant="secondary"
                           size="icon"
-                          className="hover:bg-gray-100 mr-3"
+                          className="hover:bg-gray-100 cursor-pointer"
                         >
                           <BsEye className="size-4" />
                         </Button>

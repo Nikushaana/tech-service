@@ -67,7 +67,7 @@ export default function CreateAddress() {
         try {
           setCityLoading(true);
           const res = await axiosFront.get(
-            `/google-api/cities?city=${helperValues.searchCity}`
+            `google-api/cities?city=${helperValues.searchCity}`
           );
           setCitiesData(res.data || []);
         } catch (err) {
@@ -92,7 +92,7 @@ export default function CreateAddress() {
         try {
           setStreetLoading(true);
           const res = await axiosFront.get(
-            `/google-api/streets?city=${values.city}&street=${helperValues.searchStreet}`
+            `google-api/streets?city=${values.city}&street=${helperValues.searchStreet}`
           );
           setStreetsData(res.data || []);
         } catch (err) {

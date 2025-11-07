@@ -10,16 +10,12 @@ import { Button } from "@/app/components/ui/button";
 import { toast } from "react-toastify";
 import StarRating from "@/app/components/inputs/star-rating";
 import PanelFormInput from "@/app/components/inputs/panel-form-input";
+import { useParams } from "next/navigation";
 
-interface OrderPageProps {
-  params: Promise<{
-    reviewId: string;
-  }>;
-}
-
-export default function Page({ params }: OrderPageProps) {
-  const resolvedParams = React.use(params);
-  const { reviewId } = resolvedParams;
+export default function Page() {
+  const { reviewId } = useParams<{
+      reviewId: string;
+    }>();
 
   const [review, setReview] = useState<any>({});
   const [loading, setLoading] = useState<boolean>(true);

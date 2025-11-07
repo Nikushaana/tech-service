@@ -13,7 +13,6 @@ import {
 } from "@/app/components/ui/table";
 import { Loader2Icon } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { AiOutlineDelete } from "react-icons/ai";
 import { BsEye } from "react-icons/bs";
@@ -27,7 +26,7 @@ export default function Page() {
   const fetchFaqs = () => {
     setLoading(true);
     axiosAdmin
-      .get("/admin/faqs")
+      .get("admin/faqs")
       .then(({ data }) => setFaqs(data))
       .catch((err) => {})
       .finally(() => setLoading(false));
@@ -69,7 +68,7 @@ export default function Page() {
       await faqSchema.validate(values, { abortEarly: false });
 
       axiosAdmin
-        .post(`/admin/faq`, values)
+        .post(`admin/faq`, values)
         .then(() => {
           toast.success("FAQ დაემატა", {
             position: "bottom-right",
@@ -109,7 +108,7 @@ export default function Page() {
   const handleDeleteFaq = async (id: number) => {
     setLoading(true);
     axiosAdmin
-      .delete(`/admin/faqs/${id}`)
+      .delete(`admin/faqs/${id}`)
       .then(() => {
         toast.success("FAQ წაიშალა", {
           position: "bottom-right",
@@ -206,7 +205,7 @@ export default function Page() {
                         <Button
                           variant="secondary"
                           size="icon"
-                          className="hover:bg-gray-100 mr-3"
+                          className="hover:bg-gray-100 cursor-pointer"
                         >
                           <BsEye className="size-4" />
                         </Button>
@@ -217,7 +216,7 @@ export default function Page() {
                         }}
                         variant="secondary"
                         size="icon"
-                        className="bg-[red] hover:bg-[#b91c1c]"
+                        className="bg-[red] hover:bg-[#b91c1c] ml-3 cursor-pointer"
                       >
                         <AiOutlineDelete className="size-4" />
                       </Button>

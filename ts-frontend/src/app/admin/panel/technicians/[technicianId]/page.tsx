@@ -9,12 +9,7 @@ import { toast } from "react-toastify";
 import * as Yup from "yup";
 import { Button } from "@/app/components/ui/button";
 import ImageSelector from "@/app/components/inputs/image-selector";
-
-interface FaqPageProps {
-  params: Promise<{
-    technicianId: string;
-  }>;
-}
+import { useParams } from "next/navigation";
 
 interface TechnicianValues {
   name: string;
@@ -27,9 +22,10 @@ interface TechnicianValues {
   newImages: File[];
 }
 
-export default function Page({ params }: FaqPageProps) {
-  const resolvedParams = React.use(params);
-  const { technicianId } = resolvedParams;
+export default function Page() {
+  const { technicianId } = useParams<{
+    technicianId: string;
+  }>();
 
   const [loading, setLoading] = useState<boolean>(true);
   const [values, setValues] = useState<TechnicianValues>({
@@ -52,7 +48,7 @@ export default function Page({ params }: FaqPageProps) {
   const fetchTechnician = () => {
     setLoading(true);
     axiosAdmin
-      .get(`/admin/technicians/${technicianId}`)
+      .get(`admin/technicians/${technicianId}`)
       .then((res) => {
         const data = res.data;
 
@@ -128,7 +124,7 @@ export default function Page({ params }: FaqPageProps) {
       formData.append("status", String(values.status));
 
       axiosAdmin
-        .patch(`/admin/technicians/${technicianId}`, formData)
+        .patch(`admin/technicians/${technicianId}`, formData)
         .then(() => {
           toast.success("ტექნიკოსი განახლდა", {
             position: "bottom-right",

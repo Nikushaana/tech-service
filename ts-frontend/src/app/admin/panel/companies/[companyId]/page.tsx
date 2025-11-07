@@ -9,12 +9,7 @@ import { toast } from "react-toastify";
 import * as Yup from "yup";
 import { Button } from "@/app/components/ui/button";
 import ImageSelector from "@/app/components/inputs/image-selector";
-
-interface FaqPageProps {
-  params: Promise<{
-    companyId: string;
-  }>;
-}
+import { useParams } from "next/navigation";
 
 interface CompanyValues {
   companyName: string;
@@ -29,9 +24,10 @@ interface CompanyValues {
   newImages: File[];
 }
 
-export default function Page({ params }: FaqPageProps) {
-  const resolvedParams = React.use(params);
-  const { companyId } = resolvedParams;
+export default function Page() {
+  const { companyId } = useParams<{
+    companyId: string;
+  }>();
 
   const [loading, setLoading] = useState<boolean>(true);
   const [values, setValues] = useState<CompanyValues>({
@@ -58,7 +54,7 @@ export default function Page({ params }: FaqPageProps) {
   const fetchCompany = () => {
     setLoading(true);
     axiosAdmin
-      .get(`/admin/companies/${companyId}`)
+      .get(`admin/companies/${companyId}`)
       .then((res) => {
         const data = res.data;
 
@@ -149,7 +145,7 @@ export default function Page({ params }: FaqPageProps) {
       formData.append("status", String(values.status));
 
       axiosAdmin
-        .patch(`/admin/companies/${companyId}`, formData)
+        .patch(`admin/companies/${companyId}`, formData)
         .then(() => {
           toast.success("კომპანია განახლდა", {
             position: "bottom-right",

@@ -1,10 +1,15 @@
 import React, { useState } from "react";
 import { toast } from "react-toastify";
-import { axiosCompany } from "@/app/api/axios";
+import { axiosDelivery, axiosTechnician } from "@/app/api/axios";
 import { passwordChangeSchema } from "@/app/utils/validation";
-import UserPasswordUpdate from "../shared components/user-password-update";
+import { useParams } from "next/navigation";
+import { Button } from "../ui/button";
+import { Loader2Icon } from "lucide-react";
+import PanelFormInput from "../inputs/panel-form-input";
 
-export default function CompanyPasswordUpdate() {
+export default function StaffPasswordUpdate() {
+  const { staffType } = useParams<{ staffType: "technician" | "delivery" }>();
+
   const [values, setValues] = useState({
     oldPassword: "",
     newPassword: "",
@@ -19,13 +24,16 @@ export default function CompanyPasswordUpdate() {
 
   const [loading, setLoading] = useState(false);
 
-  const handleChange = (field: string, value: string) => {
-    setValues((prev) => ({ ...prev, [field]: value }));
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { id, value } = e.target;
+    setValues((prev) => ({ ...prev, [id]: value }));
   };
 
   // change password
 
-  const handleChangeCompanyPassword = async () => {
+  const api = staffType === "technician" ? axiosTechnician : axiosDelivery;
+
+  const handleChangeStaffPassword = async () => {
     setLoading(true);
     try {
       // Yup validation
@@ -38,8 +46,8 @@ export default function CompanyPasswordUpdate() {
 
       await passwordChangeSchema.validate(values, { abortEarly: false });
 
-      axiosCompany
-        .patch(`company/change-password`, {
+      api
+        .patch(`${staffType}/change-password`, {
           oldPassword: values.oldPassword,
           newPassword: values.newPassword,
         })
@@ -96,13 +104,44 @@ export default function CompanyPasswordUpdate() {
   };
 
   return (
-    <UserPasswordUpdate
-      title="პაროლის განახლება"
-      values={values}
-      errors={errors}
-      onChange={handleChange}
-      onSubmit={handleChangeCompanyPassword}
-      loading={loading}
-    />
+    <div className="flex flex-col gap-y-[20px] w-full">
+      <div className="flex flex-col gap-y-[10px] w-full">
+        <h2>პაროლის განახლება</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-[20px]">
+          <PanelFormInput
+            id="oldPassword"
+            value={values.oldPassword}
+            onChange={handleChange}
+            label="ძველი პაროლი"
+            error={errors.oldPassword}
+            type="password"
+          />
+          <PanelFormInput
+            id="newPassword"
+            value={values.newPassword}
+            onChange={handleChange}
+            label="ახალი პაროლი"
+            error={errors.newPassword}
+            type="password"
+          />
+          <PanelFormInput
+            id="repeatNewPassword"
+            value={values.repeatNewPassword}
+            onChange={handleChange}
+            label="გაიმეორე ახალი პაროლი"
+            error={errors.repeatNewPassword}
+            type="password"
+          />
+        </div>
+      </div>
+      <Button
+        onClick={handleChangeStaffPassword}
+        disabled={loading}
+        className="h-11 cursor-pointer self-end"
+      >
+        {loading && <Loader2Icon className="animate-spin" />}
+        განახლება
+      </Button>
+    </div>
   );
 }

@@ -21,7 +21,7 @@ interface LoginState {
     resetValues: () => void;
     resetErrors: () => void;
 
-    login: (role: Role | "individualOrCompany", router?: any) => void;
+    login: (role: Role | "individualOrCompany", router?: any, pathname?: any) => void;
 }
 
 type AuthState = {
@@ -32,9 +32,8 @@ type AuthState = {
     toggleLogOut: () => void;
     setAuthLoading: (value: boolean) => void;
 
-    rehydrateClient: (router?: any) => void;
-    rehydrateAdmin: (router?: any) => void;
     logout: (router?: any) => void;
+    rehydrate: (router?: any, pathname?: any) => void;
 };
 
 type Store = LoginState & AuthState;
@@ -67,8 +66,8 @@ export const useAuthStore = create<Store>((set, get) => ({
 
     // login
 
-    login: (role: Role | "individualOrCompany", router?: any) => {
-        const { values, resetErrors, setErrors, setFormLoading, setCurrentUser } = get();
+    login: (role: Role | "individualOrCompany", router?: any, pathname?: any) => {
+        const { values, resetErrors, setErrors, setFormLoading, setCurrentUser, rehydrate } = get();
         const roles: Role[] = ["individual", "company", "technician", "delivery", "admin"];
         roles.forEach((r) => localStorage.removeItem(`${r}Token`));
 
@@ -108,9 +107,9 @@ export const useAuthStore = create<Store>((set, get) => ({
                     delivery: "/staff/delivery/orders",
                 };
 
-                const redirectUrl = roleRedirects[data.user.role] || "/";
+                router.push(roleRedirects[data.user.role] || "/");
 
-                router.push(redirectUrl);
+                rehydrate(router, pathname);
             })
             .catch((err) => {
                 if (err.inner) {
@@ -165,97 +164,94 @@ export const useAuthStore = create<Store>((set, get) => ({
             });
     },
 
-    // client
+    // get user
 
-    rehydrateClient: (router?: any) => {
+    rehydrate: async (router?: any, pathname?: any) => {
         set({ authLoading: true });
 
-        const individualToken = localStorage.getItem("individualToken");
-        const companyToken = localStorage.getItem("companyToken");
+        const tokenMap: Record<string, { token: string | null; axios: any }> = {
+            individual: { token: localStorage.getItem("individualToken"), axios: axiosIndividual },
+            company: { token: localStorage.getItem("companyToken"), axios: axiosCompany },
+            technician: { token: localStorage.getItem("technicianToken"), axios: axiosTechnician },
+            delivery: { token: localStorage.getItem("deliveryToken"), axios: axiosDelivery },
+            admin: { token: localStorage.getItem("adminToken"), axios: axiosAdmin },
+        };
 
-        let axiosInstance;
-        let role: Role | null = null;
-        let token: string | null = null;
+        const activeRole = Object.keys(tokenMap).find(r => tokenMap[r].token);
 
-        if (individualToken) {
-            axiosInstance = axiosIndividual;
-            role = "individual";
-            token = individualToken;
-        } else if (companyToken) {
-            axiosInstance = axiosCompany;
-            role = "company";
-            token = companyToken;
-        }
-
-        if (!token || !axiosInstance || !role) {
-            if (window.location.pathname.startsWith("/dashboard")) {
+        // --- Unauthorized users ---
+        if (!activeRole) {
+            if (pathname.startsWith("/admin/")) {
+                router.push("/admin");
+            } else if (pathname.startsWith("/staff/")) {
+                router.push("/staff");
+            } else if (pathname.startsWith("/dashboard")) {
                 router.push("/");
             }
-            set({ authLoading: false, currentUser: null });
+
+            set({ currentUser: null, authLoading: false });
             return;
         }
 
-        axiosInstance
-            .get(`/${role}`)
-            .then(({ data }) => {
-                if (window.location.pathname.startsWith("/dashboard")) {
-                    const pathRole = window.location.pathname.split("/")[2] as Role | undefined;
-                    if (!pathRole || pathRole !== role) {
-                        router.push(`/dashboard/${role}/${window.location.pathname.split("/")[3]}`);
-                    }
-                }
-                set({ currentUser: data });
-            })
-            .catch(() => {
-                localStorage.removeItem(`${role}Token`);
-                set({ currentUser: null });
-            })
-            .finally(() => {
-                set({ authLoading: false });
-            });
-    },
-
-    // admin
-
-    rehydrateAdmin: (router?: any) => {
-        set({ authLoading: true });
-
-        const adminToken = localStorage.getItem("adminToken");
-
-        let axiosInstance;
-        let role: Role | null = null;
-        let token: string | null = null;
-
-        if (adminToken) {
-            axiosInstance = axiosAdmin;
-            role = "admin";
-            token = adminToken;
+        if (activeRole == "admin" && !pathname.startsWith("/admin")) {
+            set({ currentUser: null, authLoading: false });
+            if (pathname.startsWith("/staff/")) {
+                router.push("/staff");
+            }
+            if (pathname.startsWith("/dashboard")) {
+                router.push("/");
+            }
+            return;
         }
 
-        if (!token || !axiosInstance || !role) {
-            if (window.location.pathname != "/admin") {
+        if ((activeRole == "technician" || activeRole == "delivery") && !pathname.startsWith("/staff")) {
+            set({ currentUser: null, authLoading: false });
+            if (pathname.startsWith("/admin/")) {
                 router.push("/admin");
             }
-            set({ authLoading: false, currentUser: null });
+            if (pathname.startsWith("/dashboard")) {
+                router.push("/");
+            }
             return;
         }
 
-        axiosInstance
-            .get(`/${role}`)
-            .then(({ data }) => {
-                set({ currentUser: data });
-
-                if (window.location.pathname == "/admin") {
-                    router.push("/admin/panel/orders");
-                }
-            })
-            .catch(() => {
-                localStorage.removeItem(`${role}Token`);
-                set({ currentUser: null });
+        if (activeRole == "company" && (pathname.startsWith("/staff") || pathname.startsWith("/admin"))) {
+            set({ currentUser: null, authLoading: false });
+            if (pathname.startsWith("/admin/")) {
                 router.push("/admin");
-            })
-            .finally(() => {
-                set({ authLoading: false });
-            });
+            }
+            if (pathname.startsWith("/staff/")) {
+                router.push("/staff");
+            }
+            return;
+        }
+
+        if (activeRole) {
+            const { axios } = tokenMap[activeRole];
+
+            axios.get(`${activeRole}`)
+                .then(({ data }: any) => {
+                    set({ currentUser: data });
+
+                    if (activeRole == "admin" && pathname === "/admin") {
+                        router.push(`/admin/panel/orders`)
+                    }
+
+                    if ((activeRole == "company" || activeRole == "individual") && pathname.startsWith("/dashboard")) {
+                        router.push(`/dashboard/${activeRole}/${pathname.split("/")[3] || "orders"}`)
+                    }
+
+                    if ((activeRole == "technician" || activeRole == "delivery") && pathname.startsWith("/staff")) {
+                        router.push(`/staff/${activeRole}/${pathname.split("/")[3] || "orders"}`)
+                    }
+                })
+                .catch(() => {
+                    localStorage.removeItem(`${activeRole}Token`);
+                    set({ currentUser: null });
+                })
+                .finally(() => {
+                    set({ authLoading: false });
+                });
+        }
     },
 }));

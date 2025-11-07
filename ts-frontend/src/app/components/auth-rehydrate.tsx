@@ -7,16 +7,11 @@ export default function AuthRehydrate() {
   const router = useRouter();
   const pathname = usePathname();
 
-  const rehydrateClient = useAuthStore((state) => state.rehydrateClient);
-  const rehydrateAdmin = useAuthStore((state) => state.rehydrateAdmin);
+  const rehydrate = useAuthStore((state) => state.rehydrate);
 
   useEffect(() => {
-    rehydrateClient(router);
-  }, [rehydrateClient, router]);
-
-  useEffect(() => {
-    if (pathname.startsWith("/admin")) rehydrateAdmin(router);
-  }, [rehydrateAdmin, pathname, router]);
+    rehydrate(router, pathname);
+  }, [rehydrate]);
 
   return null;
 }

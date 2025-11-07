@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@/app/components/ui/button";
 import { useAuthStore } from "@/app/store/useAuthStore";
 import FormInput from "@/app/components/inputs/form-input";
@@ -10,6 +10,7 @@ import Link from "next/link";
 
 export default function Login() {
   const router = useRouter();
+  const pathname = usePathname();
 
   const { values, setValues, errors, formLoading, login } = useAuthStore();
 
@@ -39,7 +40,7 @@ export default function Login() {
       </Link>
 
       <Button
-        onClick={() => login("individualOrCompany", router)}
+        onClick={() => login("individualOrCompany", router, pathname)}
         disabled={formLoading}
         className="h-11 cursor-pointer"
       >

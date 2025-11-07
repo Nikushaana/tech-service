@@ -28,7 +28,7 @@ export default function Page() {
   const fetchBranches = () => {
     setLoading(true);
     axiosAdmin
-      .get("/admin/branches")
+      .get("admin/branches")
       .then(({ data }) => setBranches(data))
       .catch((err) => {})
       .finally(() => setLoading(false));
@@ -82,7 +82,7 @@ export default function Page() {
         try {
           setCityLoading(true);
           const res = await axiosFront.get(
-            `/google-api/cities?city=${helperValues.searchCity}`
+            `google-api/cities?city=${helperValues.searchCity}`
           );
           setCitiesData(res.data || []);
         } catch (err) {
@@ -107,7 +107,7 @@ export default function Page() {
         try {
           setStreetLoading(true);
           const res = await axiosFront.get(
-            `/google-api/streets?city=${values.city}&street=${helperValues.searchStreet}`
+            `google-api/streets?city=${values.city}&street=${helperValues.searchStreet}`
           );
           setStreetsData(res.data || []);
         } catch (err) {
@@ -197,7 +197,7 @@ export default function Page() {
       await branchSchema.validate(values, { abortEarly: false });
 
       axiosAdmin
-        .post(`/admin/create-branch`, values)
+        .post(`admin/create-branch`, values)
         .then(() => {
           toast.success("ფილიალი დაემატა", {
             position: "bottom-right",
@@ -260,7 +260,7 @@ export default function Page() {
   const handleDeleteBranch = async (id: number) => {
     setLoading(true);
     axiosAdmin
-      .delete(`/admin/branches/${id}`)
+      .delete(`admin/branches/${id}`)
       .then(() => {
         toast.success("ფილიალი წაიშალა", {
           position: "bottom-right",
@@ -402,7 +402,7 @@ export default function Page() {
                         <Button
                           variant="secondary"
                           size="icon"
-                          className="hover:bg-gray-100 mr-3"
+                          className="hover:bg-gray-100 cursor-pointer"
                         >
                           <BsEye className="size-4" />
                         </Button>
@@ -413,7 +413,7 @@ export default function Page() {
                         }}
                         variant="secondary"
                         size="icon"
-                        className="bg-[red] hover:bg-[#b91c1c]"
+                        className="bg-[red] hover:bg-[#b91c1c] ml-3 cursor-pointer"
                       >
                         <AiOutlineDelete className="size-4" />
                       </Button>

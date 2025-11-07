@@ -2,9 +2,7 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
-import { Input } from "@/app/components/ui/input";
 import { Button } from "@/app/components/ui/button";
-import { Checkbox } from "@/app/components/ui/checkbox";
 import { useRegisterStore } from "@/app/store/registerStore";
 import { axiosAdmin } from "@/app/api/axios";
 import { toast } from "react-toastify";

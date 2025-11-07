@@ -7,7 +7,6 @@ import * as Yup from "yup";
 import { toast } from "react-toastify";
 import PanelFormInput from "../inputs/panel-form-input";
 import { Loader2Icon } from "lucide-react";
-import { useOrdersStore } from "@/app/store/useOrdersStore";
 import { Dropdown } from "../inputs/drop-down";
 import { useCategoriesStore } from "@/app/store/useCategoriesStore";
 import OrderImagesSelector from "../inputs/order-images-selector";

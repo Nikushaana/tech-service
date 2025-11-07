@@ -1,39 +1,35 @@
 "use client";
 
-import { axiosCompany, axiosIndividual } from "@/app/api/axios";
+import { axiosDelivery, axiosTechnician } from "@/app/api/axios";
 import { statusTranslations } from "@/app/utils/status-translations";
 import { Loader2Icon } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import dayjs from "dayjs";
 import Map from "@/app/components/map/map";
-import { useUpdateOrderStore } from "@/app/store/useUpdateOrderStore";
 import { useParams } from "next/navigation";
 
 export default function Page() {
-  const { userType, orderId } = useParams<{
-    userType: "company" | "individual";
+  const { staffType, orderId } = useParams<{
+    staffType: "technician" | "delivery";
     orderId: string;
   }>();
-
-  const { toggleOpenUpdateOrderModal, refetchTrigger } = useUpdateOrderStore();
 
   const [order, setOrder] = useState<Order>();
   const [loading, setLoading] = useState<boolean>(true);
 
-  useEffect(() => {
-    const axiosInstance =
-      userType === "individual" ? axiosIndividual : axiosCompany;
+  const api = staffType === "technician" ? axiosTechnician : axiosDelivery;
 
+  useEffect(() => {
     setLoading(true);
 
-    axiosInstance
-      .get(`${userType}/orders/${orderId}`)
+    api
+      .get(`${staffType}/orders/${orderId}`)
       .then((res) => {
         setOrder(res.data);
         setLoading(false);
       })
       .catch((err) => console.error(err));
-  }, [userType, orderId, refetchTrigger]);
+  }, [staffType, orderId]);
 
   if (loading)
     return (
@@ -47,27 +43,9 @@ export default function Page() {
       className={`border rounded-lg shadow px-[10px] py-[20px] sm:p-[20px] bg-white w-full max-w-3xl mx-auto flex flex-col gap-y-4 `}
     >
       {/* Header */}
-      <div
-        className={`flex items-center ${
-          order?.status == "pending"
-            ? "flex-col sm:flex-row gap-2 justify-between"
-            : "justify-end"
-        }`}
-      >
-        {order?.status == "pending" && (
-          <p
-            onClick={() => {
-              toggleOpenUpdateOrderModal(userType, order);
-            }}
-            className="cursor-pointer text-[12px] hover:underline underline md:no-underline"
-          >
-            ინფორმაციის ცვლილება
-          </p>
-        )}
-        <h2 className="text-sm">
-          {(order && statusTranslations[order.status]) || order?.status}
-        </h2>
-      </div>
+      <h2 className="flex justify-end text-sm">
+        {(order && statusTranslations[order.status]) || order?.status}
+      </h2>
 
       {/* Main Info */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -109,8 +87,37 @@ export default function Page() {
         </div>
       </div>
 
-      {/* Address */}
+      {/* User */}
       <div>
+        <h3>{order?.individual ? "ინდივიდუალური მომხმარებელი" : "კომპანია"}</h3>
+        <p>
+          {order?.individual
+            ? order.individual?.name + " " + order.individual?.lastName
+            : order?.company && order.company?.companyName}
+        </p>
+
+        {order?.company && (
+          <>
+            <p className="text-sm">
+              საიდენტიფიკაციო კოდი:{" "}
+              <span className="text-base font-semibold">
+                {order.company?.companyIdentificationCode}
+              </span>
+            </p>
+            <p>
+              {order.company?.companyAgentName +
+                " " +
+                order.company?.companyAgentLastName}
+            </p>
+          </>
+        )}
+        <p>
+          {order?.individual ? order.individual?.phone : order?.company?.phone}
+        </p>
+      </div>
+
+      {/* Address */}
+      <div className="flex flex-col">
         <h3>მისამართი</h3>
         <p>{order?.address?.name}</p>
         <p className="text-sm">
@@ -164,6 +171,17 @@ export default function Page() {
             markerCoordinates={order?.address.location}
           />
         </div>
+        <p
+          onClick={() =>
+            window.open(
+              `https://www.google.com/maps/dir/?api=1&destination=${order?.address?.location?.lat},${order?.address?.location?.lng}`,
+              "_blank"
+            )
+          }
+          className="underline text-sm hover:text-myGray mt-2 self-end cursor-pointer"
+        >
+          რუკაზე ნახვა
+        </p>
       </div>
 
       {/* Description */}

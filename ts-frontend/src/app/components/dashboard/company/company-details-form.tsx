@@ -9,7 +9,7 @@ import * as Yup from "yup";
 import UserDetailsForm from "../shared components/user-details-form";
 import { Loader2Icon } from "lucide-react";
 import ImageSelector from "../../inputs/image-selector";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 interface CompanyValues {
   companyName: string;
@@ -23,8 +23,9 @@ interface CompanyValues {
 
 export default function CompanyDetailsForm() {
   const router = useRouter();
+  const pathname = usePathname();
   const { currentUser } = useAuthStore();
-  const rehydrateClient = useAuthStore((state) => state.rehydrateClient);
+  const rehydrate = useAuthStore((state) => state.rehydrate);
 
   const [values, setValues] = useState<CompanyValues>({
     companyName: "",
@@ -122,7 +123,7 @@ export default function CompanyDetailsForm() {
             position: "bottom-right",
             autoClose: 3000,
           });
-          rehydrateClient(router);
+          rehydrate(router, pathname);
           setValues((prev) => ({
             ...prev,
             newImages: [],

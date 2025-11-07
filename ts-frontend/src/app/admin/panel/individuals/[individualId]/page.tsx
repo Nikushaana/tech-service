@@ -9,12 +9,7 @@ import { toast } from "react-toastify";
 import * as Yup from "yup";
 import { Button } from "@/app/components/ui/button";
 import ImageSelector from "@/app/components/inputs/image-selector";
-
-interface FaqPageProps {
-  params: Promise<{
-    individualId: string;
-  }>;
-}
+import { useParams } from "next/navigation";
 
 interface IndividualValues {
   name: string;
@@ -27,9 +22,10 @@ interface IndividualValues {
   newImages: File[];
 }
 
-export default function Page({ params }: FaqPageProps) {
-  const resolvedParams = React.use(params);
-  const { individualId } = resolvedParams;
+export default function Page() {
+  const { individualId } = useParams<{
+    individualId: string;
+  }>();
 
   const [loading, setLoading] = useState<boolean>(true);
   const [values, setValues] = useState<IndividualValues>({
@@ -52,7 +48,7 @@ export default function Page({ params }: FaqPageProps) {
   const fetchIndividual = () => {
     setLoading(true);
     axiosAdmin
-      .get(`/admin/individuals/${individualId}`)
+      .get(`admin/individuals/${individualId}`)
       .then((res) => {
         const data = res.data;
 
@@ -128,7 +124,7 @@ export default function Page({ params }: FaqPageProps) {
       formData.append("status", String(values.status));
 
       axiosAdmin
-        .patch(`/admin/individuals/${individualId}`, formData)
+        .patch(`admin/individuals/${individualId}`, formData)
         .then(() => {
           toast.success("ინდივიდუალი განახლდა", {
             position: "bottom-right",

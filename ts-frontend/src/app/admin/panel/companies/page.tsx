@@ -12,7 +12,6 @@ import {
 } from "@/app/components/ui/table";
 import { Loader2Icon } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { BsEye } from "react-icons/bs";
 import { IoPersonSharp } from "react-icons/io5";
@@ -24,7 +23,7 @@ export default function Page() {
   const fetchCompanies = () => {
     setLoading(true);
     axiosAdmin
-      .get("/admin/companies")
+      .get("admin/companies")
       .then(({ data }) => setCompanies(data))
       .catch((err) => {})
       .finally(() => setLoading(false));
@@ -99,7 +98,7 @@ export default function Page() {
                       <Button
                         variant="secondary"
                         size="icon"
-                        className="hover:bg-gray-100 mr-3"
+                        className="hover:bg-gray-100 cursor-pointer"
                       >
                         <BsEye className="size-4" />
                       </Button>

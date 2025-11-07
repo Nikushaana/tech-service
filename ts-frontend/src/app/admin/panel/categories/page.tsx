@@ -26,7 +26,7 @@ export default function Page() {
   const fetchCategories = () => {
     setLoading(true);
     axiosAdmin
-      .get("/admin/categories")
+      .get("admin/categories")
       .then(({ data }) => setCategories(data))
       .catch((err) => {})
       .finally(() => setLoading(false));
@@ -65,7 +65,7 @@ export default function Page() {
       await categorySchema.validate(values, { abortEarly: false });
 
       axiosAdmin
-        .post(`/admin/category`, values)
+        .post(`admin/category`, values)
         .then(() => {
           toast.success("კატეგორია დაემატა", {
             position: "bottom-right",
@@ -105,7 +105,7 @@ export default function Page() {
   const handleDeleteCategory = async (id: number) => {
     setLoading(true);
     axiosAdmin
-      .delete(`/admin/categories/${id}`)
+      .delete(`admin/categories/${id}`)
       .then(() => {
         toast.success("კატეგორია წაიშალა", {
           position: "bottom-right",
@@ -197,7 +197,7 @@ export default function Page() {
                         <Button
                           variant="secondary"
                           size="icon"
-                          className="hover:bg-gray-100 mr-3"
+                          className="hover:bg-gray-100 cursor-pointer"
                         >
                           <BsEye className="size-4" />
                         </Button>
@@ -208,7 +208,7 @@ export default function Page() {
                         }}
                         variant="secondary"
                         size="icon"
-                        className="bg-[red] hover:bg-[#b91c1c]"
+                        className="bg-[red] hover:bg-[#b91c1c] ml-3 cursor-pointer"
                       >
                         <AiOutlineDelete className="size-4" />
                       </Button>

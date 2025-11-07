@@ -1,17 +1,17 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Button } from "../../ui/button";
 import { useAuthStore } from "@/app/store/useAuthStore";
 import { toast } from "react-toastify";
-import { axiosIndividual } from "@/app/api/axios";
+import { axiosDelivery, axiosTechnician } from "@/app/api/axios";
 import * as Yup from "yup";
-import UserDetailsForm from "../shared components/user-details-form";
 import { Loader2Icon } from "lucide-react";
-import ImageSelector from "../../inputs/image-selector";
-import { usePathname, useRouter } from "next/navigation";
+import { useParams, usePathname, useRouter } from "next/navigation";
+import ImageSelector from "../inputs/image-selector";
+import PanelFormInput from "../inputs/panel-form-input";
+import { Button } from "../ui/button";
 
-interface IndividualValues {
+interface StaffValues {
   name: string;
   lastName: string;
   images: string[];
@@ -19,13 +19,14 @@ interface IndividualValues {
   newImages: File[];
 }
 
-export default function IndividualDetailsForm() {
+export default function StaffDetailsForm() {
   const router = useRouter();
   const pathname = usePathname();
+  const { staffType } = useParams<{ staffType: "technician" | "delivery" }>();
   const { currentUser } = useAuthStore();
   const rehydrate = useAuthStore((state) => state.rehydrate);
 
-  const [values, setValues] = useState<IndividualValues>({
+  const [values, setValues] = useState<StaffValues>({
     name: "",
     lastName: "",
     images: [],
@@ -56,9 +57,9 @@ export default function IndividualDetailsForm() {
     setValues((prev) => ({ ...prev, [id]: value }));
   };
 
-  // individual details update
+  // staff details update
 
-  const updateIndividualSchema = Yup.object().shape({
+  const updateStaffSchema = Yup.object().shape({
     name: Yup.string().required("სახელი აუცილებელია"),
     lastName: Yup.string().required("გვარი აუცილებელია"),
     newImages: Yup.array()
@@ -66,7 +67,9 @@ export default function IndividualDetailsForm() {
       .of(Yup.mixed().required()),
   });
 
-  const handleUpdateIndividual = async () => {
+  const api = staffType === "technician" ? axiosTechnician : axiosDelivery;
+
+  const handleUpdateStaff = async () => {
     setLoading(true);
     try {
       // Yup validation
@@ -76,7 +79,7 @@ export default function IndividualDetailsForm() {
         lastName: "",
       }));
 
-      await updateIndividualSchema.validate(values, { abortEarly: false });
+      await updateStaffSchema.validate(values, { abortEarly: false });
 
       const formData = new FormData();
 
@@ -93,8 +96,8 @@ export default function IndividualDetailsForm() {
       formData.append("name", values.name);
       formData.append("lastName", values.lastName);
 
-      axiosIndividual
-        .patch(`individual`, formData)
+      api
+        .patch(`${staffType}`, formData)
         .then((res) => {
           toast.success(`ინფორმაცია განახლდა`, {
             position: "bottom-right",
@@ -134,12 +137,6 @@ export default function IndividualDetailsForm() {
     }
   };
 
-  // define fields for shared component
-  const fields = [
-    { id: "name", label: "სახელი" },
-    { id: "lastName", label: "გვარი" },
-  ];
-
   return (
     <div className="flex flex-col gap-y-[20px]">
       <ImageSelector
@@ -165,17 +162,24 @@ export default function IndividualDetailsForm() {
             })),
         }}
       />
-      <UserDetailsForm
-        title="მომხმარებლის ინფორმაცია"
-        values={values}
-        errors={errors}
-        onChange={(field, value) =>
-          handleChange({
-            target: { id: field, value },
-          } as React.ChangeEvent<HTMLInputElement>)
-        }
-        fields={fields}
-      />
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 items-center gap-[20px]">
+        <PanelFormInput
+          id="name"
+          value={values.name || ""}
+          onChange={handleChange}
+          label="სახელი"
+          error={errors.name}
+        />
+        <PanelFormInput
+          id="lastName"
+          value={values.lastName || ""}
+          onChange={handleChange}
+          label="გვარი"
+          error={errors.lastName}
+        />
+      </div>
+
       <p
         className={`${
           currentUser?.status ? "bg-green-700" : "bg-red-700"
@@ -183,8 +187,9 @@ export default function IndividualDetailsForm() {
       >
         სტატუსი: {currentUser?.status ? "აქტიური" : "დაბლოკილი"}
       </p>
+
       <Button
-        onClick={handleUpdateIndividual}
+        onClick={handleUpdateStaff}
         disabled={loading}
         className="h-11 cursor-pointer self-end"
       >

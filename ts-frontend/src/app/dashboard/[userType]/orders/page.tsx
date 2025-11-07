@@ -16,22 +16,17 @@ import {
   TableRow,
 } from "@/app/components/ui/table";
 import { Loader2Icon } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import React, { useEffect } from "react";
 import { BsEye } from "react-icons/bs";
 import { LuPlus } from "react-icons/lu";
 import { toast } from "react-toastify";
 import Link from "next/link";
 
-interface PageProps {
-  params: Promise<{
+export default function Page() {
+  const { userType } = useParams<{
     userType: "company" | "individual";
-  }>;
-}
-
-export default function Page({ params }: PageProps) {
-  const resolvedParams = React.use(params);
-  const { userType } = resolvedParams;
+  }>();
 
   const { currentUser } = useAuthStore();
   const { orders, fetchOrders, toggleOpenCreateOrderModal, loading } =
@@ -128,7 +123,7 @@ export default function Page({ params }: PageProps) {
                         <Button
                           variant="secondary"
                           size="icon"
-                          className="hover:bg-gray-100"
+                          className="hover:bg-gray-100 cursor-pointer"
                         >
                           <BsEye className="size-4" />
                         </Button>

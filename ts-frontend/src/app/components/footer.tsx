@@ -11,10 +11,10 @@ import { GoMail } from "react-icons/go";
 import { useMenuStore } from "../store/useMenuStore";
 import { scrollToSection } from "../utils/scroll";
 import { usePathname, useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function Footer() {
   const pathname = usePathname();
-  const router = useRouter();
   const menu = useMenuStore((state) => state.menu);
 
   const [other] = useState([
@@ -78,13 +78,13 @@ export default function Footer() {
               დამატებითი ინფორმაცია
             </h2>
             {other.map((item) => (
-              <p
+              <Link
                 key={item.id}
-                onClick={() => router.push(item.url)}
+                href={item.url}
                 className="cursor-pointer text-myLightGray hover:text-myLightBlue duration-100 text-sm md:text-base"
               >
                 {item.text}
-              </p>
+              </Link>
             ))}
           </div>
         </div>

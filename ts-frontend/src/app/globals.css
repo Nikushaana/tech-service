@@ -58,7 +58,20 @@ h6 {
 
 .text-stroke {
   -webkit-text-stroke: 5px white; /* thickness + color */
-  paint-order: stroke fill;       /* makes stroke visible behind text */
+  paint-order: stroke fill; /* makes stroke visible behind text */
+}
+
+@keyframes slide {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-slide {
+  animation: slide 20s linear infinite;
 }
 
 @theme {

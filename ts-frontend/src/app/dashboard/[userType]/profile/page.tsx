@@ -6,17 +6,13 @@ import CompanyPhoneUpdate from "@/app/components/dashboard/company/company-phone
 import IndividualDetailsForm from "@/app/components/dashboard/individual/individual-details-form";
 import IndividualPasswordUpdate from "@/app/components/dashboard/individual/individual-password-update";
 import IndividualPhoneUpdate from "@/app/components/dashboard/individual/individual-phone-update";
+import { useParams } from "next/navigation";
 import React from "react";
 
-interface PageProps {
-  params: Promise<{
+export default function Page() {
+  const { userType } = useParams<{
     userType: "company" | "individual";
-  }>;
-}
-
-export default function Page({ params }: PageProps) {
-  const resolvedParams = React.use(params);
-  const { userType } = resolvedParams;
+  }>();
 
   return (
     <div className="flex flex-col gap-y-[20px] w-full">

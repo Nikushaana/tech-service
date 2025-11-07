@@ -5,18 +5,14 @@ import { Button } from "@/app/components/ui/button";
 import { useReviewsStore } from "@/app/store/useReviewsStore";
 import dayjs from "dayjs";
 import { Loader2Icon } from "lucide-react";
+import { useParams } from "next/navigation";
 import React, { useEffect } from "react";
 import { LuPlus } from "react-icons/lu";
 
-interface PageProps {
-  params: Promise<{
+export default function Page() {
+  const { userType } = useParams<{
     userType: "company" | "individual";
-  }>;
-}
-
-export default function Page({ params }: PageProps) {
-  const resolvedParams = React.use(params);
-  const { userType } = resolvedParams;
+  }>();
 
   const { reviews, fetchReviews, toggleOpenCreateReviewModal, loading } =
     useReviewsStore();
@@ -35,7 +31,7 @@ export default function Page({ params }: PageProps) {
   return (
     <div
       className={`w-full flex flex-col gap-y-[30px] items-center ${
-        (reviews.length == 0) && "justify-center"
+        reviews.length == 0 && "justify-center"
       }`}
     >
       {reviews.length == 0 && (

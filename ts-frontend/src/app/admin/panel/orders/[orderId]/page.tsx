@@ -11,16 +11,12 @@ import { Button } from "@/app/components/ui/button";
 import { toast } from "react-toastify";
 import { useOrderStatusOptionsStore } from "@/app/store/orderStatusOptionsStore";
 import Map from "@/app/components/map/map";
+import { useParams } from "next/navigation";
 
-interface OrderPageProps {
-  params: Promise<{
+export default function Page() {
+  const { orderId } = useParams<{
     orderId: string;
-  }>;
-}
-
-export default function Page({ params }: OrderPageProps) {
-  const resolvedParams = React.use(params);
-  const { orderId } = resolvedParams;
+  }>();
 
   const { statusOptions } = useOrderStatusOptionsStore();
 
@@ -67,7 +63,7 @@ export default function Page({ params }: OrderPageProps) {
   // fetch technicians
   const fetchTechnicians = () => {
     axiosAdmin
-      .get("/admin/technicians?status=true")
+      .get("admin/technicians?status=true")
       .then(({ data }) => setTechnicians(data))
       .catch((err) => {})
       .finally(() => {});
@@ -80,7 +76,7 @@ export default function Page({ params }: OrderPageProps) {
   // fetch deliveries
   const fetchDeliveries = () => {
     axiosAdmin
-      .get("/admin/deliveries?status=true")
+      .get("admin/deliveries?status=true")
       .then(({ data }) => setDeliveries(data))
       .catch((err) => {})
       .finally(() => {});

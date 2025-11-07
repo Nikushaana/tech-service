@@ -1,29 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { toast } from "react-toastify";
 import { axiosIndividual } from "@/app/api/axios";
 import { passwordChangeSchema } from "@/app/utils/validation";
-import { useAuthStore } from "@/app/store/useAuthStore";
 import UserPasswordUpdate from "../shared components/user-password-update";
-import { Button } from "../../ui/button";
-import { Loader2Icon } from "lucide-react";
 
 export default function IndividualPasswordUpdate() {
-  const { currentUser } = useAuthStore();
-
   const [values, setValues] = useState({
     oldPassword: "",
     newPassword: "",
     repeatNewPassword: "",
   });
-
-  useEffect(() => {
-    if (currentUser) {
-      setValues((prev) => ({
-        ...prev,
-        phone: currentUser.phone || "",
-      }));
-    }
-  }, [currentUser]);
 
   const [errors, setErrors] = useState({
     oldPassword: "",

@@ -2,7 +2,6 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
-import { Input } from "@/app/components/ui/input";
 import { Button } from "@/app/components/ui/button";
 import { Checkbox } from "@/app/components/ui/checkbox";
 import { useRegisterStore } from "@/app/store/registerStore";
@@ -56,8 +55,8 @@ export default function Register() {
 
       const url =
         values.role === "individual"
-          ? "/auth/individual/register"
-          : "/auth/company/register";
+          ? "auth/individual/register"
+          : "auth/company/register";
 
       axiosFront
         .post(url, payload)
