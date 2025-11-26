@@ -119,6 +119,7 @@ export class BaseUserService {
             const devices = findUser.used_devices || [];
 
             devices.push(userAgent);
+            
             findUser.used_devices = devices;
             await repo.save(findUser);
         }
