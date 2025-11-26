@@ -114,39 +114,20 @@ export class BaseUserService {
         if (!findUser) throw new NotFoundException('User not found');
 
         // Save user-agent
-
         if (userAgent) {
-            const devices = findUser.used_devices || [];
+            // Simple check for mobile devices
+            const mobileRegex = /Android|iPhone|iPad|iPod|Mobile/i;
+            const type = mobileRegex.test(userAgent) ? 'mobile' : 'desktop';
 
-            devices.push(userAgent);
-            
+            const devices = findUser.used_devices || [];
+            devices.push(type); // save "desktop" or "mobile"
+
             findUser.used_devices = devices;
             await repo.save(findUser);
         }
 
         return findUser;
     }
-
-    // if (userAgent) {
-    //         // Parse user-agent directly here
-    //         const parser = new UAParser(userAgent);
-    //         const uaResult = parser.getResult();
-
-    //         const deviceInfo = {
-    //             browser: uaResult.browser.name,
-    //             browserVersion: uaResult.browser.version,
-    //             os: uaResult.os.name + (uaResult.os.version ? ' ' + uaResult.os.version : ''),
-    //             device: uaResult.device.type || 'desktop',
-    //             userAgent, // keep raw string too
-    //             timestamp: new Date().toISOString(),
-    //         };
-
-    //         const devices = findUser.used_devices || [];
-    //         devices.push(deviceInfo);
-
-    //         findUser.used_devices = devices;
-    //         await repo.save(findUser);
-    //     }
 
     async updateUser(userId: number, repo: any, updateUserDto: UpdateCompanyDto | UpdateIndividualDto, images: Express.Multer.File[] = []) {
         const user = await this.getUser(userId, repo)

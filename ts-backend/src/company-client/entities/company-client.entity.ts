@@ -36,8 +36,8 @@ export class CompanyClient {
   @Column("simple-array", { default: "" })
   images: string[];
 
-  @Column({ type: 'jsonb', default: [] })
-used_devices: any[];
+  @Column("simple-array", { default: "" })
+used_devices: string[];
 
   @Column({ default: 'company' })
   role: string;
@@ -60,7 +60,7 @@ used_devices: any[];
 
   @OneToMany(() => Address, (address) => address.company)
   addresses: Address[];
-  
+
   @OneToMany(() => Review, (review) => review.company)
   reviews: Review[];
 
