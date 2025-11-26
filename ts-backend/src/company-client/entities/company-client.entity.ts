@@ -36,6 +36,9 @@ export class CompanyClient {
   @Column("simple-array", { default: "" })
   images: string[];
 
+  @Column("simple-array", { default: "" })
+  used_devices: string[];
+
   @Column({ default: 'company' })
   role: string;
 

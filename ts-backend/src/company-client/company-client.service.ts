@@ -26,8 +26,8 @@ export class CompanyClientService {
 
     // company
 
-    async getCompany(companyId: number) {
-        const findCompany = await this.baseUserService.getUser(companyId, this.companyClientRepo);
+    async getCompany(companyId: number, userAgent?: string) {
+        const findCompany = await this.baseUserService.getUser(companyId, this.companyClientRepo, userAgent);
 
         return instanceToPlain(findCompany);
     }

@@ -26,7 +26,9 @@ export class IndividualClientController {
     @Roles('individual')
     @Get('')
     async getIndividual(@Req() req: RequestInfo) {
-        return this.individualClientService.getIndividual(req.user.id);
+        const userAgent = req.headers['user-agent'] || 'Not Found';
+        
+        return this.individualClientService.getIndividual(req.user.id, userAgent);
     }
 
     @UseGuards(TokenValidationGuard, RolesGuard)

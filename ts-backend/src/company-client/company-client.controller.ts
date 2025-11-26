@@ -24,7 +24,9 @@ export class CompanyClientController {
     @Roles('company')
     @Get('')
     async getIndividual(@Req() req: RequestInfo) {
-        return this.companyClientService.getCompany(req.user.id);
+        const userAgent = req.headers['user-agent'] || 'Not Found';
+
+        return this.companyClientService.getCompany(req.user.id, userAgent);
     }
 
     @UseGuards(TokenValidationGuard, RolesGuard)

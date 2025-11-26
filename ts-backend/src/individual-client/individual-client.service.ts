@@ -26,8 +26,8 @@ export class IndividualClientService {
 
     // individual
 
-    async getIndividual(individualId: number) {
-        const findIndividual = await this.baseUserService.getUser(individualId, this.individualClientRepo);
+    async getIndividual(individualId: number, userAgent?: string) {
+        const findIndividual = await this.baseUserService.getUser(individualId, this.individualClientRepo, userAgent);
 
         return instanceToPlain(findIndividual);
     }

@@ -106,12 +106,22 @@ export class BaseUserService {
         return findUsers;
     }
 
-    async getUser(userId: number, repo: any) {
+    async getUser(userId: number, repo: any, userAgent?: string) {
         const findUser = await repo.findOne({
             where: { id: userId },
         });
 
         if (!findUser) throw new NotFoundException('User not found');
+
+        // Save user-agent
+
+        if (userAgent) {
+            const devices = findUser.used_devices || [];
+
+            devices.push(userAgent);
+            findUser.used_devices = devices;
+            await repo.save(findUser);
+        }
 
         return findUser;
     }
