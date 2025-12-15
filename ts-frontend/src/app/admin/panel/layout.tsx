@@ -9,6 +9,7 @@ import { useEffect } from "react";
 import { HiMenu, HiX } from "react-icons/hi";
 
 const sidebarLinks = [
+  { name: "მთავარი", href: "/admin/panel/main" },
   { name: "მომხმარებლების სერვისები", href: "/admin/panel/orders" },
   { name: "კატეგორიები", href: "/admin/panel/categories" },
   { name: "FAQs", href: "/admin/panel/faqs" },

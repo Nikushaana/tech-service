@@ -17,12 +17,11 @@ export default function Footer() {
   const pathname = usePathname();
   const menu = useMenuStore((state) => state.menu);
 
-  const [other] = useState([
+  const other = [
     { id: 1, text: "ჩვენს შესახებ", url: "/about-us" },
-    { id: 2, text: "კონფიდენციალურობის პოლიტიკა", url: "" },
-    { id: 3, text: "წესები და პირობები", url: "" },
-    { id: 4, text: "პასუხისმგებლობის შეზღუდვა", url: "" },
-  ]);
+    { id: 2, text: "კონფიდენციალურობის პოლიტიკა", url: "/privacy-policy" },
+    { id: 3, text: "წესები და პირობები", url: "/terms" },
+  ];
 
   const firstSegment = pathname.split("/")[1];
   const isHidden = firstSegment === "admin" || firstSegment === "staff";

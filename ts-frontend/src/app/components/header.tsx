@@ -59,7 +59,7 @@ export default function Header() {
         {/* Request Button (Desktop) */}
         <div className="flex items-center gap-[10px] duration-200">
           <Link href={path}>
-            <Button className="hidden md:flex h-[45px] px-[20px] sm:px-[30px]">
+            <Button className="hidden md:flex cursor-pointer h-[45px] px-[20px] sm:px-[30px]">
               {currentUser ? "აირჩიე სერვისი" : "ავტორიზაცია"}
             </Button>
           </Link>

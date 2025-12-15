@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuthStore } from "@/app/store/useAuthStore";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import React from "react";
 import { BiCategory } from "react-icons/bi";
 
@@ -10,8 +10,13 @@ export default function ServicesClient({
 }: {
   categories: CategoryData;
 }) {
-  const router = useRouter();
   const { currentUser } = useAuthStore();
+
+  const path = currentUser
+    ? currentUser.role === "individual"
+      ? "/dashboard/individual/orders"
+      : "/dashboard/company/orders"
+    : "/auth/login";
 
   return (
     <div className="flex flex-col gap-y-[30px] sm:gap-y-[50px]">
@@ -34,19 +39,8 @@ export default function ServicesClient({
             </p>
           </div>
         ))}
-        <div
-          onClick={() => {
-            if (currentUser) {
-              const path =
-                currentUser.role === "individual"
-                  ? "/dashboard/individual/orders"
-                  : "/dashboard/company/orders";
-
-              router.push(path);
-            } else {
-              router.push("/auth/login");
-            }
-          }}
+        <Link
+          href={path}
           className="rounded-[10px] px-[10px] sm:px-[20px] py-[10px] flex flex-col items-center gap-y-[15px] sm:gap-y-[20px] bg-myLightBlue hover:bg-myBlue duration-200 text-white  cursor-pointer hover:hover:scale-110 w-[calc((100%-20px)/2)] sm:w-[calc((100%-80px)/3)] lg:w-[calc((100%-160px)/5)]"
         >
           <div className="aspect-square sm:aspect-video lg:aspect-square w-[50px] sm:w-full flex items-center justify-center text-[60px]">
@@ -56,7 +50,7 @@ export default function ServicesClient({
           <p className="text-center text-[14px] sm:text-[16px]">
             იპოვე სასურველი კატეგორია
           </p>
-        </div>
+        </Link>
       </div>
     </div>
   );

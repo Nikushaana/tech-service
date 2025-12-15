@@ -10,8 +10,8 @@ import CreateAddress from "./components/modals/create-address";
 import CreateOrder from "./components/modals/create-order";
 import AuthRehydrate from "./components/auth-rehydrate";
 import CreateReview from "./components/modals/create-review";
-import Providers from "./providers/providers";
 import UpdateOrder from "./components/modals/update-order";
+import QueryProvider from "./providers/providers";
 
 export const metadata: Metadata = {
   title: "Tech Service | საოჯახო ტექნიკის სერვის-ცენტრი",
@@ -26,7 +26,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="flex flex-col items-center ">
-        <Providers>
+        <QueryProvider>
           <Header />
           <div className="w-full flex flex-col">{children}</div>
           <Footer />
@@ -40,7 +40,7 @@ export default function RootLayout({
           <CreateOrder />
           <UpdateOrder />
           <CreateReview />
-        </Providers>
+        </QueryProvider>
       </body>
     </html>
   );

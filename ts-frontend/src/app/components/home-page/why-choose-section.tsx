@@ -9,6 +9,7 @@ import { toast } from "react-toastify";
 export default function WhyChooseSection() {
   const router = useRouter();
   const { currentUser } = useAuthStore();
+  
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 items-stretch gap-[30px] sm:gap-[50px]">
       <div className="flex flex-col gap-y-[25px] sm:gap-y-[40px]">

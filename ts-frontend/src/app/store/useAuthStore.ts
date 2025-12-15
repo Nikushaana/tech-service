@@ -100,7 +100,7 @@ export const useAuthStore = create<Store>((set, get) => ({
                 toast.success("ავტორიზაცია შესრულდა", { position: "bottom-right", autoClose: 3000 });
 
                 const roleRedirects: Record<string, string> = {
-                    admin: "/admin/panel/orders",
+                    admin: "/admin/panel/main",
                     individual: "/",
                     company: "/",
                     technician: "/staff/technician/orders",
@@ -234,7 +234,7 @@ export const useAuthStore = create<Store>((set, get) => ({
                     set({ currentUser: data });
 
                     if (activeRole == "admin" && pathname === "/admin") {
-                        router.push(`/admin/panel/orders`)
+                        router.push(`/admin/panel/main`)
                     }
 
                     if ((activeRole == "company" || activeRole == "individual") && pathname.startsWith("/dashboard")) {
