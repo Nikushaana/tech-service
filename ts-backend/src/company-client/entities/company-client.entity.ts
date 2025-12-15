@@ -36,8 +36,9 @@ export class CompanyClient {
   @Column("simple-array", { default: "" })
   images: string[];
 
-  @Column("simple-array", { default: "" })
-used_devices: string[];
+  @Exclude()
+  @Column("simple-json", { default: () => "'{\"mobile\":0,\"desktop\":0}'" })
+  used_devices: { mobile: number; desktop: number };
 
   @Column({ default: 'company' })
   role: string;

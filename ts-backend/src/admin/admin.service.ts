@@ -507,7 +507,7 @@ export class AdminService {
                 order.technician = technician;
             }
         }
-        
+
         if (deliveryId !== undefined) {
             if (deliveryId === null) {
                 order.delivery = null;
@@ -849,5 +849,74 @@ export class AdminService {
         return {
             message: 'Branch deleted successfully',
         };
+    }
+
+    // statistics
+
+    async getUserRegistrationStats() {
+        const individuals = await this.baseUserService.getUsers(this.individualClientRepo);
+        const companies = await this.baseUserService.getUsers(this.companyClientRepo);
+
+        const groupByMonth = (users: { created_at: Date }[]) =>
+            users.reduce((acc, user) => {
+                const date = new Date(user.created_at);
+                const yearMonth = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-01`;
+                acc[yearMonth] = (acc[yearMonth] || 0) + 1;
+                return acc;
+            }, {} as Record<string, number>);
+
+        const individualsByMonth = groupByMonth(individuals);
+        const companiesByMonth = groupByMonth(companies);
+
+        const allMonths = Array.from(new Set([...Object.keys(individualsByMonth), ...Object.keys(companiesByMonth)])).sort();
+
+        const stats = allMonths.map((month) => ({
+            date: month,
+            individuals: individualsByMonth[month] || 0,
+            companies: companiesByMonth[month] || 0,
+        }));
+
+        const individualsLength = individuals.length;
+        const companiesLength = companies.length;
+
+        return { stats, individualsLength, companiesLength };
+    }
+
+    async getUsedDevicesStats() {
+        const individuals = await this.baseUserService.getUsers(this.individualClientRepo);
+        const companies = await this.baseUserService.getUsers(this.companyClientRepo);
+
+        const allUsers = [...individuals, ...companies];
+
+        const stats = { mobile: 0, desktop: 0 };
+
+        allUsers.forEach(user => {
+            if (user.used_devices) {
+                stats.mobile += user.used_devices.mobile || 0;
+                stats.desktop += user.used_devices.desktop || 0;
+            }
+        });
+
+        return stats;
+    }
+
+    async getOrderStats() {
+        const orders = await this.orderRepo.find();
+
+        const ordersByMonth = orders.reduce((acc, order) => {
+            const date = new Date(order.created_at);
+            const yearMonth = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-01`;
+            acc[yearMonth] = (acc[yearMonth] || 0) + 1;
+            return acc;
+        }, {} as Record<string, number>);
+
+        const stats = Object.keys(ordersByMonth)
+            .sort()
+            .map((month) => ({
+                date: month,
+                orders: ordersByMonth[month],
+            }));
+
+        return stats;
     }
 }

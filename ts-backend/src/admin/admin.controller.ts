@@ -306,4 +306,27 @@ export class AdminController {
     async deleteBranch(@Param('id', ParseIntPipe) id: number) {
         return this.adminService.deleteBranch(id);
     }
+
+    // statistics
+
+    @UseGuards(TokenValidationGuard, RolesGuard)
+    @Roles('admin')
+    @Get('user-registration-stats')
+    async getUserRegistrationStats() {
+        return this.adminService.getUserRegistrationStats();
+    }
+    
+    @UseGuards(TokenValidationGuard, RolesGuard)
+    @Roles('admin')
+    @Get('used-devices-stats')
+    async getUsedDevicesStats() {
+        return this.adminService.getUsedDevicesStats();
+    }
+    
+    @UseGuards(TokenValidationGuard, RolesGuard)
+    @Roles('admin')
+    @Get('order-stats')
+    async getOrderStats() {
+        return this.adminService.getOrderStats();
+    }
 }

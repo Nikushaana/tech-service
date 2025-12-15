@@ -113,16 +113,17 @@ export class BaseUserService {
 
         if (!findUser) throw new NotFoundException('User not found');
 
-        // Save user-agent
+        // Save user_agent
         if (userAgent) {
-            // Simple check for mobile devices
             const mobileRegex = /Android|iPhone|iPad|iPod|Mobile/i;
-            const type = mobileRegex.test(userAgent) ? 'mobile' : 'desktop';
+            const type: 'mobile' | 'desktop' = mobileRegex.test(userAgent) ? 'mobile' : 'desktop';
 
-            const devices = findUser.used_devices || [];
-            devices.push(type); // save "desktop" or "mobile"
+            if (!findUser.used_devices) {
+                findUser.used_devices = { mobile: 0, desktop: 0 };
+            }
 
-            findUser.used_devices = devices;
+            findUser.used_devices[type] += 1;
+
             await repo.save(findUser);
         }
 
