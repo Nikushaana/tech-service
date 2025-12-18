@@ -1,10 +1,10 @@
 "use client";
 
 import React from "react";
-import { Button } from "../ui/button";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/app/store/useAuthStore";
 import { toast } from "react-toastify";
+import { Button } from "@/components/ui/button";
 
 export default function WhyChooseSection() {
   const router = useRouter();

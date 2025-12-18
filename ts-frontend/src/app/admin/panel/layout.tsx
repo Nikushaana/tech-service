@@ -1,8 +1,8 @@
 "use client";
 
-import { Button } from "@/app/components/ui/button";
 import { useBurgerMenuStore } from "@/app/store/burgerMenuStore";
 import { useAuthStore } from "@/app/store/useAuthStore";
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";

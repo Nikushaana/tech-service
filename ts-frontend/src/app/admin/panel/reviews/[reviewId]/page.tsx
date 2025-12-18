@@ -6,7 +6,7 @@ import React, { useEffect, useState } from "react";
 import dayjs from "dayjs";
 import { Dropdown } from "@/app/components/inputs/drop-down";
 import * as Yup from "yup";
-import { Button } from "@/app/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { toast } from "react-toastify";
 import StarRating from "@/app/components/inputs/star-rating";
 import PanelFormInput from "@/app/components/inputs/panel-form-input";

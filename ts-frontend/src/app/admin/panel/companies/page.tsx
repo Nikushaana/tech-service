@@ -1,15 +1,8 @@
 "use client";
 
 import { axiosAdmin } from "@/app/api/axios";
-import { Button } from "@/app/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/app/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Loader2Icon } from "lucide-react";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
@@ -80,7 +73,7 @@ export default function Page() {
                         <img
                           src={company.images[0]}
                           alt={company.companyName}
-                          className="w-full h-full"
+                          className="w-full h-full object-cover"
                         />
                       ) : (
                         <IoPersonSharp />

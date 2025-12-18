@@ -2,8 +2,8 @@
 
 import { useAuthStore } from "@/app/store/useAuthStore";
 import React, { useEffect } from "react";
-import { Button } from "../ui/button";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
 
 export default function LogOut() {
   const router = useRouter();

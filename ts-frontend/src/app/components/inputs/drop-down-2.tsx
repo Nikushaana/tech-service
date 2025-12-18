@@ -1,8 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { Input } from "../ui/input";
 import { Loader2Icon } from "lucide-react";
+import { Input } from "@/components/ui/input";
 
 interface DropdownProps {
   id: string;

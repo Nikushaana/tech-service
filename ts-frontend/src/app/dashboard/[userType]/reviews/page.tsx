@@ -1,7 +1,7 @@
 "use client";
 
 import StarRating from "@/app/components/inputs/star-rating";
-import { Button } from "@/app/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { useReviewsStore } from "@/app/store/useReviewsStore";
 import dayjs from "dayjs";
 import { Loader2Icon } from "lucide-react";

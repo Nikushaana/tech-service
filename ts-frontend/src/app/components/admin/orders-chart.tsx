@@ -30,27 +30,19 @@ const chartConfig = {
   visitors: {
     label: "Visitors",
   },
-  companies: {
-    label: "კომპანიები",
+  orders: {
+    label: "შეკვეთები",
     color: "blue",
-  },
-  individuals: {
-    label: "კერძო მომხმარებლები",
-    color: "red",
   },
 } satisfies ChartConfig;
 
-export function UsersChart({ userRegistrationStats }: any) {
+export function OrdersChart({ ordersStats }: any) {
   const [timeRange, setTimeRange] = React.useState("all");
 
-  const userRegistrationStatsData = userRegistrationStats?.stats;
-
   const filteredData = React.useMemo(() => {
-    if (timeRange === "all") return userRegistrationStatsData;
+    if (timeRange === "all") return ordersStats;
 
-    const referenceDate = new Date(
-      userRegistrationStatsData[userRegistrationStatsData.length - 1].date
-    );
+    const referenceDate = new Date(ordersStats[ordersStats.length - 1].date);
     const startDate = new Date(referenceDate);
 
     switch (timeRange) {
@@ -70,21 +62,13 @@ export function UsersChart({ userRegistrationStats }: any) {
         break;
     }
 
-    return userRegistrationStatsData.filter(
-      (item: any) => new Date(item.date) >= startDate
-    );
+    return ordersStats.filter((item: any) => new Date(item.date) >= startDate);
   }, [timeRange]);
 
   return (
-    <Card className="pt-0 w-full">
+    <Card className="pt-0 w-full h-full">
       <CardHeader className="flex items-center gap-2 space-y-0 border-b py-5 sm:flex-row">
-        <div className="grid flex-1 gap-1">
-          <CardTitle>მომხმარებლები</CardTitle>
-          <CardDescription>
-            სულ {userRegistrationStats.individualsLength} კერძო მომხმარებელი და{" "}
-            {userRegistrationStats.companiesLength} კომანია
-          </CardDescription>
-        </div>
+        <CardTitle>შეკვეთები</CardTitle>
         <Select value={timeRange} onValueChange={setTimeRange}>
           <SelectTrigger
             className="hidden w-[160px] rounded-lg sm:ml-auto sm:flex"
@@ -109,20 +93,16 @@ export function UsersChart({ userRegistrationStats }: any) {
         </Select>
       </CardHeader>
 
-      <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
+      <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6 flex-1">
         <ChartContainer
           config={chartConfig}
-          className="aspect-auto h-[200px] w-full"
+          className="aspect-auto h-full w-full"
         >
           <AreaChart data={filteredData}>
             <defs>
-              <linearGradient id="fillCompanies" x1="0" y1="0" x2="0" y2="1">
+              <linearGradient id="fillOrders" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor="blue" stopOpacity={0.8} />
                 <stop offset="95%" stopColor="blue" stopOpacity={0.1} />
-              </linearGradient>
-              <linearGradient id="fillIndividuals" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="red" stopOpacity={0.8} />
-                <stop offset="95%" stopColor="red" stopOpacity={0.1} />
               </linearGradient>
             </defs>
             <CartesianGrid vertical={false} />
@@ -155,20 +135,12 @@ export function UsersChart({ userRegistrationStats }: any) {
               }
             />
             <Area
-              dataKey="companies"
+              dataKey="orders"
               type="natural"
-              fill="url(#fillCompanies)"
+              fill="url(#fillOrders)"
               stroke="blue"
               stackId="a"
             />
-            <Area
-              dataKey="individuals"
-              type="natural"
-              fill="url(#fillIndividuals)"
-              stroke="red"
-              stackId="a"
-            />
-            <ChartLegend content={<ChartLegendContent />} />
           </AreaChart>
         </ChartContainer>
       </CardContent>

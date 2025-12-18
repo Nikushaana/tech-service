@@ -1,7 +1,12 @@
 "use client";
 
 import { axiosAdmin } from "@/app/api/axios";
-import { Button } from "@/app/components/ui/button";
+import { Button } from "@/components/ui/button";
+import { statusTranslations } from "@/app/utils/status-translations";
+import dayjs from "dayjs";
+import { Loader2Icon } from "lucide-react";
+import Link from "next/link";
+import { BsEye } from "react-icons/bs";
 import {
   Table,
   TableBody,
@@ -9,32 +14,22 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/app/components/ui/table";
-import { statusTranslations } from "@/app/utils/status-translations";
-import dayjs from "dayjs";
-import { Loader2Icon } from "lucide-react";
-import Link from "next/link";
-import React, { useEffect, useState } from "react";
-import { BsEye } from "react-icons/bs";
+} from "@/components/ui/table";
+import { useQuery } from "@tanstack/react-query";
+
+const fetchAdminOrders = async () => {
+  const { data } = await axiosAdmin.get("admin/orders");
+  return data;
+};
 
 export default function Page() {
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: orders = [], isLoading } = useQuery({
+    queryKey: ["adminOrders"],
+    queryFn: fetchAdminOrders,
+    staleTime: 1000 * 60 * 10,
+  });
 
-  const fetchOrder = () => {
-    setLoading(true);
-    axiosAdmin
-      .get("admin/orders")
-      .then(({ data }) => setOrders(data))
-      .catch((err) => {})
-      .finally(() => setLoading(false));
-  };
-
-  useEffect(() => {
-    fetchOrder();
-  }, []);
-
-  if (loading)
+  if (isLoading)
     return (
       <div className="flex justify-center w-full mt-10">
         <Loader2Icon className="animate-spin size-6 text-gray-600" />
@@ -70,7 +65,7 @@ export default function Page() {
                 </TableCell>
               </TableRow>
             ) : (
-              orders.map((order) => (
+              orders.map((order: Order) => (
                 <TableRow key={order.id} className="hover:bg-gray-50">
                   <TableCell>{order.id}</TableCell>
                   <TableCell>{order.service_type}</TableCell>

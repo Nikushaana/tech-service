@@ -4,12 +4,12 @@ import { axiosAdmin } from "@/app/api/axios";
 import { Loader2Icon } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import PanelFormInput from "@/app/components/inputs/panel-form-input";
-import { Switch } from "@/app/components/ui/switch";
 import { toast } from "react-toastify";
 import * as Yup from "yup";
-import { Button } from "@/app/components/ui/button";
 import ImageSelector from "@/app/components/inputs/image-selector";
 import { useParams } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 
 interface DeliveryValues {
   name: string;

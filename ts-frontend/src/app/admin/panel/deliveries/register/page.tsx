@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "@/app/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { useRegisterStore } from "@/app/store/registerStore";
 import { axiosAdmin } from "@/app/api/axios";
 import { toast } from "react-toastify";

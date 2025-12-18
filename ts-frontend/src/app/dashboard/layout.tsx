@@ -4,9 +4,9 @@ import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { useAuthStore } from "../store/useAuthStore";
-import { Button } from "../components/ui/button";
 import { HiMenu, HiX } from "react-icons/hi";
 import { useBurgerMenuStore } from "../store/burgerMenuStore";
+import { Button } from "@/components/ui/button";
 
 type SidebarLinksWithTitle = {
   title?: string;

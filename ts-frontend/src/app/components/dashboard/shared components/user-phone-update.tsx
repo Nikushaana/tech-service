@@ -2,8 +2,8 @@
 
 import React from "react";
 import PanelFormInput from "../../inputs/panel-form-input";
-import { Button } from "../../ui/button";
 import { Loader2Icon } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface UserPhoneFormProps {
   values: Record<string, string>;

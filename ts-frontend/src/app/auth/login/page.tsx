@@ -2,7 +2,7 @@
 
 import React from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { Button } from "@/app/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/app/store/useAuthStore";
 import FormInput from "@/app/components/inputs/form-input";
 import { Loader2Icon } from "lucide-react";

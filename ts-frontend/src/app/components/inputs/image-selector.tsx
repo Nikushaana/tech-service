@@ -3,7 +3,7 @@
 import React, { useRef } from "react";
 import { Trash2Icon } from "lucide-react";
 import { LuImagePlus } from "react-icons/lu";
-import { Button } from "../ui/button";
+import { Button } from "@/components/ui/button";
 
 interface ImageSelectorProps {
   images?: string[]; // already uploaded images (URLs)

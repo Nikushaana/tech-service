@@ -2,14 +2,9 @@
 
 import * as React from "react";
 
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
-import { Input } from "../ui/input";
+
+import { DropdownMenu, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
 
 interface DropdownProps {
   data: any[];

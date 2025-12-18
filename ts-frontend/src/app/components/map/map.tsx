@@ -10,7 +10,7 @@ import {
 import { Loader2Icon } from "lucide-react";
 import { toast } from "react-toastify";
 import { useQuery } from "@tanstack/react-query";
-import { fetchBranches } from "@/app/api/branches";
+import { fetchFrontBranches } from "@/app/api/frontBranches";
 
 interface MapProps {
   id?: string;
@@ -37,8 +37,9 @@ export default function Map({
   const mapRef = useRef<google.maps.Map | null>(null);
 
   const { data: branches } = useQuery({
-    queryKey: ["branches"],
-    queryFn: fetchBranches,
+    queryKey: ["frontBranches"],
+    queryFn: fetchFrontBranches,
+    staleTime: 1000 * 60 * 10,
   });
 
   const [currentPosition, setCurrentPosition] = React.useState<LatLng | null>(

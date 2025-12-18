@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Button } from "../ui/button";
 import { useAddressesStore } from "@/app/store/useAddressesStore";
 import * as Yup from "yup";
 import { toast } from "react-toastify";
@@ -10,6 +9,7 @@ import { Loader2Icon } from "lucide-react";
 import Map from "../map/map";
 import { Dropdown2 } from "../inputs/drop-down-2";
 import { axiosFront } from "@/app/api/axios";
+import { Button } from "@/components/ui/button";
 
 export default function CreateAddress() {
   const {
@@ -298,18 +298,20 @@ export default function CreateAddress() {
               error={errors.street}
             />
             <div className="col-span-1 sm:col-span-2 h-[200px] bg-myLightBlue rounded-[8px] overflow-hidden">
-              <Map
-                uiControl={true}
-                checkCoverageRadius={true}
-                id="location"
-                markerCoordinates={values.location || undefined}
-                centerCoordinates={
-                  helperValues.streetLocation ||
-                  helperValues.cityLocation ||
-                  undefined
-                }
-                onChange={handleChange}
-              />
+              {openCreateAddressModal && (
+                <Map
+                  uiControl={true}
+                  checkCoverageRadius={true}
+                  id="location"
+                  markerCoordinates={values.location || undefined}
+                  centerCoordinates={
+                    helperValues.streetLocation ||
+                    helperValues.cityLocation ||
+                    undefined
+                  }
+                  onChange={handleChange}
+                />
+              )}
             </div>
 
             <PanelFormInput

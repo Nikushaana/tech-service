@@ -2,7 +2,7 @@
 
 import React, { useRef } from "react";
 import { Trash2Icon } from "lucide-react";
-import { Button } from "../ui/button";
+import { Button } from "@/components/ui/button";
 
 interface OrderVideosSelectorProps {
   newVideos: File[]; // newly added but not uploaded

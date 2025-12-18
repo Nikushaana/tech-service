@@ -1,17 +1,18 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Button } from "../ui/button";
 import { useAddressesStore } from "@/app/store/useAddressesStore";
 import * as Yup from "yup";
 import { toast } from "react-toastify";
 import PanelFormInput from "../inputs/panel-form-input";
 import { Loader2Icon } from "lucide-react";
 import { Dropdown } from "../inputs/drop-down";
-import { useCategoriesStore } from "@/app/store/useCategoriesStore";
 import OrderImagesSelector from "../inputs/order-images-selector";
 import OrderVideosSelector from "../inputs/order-videos-selector";
 import { useUpdateOrderStore } from "@/app/store/useUpdateOrderStore";
+import { Button } from "@/components/ui/button";
+import { useQuery } from "@tanstack/react-query";
+import { fetchFrontCategories } from "@/app/api/frontCategories";
 
 interface UpdateOrderValues {
   serviceType: string | number;
@@ -36,13 +37,18 @@ export default function UpdateOrder() {
   } = useUpdateOrderStore();
 
   const { addresses, fetchAddresses } = useAddressesStore();
-  const { categories, fetchCategories } = useCategoriesStore();
+
+  const { data: categories } = useQuery({
+    queryKey: ["frontCategories"],
+    queryFn: fetchFrontCategories,
+    enabled: openUpdateOrderModal,
+    staleTime: 1000 * 60 * 10,
+  });
 
   useEffect(() => {
     if (modalType) {
       fetchAddresses(modalType);
     }
-    fetchCategories();
   }, [modalType]);
 
   const [values, setValues] = useState<UpdateOrderValues>({
@@ -285,7 +291,7 @@ export default function UpdateOrder() {
                 />
               </div>
               <Dropdown
-                data={categories.data}
+                data={categories?.data}
                 id="categoryId"
                 value={values.categoryId || ""}
                 onChange={handleChange}

@@ -3,9 +3,9 @@ import { toast } from "react-toastify";
 import { axiosDelivery, axiosTechnician } from "@/app/api/axios";
 import { passwordChangeSchema } from "@/app/utils/validation";
 import { useParams } from "next/navigation";
-import { Button } from "../ui/button";
 import { Loader2Icon } from "lucide-react";
 import PanelFormInput from "../inputs/panel-form-input";
+import { Button } from "@/components/ui/button";
 
 export default function StaffPasswordUpdate() {
   const { staffType } = useParams<{ staffType: "technician" | "delivery" }>();

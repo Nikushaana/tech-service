@@ -7,24 +7,48 @@ import React, { useEffect, useState } from "react";
 import dayjs from "dayjs";
 import { Dropdown } from "@/app/components/inputs/drop-down";
 import * as Yup from "yup";
-import { Button } from "@/app/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { toast } from "react-toastify";
 import { useOrderStatusOptionsStore } from "@/app/store/orderStatusOptionsStore";
 import Map from "@/app/components/map/map";
 import { useParams } from "next/navigation";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+
+const fetchAdminActiveEmployees = async () => {
+  const [technicians, deliveries] = await Promise.all([
+    axiosAdmin.get("admin/technicians?status=true"),
+    axiosAdmin.get("admin/deliveries?status=true"),
+  ]);
+
+  return {
+    technicians: technicians.data,
+    deliveries: deliveries.data,
+  };
+};
+
+const fetchAdminOrderById = async (orderId: string) => {
+  const { data } = await axiosAdmin.get(`admin/orders/${orderId}`);
+  return data;
+};
 
 export default function Page() {
   const { orderId } = useParams<{
     orderId: string;
   }>();
 
+  const queryClient = useQueryClient();
+
+  const { data: employees } = useQuery({
+    queryKey: ["adminActiveEmployees"],
+    queryFn: fetchAdminActiveEmployees,
+  });
+
+  const { data: order, isLoading } = useQuery({
+    queryKey: ["adminOrder", orderId],
+    queryFn: () => fetchAdminOrderById(orderId),
+  });
+
   const { statusOptions } = useOrderStatusOptionsStore();
-
-  const [order, setOrder] = useState<any>({});
-  const [loading, setLoading] = useState<boolean>(true);
-
-  const [technicians, setTechnicians] = useState<User[]>([]);
-  const [deliveries, setDeliveries] = useState<User[]>([]);
 
   const [values, setValues] = useState({
     technicianId: "",
@@ -38,53 +62,15 @@ export default function Page() {
     status: "",
   });
 
-  // fetch order
-  const fetchOrder = () => {
-    setLoading(true);
-
-    axiosAdmin
-      .get(`admin/orders/${orderId}`)
-      .then((res) => {
-        setOrder(res.data);
-        setValues({
-          technicianId: res.data.technician?.id || "",
-          deliveryId: res.data.delivery?.id || "",
-          status: res.data.status || "",
-        });
-        setLoading(false);
-      })
-      .catch((err) => console.error(err));
-  };
-
   useEffect(() => {
-    fetchOrder();
-  }, [orderId]);
-
-  // fetch technicians
-  const fetchTechnicians = () => {
-    axiosAdmin
-      .get("admin/technicians?status=true")
-      .then(({ data }) => setTechnicians(data))
-      .catch((err) => {})
-      .finally(() => {});
-  };
-
-  useEffect(() => {
-    fetchTechnicians();
-  }, []);
-
-  // fetch deliveries
-  const fetchDeliveries = () => {
-    axiosAdmin
-      .get("admin/deliveries?status=true")
-      .then(({ data }) => setDeliveries(data))
-      .catch((err) => {})
-      .finally(() => {});
-  };
-
-  useEffect(() => {
-    fetchDeliveries();
-  }, []);
+    if (order) {
+      setValues({
+        technicianId: order.technician?.id || "",
+        deliveryId: order.delivery?.id || "",
+        status: order.status || "",
+      });
+    }
+  }, [order]);
 
   // update order
 
@@ -115,75 +101,61 @@ export default function Page() {
     status: Yup.string().required("სტატუსი აუცილებელია"),
   });
 
+  const updateOrderMutation = useMutation({
+    mutationFn: (payload: any) =>
+      axiosAdmin.patch(`admin/orders/${orderId}`, payload),
+
+    onSuccess: () => {
+      toast.success("შეკვეთა განახლდა", {
+        position: "bottom-right",
+        autoClose: 3000,
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ["adminOrder", orderId],
+      });
+    },
+
+    onError: () => {
+      toast.error("ვერ განახლდა", {
+        position: "bottom-right",
+        autoClose: 3000,
+      });
+    },
+  });
+
   const handleAdminUpdateOrder = async () => {
-    setLoading(true);
     try {
-      // Yup validation
       setErrors({
         technicianId: "",
         deliveryId: "",
         status: "",
       });
+
       await updateOrderSchema.validate(values, { abortEarly: false });
 
-      let payload: any = {
+      updateOrderMutation.mutate({
         technicianId: values.technicianId,
         deliveryId: values.deliveryId,
         status: values.status,
-      };
-
-      axiosAdmin
-        .patch(`admin/orders/${orderId}`, payload)
-        .then((res) => {
-          toast.success(`შეკვეთა განახლდა`, {
-            position: "bottom-right",
-            autoClose: 3000,
-          });
-
-          fetchOrder();
-
-          setErrors({
-            technicianId: "",
-            deliveryId: "",
-            status: "",
-          });
-        })
-        .catch((error) => {
-          toast.error("ვერ განახლდა", {
-            position: "bottom-right",
-            autoClose: 3000,
-          });
-
-          setErrors({
-            technicianId: "შეცდომა",
-            deliveryId: "შეცდომა",
-            status: "შეცდომა",
-          });
-
-          setLoading(false);
-        })
-        .finally(() => {});
+      });
     } catch (err: any) {
-      // Yup validation errors
       if (err.inner) {
         err.inner.forEach((e: any) => {
-          if (e.path) {
-            setErrors((prev) => ({
-              ...prev,
-              [e.path]: e.message,
-            }));
-            toast.error(e.message, {
-              position: "bottom-right",
-              autoClose: 3000,
-            });
-          }
+          setErrors((prev) => ({
+            ...prev,
+            [e.path]: e.message,
+          }));
+          toast.error(e.message, {
+            position: "bottom-right",
+            autoClose: 3000,
+          });
         });
       }
-      setLoading(false);
     }
   };
 
-  if (loading)
+  if (isLoading)
     return (
       <div className="flex justify-center w-full mt-10">
         <Loader2Icon className="animate-spin size-6 text-gray-600" />
@@ -192,7 +164,7 @@ export default function Page() {
 
   return (
     <div
-      className={`border rounded-lg shadow px-[10px] py-[20px] sm:p-[20px] bg-white w-full max-w-3xl mx-auto flex flex-col gap-y-4`}
+      className={`border rounded-lg shadow px-[10px] py-[20px] sm:p-[20px] bg-white w-full max-w-3xl mx-auto flex flex-col gap-y-4 ${updateOrderMutation.isPending && "pointer-events-none"}`}
     >
       {/* Header */}
       <h2 className={`flex justify-end text-sm`}>
@@ -365,7 +337,7 @@ export default function Page() {
 
       <div className="flex flex-col sm:flex-row gap-[10px]">
         <Dropdown
-          data={deliveries}
+          data={employees?.deliveries}
           id="deliveryId"
           value={order.delivery?.id || ""}
           onChange={handleChange}
@@ -373,7 +345,7 @@ export default function Page() {
           error={errors.deliveryId}
         />
         <Dropdown
-          data={technicians}
+          data={employees?.technicians}
           id="technicianId"
           value={order.technician?.id || ""}
           onChange={handleChange}
@@ -391,10 +363,8 @@ export default function Page() {
       </div>
 
       <Button
-        onClick={() => {
-          handleAdminUpdateOrder();
-        }}
-        disabled={loading}
+        onClick={handleAdminUpdateOrder}
+        disabled={updateOrderMutation.isPending}
         className="h-11 cursor-pointer self-end"
       >
         ცვლილებების შენახვა

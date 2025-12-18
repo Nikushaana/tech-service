@@ -2,8 +2,7 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "@/app/components/ui/button";
-import { Checkbox } from "@/app/components/ui/checkbox";
+import { Button } from "@/components/ui/button";
 import { useRegisterStore } from "@/app/store/registerStore";
 import { axiosFront } from "@/app/api/axios";
 import { toast } from "react-toastify";
@@ -11,6 +10,7 @@ import { registerSchema } from "@/app/utils/validation";
 import FormInput from "@/app/components/inputs/form-input";
 import { Loader2Icon } from "lucide-react";
 import Link from "next/link";
+import { Checkbox } from "@radix-ui/react-checkbox";
 
 export default function Register() {
   const router = useRouter();

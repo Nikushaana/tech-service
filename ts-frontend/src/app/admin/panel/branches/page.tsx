@@ -4,15 +4,8 @@ import { axiosAdmin, axiosFront } from "@/app/api/axios";
 import { Dropdown2 } from "@/app/components/inputs/drop-down-2";
 import PanelFormInput from "@/app/components/inputs/panel-form-input";
 import Map from "@/app/components/map/map";
-import { Button } from "@/app/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/app/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Loader2Icon } from "lucide-react";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";

@@ -1,10 +1,11 @@
 "use client";
 
 import { axiosAdmin } from "@/app/api/axios";
-import { ChartAreaInteractive } from "@/app/components/admin/users-chart";
+import { OrdersChart } from "@/app/components/admin/orders-chart";
+import { UsedDevicesChart } from "@/app/components/admin/used-devices-chart";
+import { UsersChart } from "@/app/components/admin/users-chart";
 import { useQuery } from "@tanstack/react-query";
 import { Loader2Icon } from "lucide-react";
-import React from "react";
 
 const fetchAllStats = async () => {
   const [userRes, devicesRes, orderRes] = await Promise.all([
@@ -24,6 +25,7 @@ export default function Page() {
   const { data, isLoading } = useQuery({
     queryKey: ["allStats"],
     queryFn: fetchAllStats,
+    staleTime: 1000 * 60 * 10,
   });
 
   if (isLoading)
@@ -34,12 +36,16 @@ export default function Page() {
     );
 
   return (
-    <div className="flex flex-col items-center gap-y-[20px] w-full">
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-[20px]">
       {data?.userRegistrationStats?.stats.length > 0 && (
-        <ChartAreaInteractive
-          userRegistrationStats={data?.userRegistrationStats?.stats}
-        />
+        <div className="col-span-1 sm:col-span-3">
+          <UsersChart userRegistrationStats={data?.userRegistrationStats} />
+        </div>
       )}
+      <UsedDevicesChart usedDevicesStats={data?.usedDevicesStats} />
+      <div className="col-span-1 sm:col-span-2 min-h-[200px]">
+        <OrdersChart ordersStats={data?.orderStats} />
+      </div>
     </div>
   );
 }

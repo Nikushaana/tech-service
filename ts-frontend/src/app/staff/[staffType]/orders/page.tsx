@@ -1,15 +1,7 @@
 "use client";
 
 import { axiosDelivery, axiosTechnician } from "@/app/api/axios";
-import { Button } from "@/app/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/app/components/ui/table";
+import { Button } from "@/components/ui/button";
 import { statusTranslations } from "@/app/utils/status-translations";
 import dayjs from "dayjs";
 import { Loader2Icon } from "lucide-react";
@@ -17,6 +9,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { BsEye } from "react-icons/bs";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 export default function Page() {
   const { staffType } = useParams<{ staffType: "technician" | "delivery" }>();

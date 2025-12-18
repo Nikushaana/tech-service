@@ -7,8 +7,8 @@ import { axiosDelivery, axiosTechnician } from "@/app/api/axios";
 import { sendCodeSchema, verifyCodeSchema } from "@/app/utils/validation";
 import { useParams } from "next/navigation";
 import PanelFormInput from "../inputs/panel-form-input";
-import { Button } from "../ui/button";
 import { Loader2Icon } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export default function StaffPhoneUpdate() {
   const { currentUser } = useAuthStore();

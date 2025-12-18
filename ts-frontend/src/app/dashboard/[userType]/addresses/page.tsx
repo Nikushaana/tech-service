@@ -1,7 +1,7 @@
 "use client";
 
 import Map from "@/app/components/map/map";
-import { Button } from "@/app/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { useAddressesStore } from "@/app/store/useAddressesStore";
 import { Loader2Icon } from "lucide-react";
 import { useParams } from "next/navigation";

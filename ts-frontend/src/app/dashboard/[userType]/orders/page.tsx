@@ -1,27 +1,19 @@
 "use client";
 
-import { Button } from "@/app/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { useAddressesStore } from "@/app/store/useAddressesStore";
 import { useAuthStore } from "@/app/store/useAuthStore";
-import { useCategoriesStore } from "@/app/store/useCategoriesStore";
 import { useOrdersStore } from "@/app/store/useOrdersStore";
 import { statusTranslations } from "@/app/utils/status-translations";
 import dayjs from "dayjs";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/app/components/ui/table";
 import { Loader2Icon } from "lucide-react";
 import { useParams } from "next/navigation";
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { BsEye } from "react-icons/bs";
 import { LuPlus } from "react-icons/lu";
 import { toast } from "react-toastify";
 import Link from "next/link";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 export default function Page() {
   const { userType } = useParams<{
@@ -32,12 +24,10 @@ export default function Page() {
   const { orders, fetchOrders, toggleOpenCreateOrderModal, loading } =
     useOrdersStore();
   const { fetchAddresses } = useAddressesStore();
-  const { fetchCategories } = useCategoriesStore();
 
   useEffect(() => {
-    fetchOrders(userType); // fetch correct type on mount
+    fetchOrders(userType);
     fetchAddresses(userType);
-    fetchCategories();
   }, [userType]);
 
   if (loading)

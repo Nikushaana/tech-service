@@ -1,16 +1,15 @@
 "use client";
 
-import React from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/autoplay";
-import { Button } from "../../ui/button";
 import { useAuthStore } from "@/app/store/useAuthStore";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import StarRating from "../../inputs/star-rating";
 import { IoPersonSharp } from "react-icons/io5";
+import { Button } from "@/components/ui/button";
 
 export default function UsersCommentsClient({
   reviews,

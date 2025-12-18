@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Button } from "../ui/button";
 import { useAddressesStore } from "@/app/store/useAddressesStore";
 import * as Yup from "yup";
 import { toast } from "react-toastify";
@@ -10,9 +9,11 @@ import { Loader2Icon } from "lucide-react";
 import { MdAddLocationAlt } from "react-icons/md";
 import { useOrdersStore } from "@/app/store/useOrdersStore";
 import { Dropdown } from "../inputs/drop-down";
-import { useCategoriesStore } from "@/app/store/useCategoriesStore";
 import OrderImagesSelector from "../inputs/order-images-selector";
 import OrderVideosSelector from "../inputs/order-videos-selector";
+import { Button } from "@/components/ui/button";
+import { useQuery } from "@tanstack/react-query";
+import { fetchFrontCategories } from "@/app/api/frontCategories";
 
 interface CreateOrderValues {
   serviceType: string | number;
@@ -32,11 +33,15 @@ export default function CreateOrder() {
     modalType,
     createOrder,
   } = useOrdersStore();
-  const { openCreateAddressModal, toggleOpenCreateAddressModal } =
+  const { addresses, openCreateAddressModal, toggleOpenCreateAddressModal } =
     useAddressesStore();
 
-  const { addresses } = useAddressesStore();
-  const { categories } = useCategoriesStore();
+  const { data: categories } = useQuery({
+    queryKey: ["frontCategories"],
+    queryFn: fetchFrontCategories,
+    enabled: openCreateOrderModal,
+    staleTime: 1000 * 60 * 10,
+  });
 
   const [values, setValues] = useState<CreateOrderValues>({
     serviceType: "",
@@ -207,7 +212,7 @@ export default function CreateOrder() {
                 />
               </div>
               <Dropdown
-                data={categories.data}
+                data={categories?.data}
                 id="categoryId"
                 value={values.categoryId || ""}
                 onChange={handleChange}

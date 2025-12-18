@@ -9,7 +9,7 @@ import { Loader2Icon } from "lucide-react";
 import { useParams, usePathname, useRouter } from "next/navigation";
 import ImageSelector from "../inputs/image-selector";
 import PanelFormInput from "../inputs/panel-form-input";
-import { Button } from "../ui/button";
+import { Button } from "@/components/ui/button";
 
 interface StaffValues {
   name: string;

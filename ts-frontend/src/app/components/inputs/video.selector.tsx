@@ -2,8 +2,8 @@
 
 import React, { useRef } from "react";
 import { Trash2Icon } from "lucide-react";
-import { Button } from "../ui/button";
 import { AiOutlineVideoCameraAdd } from "react-icons/ai";
+import { Button } from "@/components/ui/button";
 
 interface VideoSelectorProps {
   videos?: string[]; // already uploaded videos (URLs)

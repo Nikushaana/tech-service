@@ -5,9 +5,9 @@ import { useMenuStore } from "@/app/store/useMenuStore";
 import { scrollToSection } from "@/app/utils/scroll";
 import { usePathname, useRouter } from "next/navigation";
 import React, { useEffect } from "react";
-import { Button } from "../ui/button";
 import { useAuthStore } from "@/app/store/useAuthStore";
 import { toast } from "react-toastify";
+import { Button } from "@/components/ui/button";
 
 export default function BurgerMenu() {
   const menu = useMenuStore((state) => state.menu);

@@ -2,15 +2,8 @@
 
 import { axiosAdmin } from "@/app/api/axios";
 import StarRating from "@/app/components/inputs/star-rating";
-import { Button } from "@/app/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/app/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import dayjs from "dayjs";
 import { Loader2Icon } from "lucide-react";
 import Link from "next/link";
@@ -112,7 +105,7 @@ export default function Page() {
                                 : review.individual?.images[0]
                             }
                             alt={review.review}
-                            className="w-full h-full"
+                            className="w-full h-full object-cover"
                           />
                         ) : (
                           <IoPersonSharp />

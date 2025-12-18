@@ -2,10 +2,10 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "../../ui/button";
 import { IoIosArrowDown } from "react-icons/io";
 import { useAuthStore } from "@/app/store/useAuthStore";
 import { toast } from "react-toastify";
+import { Button } from "@/components/ui/button";
 
 export default function FaqClient({ faqs }: { faqs: Faq[] }) {
   const router = useRouter();

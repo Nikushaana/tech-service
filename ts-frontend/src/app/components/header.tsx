@@ -2,7 +2,6 @@
 
 import React from "react";
 import { HiMenu, HiX } from "react-icons/hi";
-import { Button } from "./ui/button";
 import { useMenuStore } from "../store/useMenuStore";
 import { scrollToSection } from "../utils/scroll";
 import { useBurgerMenuStore } from "../store/burgerMenuStore";
@@ -10,6 +9,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useAuthStore } from "../store/useAuthStore";
 import { IoPersonSharp } from "react-icons/io5";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 export default function Header() {
   const menu = useMenuStore((state) => state.menu);

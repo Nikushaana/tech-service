@@ -6,7 +6,7 @@ import Link from "next/link";
 import { HiMenu, HiX } from "react-icons/hi";
 import { useAuthStore } from "@/app/store/useAuthStore";
 import { useBurgerMenuStore } from "@/app/store/burgerMenuStore";
-import { Button } from "@/app/components/ui/button";
+import { Button } from "@/components/ui/button";
 
 type SidebarLinksWithTitle = {
   title?: string;

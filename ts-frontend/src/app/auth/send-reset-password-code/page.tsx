@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "@/app/components/ui/button";
+import { Button } from "@/components/ui/button";
 import FormInput from "@/app/components/inputs/form-input";
 import { useResetPasswordStore } from "@/app/store/resetPasswordStore";
 import { axiosFront } from "@/app/api/axios";
