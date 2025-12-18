@@ -1,122 +1,64 @@
 "use client";
 
 import { axiosAdmin } from "@/app/api/axios";
-import PanelFormInput from "@/app/components/inputs/panel-form-input";
 import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Loader2Icon } from "lucide-react";
 import Link from "next/link";
-import React, { useEffect, useState } from "react";
 import { AiOutlineDelete } from "react-icons/ai";
 import { BsEye } from "react-icons/bs";
 import { toast } from "react-toastify";
-import * as Yup from "yup";
+
+const fetchAdminCategories = async () => {
+  const { data } = await axiosAdmin.get("admin/categories");
+  return data;
+};
 
 export default function Page() {
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
 
-  const fetchCategories = () => {
-    setLoading(true);
-    axiosAdmin
-      .get("admin/categories")
-      .then(({ data }) => setCategories(data))
-      .catch((err) => {})
-      .finally(() => setLoading(false));
-  };
-
-  useEffect(() => {
-    fetchCategories();
-  }, []);
-
-  const [values, setValues] = useState({
-    name: "",
+  const { data: categories, isLoading } = useQuery({
+    queryKey: ["adminCategories"],
+    queryFn: fetchAdminCategories,
+    staleTime: 1000 * 60 * 10,
   });
-  const [errors, setErrors] = useState({
-    name: "",
-  });
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { id, value } = e.target;
-    setValues((prev) => ({
-      ...prev,
-      [id]: value,
-    }));
-  };
-
-  // validation
-  const categorySchema = Yup.object().shape({
-    name: Yup.string().required("კატეგორია აუცილებელია"),
-  });
-
-  // add category
-  const handleAddCategory = async () => {
-    setLoading(true);
-    try {
-      await categorySchema.validate(values, { abortEarly: false });
-
-      axiosAdmin
-        .post(`admin/category`, values)
-        .then(() => {
-          toast.success("კატეგორია დაემატა", {
-            position: "bottom-right",
-            autoClose: 3000,
-          });
-          fetchCategories();
-          setValues({ name: "" });
-          setErrors({ name: "" });
-        })
-        .catch(() => {
-          toast.error("ვერ დაემატა", {
-            position: "bottom-right",
-            autoClose: 3000,
-          });
-          setLoading(false);
-        })
-        .finally(() => {});
-    } catch (err: any) {
-      if (err.inner) {
-        const newErrors: any = {};
-        err.inner.forEach((e: any) => {
-          if (e.path) {
-            newErrors[e.path] = e.message;
-            toast.error(e.message, {
-              position: "bottom-right",
-              autoClose: 3000,
-            });
-          }
-        });
-        setErrors(newErrors);
-      }
-      setLoading(false);
-    }
-  };
 
   // delete category
-  const handleDeleteCategory = async (id: number) => {
-    setLoading(true);
-    axiosAdmin
-      .delete(`admin/categories/${id}`)
-      .then(() => {
-        toast.success("კატეგორია წაიშალა", {
-          position: "bottom-right",
-          autoClose: 3000,
-        });
-        fetchCategories();
-      })
-      .catch(() => {
-        toast.error("ვერ წაიშალა", {
-          position: "bottom-right",
-          autoClose: 3000,
-        });
-        setLoading(false);
-      })
-      .finally(() => {});
+  const deleteCategoryMutation = useMutation({
+    mutationFn: (id: number) => axiosAdmin.delete(`admin/categories/${id}`),
+
+    onSuccess: () => {
+      toast.success("კატეგორია წაიშალა", {
+        position: "bottom-right",
+        autoClose: 3000,
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ["adminCategories"],
+      });
+    },
+
+    onError: () => {
+      toast.error("ვერ წაიშალა", {
+        position: "bottom-right",
+        autoClose: 3000,
+      });
+    },
+  });
+
+  const handleDeleteCategory = (id: number) => {
+    deleteCategoryMutation.mutate(id);
   };
 
-  if (loading)
+  if (isLoading)
     return (
       <div className="flex justify-center w-full mt-10">
         <Loader2Icon className="animate-spin size-6 text-gray-600" />
@@ -125,25 +67,12 @@ export default function Page() {
 
   return (
     <div className="flex flex-col items-center gap-y-[20px] w-full">
-      <div className="bg-white rounded-xl shadow-md border border-gray-200 p-4 sm:p-6 flex flex-col gap-2 w-full max-w-2xl mx-auto">
-        <PanelFormInput
-          id="name"
-          value={values.name}
-          onChange={handleChange}
-          label="კატეგორია"
-          error={errors.name}
-        />
-
-        <div className="flex justify-end">
-          <Button
-            onClick={handleAddCategory}
-            disabled={loading}
-            className="h-[45px] px-6 text-white cursor-pointer w-full sm:w-auto"
-          >
-            დამატება
-          </Button>
-        </div>
-      </div>
+      <Link
+        href={"/admin/panel/categories/add"}
+        className="w-auto self-end"
+      >
+        <Button className="h-[45px] w-full px-6 text-white">დამატება</Button>
+      </Link>
       <div className="w-full bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6">
         <h2 className="text-xl font-semibold mb-4">კატეგორიები</h2>
         <div className="overflow-x-auto w-full">
@@ -168,7 +97,7 @@ export default function Page() {
                   </TableCell>
                 </TableRow>
               ) : (
-                categories.map((category) => (
+                categories.map((category: Category) => (
                   <TableRow key={category.id} className="hover:bg-gray-50">
                     <TableCell>{category.id}</TableCell>
                     <TableCell>
@@ -199,6 +128,10 @@ export default function Page() {
                         onClick={() => {
                           handleDeleteCategory(category.id);
                         }}
+                        disabled={
+                          deleteCategoryMutation.isPending &&
+                          deleteCategoryMutation.variables === category.id
+                        }
                         variant="secondary"
                         size="icon"
                         className="bg-[red] hover:bg-[#b91c1c] ml-3 cursor-pointer"

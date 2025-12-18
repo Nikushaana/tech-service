@@ -9,13 +9,26 @@ import * as Yup from "yup";
 import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+
+const fetchAdminFaqById = async (faqId: string) => {
+  const { data } = await axiosAdmin.get(`admin/faqs/${faqId}`);
+  return data;
+};
 
 export default function Page() {
   const { faqId } = useParams<{
     faqId: string;
   }>();
 
-  const [loading, setLoading] = useState<boolean>(true);
+  const queryClient = useQueryClient();
+
+  const { data: faq, isLoading } = useQuery({
+    queryKey: ["adminFaq", faqId],
+    queryFn: () => fetchAdminFaqById(faqId),
+    staleTime: 1000 * 60 * 10,
+  });
+
   const [values, setValues] = useState({
     question: "",
     answer: "",
@@ -28,22 +41,15 @@ export default function Page() {
   });
 
   useEffect(() => {
-    setLoading(true);
-    axiosAdmin
-      .get(`admin/faqs/${faqId}`)
-      .then((res) => {
-        const data = res.data;
-        setValues({
-          question: data.question,
-          answer: data.answer,
-          status: data.status,
-          order: data.order,
-        });
-        setLoading(false);
-      })
-      .catch(() => {})
-      .finally(() => {});
-  }, [faqId]);
+    if (faq) {
+      setValues({
+        question: faq.question,
+        answer: faq.answer,
+        status: faq.status,
+        order: faq.order,
+      });
+    }
+  }, [faq]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -61,28 +67,37 @@ export default function Page() {
     answer: Yup.string().required("პასუხი აუცილებელია"),
   });
 
+  const updateFaqMutation = useMutation({
+    mutationFn: async (payload: any) =>
+      axiosAdmin.patch(`admin/faqs/${faqId}`, payload),
+
+    onSuccess: () => {
+      toast.success("FAQ განახლდა", {
+        position: "bottom-right",
+        autoClose: 3000,
+      });
+
+      // refetch faq data
+      queryClient.invalidateQueries({
+        queryKey: ["adminFaq", faqId],
+      });
+
+      setErrors({ question: "", answer: "" });
+    },
+
+    onError: () => {
+      toast.error("ვერ განახლდა", {
+        position: "bottom-right",
+        autoClose: 3000,
+      });
+    },
+  });
+
   const handleUpdateFaq = async () => {
-    setLoading(true);
     try {
       await faqSchema.validate(values, { abortEarly: false });
 
-      axiosAdmin
-        .patch(`admin/faqs/${faqId}`, values)
-        .then(() => {
-          toast.success("FAQ განახლდა", {
-            position: "bottom-right",
-            autoClose: 3000,
-          });
-
-          setErrors({ question: "", answer: "" });
-          setLoading(false);
-        })
-        .catch(() => {
-          toast.error("ვერ განახლდა", {
-            position: "bottom-right",
-            autoClose: 3000,
-          });
-        });
+      updateFaqMutation.mutate(values);
     } catch (err: any) {
       if (err.inner) {
         const newErrors: any = {};
@@ -97,11 +112,10 @@ export default function Page() {
         });
         setErrors(newErrors);
       }
-      setLoading(false);
     }
   };
 
-  if (loading)
+  if (isLoading)
     return (
       <div className="flex justify-center w-full mt-10">
         <Loader2Icon className="animate-spin size-6 text-gray-600" />
@@ -151,7 +165,7 @@ export default function Page() {
 
       <Button
         onClick={handleUpdateFaq}
-        disabled={loading}
+        disabled={updateFaqMutation.isPending}
         className="h-[45px] px-6 text-white cursor-pointer w-full sm:w-auto self-end"
       >
         ცვლილების შენახვა

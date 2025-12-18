@@ -4,6 +4,7 @@ import { axiosAdmin } from "@/app/api/axios";
 import StarRating from "@/app/components/inputs/star-rating";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import { Loader2Icon } from "lucide-react";
 import Link from "next/link";
@@ -13,46 +14,48 @@ import { BsEye } from "react-icons/bs";
 import { IoPersonSharp } from "react-icons/io5";
 import { toast } from "react-toastify";
 
+const fetchAdminReviews = async () => {
+  const { data } = await axiosAdmin.get("admin/reviews");
+  return data;
+};
+
 export default function Page() {
-  const [reviews, setReviews] = useState<Review[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
 
-  const fetchReviews = () => {
-    setLoading(true);
-    axiosAdmin
-      .get("admin/reviews")
-      .then(({ data }) => setReviews(data))
-      .catch((err) => {})
-      .finally(() => setLoading(false));
-  };
-
-  useEffect(() => {
-    fetchReviews();
-  }, []);
+  const { data: reviews, isLoading } = useQuery({
+    queryKey: ["adminReviews"],
+    queryFn: fetchAdminReviews,
+    staleTime: 1000 * 60 * 10,
+  });
 
   // delete review
-  const handleDeleteReview = async (id: number) => {
-    setLoading(true);
-    axiosAdmin
-      .delete(`admin/reviews/${id}`)
-      .then(() => {
-        toast.success("შეფასება წაიშალა", {
-          position: "bottom-right",
-          autoClose: 3000,
-        });
-        fetchReviews();
-      })
-      .catch(() => {
-        toast.error("ვერ წაიშალა", {
-          position: "bottom-right",
-          autoClose: 3000,
-        });
-        setLoading(false);
-      })
-      .finally(() => {});
+  const deleteReviewMutation = useMutation({
+    mutationFn: (id: number) => axiosAdmin.delete(`admin/reviews/${id}`),
+
+    onSuccess: () => {
+      toast.success("შეფასება წაიშალა", {
+        position: "bottom-right",
+        autoClose: 3000,
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ["adminReviews"],
+      });
+    },
+
+    onError: () => {
+      toast.error("ვერ წაიშალა", {
+        position: "bottom-right",
+        autoClose: 3000,
+      });
+    },
+  });
+
+  const handleDeleteReview = (id: number) => {
+    deleteReviewMutation.mutate(id);
   };
 
-  if (loading)
+  if (isLoading)
     return (
       <div className="flex justify-center w-full mt-10">
         <Loader2Icon className="animate-spin size-6 text-gray-600" />
@@ -87,7 +90,7 @@ export default function Page() {
                 </TableCell>
               </TableRow>
             ) : (
-              reviews.map((review) => (
+              reviews.map((review: Review) => (
                 <TableRow key={review.id} className="hover:bg-gray-50">
                   <TableCell className="font-medium">{review.id}</TableCell>
                   <TableCell>
@@ -152,6 +155,10 @@ export default function Page() {
                       }}
                       variant="secondary"
                       size="icon"
+                      disabled={
+                          deleteReviewMutation.isPending &&
+                          deleteReviewMutation.variables === review.id
+                        }
                       className="bg-[red] hover:bg-[#b91c1c] ml-3 cursor-pointer"
                     >
                       <AiOutlineDelete className="size-4" />

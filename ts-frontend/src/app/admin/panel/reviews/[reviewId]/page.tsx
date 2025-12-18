@@ -11,14 +11,25 @@ import { toast } from "react-toastify";
 import StarRating from "@/app/components/inputs/star-rating";
 import PanelFormInput from "@/app/components/inputs/panel-form-input";
 import { useParams } from "next/navigation";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+
+const fetchAdminReviewById = async (reviewId: string) => {
+  const { data } = await axiosAdmin.get(`admin/reviews/${reviewId}`);
+  return data;
+};
 
 export default function Page() {
   const { reviewId } = useParams<{
-      reviewId: string;
-    }>();
+    reviewId: string;
+  }>();
 
-  const [review, setReview] = useState<any>({});
-  const [loading, setLoading] = useState<boolean>(true);
+  const queryClient = useQueryClient();
+
+  const { data: review, isLoading } = useQuery({
+    queryKey: ["adminReview", reviewId],
+    queryFn: () => fetchAdminReviewById(reviewId),
+    staleTime: 1000 * 60 * 10,
+  });
 
   const [values, setValues] = useState({
     review: "",
@@ -31,30 +42,17 @@ export default function Page() {
     stars: "",
   });
 
-  // fetch review
-  const fetchReview = () => {
-    setLoading(true);
-
-    axiosAdmin
-      .get(`admin/reviews/${reviewId}`)
-      .then((res) => {
-        setReview(res.data);
-        setValues({
-          review: res.data.review || "",
-          stars: res.data.stars || 5,
-          status: res.data.status ? 2 : 1 || 1,
-        });
-        setLoading(false);
-      })
-      .catch((err) => console.error(err));
-  };
-
   useEffect(() => {
-    fetchReview();
-  }, [reviewId]);
+    if (review) {
+      setValues({
+        review: review.review || "",
+        stars: review.stars || 5,
+        status: review.status ? 2 : 1 || 1,
+      });
+    }
+  }, [review]);
 
-  // update order
-
+  // update review
   const handleChange = (
     e:
       | React.ChangeEvent<HTMLInputElement>
@@ -75,8 +73,36 @@ export default function Page() {
       .max(5, "მაქსიმუმ 5 ვარსკვლავი შეიძლება იყოს"),
   });
 
+  const updateReviewMutation = useMutation({
+    mutationFn: async (payload: any) =>
+      axiosAdmin.patch(`admin/reviews/${reviewId}`, payload),
+
+    onSuccess: () => {
+      toast.success("შეფასება განახლდა", {
+        position: "bottom-right",
+        autoClose: 3000,
+      });
+
+      // refetch review data
+      queryClient.invalidateQueries({
+        queryKey: ["adminReview", reviewId],
+      });
+
+      setErrors({
+        review: "",
+        stars: "",
+      });
+    },
+
+    onError: () => {
+      toast.error("ვერ განახლდა", {
+        position: "bottom-right",
+        autoClose: 3000,
+      });
+    },
+  });
+
   const handleAdminUpdateReview = async () => {
-    setLoading(true);
     try {
       // Yup validation
       setErrors({
@@ -91,35 +117,7 @@ export default function Page() {
         status: values.status == 1 ? false : true,
       };
 
-      axiosAdmin
-        .patch(`admin/reviews/${reviewId}`, payload)
-        .then((res) => {
-          toast.success(`შეფასება განახლდა`, {
-            position: "bottom-right",
-            autoClose: 3000,
-          });
-
-          fetchReview();
-
-          setErrors({
-            review: "",
-            stars: "",
-          });
-        })
-        .catch((error) => {
-          toast.error("ვერ განახლდა", {
-            position: "bottom-right",
-            autoClose: 3000,
-          });
-
-          setErrors({
-            review: "შეცდომა",
-            stars: "შეცდომა",
-          });
-
-          setLoading(false);
-        })
-        .finally(() => {});
+      updateReviewMutation.mutate(payload);
     } catch (err: any) {
       // Yup validation errors
       if (err.inner) {
@@ -136,11 +134,10 @@ export default function Page() {
           }
         });
       }
-      setLoading(false);
     }
   };
 
-  if (loading)
+  if (isLoading)
     return (
       <div className="flex justify-center w-full mt-10">
         <Loader2Icon className="animate-spin size-6 text-gray-600" />
@@ -215,10 +212,8 @@ export default function Page() {
       </div>
 
       <Button
-        onClick={() => {
-          handleAdminUpdateReview();
-        }}
-        disabled={loading}
+        onClick={handleAdminUpdateReview}
+        disabled={updateReviewMutation.isPending}
         className="h-11 cursor-pointer self-end"
       >
         ცვლილებების შენახვა

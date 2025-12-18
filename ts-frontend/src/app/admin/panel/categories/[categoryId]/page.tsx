@@ -10,6 +10,7 @@ import ImageSelector from "@/app/components/inputs/image-selector";
 import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 interface CategoryValues {
   name: string;
@@ -19,12 +20,24 @@ interface CategoryValues {
   newImages: File[];
 }
 
+const fetchAdminCategoryById = async (categoryId: string) => {
+  const { data } = await axiosAdmin.get(`admin/categories/${categoryId}`);
+  return data;
+};
+
 export default function Page() {
   const { categoryId } = useParams<{
     categoryId: string;
   }>();
 
-  const [loading, setLoading] = useState<boolean>(true);
+  const queryClient = useQueryClient();
+
+  const { data: category, isLoading } = useQuery({
+    queryKey: ["adminCategory", categoryId],
+    queryFn: () => fetchAdminCategoryById(categoryId),
+    staleTime: 1000 * 60 * 10,
+  });
+
   const [values, setValues] = useState<CategoryValues>({
     name: "",
     status: false,
@@ -37,30 +50,18 @@ export default function Page() {
     name: "",
   });
 
-  const fetchCategory = () => {
-    setLoading(true);
-    axiosAdmin
-      .get(`admin/categories/${categoryId}`)
-      .then((res) => {
-        const data = res.data;
-
-        const imagesArray = Array.isArray(data.images) ? data.images : [];
-
-        setValues((prev) => ({
-          ...prev,
-          status: data.status,
-          name: data.name,
-          images: imagesArray,
-        }));
-        setLoading(false);
-      })
-      .catch(() => {})
-      .finally(() => {});
-  };
-
   useEffect(() => {
-    fetchCategory();
-  }, [categoryId]);
+    if (category) {
+      const imagesArray = Array.isArray(category.images) ? category.images : [];
+
+      setValues((prev) => ({
+        ...prev,
+        status: category.status,
+        name: category.name,
+        images: imagesArray,
+      }));
+    }
+  }, [category]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -77,8 +78,35 @@ export default function Page() {
     name: Yup.string().required("კატეგორია აუცილებელია"),
   });
 
+  const updateCategoryMutation = useMutation({
+    mutationFn: async (formData: FormData) =>
+      axiosAdmin.patch(`admin/categories/${categoryId}`, formData),
+
+    onSuccess: () => {
+      toast.success("კატეგორია განახლდა", {
+        position: "bottom-right",
+        autoClose: 3000,
+      });
+
+      // refetch category data
+      queryClient.invalidateQueries({
+        queryKey: ["adminCategory", categoryId],
+      });
+
+      // reset newImages
+      setValues((prev) => ({ ...prev, newImages: [] }));
+      setErrors({ name: "" });
+    },
+
+    onError: () => {
+      toast.error("ვერ განახლდა", {
+        position: "bottom-right",
+        autoClose: 3000,
+      });
+    },
+  });
+
   const handleUpdateCategory = async () => {
-    setLoading(true);
     try {
       await categorySchema.validate(values, { abortEarly: false });
 
@@ -97,29 +125,7 @@ export default function Page() {
       formData.append("name", values.name);
       formData.append("status", String(values.status));
 
-      axiosAdmin
-        .patch(`admin/categories/${categoryId}`, formData)
-        .then(() => {
-          toast.success("კატეგორია განახლდა", {
-            position: "bottom-right",
-            autoClose: 3000,
-          });
-
-          fetchCategory();
-
-          setValues((prev) => ({
-            ...prev,
-            newImages: [],
-          }));
-          setErrors({ name: "" });
-        })
-        .catch(() => {
-          setLoading(false);
-          toast.error("ვერ განახლდა", {
-            position: "bottom-right",
-            autoClose: 3000,
-          });
-        });
+      updateCategoryMutation.mutate(formData);
     } catch (err: any) {
       if (err.inner) {
         const newErrors: any = {};
@@ -134,11 +140,10 @@ export default function Page() {
         });
         setErrors(newErrors);
       }
-      setLoading(false);
     }
   };
 
-  if (loading)
+  if (isLoading)
     return (
       <div className="flex justify-center w-full mt-10">
         <Loader2Icon className="animate-spin size-6 text-gray-600" />
@@ -193,7 +198,7 @@ export default function Page() {
 
       <Button
         onClick={handleUpdateCategory}
-        disabled={loading}
+        disabled={updateCategoryMutation.isPending}
         className="h-[45px] px-6 text-white cursor-pointer w-full sm:w-auto self-end"
       >
         ცვლილების შენახვა

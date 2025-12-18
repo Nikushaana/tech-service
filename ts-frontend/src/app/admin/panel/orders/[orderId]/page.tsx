@@ -164,7 +164,7 @@ export default function Page() {
 
   return (
     <div
-      className={`border rounded-lg shadow px-[10px] py-[20px] sm:p-[20px] bg-white w-full max-w-3xl mx-auto flex flex-col gap-y-4 ${updateOrderMutation.isPending && "pointer-events-none"}`}
+      className="border rounded-lg shadow px-[10px] py-[20px] sm:p-[20px] bg-white w-full max-w-3xl mx-auto flex flex-col gap-y-4"
     >
       {/* Header */}
       <h2 className={`flex justify-end text-sm`}>
