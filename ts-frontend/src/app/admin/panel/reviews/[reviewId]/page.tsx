@@ -87,6 +87,10 @@ export default function Page() {
       queryClient.invalidateQueries({
         queryKey: ["adminReview", reviewId],
       });
+      // refresh reviews list
+      queryClient.invalidateQueries({
+        queryKey: ["adminReviews"],
+      });
 
       setErrors({
         review: "",

@@ -81,6 +81,10 @@ export default function Page() {
       queryClient.invalidateQueries({
         queryKey: ["adminFaq", faqId],
       });
+      // refresh faqs list
+      queryClient.invalidateQueries({
+        queryKey: ["adminFaqs"],
+      });
 
       setErrors({ question: "", answer: "" });
     },

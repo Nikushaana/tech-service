@@ -92,6 +92,10 @@ export default function Page() {
       queryClient.invalidateQueries({
         queryKey: ["adminCategory", categoryId],
       });
+      // refresh categories list
+      queryClient.invalidateQueries({
+        queryKey: ["adminCategories"],
+      });
 
       // reset newImages
       setValues((prev) => ({ ...prev, newImages: [] }));

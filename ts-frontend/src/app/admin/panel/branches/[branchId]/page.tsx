@@ -10,6 +10,8 @@ import { Dropdown2 } from "@/app/components/inputs/drop-down-2";
 import Map from "@/app/components/map/map";
 import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { fetchCities, fetchStreets } from "@/app/api/locations";
 
 interface BranchValues {
   name: string;
@@ -22,12 +24,24 @@ interface BranchValues {
   location: LatLng | null;
 }
 
+const fetchAdminBranchById = async (branchId: string) => {
+  const { data } = await axiosAdmin.get(`admin/branches/${branchId}`);
+  return data;
+};
+
 export default function Page() {
   const { branchId } = useParams<{
     branchId: string;
   }>();
 
-  const [loading, setLoading] = useState<boolean>(true);
+  const queryClient = useQueryClient();
+
+  const { data: branch, isLoading } = useQuery({
+    queryKey: ["adminBranch", branchId],
+    queryFn: () => fetchAdminBranchById(branchId),
+    staleTime: 1000 * 60 * 10,
+  });
+
   const [values, setValues] = useState<BranchValues>({
     name: "",
     city: "",
@@ -59,90 +73,43 @@ export default function Page() {
     isSelectingStreet: false,
   });
 
-  const [citiesData, setCitiesData] = useState<any>([]);
-  const [streetsData, setStreetsData] = useState<any[]>([]);
-  const [cityLoading, setCityLoading] = useState(false);
-  const [streetLoading, setStreetLoading] = useState(false);
-
-  const fetchBranch = () => {
-    setLoading(true);
-    axiosAdmin
-      .get(`admin/branches/${branchId}`)
-      .then((res) => {
-        setValues((prev) => ({
-          ...prev,
-          name: res.data.name,
-          city: res.data.city,
-          street: res.data.street,
-          building_number: res.data.building_number,
-          description: res.data.description,
-          coverage_radius_km: res.data.coverage_radius_km,
-          delivery_price: res.data.delivery_price,
-          location: res.data.location,
-        }));
-        setHelperValues((prev) => ({
-          ...prev,
-          cityLocation: res.data.location,
-        }));
-        setLoading(false);
-      })
-      .catch(() => {})
-      .finally(() => {});
-  };
-
   useEffect(() => {
-    fetchBranch();
-  }, [branchId]);
+    if (branch) {
+      setValues((prev) => ({
+        ...prev,
+        name: branch.name,
+        city: branch.city,
+        street: branch.street,
+        building_number: branch.building_number,
+        description: branch.description,
+        coverage_radius_km: branch.coverage_radius_km,
+        delivery_price: branch.delivery_price,
+        location: branch.location,
+      }));
+      setHelperValues((prev) => ({
+        ...prev,
+        cityLocation: branch.location,
+      }));
+    }
+  }, [branch]);
 
-  /** FETCH CITY SUGGESTIONS **/
-  useEffect(() => {
-    if (helperValues.isSelectingCity) return;
+  const { data: citiesData = [], isLoading: cityLoading } = useQuery({
+    queryKey: ["cities", helperValues.searchCity],
+    queryFn: () => fetchCities(helperValues.searchCity),
+    enabled:
+      !helperValues.isSelectingCity && helperValues.searchCity.length >= 2,
+    staleTime: 1000 * 60 * 5,
+  });
 
-    const delayDebounce = setTimeout(async () => {
-      if (helperValues.searchCity.length >= 2) {
-        try {
-          setCityLoading(true);
-          const res = await axiosFront.get(
-            `google-api/cities?city=${helperValues.searchCity}`
-          );
-          setCitiesData(res.data || []);
-        } catch (err) {
-          toast.error("ქალაქები ვერ მოიძებნა");
-        } finally {
-          setCityLoading(false);
-        }
-      } else {
-        setCitiesData([]);
-      }
-    }, 400);
-
-    return () => clearTimeout(delayDebounce);
-  }, [helperValues.searchCity, helperValues.isSelectingCity]);
-
-  /** FETCH STREET SUGGESTIONS **/
-  useEffect(() => {
-    if (helperValues.isSelectingStreet || !values.city) return;
-
-    const delayDebounce = setTimeout(async () => {
-      if (helperValues.searchStreet.length >= 2) {
-        try {
-          setStreetLoading(true);
-          const res = await axiosFront.get(
-            `google-api/streets?city=${values.city}&street=${helperValues.searchStreet}`
-          );
-          setStreetsData(res.data || []);
-        } catch (err) {
-          toast.error("ქუჩები ვერ მოიძებნა");
-        } finally {
-          setStreetLoading(false);
-        }
-      } else {
-        setStreetsData([]);
-      }
-    }, 400);
-
-    return () => clearTimeout(delayDebounce);
-  }, [helperValues.searchStreet, helperValues.isSelectingStreet, values.city]);
+  const { data: streetsData = [], isLoading: streetLoading } = useQuery({
+    queryKey: ["streets", values.city, helperValues.searchStreet],
+    queryFn: () => fetchStreets(values.city, helperValues.searchStreet),
+    enabled:
+      !helperValues.isSelectingStreet &&
+      !!values.city &&
+      helperValues.searchStreet.length >= 2,
+    staleTime: 1000 * 60 * 5,
+  });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
@@ -154,8 +121,6 @@ export default function Page() {
 
     setValues((prev) => ({ ...prev, [id]: value }));
   };
-
-  // --- Helper Handlers ---
 
   // 🔹 Generic handler for dropdown (city / street)
   const handleDropdownChange = (
@@ -211,50 +176,50 @@ export default function Page() {
       .required("გთხოვთ აირჩიოთ მდებარეობა რუკაზე"),
   });
 
+  const updateBranchMutation = useMutation({
+    mutationFn: async (payload: any) =>
+      axiosAdmin.patch(`admin/branches/${branchId}`, payload),
+
+    onSuccess: () => {
+      toast.success("ფილიალი განახლდა", {
+        position: "bottom-right",
+        autoClose: 3000,
+      });
+
+      // refetch faq data
+      queryClient.invalidateQueries({
+        queryKey: ["adminBranch", branchId],
+      });
+      // refresh branches list
+      queryClient.invalidateQueries({
+        queryKey: ["adminBranches"],
+      });
+
+      setErrors({
+        name: "",
+        city: "",
+        street: "",
+        building_number: "",
+        description: "",
+        coverage_radius_km: "",
+        delivery_price: "",
+        location: "",
+      });
+    },
+
+    onError: () => {
+      toast.error("ვერ განახლდა", {
+        position: "bottom-right",
+        autoClose: 3000,
+      });
+    },
+  });
+
   const handleUpdateBranch = async () => {
-    setLoading(true);
     try {
       await branchSchema.validate(values, { abortEarly: false });
 
-      axiosAdmin
-        .patch(`admin/branches/${branchId}`, values)
-        .then(() => {
-          toast.success("ფილიალი განახლდა", {
-            position: "bottom-right",
-            autoClose: 3000,
-          });
-
-          fetchBranch();
-
-          setValues((prev) => ({
-            ...prev,
-            name: "",
-            city: "",
-            street: "",
-            building_number: "",
-            description: "",
-            coverage_radius_km: "",
-            delivery_price: "",
-            location: null,
-          }));
-          setErrors({
-            name: "",
-            city: "",
-            street: "",
-            building_number: "",
-            description: "",
-            coverage_radius_km: "",
-            delivery_price: "",
-            location: "",
-          });
-        })
-        .catch(() => {
-          setLoading(false);
-          toast.error("ვერ განახლდა", {
-            position: "bottom-right",
-            autoClose: 3000,
-          });
-        });
+      updateBranchMutation.mutate(values);
     } catch (err: any) {
       if (err.inner) {
         const newErrors: any = {};
@@ -269,11 +234,10 @@ export default function Page() {
         });
         setErrors(newErrors);
       }
-      setLoading(false);
     }
   };
 
-  if (loading)
+  if (isLoading)
     return (
       <div className="flex justify-center w-full mt-10">
         <Loader2Icon className="animate-spin size-6 text-gray-600" />
@@ -357,7 +321,7 @@ export default function Page() {
         <div className="col-span-1 sm:col-span-2">
           <Button
             onClick={handleUpdateBranch}
-            disabled={loading}
+            disabled={updateBranchMutation.isPending}
             className="h-[45px] px-6 text-white cursor-pointer flex place-self-end"
           >
             ცვლილების შენახვა
