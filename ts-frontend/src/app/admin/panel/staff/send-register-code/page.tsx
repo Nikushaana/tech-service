@@ -1,15 +1,16 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
 import { useRegisterStore } from "@/app/store/registerStore";
 import FormInput from "@/app/components/inputs/form-input";
 import { axiosAdmin } from "@/app/api/axios";
 import { toast } from "react-toastify";
 import { sendCodeSchema } from "@/app/utils/validation";
 import { Loader2Icon } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { useEffect } from "react";
 
-export default function SendAdminDeliveryRegisterCode() {
+export default function SendAdminStaffRegisterCode() {
   const router = useRouter();
   const {
     values,
@@ -21,7 +22,13 @@ export default function SendAdminDeliveryRegisterCode() {
     setLoading,
   } = useRegisterStore();
 
-  const handleSendAdminDeliveryRegisterCode = async () => {
+  useEffect(() => {
+    if (!values.role) {
+      router.push("/admin/panel/staff");
+    }
+  }, [values.role, router]);
+
+  const handleSendAdminStaffRegisterCode = async () => {
     setLoading(true);
     try {
       // Yup validation
@@ -29,11 +36,11 @@ export default function SendAdminDeliveryRegisterCode() {
       await sendCodeSchema.validate(values, { abortEarly: false });
 
       axiosAdmin
-        .post(`auth/delivery/send-register-code`, {
+        .post(`auth/${values.role == "technician" ? "technician" : "delivery"}/send-register-code`, {
           phone: values.phone,
         })
         .then((res) => {
-          router.push("/admin/panel/deliveries/verify-register-code");
+          router.push("/admin/panel/staff/verify-register-code");
 
           setValues("testcode", res.data.code);
 
@@ -79,14 +86,23 @@ export default function SendAdminDeliveryRegisterCode() {
     }
   };
 
+  if (!values.role) {
+    return (
+      <div className="flex justify-center w-full mt-10">
+        <Loader2Icon className="animate-spin size-6 text-gray-600" />
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col self-start items-center p-[10px] rounded-xl shadow border border-gray-200 gap-y-5 relative w-full max-w-lg mx-auto bg-white">
       <h1 className="text-center text-xl sm:text-2xl font-semibold">
-        კურიერის რეგისტრაცია
+        {values.role == "technician" ? "ტექნიკოსის" : "კურიერის"} რეგისტრაცია
       </h1>
       <p className="text-center text-sm">
-        Tech Service-ში კურიერის რეგისტრაციისთვის საჭიროა ნომრის დადასტურება
-        ვალიდური კოდით
+        Tech Service-ში{" "}
+        {values.role == "technician" ? "ტექნიკოსის" : "კურიერის"}{" "}
+        რეგისტრაციისთვის საჭიროა ნომრის დადასტურება ვალიდური კოდით
       </p>
 
       <FormInput
@@ -99,12 +115,12 @@ export default function SendAdminDeliveryRegisterCode() {
 
       <Button
         onClick={() => {
-          handleSendAdminDeliveryRegisterCode();
+          handleSendAdminStaffRegisterCode();
         }}
         disabled={loading}
         className="h-11 cursor-pointer"
       >
-        {loading && <Loader2Icon className="animate-spin" />}კოდის გაგზავნა
+        კოდის გაგზავნა
       </Button>
     </div>
   );

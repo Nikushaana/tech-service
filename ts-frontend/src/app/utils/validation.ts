@@ -41,22 +41,22 @@ export const passwordChangeSchema = Yup.object().shape({
 });
 
 // Role options
-export type UserRole = "individual" | "company" | "technician";
+export type UserRole = "individual" | "company" | "technician" | "delivery";
 
 export const registerSchema = Yup.object().shape({
     phone: phoneSchema,
     role: Yup.mixed<UserRole>()
-        .oneOf(["individual", "company", "technician"], "არასწორი როლი")
+        .oneOf(["individual", "company", "technician", "delivery"], "არასწორი როლი")
         .required("როლი აუცილებელია"),
 
-    // Individual & Technician fields
+    // Individual & Staff fields
     name: Yup.string().when("role", {
-        is: (val: UserRole) => val === "individual" || val === "technician",
+        is: (val: UserRole) => val === "individual" || val === "technician" || val === "delivery",
         then: (schema) => schema.required("სახელი აუცილებელია"),
         otherwise: (schema) => schema.notRequired(),
     }),
     lastName: Yup.string().when("role", {
-        is: (val: UserRole) => val === "individual" || val === "technician",
+        is: (val: UserRole) => val === "individual" || val === "technician" || val === "delivery",
         then: (schema) => schema.required("გვარი აუცილებელია"),
         otherwise: (schema) => schema.notRequired(),
     }),

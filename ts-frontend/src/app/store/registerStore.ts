@@ -7,7 +7,7 @@ interface RegisterState {
 
         testcode?: string;
 
-        role?: "individual" | "company";
+        role?: "individual" | "company" | "technician" | "delivery";
         name?: string;
         lastName?: string;
         companyAgentName?: string;
@@ -39,7 +39,8 @@ interface RegisterState {
 }
 
 export const useRegisterStore = create<RegisterState>((set) => ({
-    values: { role: "individual" },
+    // values: { role: "individual" },
+    values: {},
     errors: {},
     loading: false,
     setValues: (key, value) =>
@@ -47,6 +48,6 @@ export const useRegisterStore = create<RegisterState>((set) => ({
     setErrors: (key, value) =>
         set((state) => ({ errors: { ...state.errors, [key]: value } })),
     setLoading: (value) => set({ loading: value }),
-    resetValues: () => set({ values: { role: "individual" } }),
+    resetValues: () => set({ values: {} }),
     resetErrors: () => set({ errors: {} }),
 }));

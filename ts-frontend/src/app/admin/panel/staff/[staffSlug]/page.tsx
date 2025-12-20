@@ -6,12 +6,13 @@ import React, { useEffect, useState } from "react";
 import PanelFormInput from "@/app/components/inputs/panel-form-input";
 import { toast } from "react-toastify";
 import * as Yup from "yup";
+import { Button } from "@/components/ui/button";
 import ImageSelector from "@/app/components/inputs/image-selector";
 import { useParams } from "next/navigation";
-import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-interface DeliveryValues {
+interface TechnicianValues {
   name: string;
   lastName: string;
   phone: string;
@@ -22,13 +23,33 @@ interface DeliveryValues {
   newImages: File[];
 }
 
+const fetchAdminStaffMemberById = async (
+  staffMemberType: string,
+  staffMemberId: string
+) => {
+  const { data } = await axiosAdmin.get(
+    `admin/${staffMemberType}/${staffMemberId}`
+  );
+  return data;
+};
+
 export default function Page() {
-  const { deliveryId } = useParams<{
-    deliveryId: string;
+  const { staffSlug } = useParams<{
+    staffSlug: string;
   }>();
 
-  const [loading, setLoading] = useState<boolean>(true);
-  const [values, setValues] = useState<DeliveryValues>({
+  const staffMemberType = staffSlug.split("-")[0];
+  const staffMemberId = staffSlug.split("-")[1];
+
+  const queryClient = useQueryClient();
+
+  const { data: staffMember, isLoading } = useQuery({
+    queryKey: ["adminStaffMember", staffMemberType, staffMemberId],
+    queryFn: () => fetchAdminStaffMemberById(staffMemberType, staffMemberId),
+    staleTime: 1000 * 60 * 10,
+  });
+
+  const [values, setValues] = useState<TechnicianValues>({
     name: "",
     lastName: "",
     phone: "",
@@ -45,33 +66,23 @@ export default function Page() {
     password: "",
   });
 
-  const fetchDelivery = () => {
-    setLoading(true);
-    axiosAdmin
-      .get(`admin/deliveries/${deliveryId}`)
-      .then((res) => {
-        const data = res.data;
-
-        const imagesArray = Array.isArray(data.images) ? data.images : [];
-
-        setValues((prev) => ({
-          ...prev,
-          name: data.name,
-          lastName: data.lastName,
-          phone: data.phone,
-          password: "",
-          status: data.status,
-          images: imagesArray,
-        }));
-        setLoading(false);
-      })
-      .catch(() => {})
-      .finally(() => {});
-  };
-
   useEffect(() => {
-    fetchDelivery();
-  }, [deliveryId]);
+    if (staffMember) {
+      const imagesArray = Array.isArray(staffMember.images)
+        ? staffMember.images
+        : [];
+
+      setValues((prev) => ({
+        ...prev,
+        name: staffMember.name,
+        lastName: staffMember.lastName,
+        phone: staffMember.phone,
+        password: "",
+        status: staffMember.status,
+        images: imagesArray,
+      }));
+    }
+  }, [staffMember]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -84,7 +95,7 @@ export default function Page() {
   };
 
   // validation
-  const deliverySchema = Yup.object().shape({
+  const staffMemberSchema = Yup.object().shape({
     name: Yup.string().required("სახელი აუცილებელია"),
     lastName: Yup.string().required("გვარი აუცილებელია"),
     phone: Yup.string()
@@ -98,10 +109,45 @@ export default function Page() {
       }),
   });
 
-  const handleUpdateDelivery = async () => {
-    setLoading(true);
+  const updateStaffMemberMutation = useMutation({
+    mutationFn: async (formData: FormData) =>
+      // technicians
+      axiosAdmin.patch(`admin/${staffMemberType}/${staffMemberId}`, formData),
+
+    onSuccess: () => {
+      toast.success("ინფორმაცია განახლდა", {
+        position: "bottom-right",
+        autoClose: 3000,
+      });
+
+      // refetch staff member data
+      queryClient.invalidateQueries({
+        queryKey: ["adminStaffMember", staffMemberType, staffMemberId],
+      });
+      // refresh staff list
+      queryClient.invalidateQueries({
+        queryKey: ["adminStaff"],
+      });
+
+      // reset newImages
+      setValues((prev) => ({
+        ...prev,
+        newImages: [],
+      }));
+      setErrors({ name: "", lastName: "", phone: "", password: "" });
+    },
+
+    onError: () => {
+      toast.error("ვერ განახლდა", {
+        position: "bottom-right",
+        autoClose: 3000,
+      });
+    },
+  });
+
+  const handleUpdateStaffMember = async () => {
     try {
-      await deliverySchema.validate(values, { abortEarly: false });
+      await staffMemberSchema.validate(values, { abortEarly: false });
 
       const formData = new FormData();
 
@@ -123,29 +169,7 @@ export default function Page() {
       }
       formData.append("status", String(values.status));
 
-      axiosAdmin
-        .patch(`admin/deliveries/${deliveryId}`, formData)
-        .then(() => {
-          toast.success("კურიერი განახლდა", {
-            position: "bottom-right",
-            autoClose: 3000,
-          });
-
-          fetchDelivery();
-
-          setValues((prev) => ({
-            ...prev,
-            newImages: [],
-          }));
-          setErrors({ name: "", lastName: "", phone: "", password: "" });
-        })
-        .catch(() => {
-          toast.error("ვერ განახლდა", {
-            position: "bottom-right",
-            autoClose: 3000,
-          });
-          setLoading(false);
-        });
+      updateStaffMemberMutation.mutate(formData);
     } catch (err: any) {
       if (err.inner) {
         const newErrors: any = {};
@@ -160,11 +184,10 @@ export default function Page() {
         });
         setErrors(newErrors);
       }
-      setLoading(false);
     }
   };
 
-  if (loading)
+  if (isLoading)
     return (
       <div className="flex justify-center w-full mt-10">
         <Loader2Icon className="animate-spin size-6 text-gray-600" />
@@ -241,8 +264,8 @@ export default function Page() {
       />
 
       <Button
-        onClick={handleUpdateDelivery}
-        disabled={loading}
+        onClick={handleUpdateStaffMember}
+        disabled={updateStaffMemberMutation.isPending}
         className="h-[45px] px-6 text-white cursor-pointer w-full sm:w-auto self-end"
       >
         ცვლილების შენახვა

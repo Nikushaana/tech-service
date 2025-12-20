@@ -3,7 +3,7 @@
 import { axiosAdmin } from "@/app/api/axios";
 import { statusTranslations } from "@/app/utils/status-translations";
 import { Loader2Icon } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import dayjs from "dayjs";
 import { Dropdown } from "@/app/components/inputs/drop-down";
 import * as Yup from "yup";
@@ -72,21 +72,16 @@ export default function Page() {
     }
   }, [order]);
 
-  // update order
-
-  const handleChange = (
-    e:
-      | React.ChangeEvent<HTMLInputElement>
-      | { target: { id: string; value: string } }
-  ) => {
+  const handleChange = (e: { target: { id: string; value: string } }) => {
     const { id, value } = e.target;
+
     setValues((prev) => ({
       ...prev,
-      [id]:
-        id === "technicianId" || id === "deliveryId" ? Number(value) : value,
+      [id]: value,
     }));
   };
 
+  // update order
   const updateOrderSchema = Yup.object().shape({
     technicianId: Yup.number()
       .transform((value, originalValue) =>
@@ -140,8 +135,8 @@ export default function Page() {
       await updateOrderSchema.validate(values, { abortEarly: false });
 
       updateOrderMutation.mutate({
-        technicianId: values.technicianId,
-        deliveryId: values.deliveryId,
+        technicianId: Number(values.technicianId),
+        deliveryId: Number(values.deliveryId),
         status: values.status,
       });
     } catch (err: any) {
@@ -342,25 +337,31 @@ export default function Page() {
         <Dropdown
           data={employees?.deliveries}
           id="deliveryId"
-          value={order.delivery?.id || ""}
-          onChange={handleChange}
+          value={values.deliveryId}
           label="კურიერი"
+          valueKey="id"
+          labelKey={(item: any) => `${item.name} ${item.lastName}`}
+          onChange={handleChange}
           error={errors.deliveryId}
         />
         <Dropdown
           data={employees?.technicians}
           id="technicianId"
-          value={order.technician?.id || ""}
-          onChange={handleChange}
+          value={values.technicianId}
           label="ტექნიკოსი"
+          valueKey="id"
+          labelKey={(item: any) => `${item.name} ${item.lastName}`}
+          onChange={handleChange}
           error={errors.technicianId}
         />
         <Dropdown
           data={statusOptions}
           id="status"
-          value={order.status || ""}
-          onChange={handleChange}
+          value={values.status}
           label="სტატუსი"
+          valueKey="id"
+          labelKey="name"
+          onChange={handleChange}
           error={errors.status}
         />
       </div>

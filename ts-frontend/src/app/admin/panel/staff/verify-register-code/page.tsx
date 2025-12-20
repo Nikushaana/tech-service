@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { useRegisterStore } from "@/app/store/registerStore";
@@ -10,7 +10,7 @@ import { toast } from "react-toastify";
 import { verifyCodeSchema } from "@/app/utils/validation";
 import { Loader2Icon } from "lucide-react";
 
-export default function VerifyAdminTechnicianRegisterCode() {
+export default function VerifyAdminStaffRegisterCode() {
   const router = useRouter();
   const {
     values,
@@ -22,7 +22,13 @@ export default function VerifyAdminTechnicianRegisterCode() {
     setLoading,
   } = useRegisterStore();
 
-  const handleVerifyAdminTechnicianRegisterCode = async () => {
+  useEffect(() => {
+    if (!values.role) {
+      router.push("/admin/panel/staff");
+    }
+  }, [values.role, router]);
+
+  const handleVerifyAdminStaffRegisterCode = async () => {
     setLoading(true);
     try {
       // Yup validation
@@ -30,12 +36,12 @@ export default function VerifyAdminTechnicianRegisterCode() {
       await verifyCodeSchema.validate(values, { abortEarly: false });
 
       axiosAdmin
-        .post(`auth/technician/verify-register-code`, {
+        .post(`auth/${values.role == "technician" ? "technician" : "delivery"}/verify-register-code`, {
           phone: values.phone,
           code: values.code,
         })
         .then((res) => {
-          router.push("/admin/panel/technicians/register");
+          router.push("/admin/panel/staff/register");
 
           toast.success("ტელეფონის ნომერი დადასტურდა", {
             position: "bottom-right",
@@ -67,7 +73,7 @@ export default function VerifyAdminTechnicianRegisterCode() {
             });
           }
           if (e.path === "phone") {
-            router.push("/admin/panel/technicians/send-register-code");
+            router.push("/admin/panel/staff");
           }
         });
       }
@@ -75,10 +81,18 @@ export default function VerifyAdminTechnicianRegisterCode() {
     }
   };
 
+  if (!values.role) {
+    return (
+      <div className="flex justify-center w-full mt-10">
+        <Loader2Icon className="animate-spin size-6 text-gray-600" />
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col self-start items-center p-[10px] rounded-xl shadow border border-gray-200 gap-y-5 relative w-full max-w-lg mx-auto bg-white">
       <h1 className="text-center text-xl sm:text-2xl font-semibold">
-        ტექნიკოსის რეგისტრაცია
+        {values.role == "technician" ? "ტექნიკოსის" : "კურიერის"} რეგისტრაცია
       </h1>
       <p className="text-center text-sm">
         შეიყვანე ტელეფონის ნომერზე გამოგზავნილი კოდი
@@ -94,12 +108,12 @@ export default function VerifyAdminTechnicianRegisterCode() {
 
       <Button
         onClick={() => {
-          handleVerifyAdminTechnicianRegisterCode();
+          handleVerifyAdminStaffRegisterCode();
         }}
         disabled={loading}
         className="h-11 cursor-pointer"
       >
-        {loading && <Loader2Icon className="animate-spin" />}შემოწმება
+        შემოწმება
       </Button>
     </div>
   );

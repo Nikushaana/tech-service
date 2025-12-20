@@ -2,7 +2,7 @@
 
 import { axiosAdmin } from "@/app/api/axios";
 import { Loader2Icon } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import dayjs from "dayjs";
 import { Dropdown } from "@/app/components/inputs/drop-down";
 import * as Yup from "yup";
@@ -17,6 +17,11 @@ const fetchAdminReviewById = async (reviewId: string) => {
   const { data } = await axiosAdmin.get(`admin/reviews/${reviewId}`);
   return data;
 };
+
+const status = [
+  { id: 1, name: "დაბლოკვა" },
+  { id: 2, name: "გამოქვეყნება" },
+];
 
 export default function Page() {
   const { reviewId } = useParams<{
@@ -34,7 +39,7 @@ export default function Page() {
   const [values, setValues] = useState({
     review: "",
     stars: 5,
-    status: 1,
+    status: "დაბლოკვა",
   });
 
   const [errors, setErrors] = useState({
@@ -47,24 +52,21 @@ export default function Page() {
       setValues({
         review: review.review || "",
         stars: review.stars || 5,
-        status: review.status ? 2 : 1 || 1,
+        status: review.status ? "გამოქვეყნება" : "დაბლოკვა",
       });
     }
   }, [review]);
 
-  // update review
-  const handleChange = (
-    e:
-      | React.ChangeEvent<HTMLInputElement>
-      | { target: { id: string; value: string } }
-  ) => {
+  const handleChange = (e: { target: { id: string; value: string } }) => {
     const { id, value } = e.target;
+
     setValues((prev) => ({
       ...prev,
       [id]: value,
     }));
   };
 
+  // update review
   const updateReviewSchema = Yup.object().shape({
     review: Yup.string().required("შეავსე შეფასების ველი"),
     stars: Yup.number()
@@ -118,7 +120,7 @@ export default function Page() {
       let payload: any = {
         review: values.review,
         stars: values.stars,
-        status: values.status == 1 ? false : true,
+        status: values.status == "დაბლოკვა" ? false : true,
       };
 
       updateReviewMutation.mutate(payload);
@@ -204,14 +206,13 @@ export default function Page() {
 
       <div className="flex flex-col sm:flex-row gap-[10px]">
         <Dropdown
-          data={[
-            { id: 1, name: "დაბლოკვა" },
-            { id: 2, name: "გამოქვეყნება" },
-          ]}
+          data={status}
           id="status"
           value={values.status}
-          onChange={handleChange}
           label="სტატუსი"
+          valueKey="name"
+          labelKey="name"
+          onChange={handleChange}
         />
       </div>
 

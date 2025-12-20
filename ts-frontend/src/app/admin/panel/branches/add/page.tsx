@@ -1,10 +1,10 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { axiosAdmin, axiosFront } from "@/app/api/axios";
+import { axiosAdmin } from "@/app/api/axios";
 import { toast } from "react-toastify";
 import PanelFormInput from "@/app/components/inputs/panel-form-input";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import * as Yup from "yup";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Dropdown2 } from "@/app/components/inputs/drop-down-2";

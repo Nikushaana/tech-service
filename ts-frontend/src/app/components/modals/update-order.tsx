@@ -15,9 +15,9 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchFrontCategories } from "@/app/api/frontCategories";
 
 interface UpdateOrderValues {
-  serviceType: string | number;
-  categoryId: string | number;
-  addressId: string | number;
+  serviceType: string;
+  categoryId: string;
+  addressId: string;
   brand: string;
   model: string;
   description: string;
@@ -78,9 +78,9 @@ export default function UpdateOrder() {
   useEffect(() => {
     if (openUpdateOrderModal && currentOrder) {
       setValues({
-        serviceType: currentOrder.service_type == "მონტაჟი" ? 1 : 2,
-        categoryId: currentOrder.category.id || "",
-        addressId: currentOrder.address.id || "",
+        serviceType: currentOrder.service_type == "მონტაჟი" ? "1" : "2",
+        categoryId: String(currentOrder.category.id) || "",
+        addressId: String(currentOrder.address.id) || "",
         brand: currentOrder.brand || "",
         model: currentOrder.model || "",
         description: currentOrder.description || "",
@@ -106,20 +106,12 @@ export default function UpdateOrder() {
     }
   }, [openUpdateOrderModal, currentOrder]);
 
-  const handleChange = (
-    e:
-      | React.ChangeEvent<HTMLInputElement>
-      | { target: { id: string; value: string } }
-  ) => {
+  const handleChange = (e: { target: { id: string; value: string } }) => {
     const { id, value } = e.target;
+
     setValues((prev) => ({
       ...prev,
-      [id]:
-        id === "categoryId" || id === "addressId" || id == "serviceType"
-          ? value === ""
-            ? ""
-            : Number(value)
-          : value,
+      [id]: value,
     }));
   };
 
@@ -162,13 +154,13 @@ export default function UpdateOrder() {
       const formData = new FormData();
       formData.append(
         "service_type",
-        values.serviceType == 1 ? "მონტაჟი" : "შეკეთება"
+        values.serviceType == "1" ? "მონტაჟი" : "შეკეთება"
       );
-      formData.append("categoryId", String(values.categoryId));
+      formData.append("categoryId", values.categoryId);
       formData.append("brand", values.brand);
       formData.append("model", values.model);
       formData.append("description", values.description);
-      formData.append("addressId", String(values.addressId));
+      formData.append("addressId", values.addressId);
 
       formData.append(
         "imagesToDelete",
@@ -284,18 +276,22 @@ export default function UpdateOrder() {
                     { id: 2, name: "შეკეთება" },
                   ]}
                   id="serviceType"
-                  value={values.serviceType || ""}
-                  onChange={handleChange}
+                  value={values.serviceType}
                   label="სერვისის ტიპი"
+                  valueKey="id"
+                  labelKey="name"
+                  onChange={handleChange}
                   error={errors.serviceType}
                 />
               </div>
               <Dropdown
                 data={categories?.data}
                 id="categoryId"
-                value={values.categoryId || ""}
-                onChange={handleChange}
+                value={values.categoryId}
                 label="კატეგორია"
+                valueKey="id"
+                labelKey="name"
+                onChange={handleChange}
                 error={errors.categoryId}
               />
               <PanelFormInput
@@ -315,9 +311,11 @@ export default function UpdateOrder() {
               <Dropdown
                 data={addresses}
                 id="addressId"
-                value={values.addressId || ""}
-                onChange={handleChange}
+                value={values.addressId}
                 label="მისამართი"
+                valueKey="id"
+                labelKey="name"
+                onChange={handleChange}
                 error={errors.addressId}
               />
               <div className="col-span-1 sm:col-span-2">
@@ -326,9 +324,9 @@ export default function UpdateOrder() {
                   value={values.description || ""}
                   onChange={handleChange}
                   label={
-                    values.serviceType == 1
+                    values.serviceType == "1"
                       ? "მონტაჟის დეტალები"
-                      : values.serviceType == 2
+                      : values.serviceType == "2"
                       ? "პრობლემის აღწერა"
                       : "აღწერა"
                   }

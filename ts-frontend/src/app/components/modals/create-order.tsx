@@ -16,9 +16,9 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchFrontCategories } from "@/app/api/frontCategories";
 
 interface CreateOrderValues {
-  serviceType: string | number;
-  categoryId: string | number;
-  addressId: string | number;
+  serviceType: string;
+  categoryId: string;
+  addressId: string;
   brand: string;
   model: string;
   description: string;
@@ -65,20 +65,12 @@ export default function CreateOrder() {
 
   const [loading, setLoading] = useState(false);
 
-  const handleChange = (
-    e:
-      | React.ChangeEvent<HTMLInputElement>
-      | { target: { id: string; value: string } }
-  ) => {
+  const handleChange = (e: { target: { id: string; value: string } }) => {
     const { id, value } = e.target;
+
     setValues((prev) => ({
       ...prev,
-      [id]:
-        id === "categoryId" || id === "addressId" || id == "serviceType"
-          ? value === ""
-            ? ""
-            : Number(value)
-          : value,
+      [id]: value,
     }));
   };
 
@@ -105,13 +97,13 @@ export default function CreateOrder() {
       const formData = new FormData();
       formData.append(
         "service_type",
-        values.serviceType == 1 ? "მონტაჟი" : "შეკეთება"
+        values.serviceType == "1" ? "მონტაჟი" : "შეკეთება"
       );
-      formData.append("categoryId", String(values.categoryId));
+      formData.append("categoryId", values.categoryId);
       formData.append("brand", values.brand);
       formData.append("model", values.model);
       formData.append("description", values.description);
-      formData.append("addressId", String(values.addressId));
+      formData.append("addressId", values.addressId);
 
       // Append new files
       values.newImages.forEach((image) => {
@@ -205,18 +197,22 @@ export default function CreateOrder() {
                     { id: 2, name: "შეკეთება" },
                   ]}
                   id="serviceType"
-                  value={values.serviceType || ""}
-                  onChange={handleChange}
+                  value={values.serviceType}
                   label="სერვისის ტიპი"
+                  valueKey="id"
+                  labelKey="name"
+                  onChange={handleChange}
                   error={errors.serviceType}
                 />
               </div>
               <Dropdown
                 data={categories?.data}
                 id="categoryId"
-                value={values.categoryId || ""}
-                onChange={handleChange}
+                value={values.categoryId}
                 label="კატეგორია"
+                valueKey="id"
+                labelKey="name"
+                onChange={handleChange}
                 error={errors.categoryId}
               />
               <PanelFormInput
@@ -249,9 +245,11 @@ export default function CreateOrder() {
                   <Dropdown
                     data={addresses}
                     id="addressId"
-                    value={values.addressId || ""}
-                    onChange={handleChange}
+                    value={values.addressId}
                     label="მისამართი"
+                    valueKey="id"
+                    labelKey="name"
+                    onChange={handleChange}
                     error={errors.addressId}
                   />
                 </div>
@@ -273,9 +271,9 @@ export default function CreateOrder() {
                   value={values.description || ""}
                   onChange={handleChange}
                   label={
-                    values.serviceType == 1
+                    values.serviceType == "1"
                       ? "მონტაჟის დეტალები"
-                      : values.serviceType == 2
+                      : values.serviceType == "2"
                       ? "პრობლემის აღწერა"
                       : "აღწერა"
                   }

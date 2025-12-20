@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { useRegisterStore } from "@/app/store/registerStore";
@@ -9,13 +8,15 @@ import { toast } from "react-toastify";
 import { registerSchema } from "@/app/utils/validation";
 import FormInput from "@/app/components/inputs/form-input";
 import { Loader2Icon } from "lucide-react";
+import { useEffect } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 
-export default function AdminDeliveryRegister() {
+export default function AdminStaffRegister() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const {
     values,
     setValues,
-    resetValues,
     errors,
     setErrors,
     resetErrors,
@@ -23,7 +24,14 @@ export default function AdminDeliveryRegister() {
     setLoading,
   } = useRegisterStore();
 
-  const handleAdminDeliveryRegister = async () => {
+  useEffect(() => {
+    if (!values.role) {
+      router.push("/admin/panel/staff");
+    }
+  }, [values.role, router]);
+
+
+  const handleAdminStaffRegister = async () => {
     setLoading(true);
     try {
       // Yup validation
@@ -38,15 +46,21 @@ export default function AdminDeliveryRegister() {
       };
 
       axiosAdmin
-        .post(`auth/delivery/register`, payload)
+        .post(`auth/${values.role == "technician" ? "technician" : "delivery"}/register`, payload)
         .then((res) => {
-          router.push("/admin/panel/deliveries");
-          resetValues();
+          router.push("/admin/panel/staff");
 
           toast.success(
-            `კურიერი ${res.data.user.name} წარმატებით დარეგისტრირდა`,
+            `${values.role == "technician" ? "ტექნიკოსი" : "კურიერი"} ${
+              res.data.user.name
+            } წარმატებით დარეგისტრირდა`,
             { position: "bottom-right", autoClose: 3000 }
           );
+
+          // refresh staff list
+      queryClient.invalidateQueries({
+        queryKey: ["adminStaff"],
+      });
 
           resetErrors();
         })
@@ -76,7 +90,7 @@ export default function AdminDeliveryRegister() {
           }
 
           if (e.path === "phone") {
-            router.push("/admin/panel/deliveries/send-register-code");
+            router.push("/admin/panel/staff");
           }
         });
       }
@@ -84,10 +98,19 @@ export default function AdminDeliveryRegister() {
     }
   };
 
+  if (!values.role) {
+    return (
+      <div className="flex justify-center w-full mt-10">
+        <Loader2Icon className="animate-spin size-6 text-gray-600" />
+      </div>
+    );
+  }
+
   return (
     <div className="w-full flex flex-col self-start items-center p-[10px] rounded-xl shadow border border-gray-200 gap-y-5 relative max-w-lg mx-auto bg-white">
       <h1 className="text-center text-xl sm:text-2xl font-semibold">
-        Tech Service-ში კურიერის რეგისტრაცია
+        Tech Service-ში{" "}
+        {values.role == "technician" ? "ტექნიკოსის" : "კურიერის"} რეგისტრაცია
       </h1>
 
       <FormInput
@@ -124,12 +147,12 @@ export default function AdminDeliveryRegister() {
 
       <Button
         onClick={() => {
-          handleAdminDeliveryRegister();
+          handleAdminStaffRegister();
         }}
         disabled={loading}
         className="h-11 cursor-pointer"
       >
-        {loading && <Loader2Icon className="animate-spin" />}რეგისტრაცია
+        რეგისტრაცია
       </Button>
     </div>
   );
