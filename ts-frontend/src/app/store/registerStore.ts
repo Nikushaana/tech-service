@@ -39,7 +39,6 @@ interface RegisterState {
 }
 
 export const useRegisterStore = create<RegisterState>((set) => ({
-    // values: { role: "individual" },
     values: {},
     errors: {},
     loading: false,

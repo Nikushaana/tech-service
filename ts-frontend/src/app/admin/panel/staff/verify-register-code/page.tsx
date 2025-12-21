@@ -36,10 +36,15 @@ export default function VerifyAdminStaffRegisterCode() {
       await verifyCodeSchema.validate(values, { abortEarly: false });
 
       axiosAdmin
-        .post(`auth/${values.role == "technician" ? "technician" : "delivery"}/verify-register-code`, {
-          phone: values.phone,
-          code: values.code,
-        })
+        .post(
+          `auth/${
+            values.role == "technician" ? "technician" : "delivery"
+          }/verify-register-code`,
+          {
+            phone: values.phone,
+            code: values.code,
+          }
+        )
         .then((res) => {
           router.push("/admin/panel/staff/register");
 
@@ -113,7 +118,7 @@ export default function VerifyAdminStaffRegisterCode() {
         disabled={loading}
         className="h-11 cursor-pointer"
       >
-        შემოწმება
+        {loading && <Loader2Icon className="animate-spin" />} შემოწმება
       </Button>
     </div>
   );

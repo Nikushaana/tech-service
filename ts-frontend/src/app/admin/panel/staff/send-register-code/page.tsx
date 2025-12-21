@@ -36,9 +36,14 @@ export default function SendAdminStaffRegisterCode() {
       await sendCodeSchema.validate(values, { abortEarly: false });
 
       axiosAdmin
-        .post(`auth/${values.role == "technician" ? "technician" : "delivery"}/send-register-code`, {
-          phone: values.phone,
-        })
+        .post(
+          `auth/${
+            values.role == "technician" ? "technician" : "delivery"
+          }/send-register-code`,
+          {
+            phone: values.phone,
+          }
+        )
         .then((res) => {
           router.push("/admin/panel/staff/verify-register-code");
 
@@ -120,7 +125,7 @@ export default function SendAdminStaffRegisterCode() {
         disabled={loading}
         className="h-11 cursor-pointer"
       >
-        კოდის გაგზავნა
+        {loading && <Loader2Icon className="animate-spin" />}კოდის გაგზავნა
       </Button>
     </div>
   );

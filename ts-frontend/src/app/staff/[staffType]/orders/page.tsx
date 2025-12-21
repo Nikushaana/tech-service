@@ -7,31 +7,33 @@ import dayjs from "dayjs";
 import { Loader2Icon } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import React, { useEffect, useState } from "react";
 import { BsEye } from "react-icons/bs";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { useQuery } from "@tanstack/react-query";
+
+const fetchStaffOrders = async (staffType: string) => {
+  const api = staffType === "technician" ? axiosTechnician : axiosDelivery;
+  const { data } = await api.get(`${staffType}/orders`);
+  return data;
+};
 
 export default function Page() {
   const { staffType } = useParams<{ staffType: "technician" | "delivery" }>();
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [loading, setLoading] = useState(true);
 
-  const api = staffType === "technician" ? axiosTechnician : axiosDelivery;
+  const { data: orders = [], isLoading } = useQuery({
+    queryKey: ["staffOrders"],
+    queryFn: () => fetchStaffOrders(staffType),
+    staleTime: 1000 * 60 * 10,
+  });
 
-  const fetchOrder = () => {
-    setLoading(true);
-    api
-      .get(`${staffType}/orders`)
-      .then(({ data }) => setOrders(data))
-      .catch((err) => {})
-      .finally(() => setLoading(false));
-  };
-
-  useEffect(() => {
-    fetchOrder();
-  }, []);
-
-  if (loading)
+  if (isLoading)
     return (
       <div className="flex justify-center w-full mt-10">
         <Loader2Icon className="animate-spin size-6 text-gray-600" />
@@ -67,7 +69,7 @@ export default function Page() {
                 </TableCell>
               </TableRow>
             ) : (
-              orders.map((order) => (
+              orders.map((order: Order) => (
                 <TableRow key={order.id} className="hover:bg-gray-50">
                   <TableCell>{order.id}</TableCell>
                   <TableCell>{order.service_type}</TableCell>

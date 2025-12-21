@@ -8,16 +8,16 @@ import PanelFormInput from "../inputs/panel-form-input";
 import { Loader2Icon } from "lucide-react";
 import Map from "../map/map";
 import { Dropdown2 } from "../inputs/drop-down-2";
-import { axiosFront } from "@/app/api/axios";
+import { axiosCompany, axiosIndividual } from "@/app/api/axios";
 import { Button } from "@/components/ui/button";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { fetchCities, fetchStreets } from "@/app/api/locations";
 
 export default function CreateAddress() {
-  const {
-    openCreateAddressModal,
-    toggleOpenCreateAddressModal,
-    modalType,
-    createAddress,
-  } = useAddressesStore();
+  const { openCreateAddressModal, toggleOpenCreateAddressModal, modalType } =
+    useAddressesStore();
+
+  const queryClient = useQueryClient();
 
   const [values, setValues] = useState({
     name: "",
@@ -52,61 +52,23 @@ export default function CreateAddress() {
     isSelectingStreet: false,
   });
 
-  const [loading, setLoading] = useState(false);
-  const [citiesData, setCitiesData] = useState<any>([]);
-  const [streetsData, setStreetsData] = useState<any[]>([]);
-  const [cityLoading, setCityLoading] = useState(false);
-  const [streetLoading, setStreetLoading] = useState(false);
+  const { data: citiesData = [], isLoading: cityLoading } = useQuery({
+    queryKey: ["cities", helperValues.searchCity],
+    queryFn: () => fetchCities(helperValues.searchCity),
+    enabled:
+      !helperValues.isSelectingCity && helperValues.searchCity.length >= 2,
+    staleTime: 1000 * 60 * 5,
+  });
 
-  /** FETCH CITY SUGGESTIONS **/
-  useEffect(() => {
-    if (helperValues.isSelectingCity) return;
-
-    const delayDebounce = setTimeout(async () => {
-      if (helperValues.searchCity.length >= 2) {
-        try {
-          setCityLoading(true);
-          const res = await axiosFront.get(
-            `google-api/cities?city=${helperValues.searchCity}`
-          );
-          setCitiesData(res.data || []);
-        } catch (err) {
-          toast.error("ქალაქები ვერ მოიძებნა");
-        } finally {
-          setCityLoading(false);
-        }
-      } else {
-        setCitiesData([]);
-      }
-    }, 400);
-
-    return () => clearTimeout(delayDebounce);
-  }, [helperValues.searchCity, helperValues.isSelectingCity]);
-
-  /** FETCH STREET SUGGESTIONS **/
-  useEffect(() => {
-    if (helperValues.isSelectingStreet || !values.city) return;
-
-    const delayDebounce = setTimeout(async () => {
-      if (helperValues.searchStreet.length >= 2) {
-        try {
-          setStreetLoading(true);
-          const res = await axiosFront.get(
-            `google-api/streets?city=${values.city}&street=${helperValues.searchStreet}`
-          );
-          setStreetsData(res.data || []);
-        } catch (err) {
-          toast.error("ქუჩები ვერ მოიძებნა");
-        } finally {
-          setStreetLoading(false);
-        }
-      } else {
-        setStreetsData([]);
-      }
-    }, 400);
-
-    return () => clearTimeout(delayDebounce);
-  }, [helperValues.searchStreet, helperValues.isSelectingStreet, values.city]);
+  const { data: streetsData = [], isLoading: streetLoading } = useQuery({
+    queryKey: ["streets", values.city, helperValues.searchStreet],
+    queryFn: () => fetchStreets(values.city, helperValues.searchStreet),
+    enabled:
+      !helperValues.isSelectingStreet &&
+      !!values.city &&
+      helperValues.searchStreet.length >= 2,
+    staleTime: 1000 * 60 * 5,
+  });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
@@ -119,9 +81,7 @@ export default function CreateAddress() {
     setValues((prev) => ({ ...prev, [id]: value }));
   };
 
-  // --- Helper Handlers ---
-
-  // 🔹 Generic handler for dropdown (city / street)
+  // Generic handler for dropdown (city / street)
   const handleDropdownChange = (
     key: "searchCity" | "searchStreet",
     value: string
@@ -139,7 +99,7 @@ export default function CreateAddress() {
     }));
   };
 
-  // 🔹 Generic handler for selecting dropdown item
+  // Generic handler for selecting dropdown item
   const handleDropdownSelect = (
     key: "searchCity" | "searchStreet",
     item: any
@@ -158,7 +118,7 @@ export default function CreateAddress() {
     }));
   };
 
-  const createAddressSchema = Yup.object().shape({
+  const addressSchema = Yup.object().shape({
     name: Yup.string().required("სახელწოდება აუცილებელია"),
     city: Yup.string().required("ქალაქი აუცილებელია"),
     street: Yup.string().required("ქუჩა აუცილებელია"),
@@ -172,11 +132,35 @@ export default function CreateAddress() {
       .required("გთხოვთ აირჩიოთ მდებარეობა რუკაზე"),
   });
 
-  const handleCreateAddress = async () => {
-    setLoading(true);
-    try {
-      await createAddressSchema.validate(values, { abortEarly: false });
-      await createAddress(modalType!, values);
+  //add address
+  const addAddressMutation = useMutation({
+    mutationFn: (payload: {
+      name: string;
+      city: string;
+      street: string;
+      building_number: string;
+      building_entrance?: string;
+      building_floor?: string;
+      apartment_number?: string;
+      description: string;
+      location: LatLng | null;
+    }) =>
+      (modalType === "company" ? axiosCompany : axiosIndividual).post(
+        `${modalType}/create-address`,
+        payload
+      ),
+
+    onSuccess: () => {
+      toast.success("მისამართი დაემატა", {
+        position: "bottom-right",
+        autoClose: 3000,
+      });
+
+      // refresh addresses list
+      queryClient.invalidateQueries({
+        queryKey: ["userAddresses"],
+      });
+
       toggleOpenCreateAddressModal();
 
       // reset form
@@ -210,11 +194,21 @@ export default function CreateAddress() {
         isSelectingCity: false,
         isSelectingStreet: false,
       });
+    },
 
-      setCitiesData([]);
-      setStreetsData([]);
+    onError: () => {
+      toast.error("მისამართი ვერ დაემატა", {
+        position: "bottom-right",
+        autoClose: 3000,
+      });
+    },
+  });
 
-      setLoading(false);
+  const handleCreateAddress = async () => {
+    try {
+      await addressSchema.validate(values, { abortEarly: false });
+
+      addAddressMutation.mutate(values);
     } catch (err: any) {
       if (err.inner) {
         const newErrors: any = {};
@@ -229,16 +223,8 @@ export default function CreateAddress() {
         });
         setErrors(newErrors);
       }
-      setLoading(false);
     }
   };
-
-  useEffect(() => {
-    document.body.style.overflow = openCreateAddressModal ? "hidden" : "auto";
-    return () => {
-      document.body.style.overflow = "auto";
-    };
-  }, [openCreateAddressModal]);
 
   return (
     <div
@@ -358,16 +344,8 @@ export default function CreateAddress() {
           <Button
             onClick={() => {
               toggleOpenCreateAddressModal();
-              setErrors((prev) => ({
-                ...prev,
-                name: "",
-                city: "",
-                street: "",
-                building_number: "",
-                description: "",
-              }));
-              setValues((prev) => ({
-                ...prev,
+
+              setValues({
                 name: "",
                 city: "",
                 street: "",
@@ -376,7 +354,27 @@ export default function CreateAddress() {
                 building_floor: "",
                 apartment_number: "",
                 description: "",
-              }));
+                location: null,
+              });
+              setErrors({
+                name: "",
+                city: "",
+                street: "",
+                building_number: "",
+                building_entrance: "",
+                building_floor: "",
+                apartment_number: "",
+                description: "",
+                location: "",
+              });
+              setHelperValues({
+                searchCity: "",
+                searchStreet: "",
+                cityLocation: null,
+                streetLocation: null,
+                isSelectingCity: false,
+                isSelectingStreet: false,
+              });
             }}
             className="h-[45px] px-6 cursor-pointer bg-red-500 hover:bg-[#b91c1c]"
           >
@@ -384,10 +382,12 @@ export default function CreateAddress() {
           </Button>
           <Button
             onClick={handleCreateAddress}
-            disabled={loading}
+            disabled={addAddressMutation.isPending}
             className="h-[45px] px-6 text-white cursor-pointer"
           >
-            {loading && <Loader2Icon className="animate-spin" />}
+            {addAddressMutation.isPending && (
+              <Loader2Icon className="animate-spin" />
+            )}
             დამატება
           </Button>
         </div>

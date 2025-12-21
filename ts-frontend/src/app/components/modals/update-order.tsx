@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useAddressesStore } from "@/app/store/useAddressesStore";
 import * as Yup from "yup";
 import { toast } from "react-toastify";
 import PanelFormInput from "../inputs/panel-form-input";
@@ -11,8 +10,10 @@ import OrderImagesSelector from "../inputs/order-images-selector";
 import OrderVideosSelector from "../inputs/order-videos-selector";
 import { useUpdateOrderStore } from "@/app/store/useUpdateOrderStore";
 import { Button } from "@/components/ui/button";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchFrontCategories } from "@/app/api/frontCategories";
+import { fetchUserAddresses } from "@/app/api/userAddresses";
+import { axiosCompany, axiosIndividual } from "@/app/api/axios";
 
 interface UpdateOrderValues {
   serviceType: string;
@@ -33,10 +34,9 @@ export default function UpdateOrder() {
     openUpdateOrderModal,
     toggleOpenUpdateOrderModal,
     modalType,
-    updateOrder,
   } = useUpdateOrderStore();
 
-  const { addresses, fetchAddresses } = useAddressesStore();
+  const queryClient = useQueryClient();
 
   const { data: categories } = useQuery({
     queryKey: ["frontCategories"],
@@ -45,11 +45,12 @@ export default function UpdateOrder() {
     staleTime: 1000 * 60 * 10,
   });
 
-  useEffect(() => {
-    if (modalType) {
-      fetchAddresses(modalType);
-    }
-  }, [modalType]);
+  const { data: addresses = [] } = useQuery({
+    queryKey: ["userAddresses", modalType],
+    queryFn: () => fetchUserAddresses(modalType),
+    enabled: openUpdateOrderModal,
+    staleTime: 1000 * 60 * 10,
+  });
 
   const [values, setValues] = useState<UpdateOrderValues>({
     serviceType: "",
@@ -72,8 +73,6 @@ export default function UpdateOrder() {
     model: "",
     description: "",
   });
-
-  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (openUpdateOrderModal && currentOrder) {
@@ -146,8 +145,82 @@ export default function UpdateOrder() {
       ),
   });
 
+  // update order
+
+  const updateOrderMutation = useMutation({
+    mutationFn: (payload: FormData) =>
+      (modalType === "company" ? axiosCompany : axiosIndividual).patch(
+        `${modalType}/orders/${currentOrder.id}`,
+        payload
+      ),
+
+    onSuccess: () => {
+      toast.success("სერვისი განახლდა", {
+        position: "bottom-right",
+        autoClose: 3000,
+      });
+
+      // refresh orders list
+      queryClient.invalidateQueries({
+        queryKey: ["userOrders"],
+      });
+      // refresh order list
+      queryClient.invalidateQueries({
+        queryKey: ["userOrder"],
+      });
+
+      toggleOpenUpdateOrderModal();
+
+      // reset form values
+      setValues({
+        serviceType: "",
+        categoryId: "",
+        brand: "",
+        model: "",
+        description: "",
+        addressId: "",
+        images: [],
+        videos: [],
+        newImages: [],
+        newVideos: [],
+      });
+
+      setErrors({
+        serviceType: "",
+        categoryId: "",
+        brand: "",
+        model: "",
+        description: "",
+        addressId: "",
+      });
+    },
+
+    onError: (error: any) => {
+      if (
+        error.response.data.message ==
+        "Address is outside all branch coverage areas. Please choose a closer location."
+      ) {
+        toast.error("აირჩიე მისამართი რომელიც სერვისის დაფარვის ზონაშია", {
+          position: "bottom-right",
+          autoClose: 3000,
+        });
+      } else if (
+        error.response.data.message == "Inactive user cannot update orders"
+      ) {
+        toast.error(
+          "თქვენ ვერ განაახლებთ სერვისს, რადგან თქვენი პროფილი გასააქტიურებელია",
+          { position: "bottom-right", autoClose: 3000 }
+        );
+      } else {
+        toast.error("სერვისი ვერ განახლდა", {
+          position: "bottom-right",
+          autoClose: 3000,
+        });
+      }
+    },
+  });
+
   const handleUpdateOrder = async () => {
-    setLoading(true);
     try {
       await updateOrderSchema.validate(values, { abortEarly: false });
 
@@ -189,33 +262,7 @@ export default function UpdateOrder() {
         formData.append("videos", video);
       });
 
-      await updateOrder(modalType!, formData);
-      toggleOpenUpdateOrderModal();
-
-      // reset form values
-      setValues({
-        serviceType: "",
-        categoryId: "",
-        brand: "",
-        model: "",
-        description: "",
-        addressId: "",
-        images: [],
-        videos: [],
-        newImages: [],
-        newVideos: [],
-      });
-
-      setErrors({
-        serviceType: "",
-        categoryId: "",
-        brand: "",
-        model: "",
-        description: "",
-        addressId: "",
-      });
-
-      setLoading(false);
+      updateOrderMutation.mutate(formData);
     } catch (err: any) {
       if (err.inner) {
         const newErrors: any = {};
@@ -230,21 +277,8 @@ export default function UpdateOrder() {
         });
         setErrors(newErrors);
       }
-      setLoading(false);
     }
   };
-
-  useEffect(() => {
-    if (openUpdateOrderModal) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "auto";
-    }
-
-    return () => {
-      document.body.style.overflow = "auto";
-    };
-  }, [openUpdateOrderModal]);
 
   return (
     <div
@@ -415,10 +449,12 @@ export default function UpdateOrder() {
           </Button>
           <Button
             onClick={handleUpdateOrder}
-            disabled={loading}
+            disabled={updateOrderMutation.isPending}
             className="h-[45px] px-6 text-white cursor-pointer"
           >
-            {loading && <Loader2Icon className="animate-spin" />}
+            {updateOrderMutation.isPending && (
+              <Loader2Icon className="animate-spin" />
+            )}
             განახლება
           </Button>
         </div>

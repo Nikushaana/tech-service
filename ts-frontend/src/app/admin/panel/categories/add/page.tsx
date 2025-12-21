@@ -7,6 +7,7 @@ import PanelFormInput from "@/app/components/inputs/panel-form-input";
 import { useState } from "react";
 import * as Yup from "yup";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Loader2Icon } from "lucide-react";
 
 export default function Page() {
   const queryClient = useQueryClient();
@@ -99,6 +100,9 @@ export default function Page() {
           disabled={addCategoryMutation.isPending}
           className="h-[45px] px-6 text-white cursor-pointer w-full sm:w-auto"
         >
+          {addCategoryMutation.isPending && (
+            <Loader2Icon className="animate-spin" />
+          )}
           დამატება
         </Button>
       </div>

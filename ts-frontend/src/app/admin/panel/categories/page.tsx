@@ -67,10 +67,7 @@ export default function Page() {
 
   return (
     <div className="flex flex-col items-center gap-y-2 w-full">
-      <Link
-        href={"/admin/panel/categories/add"}
-        className="w-auto self-end"
-      >
+      <Link href={"/admin/panel/categories/add"} className="w-auto self-end">
         <Button className="h-[45px] w-full px-6 text-white">დამატება</Button>
       </Link>
       <div className="w-full bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6">
@@ -136,7 +133,12 @@ export default function Page() {
                         size="icon"
                         className="bg-[red] hover:bg-[#b91c1c] ml-3 cursor-pointer"
                       >
-                        <AiOutlineDelete className="size-4" />
+                        {deleteCategoryMutation.isPending &&
+                        deleteCategoryMutation.variables === category.id ? (
+                          <Loader2Icon className="animate-spin size-4" />
+                        ) : (
+                          <AiOutlineDelete className="size-4" />
+                        )}
                       </Button>
                     </TableCell>
                   </TableRow>

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useAddressesStore } from "@/app/store/useAddressesStore";
 import * as Yup from "yup";
 import { toast } from "react-toastify";
@@ -12,8 +12,10 @@ import { Dropdown } from "../inputs/drop-down";
 import OrderImagesSelector from "../inputs/order-images-selector";
 import OrderVideosSelector from "../inputs/order-videos-selector";
 import { Button } from "@/components/ui/button";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchFrontCategories } from "@/app/api/frontCategories";
+import { axiosCompany, axiosIndividual } from "@/app/api/axios";
+import { fetchUserAddresses } from "@/app/api/userAddresses";
 
 interface CreateOrderValues {
   serviceType: string;
@@ -27,18 +29,22 @@ interface CreateOrderValues {
 }
 
 export default function CreateOrder() {
-  const {
-    openCreateOrderModal,
-    toggleOpenCreateOrderModal,
-    modalType,
-    createOrder,
-  } = useOrdersStore();
-  const { addresses, openCreateAddressModal, toggleOpenCreateAddressModal } =
-    useAddressesStore();
+  const { openCreateOrderModal, toggleOpenCreateOrderModal, modalType } =
+    useOrdersStore();
+  const { toggleOpenCreateAddressModal } = useAddressesStore();
+
+  const queryClient = useQueryClient();
 
   const { data: categories } = useQuery({
     queryKey: ["frontCategories"],
     queryFn: fetchFrontCategories,
+    enabled: openCreateOrderModal,
+    staleTime: 1000 * 60 * 10,
+  });
+
+  const { data: addresses = [] } = useQuery({
+    queryKey: ["userAddresses", modalType],
+    queryFn: () => fetchUserAddresses(modalType),
     enabled: openCreateOrderModal,
     staleTime: 1000 * 60 * 10,
   });
@@ -63,8 +69,6 @@ export default function CreateOrder() {
     description: "",
   });
 
-  const [loading, setLoading] = useState(false);
-
   const handleChange = (e: { target: { id: string; value: string } }) => {
     const { id, value } = e.target;
 
@@ -74,7 +78,7 @@ export default function CreateOrder() {
     }));
   };
 
-  const createOrderSchema = Yup.object().shape({
+  const orderSchema = Yup.object().shape({
     serviceType: Yup.string().required("აირჩიე სერვისის ტიპი"),
     categoryId: Yup.string().required("კატეგორია აუცილებელია"),
     brand: Yup.string().required("ბრენდი აუცილებელია"),
@@ -89,10 +93,76 @@ export default function CreateOrder() {
       .of(Yup.mixed()),
   });
 
+  // add order
+  const addOrderMutation = useMutation({
+    mutationFn: (payload: FormData) =>
+      (modalType === "company" ? axiosCompany : axiosIndividual).post(
+        `${modalType}/create-order`,
+        payload
+      ),
+
+    onSuccess: () => {
+      toast.success("შეკვეთა დაემატა", {
+        position: "bottom-right",
+        autoClose: 3000,
+      });
+
+      // refresh orders list
+      queryClient.invalidateQueries({
+        queryKey: ["userOrders"],
+      });
+
+      toggleOpenCreateOrderModal();
+
+      setValues({
+        serviceType: "",
+        categoryId: "",
+        brand: "",
+        model: "",
+        description: "",
+        addressId: "",
+        newImages: [],
+        newVideos: [],
+      });
+
+      setErrors({
+        serviceType: "",
+        categoryId: "",
+        brand: "",
+        model: "",
+        description: "",
+        addressId: "",
+      });
+    },
+
+    onError: (error: any) => {
+      if (
+        error.response.data.message ==
+        "Address is outside all branch coverage areas. Please choose a closer location."
+      ) {
+        toast.error("აირჩიე მისამართი რომელიც სერვისის დაფარვის ზონაშია", {
+          position: "bottom-right",
+          autoClose: 3000,
+        });
+      } else if (
+        error.response.data.message == "Inactive user cannot create orders"
+      ) {
+        toast.error(
+          "თქვენ ვერ დაამატებთ შეკვეთას, რადგან თქვენი პროფილი გასააქტიურებელია",
+          { position: "bottom-right", autoClose: 3000 }
+        );
+      } else {
+        toast.error("შეკვეთა ვერ დაემატა", {
+          position: "bottom-right",
+          autoClose: 3000,
+        });
+      }
+    },
+  });
+
   const handleCreateOrder = async () => {
-    setLoading(true);
     try {
-      await createOrderSchema.validate(values, { abortEarly: false });
+      await orderSchema.validate(values, { abortEarly: false });
 
       const formData = new FormData();
       formData.append(
@@ -115,31 +185,7 @@ export default function CreateOrder() {
         formData.append("videos", video);
       });
 
-      await createOrder(modalType!, formData);
-      toggleOpenCreateOrderModal();
-
-      // reset form values
-      setValues({
-        serviceType: "",
-        categoryId: "",
-        brand: "",
-        model: "",
-        description: "",
-        addressId: "",
-        newImages: [],
-        newVideos: [],
-      });
-
-      setErrors({
-        serviceType: "",
-        categoryId: "",
-        brand: "",
-        model: "",
-        description: "",
-        addressId: "",
-      });
-
-      setLoading(false);
+      addOrderMutation.mutate(formData);
     } catch (err: any) {
       if (err.inner) {
         const newErrors: any = {};
@@ -154,16 +200,8 @@ export default function CreateOrder() {
         });
         setErrors(newErrors);
       }
-      setLoading(false);
     }
   };
-
-  useEffect(() => {
-    document.body.style.overflow = openCreateOrderModal ? "hidden" : "auto";
-    return () => {
-      document.body.style.overflow = "auto";
-    };
-  }, [openCreateOrderModal, openCreateAddressModal]);
 
   return (
     <div
@@ -338,6 +376,8 @@ export default function CreateOrder() {
                 model: "",
                 description: "",
                 addressId: "",
+                newImages: [],
+                newVideos: [],
               }));
             }}
             className="h-[45px] px-6 cursor-pointer bg-red-500 hover:bg-[#b91c1c]"
@@ -346,10 +386,12 @@ export default function CreateOrder() {
           </Button>
           <Button
             onClick={handleCreateOrder}
-            disabled={loading}
+            disabled={addOrderMutation.isPending}
             className="h-[45px] px-6 text-white cursor-pointer"
           >
-            {loading && <Loader2Icon className="animate-spin" />}
+            {addOrderMutation.isPending && (
+              <Loader2Icon className="animate-spin" />
+            )}
             დამატება
           </Button>
         </div>

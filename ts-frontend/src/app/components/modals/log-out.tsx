@@ -1,25 +1,12 @@
 "use client";
 
 import { useAuthStore } from "@/app/store/useAuthStore";
-import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 
 export default function LogOut() {
   const router = useRouter();
   const { openLogOut, toggleLogOut, logout } = useAuthStore();
-
-  useEffect(() => {
-    if (openLogOut) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "auto";
-    }
-
-    return () => {
-      document.body.style.overflow = "auto";
-    };
-  }, [openLogOut]);
 
   return (
     <div

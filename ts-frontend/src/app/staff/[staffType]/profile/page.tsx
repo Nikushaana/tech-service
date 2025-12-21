@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import StaffDetailsForm from "@/app/components/staff/staff-details-form";
 import StaffPhoneUpdate from "@/app/components/staff/staff-phone-update";
 import StaffPasswordUpdate from "@/app/components/staff/staff-password-update";

@@ -172,6 +172,9 @@ export default function Page() {
         disabled={updateFaqMutation.isPending}
         className="h-[45px] px-6 text-white cursor-pointer w-full sm:w-auto self-end"
       >
+        {updateFaqMutation.isPending && (
+          <Loader2Icon className="animate-spin" />
+        )}{" "}
         ცვლილების შენახვა
       </Button>
     </div>

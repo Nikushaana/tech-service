@@ -1,7 +1,5 @@
 "use client";
 
-import React from "react";
-
 export default function AboutUsTeamCarousel() {
   const gallery = Array(10).fill("/images/1.webp");
 

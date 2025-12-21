@@ -211,7 +211,7 @@ export default function Page() {
 
       {/* User */}
       <div>
-        <h3>{order.individual ? "ინდივიდუალური მომხმარებელი" : "კომპანია"}</h3>
+        <h3>{order.individual ? "ფიზიკური პირი" : "იურიდიული პირი"}</h3>
         <p>
           {order.individual
             ? order.individual?.name + " " + order.individual?.lastName
@@ -371,6 +371,9 @@ export default function Page() {
         disabled={updateOrderMutation.isPending}
         className="h-11 cursor-pointer self-end"
       >
+        {updateOrderMutation.isPending && (
+          <Loader2Icon className="animate-spin" />
+        )}
         ცვლილებების შენახვა
       </Button>
     </div>

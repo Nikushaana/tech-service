@@ -1,4 +1,3 @@
-import React from "react";
 import UsersCommentsSection from "../components/home-page/users-comments/users-comments-section";
 import AboutUsTeamCarousel from "../components/about-us-team-carousel";
 
@@ -30,8 +29,8 @@ export default function AboutPage() {
             <h2 className="text-3xl md:text-4xl font-semibold">რას ვაკეთებთ</h2>
             <p className="text-gray-600 leading-relaxed">
               ჩვენ გთავაზობთ როგორც წვრილი, ისე მსხვილი საოჯახო ტექნიკის
-              შეკეთებას და მონტაჟს. ვემსახურებით როგორც კერძო პირებს, ისე
-              კომპანიებს.
+              შეკეთებას და მონტაჟს. ვემსახურებით როგორც ფიზიკურ, ისე
+              იურიდიულ პირებს.
               <br /> ტექნიკა, რომელზეც ვმუშაობთ:
             </p>
             <ul className="text-gray-600 list-disc ml-6 space-y-1">

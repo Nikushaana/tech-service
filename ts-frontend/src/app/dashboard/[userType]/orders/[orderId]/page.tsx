@@ -3,11 +3,17 @@
 import { axiosCompany, axiosIndividual } from "@/app/api/axios";
 import { statusTranslations } from "@/app/utils/status-translations";
 import { Loader2Icon } from "lucide-react";
-import React, { useEffect, useState } from "react";
 import dayjs from "dayjs";
 import Map from "@/app/components/map/map";
 import { useUpdateOrderStore } from "@/app/store/useUpdateOrderStore";
 import { useParams } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
+
+const fetchUserOrder = async (userType: string, orderId: string) => {
+  const api = userType === "company" ? axiosCompany : axiosIndividual;
+  const { data } = await api.get(`${userType}/orders/${orderId}`);
+  return data;
+};
 
 export default function Page() {
   const { userType, orderId } = useParams<{
@@ -15,27 +21,15 @@ export default function Page() {
     orderId: string;
   }>();
 
-  const { toggleOpenUpdateOrderModal, refetchTrigger } = useUpdateOrderStore();
+  const { toggleOpenUpdateOrderModal } = useUpdateOrderStore();
 
-  const [order, setOrder] = useState<Order>();
-  const [loading, setLoading] = useState<boolean>(true);
+  const { data: order, isLoading } = useQuery({
+    queryKey: ["userOrder", userType, orderId],
+    queryFn: () => fetchUserOrder(userType, orderId),
+    staleTime: 1000 * 60 * 10,
+  });
 
-  useEffect(() => {
-    const axiosInstance =
-      userType === "individual" ? axiosIndividual : axiosCompany;
-
-    setLoading(true);
-
-    axiosInstance
-      .get(`${userType}/orders/${orderId}`)
-      .then((res) => {
-        setOrder(res.data);
-        setLoading(false);
-      })
-      .catch((err) => console.error(err));
-  }, [userType, orderId, refetchTrigger]);
-
-  if (loading)
+  if (isLoading)
     return (
       <div className="flex justify-center w-full mt-10">
         <Loader2Icon className="animate-spin size-6 text-gray-600" />

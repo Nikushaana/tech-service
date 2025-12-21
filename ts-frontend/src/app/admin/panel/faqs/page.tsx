@@ -130,7 +130,12 @@ export default function Page() {
                         }
                         className="bg-[red] hover:bg-[#b91c1c] ml-3 cursor-pointer"
                       >
-                        <AiOutlineDelete className="size-4" />
+                        {deleteFaqMutation.isPending &&
+                        deleteFaqMutation.variables === faq.id ? (
+                          <Loader2Icon className="animate-spin size-4" />
+                        ) : (
+                          <AiOutlineDelete className="size-4" />
+                        )}
                       </Button>
                     </TableCell>
                   </TableRow>

@@ -196,7 +196,7 @@ export default function CompanyDetailsForm() {
         }}
       />
       <UserDetailsForm
-        title="კომპანიის ინფორმაცია"
+        title="იურიდიული პირის ინფორმაცია"
         values={values}
         errors={errors}
         fields={companyFields}

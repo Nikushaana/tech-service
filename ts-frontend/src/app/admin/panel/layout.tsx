@@ -27,18 +27,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const { openAdminSideBar, toggleAdminSideBar, closeAdminSideBar } =
     useBurgerMenuStore();
 
-  useEffect(() => {
-    if (openAdminSideBar) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "auto";
-    }
-
-    return () => {
-      document.body.style.overflow = "auto";
-    };
-  }, [openAdminSideBar]);
-
   return (
     <div className="flex flex-col items-center">
       <div

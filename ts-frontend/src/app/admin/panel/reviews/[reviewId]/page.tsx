@@ -177,7 +177,7 @@ export default function Page() {
 
       {/* User */}
       <div>
-        <h3>{review.individual ? "ინდივიდუალური მომხმარებელი" : "კომპანია"}</h3>
+        <h3>{review.individual ? "ფიზიკური პირი" : "იურიდიული პირი"}</h3>
         <p>
           {review.individual
             ? review.individual?.name + " " + review.individual?.lastName
@@ -221,6 +221,9 @@ export default function Page() {
         disabled={updateReviewMutation.isPending}
         className="h-11 cursor-pointer self-end"
       >
+        {updateReviewMutation.isPending && (
+          <Loader2Icon className="animate-spin" />
+        )}
         ცვლილებების შენახვა
       </Button>
     </div>

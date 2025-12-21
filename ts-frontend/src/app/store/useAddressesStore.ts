@@ -1,78 +1,21 @@
 import { create } from "zustand";
-import { axiosCompany, axiosIndividual } from "../api/axios";
-import { toast } from "react-toastify";
 
 type AddressType = "company" | "individual";
 
 interface AddressesStoreState {
-    addresses: any[];
     openCreateAddressModal: boolean;
     modalType: AddressType | null; // store the type here
-    loading: boolean;
-
-    loadingDelete: number | null;
 
     toggleOpenCreateAddressModal: (type?: AddressType) => void;
-
-    fetchAddresses: (type: AddressType) => Promise<void>;
-    deleteAddress: (type: AddressType, id: number) => Promise<void>;
-    createAddress: (type: AddressType, data: any) => void;
 }
 
-export const useAddressesStore = create<AddressesStoreState>((set, get) => ({
-    addresses: [],
+export const useAddressesStore = create<AddressesStoreState>((set) => ({
     openCreateAddressModal: false,
     modalType: null,
-    loading: true,
-
-    loadingDelete: null,
 
     toggleOpenCreateAddressModal: (type?: AddressType) =>
         set((state) => ({
             openCreateAddressModal: !state.openCreateAddressModal,
             modalType: type ?? state.modalType,
         })),
-
-    fetchAddresses: (type: AddressType) => {
-        const axiosInstance = type === "company" ? axiosCompany : axiosIndividual;
-        set({ loading: true });
-
-        return axiosInstance
-            .get(`${type}/addresses`)
-            .then((res) => set({ addresses: res.data }))
-            .catch(() => { })
-            .finally(() => { set({ loading: false }); });
-    },
-
-    deleteAddress: (type: AddressType, id: number) => {
-        const axiosInstance = type === "company" ? axiosCompany : axiosIndividual;
-        set({ loadingDelete: id });
-        return axiosInstance
-            .delete(`${type}/addresses/${id}`)
-            .then(() => get().fetchAddresses(type).then(() => {
-                toast.success("მისამართი წაიშალა", { position: "bottom-right", autoClose: 3000 });
-            }))
-            .catch((error) => {
-                if (error.response?.data?.message === "Address cannot be deleted because it is used in an order") {
-                    toast.error("მისამართი ვერ წაიშლება, რადგან გამოყენებულია ერთ-ერთ შეკვეთაში", { position: "bottom-right", autoClose: 3000 });
-                } else {
-                    toast.error("მისამართი ვერ წაიშალა", { position: "bottom-right", autoClose: 3000 });
-                }
-            })
-            .finally(() => {
-                set({ loadingDelete: null });
-            })
-    },
-
-    createAddress: async (type, data) => {
-        const axiosInstance = type === "company" ? axiosCompany : axiosIndividual;
-        try {
-            await axiosInstance.post(`${type}/create-address`, data);
-            await get().fetchAddresses(type);
-            toast.success("მისამართი დაემატა", { position: "bottom-right", autoClose: 3000 });
-        } catch {
-            toast.error("მისამართი ვერ დაემატა", { position: "bottom-right", autoClose: 3000 });
-            throw new Error("Failed"); // so component knows request failed
-        }
-    }
 }));

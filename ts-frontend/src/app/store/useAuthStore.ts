@@ -238,7 +238,9 @@ export const useAuthStore = create<Store>((set, get) => ({
                     }
 
                     if ((activeRole == "company" || activeRole == "individual") && pathname.startsWith("/dashboard")) {
-                        router.push(`/dashboard/${activeRole}/${pathname.split("/")[3] || "orders"}`)
+                        const section = pathname.split("/")[3] || "profile";
+                        const subsection = pathname.split("/")[4] ? `/${pathname.split("/")[4]}` : "";
+                        router.push(`/dashboard/${activeRole}/${section}/${subsection}`)
                     }
 
                     if ((activeRole == "technician" || activeRole == "delivery") && pathname.startsWith("/staff")) {

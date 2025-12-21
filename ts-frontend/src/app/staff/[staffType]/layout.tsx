@@ -44,18 +44,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       ? sidebarLinks[role]
       : { title: "იტვირთება..", links: [] };
 
-  useEffect(() => {
-    if (openSideBar) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "auto";
-    }
-
-    return () => {
-      document.body.style.overflow = "auto";
-    };
-  }, [openSideBar]);
-
   return (
     <div className="flex flex-col items-center">
       <div

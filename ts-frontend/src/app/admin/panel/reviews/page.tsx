@@ -3,7 +3,14 @@
 import { axiosAdmin } from "@/app/api/axios";
 import StarRating from "@/app/components/inputs/star-rating";
 import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import { Loader2Icon } from "lucide-react";
@@ -156,12 +163,17 @@ export default function Page() {
                       variant="secondary"
                       size="icon"
                       disabled={
-                          deleteReviewMutation.isPending &&
-                          deleteReviewMutation.variables === review.id
-                        }
+                        deleteReviewMutation.isPending &&
+                        deleteReviewMutation.variables === review.id
+                      }
                       className="bg-[red] hover:bg-[#b91c1c] ml-3 cursor-pointer"
                     >
-                      <AiOutlineDelete className="size-4" />
+                      {deleteReviewMutation.isPending &&
+                      deleteReviewMutation.variables === review.id ? (
+                        <Loader2Icon className="animate-spin size-4" />
+                      ) : (
+                        <AiOutlineDelete className="size-4" />
+                      )}
                     </Button>
                   </TableCell>
                 </TableRow>

@@ -268,6 +268,9 @@ export default function Page() {
         disabled={updateStaffMemberMutation.isPending}
         className="h-[45px] px-6 text-white cursor-pointer w-full sm:w-auto self-end"
       >
+        {updateStaffMemberMutation.isPending && (
+          <Loader2Icon className="animate-spin" />
+        )}
         ცვლილების შენახვა
       </Button>
     </div>

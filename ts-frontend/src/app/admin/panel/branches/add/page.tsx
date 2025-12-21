@@ -10,6 +10,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Dropdown2 } from "@/app/components/inputs/drop-down-2";
 import Map from "@/app/components/map/map";
 import { fetchCities, fetchStreets } from "@/app/api/locations";
+import { Loader2Icon } from "lucide-react";
 
 export default function Page() {
   const queryClient = useQueryClient();
@@ -47,14 +48,18 @@ export default function Page() {
   const { data: citiesData = [], isLoading: cityLoading } = useQuery({
     queryKey: ["cities", helperValues.searchCity],
     queryFn: () => fetchCities(helperValues.searchCity),
-    enabled: !helperValues.isSelectingCity && helperValues.searchCity.length >= 2,
+    enabled:
+      !helperValues.isSelectingCity && helperValues.searchCity.length >= 2,
     staleTime: 1000 * 60 * 5,
   });
-  
+
   const { data: streetsData = [], isLoading: streetLoading } = useQuery({
     queryKey: ["streets", values.city, helperValues.searchStreet],
     queryFn: () => fetchStreets(values.city, helperValues.searchStreet),
-    enabled: !helperValues.isSelectingStreet && !!values.city && helperValues.searchStreet.length >= 2,
+    enabled:
+      !helperValues.isSelectingStreet &&
+      !!values.city &&
+      helperValues.searchStreet.length >= 2,
     staleTime: 1000 * 60 * 5,
   });
 
@@ -283,6 +288,9 @@ export default function Page() {
           disabled={addBranchMutation.isPending}
           className="h-[45px] px-6 text-white cursor-pointer flex place-self-end"
         >
+          {addBranchMutation.isPending && (
+            <Loader2Icon className="animate-spin" />
+          )}
           დამატება
         </Button>
       </div>

@@ -6,22 +6,29 @@ import { useReviewsStore } from "@/app/store/useReviewsStore";
 import dayjs from "dayjs";
 import { Loader2Icon } from "lucide-react";
 import { useParams } from "next/navigation";
-import React, { useEffect } from "react";
-import { LuPlus } from "react-icons/lu";
+import { useQuery } from "@tanstack/react-query";
+import { axiosCompany, axiosIndividual } from "@/app/api/axios";
+
+const fetchUserReviews = async (userType: string) => {
+  const api = userType === "company" ? axiosCompany : axiosIndividual;
+  const { data } = await api.get(`${userType}/reviews`);
+  return data;
+};
 
 export default function Page() {
   const { userType } = useParams<{
     userType: "company" | "individual";
   }>();
 
-  const { reviews, fetchReviews, toggleOpenCreateReviewModal, loading } =
-    useReviewsStore();
+  const { toggleOpenCreateReviewModal } = useReviewsStore();
 
-  useEffect(() => {
-    fetchReviews(userType); // fetch correct type on mount
-  }, [userType]);
+  const { data: reviews = [], isLoading } = useQuery({
+    queryKey: ["userReviews", userType],
+    queryFn: () => fetchUserReviews(userType),
+    staleTime: 1000 * 60 * 10,
+  });
 
-  if (loading)
+  if (isLoading)
     return (
       <div className="flex justify-center w-full mt-10">
         <Loader2Icon className="animate-spin size-6 text-gray-600" />
@@ -29,30 +36,17 @@ export default function Page() {
     );
 
   return (
-    <div
-      className={`w-full flex flex-col gap-y-[30px] items-center ${
-        reviews.length == 0 && "justify-center"
-      }`}
-    >
-      {reviews.length == 0 && (
-        <p className="text-2xl font-semibold text-myLightGray text-center">
-          შეფასება ჯერ არ გაქვს დამატებული
-        </p>
-      )}
-      <Button
-        onClick={() => {
-          toggleOpenCreateReviewModal(userType);
-        }}
-        className={`cursor-pointer ${
-          reviews.length > 0 ? "h-[40px]" : "text-lg h-[50px]"
-        }`}
-      >
-        <LuPlus
-          className={`${reviews.length > 0 ? "text-[18px]" : "text-[22px]"}`}
-        />{" "}
-        შეფასება
-      </Button>
-
+    <div className={`w-full flex flex-col gap-y-2`}>
+      <div className="self-end">
+        <Button
+          onClick={() => {
+            toggleOpenCreateReviewModal(userType);
+          }}
+          className={`cursor-pointer h-[40px]`}
+        >
+          დატოვე შეფასება
+        </Button>
+      </div>
       {reviews.length > 0 && (
         <div className="flex flex-col gap-5 w-full">
           {reviews.map((review: any) => (

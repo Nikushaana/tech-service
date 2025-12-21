@@ -324,6 +324,9 @@ export default function Page() {
             disabled={updateBranchMutation.isPending}
             className="h-[45px] px-6 text-white cursor-pointer flex place-self-end"
           >
+            {updateBranchMutation.isPending && (
+              <Loader2Icon className="animate-spin" />
+            )}
             ცვლილების შენახვა
           </Button>
         </div>

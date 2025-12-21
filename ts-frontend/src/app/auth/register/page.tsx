@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { useRegisterStore } from "@/app/store/registerStore";
@@ -10,7 +10,7 @@ import { registerSchema } from "@/app/utils/validation";
 import FormInput from "@/app/components/inputs/form-input";
 import { Loader2Icon } from "lucide-react";
 import Link from "next/link";
-import { Checkbox } from "@radix-ui/react-checkbox";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export default function Register() {
   const router = useRouter();
@@ -24,6 +24,10 @@ export default function Register() {
     loading,
     setLoading,
   } = useRegisterStore();
+
+  useEffect(() => {
+    setValues("role", "individual");
+  }, []);
 
   const handleRegister = async () => {
     setLoading(true);
@@ -66,9 +70,7 @@ export default function Register() {
 
           toast.success(
             `${
-              res.data.user.name
-                ? `მომხმარებელი "${res.data.user.name}"`
-                : `კომპანია "${res.data.user.companyName}"`
+              res.data.user.name ? `ფიზიკური პირი` : `იურიდიული პირი`
             } წარმატებით დარეგისტრირდა`,
             { position: "bottom-right", autoClose: 3000 }
           );
@@ -128,7 +130,7 @@ export default function Register() {
             checked={values.role === "company"}
             onCheckedChange={() => setValues("role", "company")}
           />
-          <p>კომპანია</p>
+          <p>იურიდიული პირი</p>
         </label>
       </div>
       {values.role === "individual" ? (

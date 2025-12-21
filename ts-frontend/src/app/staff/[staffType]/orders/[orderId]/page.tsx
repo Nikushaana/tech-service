@@ -3,10 +3,16 @@
 import { axiosDelivery, axiosTechnician } from "@/app/api/axios";
 import { statusTranslations } from "@/app/utils/status-translations";
 import { Loader2Icon } from "lucide-react";
-import React, { useEffect, useState } from "react";
 import dayjs from "dayjs";
 import Map from "@/app/components/map/map";
 import { useParams } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
+
+const fetchStaffOrder = async (staffType: string, orderId: string) => {
+  const api = staffType === "technician" ? axiosTechnician : axiosDelivery;
+  const { data } = await api.get(`${staffType}/orders/${orderId}`);
+  return data;
+};
 
 export default function Page() {
   const { staffType, orderId } = useParams<{
@@ -14,24 +20,13 @@ export default function Page() {
     orderId: string;
   }>();
 
-  const [order, setOrder] = useState<Order>();
-  const [loading, setLoading] = useState<boolean>(true);
+  const { data: order = [], isLoading } = useQuery({
+    queryKey: ["staffOrders", staffType, orderId],
+    queryFn: () => fetchStaffOrder(staffType, orderId),
+    staleTime: 1000 * 60 * 10,
+  });
 
-  const api = staffType === "technician" ? axiosTechnician : axiosDelivery;
-
-  useEffect(() => {
-    setLoading(true);
-
-    api
-      .get(`${staffType}/orders/${orderId}`)
-      .then((res) => {
-        setOrder(res.data);
-        setLoading(false);
-      })
-      .catch((err) => console.error(err));
-  }, [staffType, orderId]);
-
-  if (loading)
+  if (isLoading)
     return (
       <div className="flex justify-center w-full mt-10">
         <Loader2Icon className="animate-spin size-6 text-gray-600" />
@@ -89,7 +84,7 @@ export default function Page() {
 
       {/* User */}
       <div>
-        <h3>{order?.individual ? "ინდივიდუალური მომხმარებელი" : "კომპანია"}</h3>
+        <h3>{order?.individual ? "ფიზიკური პირი" : "იურიდიული პირი"}</h3>
         <p>
           {order?.individual
             ? order.individual?.name + " " + order.individual?.lastName

@@ -30,13 +30,13 @@ const chartConfig = {
   visitors: {
     label: "Visitors",
   },
-  companies: {
-    label: "კომპანიები",
-    color: "blue",
-  },
   individuals: {
-    label: "კერძო მომხმარებლები",
+    label: "ფიზიკური პირი",
     color: "red",
+  },
+  companies: {
+    label: "იურიდიული პირი",
+    color: "blue",
   },
 } satisfies ChartConfig;
 
@@ -81,8 +81,8 @@ export function UsersChart({ userRegistrationStats }: any) {
         <div className="grid flex-1 gap-1">
           <CardTitle>მომხმარებლები</CardTitle>
           <CardDescription>
-            სულ {userRegistrationStats.individualsLength} კერძო მომხმარებელი და{" "}
-            {userRegistrationStats.companiesLength} კომანია
+            {userRegistrationStats.individualsLength} ფიზიკური პირი და{" "}
+            {userRegistrationStats.companiesLength} იურიდიული პირი
           </CardDescription>
         </div>
         <Select value={timeRange} onValueChange={setTimeRange}>

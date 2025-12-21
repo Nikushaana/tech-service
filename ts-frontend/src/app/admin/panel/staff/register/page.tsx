@@ -30,7 +30,6 @@ export default function AdminStaffRegister() {
     }
   }, [values.role, router]);
 
-
   const handleAdminStaffRegister = async () => {
     setLoading(true);
     try {
@@ -46,7 +45,12 @@ export default function AdminStaffRegister() {
       };
 
       axiosAdmin
-        .post(`auth/${values.role == "technician" ? "technician" : "delivery"}/register`, payload)
+        .post(
+          `auth/${
+            values.role == "technician" ? "technician" : "delivery"
+          }/register`,
+          payload
+        )
         .then((res) => {
           router.push("/admin/panel/staff");
 
@@ -58,9 +62,9 @@ export default function AdminStaffRegister() {
           );
 
           // refresh staff list
-      queryClient.invalidateQueries({
-        queryKey: ["adminStaff"],
-      });
+          queryClient.invalidateQueries({
+            queryKey: ["adminStaff"],
+          });
 
           resetErrors();
         })
@@ -152,6 +156,7 @@ export default function AdminStaffRegister() {
         disabled={loading}
         className="h-11 cursor-pointer"
       >
+        {loading && <Loader2Icon className="animate-spin" />}
         რეგისტრაცია
       </Button>
     </div>

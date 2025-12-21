@@ -26,7 +26,7 @@ const sidebarLinks: Record<Role, SidebarLinksWithTitle> = {
     ],
   },
   company: {
-    title: "კომპანიის გვერდი",
+    title: "ჩემი გვერდი",
     links: [
       { name: "ჩემი სერვისები", href: "/dashboard/company/orders" },
       { name: "მისამართები", href: "/dashboard/company/addresses" },
@@ -47,18 +47,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     role && sidebarLinks[role]
       ? sidebarLinks[role]
       : { title: "იტვირთება..", links: [] };
-
-  useEffect(() => {
-    if (openSideBar) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "auto";
-    }
-
-    return () => {
-      document.body.style.overflow = "auto";
-    };
-  }, [openSideBar]);
 
   return (
     <div className="flex flex-col items-center">
@@ -134,7 +122,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           <main
             className={`${
               openSideBar && "pointer-events-none brightness-70"
-            } flex-1 flex overflow-x-auto duration-200 bg-gray-50 px-[10px] py-[20px] sm:p-[20px] border-[1px] rounded-xl shadow-inner`}
+            } flex-1 flex overflow-x-auto duration-200 bg-gray-50 p-2 border-[1px] rounded-xl shadow-inner`}
           >
             {children}
           </main>

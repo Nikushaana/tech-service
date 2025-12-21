@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import { useState } from "react";
 import * as Yup from "yup";
 import { toast } from "react-toastify";
 import PanelFormInput from "../inputs/panel-form-input";
@@ -8,19 +8,19 @@ import { Loader2Icon } from "lucide-react";
 import { useReviewsStore } from "@/app/store/useReviewsStore";
 import StarRating from "../inputs/star-rating";
 import { Button } from "@/components/ui/button";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { axiosCompany, axiosIndividual } from "@/app/api/axios";
 
 interface CreateReviewValues {
   review: string;
-  stars: null | number;
+  stars: number;
 }
 
 export default function CreateReview() {
-  const {
-    openCreateReviewModal,
-    toggleOpenCreateReviewModal,
-    modalType,
-    createReview,
-  } = useReviewsStore();
+  const { openCreateReviewModal, toggleOpenCreateReviewModal, modalType } =
+    useReviewsStore();
+
+  const queryClient = useQueryClient();
 
   const [values, setValues] = useState<CreateReviewValues>({
     review: "",
@@ -32,21 +32,16 @@ export default function CreateReview() {
     stars: "",
   });
 
-  const [loading, setLoading] = useState(false);
-
-  const handleChange = (
-    e:
-      | React.ChangeEvent<HTMLInputElement>
-      | { target: { id: string; value: string } }
-  ) => {
+  const handleChange = (e: { target: { id: string; value: string } }) => {
     const { id, value } = e.target;
+
     setValues((prev) => ({
       ...prev,
       [id]: value,
     }));
   };
 
-  const createOrderSchema = Yup.object().shape({
+  const createReviewSchema = Yup.object().shape({
     review: Yup.string().required("შეავსე შეფასების ველი"),
     stars: Yup.number()
       .required("შეაფასე ვარსკვლავებით")
@@ -54,15 +49,25 @@ export default function CreateReview() {
       .max(5, "მაქსიმუმ 5 ვარსკვლავი შეიძლება იყოს"),
   });
 
-  const handleCreateOrder = async () => {
-    setLoading(true);
-    try {
-      await createOrderSchema.validate(values, { abortEarly: false });
+  // add review
+  const addReviewMutation = useMutation({
+    mutationFn: (payload: { review: string; stars: number }) =>
+      (modalType === "company" ? axiosCompany : axiosIndividual).post(
+        `${modalType}/create-review`,
+        payload
+      ),
 
-      await createReview(modalType!, {
-        review: values.review,
-        stars: values.stars,
+    onSuccess: () => {
+      toast.success("შეფასება დაემატა", {
+        position: "bottom-right",
+        autoClose: 3000,
       });
+
+      // refresh reviews list
+      queryClient.invalidateQueries({
+        queryKey: ["userReviews"],
+      });
+
       toggleOpenCreateReviewModal();
 
       // reset form values
@@ -73,10 +78,23 @@ export default function CreateReview() {
 
       setErrors({
         review: "",
-        stars: ""
+        stars: "",
       });
+    },
 
-      setLoading(false);
+    onError: () => {
+      toast.error("შეფასება ვერ დაემატა", {
+        position: "bottom-right",
+        autoClose: 3000,
+      });
+    },
+  });
+
+  const handleCreateReview = async () => {
+    try {
+      await createReviewSchema.validate(values, { abortEarly: false });
+
+      addReviewMutation.mutate(values);
     } catch (err: any) {
       if (err.inner) {
         const newErrors: any = {};
@@ -91,21 +109,8 @@ export default function CreateReview() {
         });
         setErrors(newErrors);
       }
-      setLoading(false);
     }
   };
-
-  useEffect(() => {
-    if (openCreateReviewModal) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "auto";
-    }
-
-    return () => {
-      document.body.style.overflow = "auto";
-    };
-  }, [openCreateReviewModal]);
 
   return (
     <div
@@ -153,7 +158,7 @@ export default function CreateReview() {
               setErrors((prev) => ({
                 ...prev,
                 review: "",
-                stars: ""
+                stars: "",
               }));
 
               setValues((prev) => ({
@@ -167,11 +172,13 @@ export default function CreateReview() {
             გაუქმება
           </Button>
           <Button
-            onClick={handleCreateOrder}
-            disabled={loading}
+            onClick={handleCreateReview}
+            disabled={addReviewMutation.isPending}
             className="h-[45px] px-6 text-white cursor-pointer"
           >
-            {loading && <Loader2Icon className="animate-spin" />}
+            {addReviewMutation.isPending && (
+              <Loader2Icon className="animate-spin" />
+            )}
             დამატება
           </Button>
         </div>
