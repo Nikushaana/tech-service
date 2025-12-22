@@ -55,6 +55,7 @@ export default function UserPhoneUpdate({
               value={values.phone}
               onChange={(e) => onChange("phone", formatPhone(e.target.value))}
               label="ტელეფონის ნომერი"
+              type="tel"
               error={errors.phone}
             />
           )}

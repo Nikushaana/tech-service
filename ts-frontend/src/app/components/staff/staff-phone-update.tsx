@@ -208,6 +208,7 @@ export default function StaffPhoneUpdate() {
               value={values.phone}
               onChange={handleChange}
               label="ტელეფონის ნომერი"
+              type="tel"
               error={errors.phone}
             />
           )}

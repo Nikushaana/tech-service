@@ -97,6 +97,7 @@ export default function SendResetPasswordCode() {
         value={values.phone || ""}
         onChange={(e) => setValues("phone", formatPhone(e.target.value))}
         label="ტელეფონის ნომერი"
+        type="tel"
         error={errors.phone}
       />
 
