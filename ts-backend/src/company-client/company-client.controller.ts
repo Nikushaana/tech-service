@@ -13,10 +13,14 @@ import { CreateAddressDto } from 'src/address/dto/create-address.dto';
 import { MultipleImagesUpload } from 'src/common/interceptors/multiple-images-upload.factory';
 import { MultipleFilesUpload } from 'src/common/interceptors/MultipleFilesUpload.interceptor';
 import { CreateReviewDto } from 'src/reviews/dto/create-review.dto';
+import { NotificationsService } from 'src/notifications/notifications.service';
 
 @Controller('company')
 export class CompanyClientController {
-    constructor(private readonly companyClientService: CompanyClientService) { }
+    constructor(
+        private readonly companyClientService: CompanyClientService,
+        private readonly notificationsService: NotificationsService
+    ) { }
 
     // company
 
@@ -148,5 +152,28 @@ export class CompanyClientController {
     @Get('reviews')
     async getReviews(@Req() req: RequestInfo) {
         return this.companyClientService.getReviews(req.user.id);
+    }
+
+    // notifications
+
+    @UseGuards(TokenValidationGuard, RolesGuard)
+    @Roles('company')
+    @Get('notifications')
+    async getNotifications(@Req() req: RequestInfo) {
+        return this.companyClientService.getNotifications(req.user.id);
+    }
+
+    @UseGuards(TokenValidationGuard, RolesGuard)
+    @Roles('company')
+    @Delete('notifications/:id')
+    async deleteNotification(@Param('id', ParseIntPipe) id: number) {
+        return this.notificationsService.deleteNotification(id);
+    }
+
+    @UseGuards(TokenValidationGuard, RolesGuard)
+    @Roles('company')
+    @Patch('notifications/:id')
+    async readNotification(@Param('id', ParseIntPipe) id: number) {
+        return this.notificationsService.readNotification(id);
     }
 }

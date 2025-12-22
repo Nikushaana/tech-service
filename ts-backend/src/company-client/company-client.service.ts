@@ -94,7 +94,13 @@ export class CompanyClientService {
         return this.baseUserService.createReview(companyId, this.companyClientRepo, createReviewDto);
     }
 
-    async getReviews(individualId: number) {
-        return this.baseUserService.getReviews(individualId, this.companyClientRepo);
+    async getReviews(companyId: number) {
+        return this.baseUserService.getReviews(companyId, this.companyClientRepo);
+    }
+
+    // notifications
+
+    async getNotifications(companyId: number) {
+        return this.baseUserService.getNotifications(companyId, this.companyClientRepo);
     }
 }

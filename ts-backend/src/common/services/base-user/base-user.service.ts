@@ -21,6 +21,7 @@ import { CreateReviewDto } from "src/reviews/dto/create-review.dto";
 import { Review } from "src/reviews/entities/review.entity";
 import { Branch } from "src/branches/entities/branches.entity";
 import { NotificationsService } from "src/notifications/notifications.service";
+import { Notification } from "src/notifications/entities/notification.entity";
 
 interface WithIdAndPassword {
     id: number;
@@ -52,6 +53,9 @@ export class BaseUserService {
 
         @InjectRepository(Branch)
         private branchRepo: Repository<Branch>,
+
+        @InjectRepository(Notification)
+        private readonly notificationRepo: Repository<Notification>,
 
         private readonly verificationCodeService: VerificationCodeService,
 
@@ -255,9 +259,10 @@ export class BaseUserService {
 
         // send notification to admin
         await this.notificationService.sendNotification(
-            `დაემატა განაცხადი ${("companyName" in user ? user.companyName : (user.name + " " + user.lastName))}-ს მიერ`,
+            `დაემატა შეკვეთა ${("companyName" in user ? user.companyName : (user.name + " " + user.lastName))}-ს მიერ`,
             'new_order',
             'admin',
+            undefined,
             {
                 order_id: order.id
             },
@@ -564,6 +569,7 @@ export class BaseUserService {
             `დაემატა შეფასება ${("companyName" in user ? user.companyName : (user.name + " " + user.lastName))}-ს მიერ`,
             'new_review',
             'admin',
+            undefined,
             {
                 review_id: review.id
             },
@@ -583,5 +589,20 @@ export class BaseUserService {
         });
 
         return reviews;
+    }
+
+    // about notifications
+
+    async getNotifications(userId: number, repo: any) {
+        const user = await this.getUser(userId, repo)
+
+        const relationKey = "companyName" in user ? "company" : "individual";
+
+        const notifications = await this.notificationRepo.find({
+            where: { for: relationKey, forId: userId },
+            order: { updated_at: 'DESC' },
+        });
+
+        return notifications;
     }
 }

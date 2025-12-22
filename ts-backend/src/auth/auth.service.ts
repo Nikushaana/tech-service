@@ -148,6 +148,7 @@ export class AuthService {
             `დარეგისტრირდა ${roleInGeo + " " + (user.companyName || (user.name + " " + user.lastName))}`,
             'new_user',
             'admin',
+            undefined,
             {
                 new_user_id: user.id,
                 new_user_role: role,

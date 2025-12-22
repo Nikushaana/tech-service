@@ -7,9 +7,10 @@ import { CompanyClientController } from './company-client.controller';
 import { CompanyClientService } from './company-client.service';
 import { TokensModule } from 'src/common/tokens/token.module';
 import { Review } from 'src/reviews/entities/review.entity';
+import { NotificationsModule } from 'src/notifications/notifications.module';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([CompanyClient, Review]), BaseUserModule, VerificationCodeModule, TokensModule],
+    imports: [TypeOrmModule.forFeature([CompanyClient, Review]), BaseUserModule, VerificationCodeModule, TokensModule, NotificationsModule],
     controllers: [CompanyClientController],
     providers: [CompanyClientService],
 })

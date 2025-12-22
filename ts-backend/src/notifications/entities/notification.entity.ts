@@ -6,8 +6,8 @@ import {
     UpdateDateColumn,
 } from 'typeorm';
 
-export type NotificationType = 'new_user' | 'new_order' | 'new_review';
-export type NotificationFor = 'admin';
+export type NotificationType = 'new_user' | 'new_order' | 'new_review' | 'profile_activated' | 'profile_blocked';
+export type NotificationFor = 'admin' | 'individual' | 'company';
 
 @Entity('notifications')
 export class Notification {
@@ -17,7 +17,7 @@ export class Notification {
     @Column()
     message: string;
 
-    @Column({ type: 'enum', enum: ['new_user', 'new_order', 'new_review'] })
+    @Column({ type: 'enum', enum: ['new_user', 'new_order', 'new_review', 'profile_activated', 'profile_blocked'] })
     type: NotificationType;
 
     @Column({ default: false })
@@ -29,8 +29,11 @@ export class Notification {
     @UpdateDateColumn()
     updated_at: Date;
 
-    @Column({ type: 'enum', enum: ['admin'], nullable: true })
+    @Column({ type: 'enum', enum: ['admin', 'individual', 'company'], nullable: true })
     for: NotificationFor;
+
+    @Column({ type: 'int', nullable: true })
+    forId?: number;
 
     @Column({ type: 'json', nullable: true })
     data?: Record<string, any>;

@@ -1,7 +1,7 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Admin } from './entities/admin.entity';
-import { Not, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { IndividualClient } from 'src/individual-client/entities/individual-client.entity';
 import { CompanyClient } from 'src/company-client/entities/company-client.entity';
 import { Technician } from 'src/technician/entities/technician.entity';
@@ -19,7 +19,6 @@ import { CreateCategoryDto } from 'src/category/dto/create-category.dto';
 import { UpdateCategoryDto } from 'src/category/dto/update-category.dto';
 import { CreateFaqDto } from 'src/faq/dto/create-faq.dto';
 import { UpdateFaqDto } from 'src/faq/dto/update-category.dto';
-import { CloudinaryProvider } from 'src/common/cloudinary/cloudinary.provider';
 import { CloudinaryService } from 'src/common/cloudinary/cloudinary.service';
 import { Review } from 'src/reviews/entities/review.entity';
 import { UpdateReviewDto } from 'src/reviews/dto/update-review.dto';
@@ -29,6 +28,7 @@ import { UpdateBranchDto } from 'src/branches/dto/update-branch.dto';
 import { UpdateAdminIndividualTechnicianDeliveryDto } from './dto/update-adm-ind-tech-del.dto';
 import { Delivery } from 'src/delivery/entities/delivery.entity';
 import { Notification } from 'src/notifications/entities/notification.entity';
+import { NotificationsService } from 'src/notifications/notifications.service';
 
 @Injectable()
 export class AdminService {
@@ -72,6 +72,8 @@ export class AdminService {
         private readonly baseUserService: BaseUserService,
 
         private readonly cloudinaryService: CloudinaryService,
+
+        private readonly notificationService: NotificationsService,
     ) { }
 
     // admin
@@ -159,6 +161,8 @@ export class AdminService {
             'tech_service_project/images/individuals',
         );
 
+        const oldStatus = findOneIndividual.status;
+
         const updatedAdminIndividual = this.individualClientRepo.merge(findOneIndividual, updateAdminIndividualTechnicianDeliveryDto);
 
         // Append new images to existing ones
@@ -167,6 +171,16 @@ export class AdminService {
         }
 
         await this.individualClientRepo.save(updatedAdminIndividual);
+
+        // send notification to individual if status changes
+        if (oldStatus !== updateAdminIndividualTechnicianDeliveryDto.status) {
+            await this.notificationService.sendNotification(
+                `${updateAdminIndividualTechnicianDeliveryDto.status ? "თქვენი პროფილი გააქტიურებულია და შეგიძლიათ შეკვეთის დამატება" : "თქვენი პროფილი დაიბლოკა"}`,
+                `${updateAdminIndividualTechnicianDeliveryDto.status ? "profile_activated" : "profile_blocked"}`,
+                'individual',
+                individualId,
+            );
+        }
 
         return {
             message: 'Individual updated successfully',
@@ -251,6 +265,8 @@ export class AdminService {
             'tech_service_project/images/companies',
         );
 
+        const oldStatus = findOneCompany.status;
+
         const updatedAdminCompany = this.companyClientRepo.merge(findOneCompany, updateAdminCompanyDto);
 
         // Append new images to existing ones
@@ -259,6 +275,16 @@ export class AdminService {
         }
 
         await this.companyClientRepo.save(updatedAdminCompany);
+
+        // send notification to company if status changes
+        if (oldStatus !== updateAdminCompanyDto.status) {
+            await this.notificationService.sendNotification(
+                `${updateAdminCompanyDto.status ? "თქვენი პროფილი გააქტიურებულია და შეგიძლიათ შეკვეთის დამატება" : "თქვენი პროფილი დაიბლოკა"}`,
+                `${updateAdminCompanyDto.status ? "profile_activated" : "profile_blocked"}`,
+                'company',
+                companyId
+            );
+        }
 
         return {
             message: 'Company updated successfully',
@@ -933,40 +959,5 @@ export class AdminService {
         });
 
         return notifications;
-    }
-
-    async deleteNotification(id: number) {
-        const notification = await this.notificationRepo.findOne({
-            where: { id },
-        });
-
-        if (!notification) throw new NotFoundException('Notification not found');
-
-        // Delete notification
-        await this.notificationRepo.remove(notification);
-
-        return {
-            message: 'Notification deleted successfully',
-        };
-    }
-
-    async readNotification(
-        id: number,
-    ) {
-        const notification = await this.notificationRepo.findOne({
-            where: { id },
-        });
-        if (!notification) throw new NotFoundException('Notification not found');
-
-        // Merge updates
-        this.notificationRepo.merge(notification, {
-            read: true
-        });
-
-        await this.notificationRepo.save(notification);
-
-        return {
-            message: 'Notification read successfully',
-        };
     }
 }

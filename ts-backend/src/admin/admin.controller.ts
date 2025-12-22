@@ -16,10 +16,15 @@ import { UpdateReviewDto } from 'src/reviews/dto/update-review.dto';
 import { CreateBranchDto } from 'src/branches/dto/create-branch.dto';
 import { UpdateBranchDto } from 'src/branches/dto/update-branch.dto';
 import { UpdateAdminIndividualTechnicianDeliveryDto } from './dto/update-adm-ind-tech-del.dto';
+import { NotificationsService } from 'src/notifications/notifications.service';
 
 @Controller('admin')
 export class AdminController {
-    constructor(private readonly adminService: AdminService) { }
+    constructor(
+        private readonly adminService: AdminService,
+
+        private readonly notificationsService: NotificationsService
+    ) { }
 
     // admin
 
@@ -315,14 +320,14 @@ export class AdminController {
     async getUserRegistrationStats() {
         return this.adminService.getUserRegistrationStats();
     }
-    
+
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('admin')
     @Get('used-devices-stats')
     async getUsedDevicesStats() {
         return this.adminService.getUsedDevicesStats();
     }
-    
+
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('admin')
     @Get('order-stats')
@@ -343,13 +348,13 @@ export class AdminController {
     @Roles('admin')
     @Delete('notifications/:id')
     async deleteNotification(@Param('id', ParseIntPipe) id: number) {
-        return this.adminService.deleteNotification(id);
+        return this.notificationsService.deleteNotification(id);
     }
-    
+
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('admin')
     @Patch('notifications/:id')
     async readNotification(@Param('id', ParseIntPipe) id: number) {
-        return this.adminService.readNotification(id);
+        return this.notificationsService.readNotification(id);
     }
 }

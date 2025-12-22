@@ -87,8 +87,8 @@ export class IndividualClientService {
     async deleteOneAddress(individualId: number, id: number) {
         return this.baseUserService.deleteOneAddress(individualId, id, this.individualClientRepo);
     }
-    
-    // create review
+
+    // review
 
     async createReview(individualId: number, createReviewDto: CreateReviewDto) {
         return this.baseUserService.createReview(individualId, this.individualClientRepo, createReviewDto);
@@ -96,5 +96,11 @@ export class IndividualClientService {
 
     async getReviews(individualId: number) {
         return this.baseUserService.getReviews(individualId, this.individualClientRepo);
+    }
+
+    // notifications
+
+    async getNotifications(individualId: number) {
+        return this.baseUserService.getNotifications(individualId, this.individualClientRepo);
     }
 }

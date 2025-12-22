@@ -7,11 +7,12 @@ import { VerificationCodeModule } from 'src/verification-code/verification-code.
 import { BaseUserModule } from 'src/common/services/base-user/base-user.module';
 import { TokensModule } from 'src/common/tokens/token.module';
 import { Review } from 'src/reviews/entities/review.entity';
+import { NotificationsModule } from 'src/notifications/notifications.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([IndividualClient, Review]),
-    BaseUserModule, VerificationCodeModule, TokensModule
+    BaseUserModule, VerificationCodeModule, TokensModule, NotificationsModule
   ],
   controllers: [IndividualClientController],
   providers: [IndividualClientService]

@@ -18,9 +18,10 @@ import { Review } from 'src/reviews/entities/review.entity';
 import { Branch } from 'src/branches/entities/branches.entity';
 import { Delivery } from 'src/delivery/entities/delivery.entity';
 import { Notification } from 'src/notifications/entities/notification.entity';
+import { NotificationsModule } from 'src/notifications/notifications.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Admin, IndividualClient, CompanyClient, Technician, Delivery, Order, Category, Faq, Address, Review, Branch, Notification]), BaseUserModule, TokensModule, CommonModule, CloudinaryModule],
+  imports: [TypeOrmModule.forFeature([Admin, IndividualClient, CompanyClient, Technician, Delivery, Order, Category, Faq, Address, Review, Branch, Notification]), BaseUserModule, TokensModule, CommonModule, CloudinaryModule, NotificationsModule],
   controllers: [AdminController],
   providers: [AdminService]
 })

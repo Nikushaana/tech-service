@@ -13,11 +13,14 @@ import { CreateAddressDto } from 'src/address/dto/create-address.dto';
 import { MultipleImagesUpload } from 'src/common/interceptors/multiple-images-upload.factory';
 import { MultipleFilesUpload } from 'src/common/interceptors/MultipleFilesUpload.interceptor';
 import { CreateReviewDto } from 'src/reviews/dto/create-review.dto';
+import { NotificationsService } from 'src/notifications/notifications.service';
 
 @Controller('individual')
 export class IndividualClientController {
     constructor(
         private readonly individualClientService: IndividualClientService,
+
+        private readonly notificationsService: NotificationsService
     ) { }
 
     // individual
@@ -27,7 +30,7 @@ export class IndividualClientController {
     @Get('')
     async getIndividual(@Req() req: RequestInfo) {
         const userAgent = req.headers['user-agent'] || 'Not Found';
-        
+
         return this.individualClientService.getIndividual(req.user.id, userAgent);
     }
 
@@ -142,5 +145,28 @@ export class IndividualClientController {
     @Get('reviews')
     async getReviews(@Req() req: RequestInfo) {
         return this.individualClientService.getReviews(req.user.id);
+    }
+
+    // notifications
+
+    @UseGuards(TokenValidationGuard, RolesGuard)
+    @Roles('individual')
+    @Get('notifications')
+    async getNotifications(@Req() req: RequestInfo) {
+        return this.individualClientService.getNotifications(req.user.id);
+    }
+
+    @UseGuards(TokenValidationGuard, RolesGuard)
+    @Roles('individual')
+    @Delete('notifications/:id')
+    async deleteNotification(@Param('id', ParseIntPipe) id: number) {
+        return this.notificationsService.deleteNotification(id);
+    }
+
+    @UseGuards(TokenValidationGuard, RolesGuard)
+    @Roles('individual')
+    @Patch('notifications/:id')
+    async readNotification(@Param('id', ParseIntPipe) id: number) {
+        return this.notificationsService.readNotification(id);
     }
 }
