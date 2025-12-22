@@ -8,7 +8,6 @@ import dayjs from "dayjs";
 import { Loader2Icon } from "lucide-react";
 import { useParams } from "next/navigation";
 import { BsEye } from "react-icons/bs";
-import { LuPlus } from "react-icons/lu";
 import { toast } from "react-toastify";
 import Link from "next/link";
 import {

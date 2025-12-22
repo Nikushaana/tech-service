@@ -6,7 +6,6 @@ import { formatPhone } from "@/app/utils/phone";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect } from "react";
 import { HiMenu, HiX } from "react-icons/hi";
 
 const sidebarLinks = [
@@ -18,6 +17,7 @@ const sidebarLinks = [
   { name: "ფილიალები", href: "/admin/panel/branches" },
   { name: "მომხმარებლები", href: "/admin/panel/users" },
   { name: "თანამშრომლები", href: "/admin/panel/staff" },
+  { name: "შეტყობინებები", href: "/admin/panel/notifications" },
 ];
 
 export default function Layout({ children }: { children: React.ReactNode }) {

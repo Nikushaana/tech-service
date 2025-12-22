@@ -23,6 +23,7 @@ const sidebarLinks: Record<Role, SidebarLinksWithTitle> = {
       { name: "მისამართები", href: "/dashboard/individual/addresses" },
       { name: "შეაფასე Tech Service", href: "/dashboard/individual/reviews" },
       { name: "პროფილი", href: "/dashboard/individual/profile" },
+      { name: "შეტყობინებები", href: "/dashboard/individual/notifications" },
     ],
   },
   company: {
@@ -32,6 +33,7 @@ const sidebarLinks: Record<Role, SidebarLinksWithTitle> = {
       { name: "მისამართები", href: "/dashboard/company/addresses" },
       { name: "შეაფასე Tech Service", href: "/dashboard/company/reviews" },
       { name: "პროფილი", href: "/dashboard/company/profile" },
+      { name: "შეტყობინებები", href: "/dashboard/company/notifications" },
     ],
   },
 };
