@@ -28,6 +28,7 @@ import { Branch } from 'src/branches/entities/branches.entity';
 import { UpdateBranchDto } from 'src/branches/dto/update-branch.dto';
 import { UpdateAdminIndividualTechnicianDeliveryDto } from './dto/update-adm-ind-tech-del.dto';
 import { Delivery } from 'src/delivery/entities/delivery.entity';
+import { Notification } from 'src/notifications/entities/notification.entity';
 
 @Injectable()
 export class AdminService {
@@ -64,6 +65,9 @@ export class AdminService {
 
         @InjectRepository(Branch)
         private readonly branchRepo: Repository<Branch>,
+
+        @InjectRepository(Notification)
+        private readonly notificationRepo: Repository<Notification>,
 
         private readonly baseUserService: BaseUserService,
 
@@ -918,5 +922,51 @@ export class AdminService {
             }));
 
         return stats;
+    }
+
+    // notifications
+
+    async getNotifications() {
+        const notifications = await this.notificationRepo.find({
+            where: { for: 'admin' },
+            order: { updated_at: 'DESC' },
+        });
+
+        return notifications;
+    }
+
+    async deleteNotification(id: number) {
+        const notification = await this.notificationRepo.findOne({
+            where: { id },
+        });
+
+        if (!notification) throw new NotFoundException('Notification not found');
+
+        // Delete notification
+        await this.notificationRepo.remove(notification);
+
+        return {
+            message: 'Notification deleted successfully',
+        };
+    }
+
+    async readNotification(
+        id: number,
+    ) {
+        const notification = await this.notificationRepo.findOne({
+            where: { id },
+        });
+        if (!notification) throw new NotFoundException('Notification not found');
+
+        // Merge updates
+        this.notificationRepo.merge(notification, {
+            read: true
+        });
+
+        await this.notificationRepo.save(notification);
+
+        return {
+            message: 'Notification read successfully',
+        };
     }
 }

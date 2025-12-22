@@ -8,8 +8,8 @@ export class FrontController {
 
     @Get('categories')
     async getCategories(@Query('page') page: number = 1,
-        @Query('limit') limit: number = 10,) {
-        return this.frontService.getCategories(page, limit);
+        @Query('limit') limit?: string,) {
+        return this.frontService.getCategories(page, limit !== undefined ? Number(limit) : undefined);
     }
 
     @Get('faqs')
@@ -21,12 +21,12 @@ export class FrontController {
     async getTechnicians(@Query() userFilterDto: UserFilterDto) {
         return this.frontService.getTechnicians(userFilterDto);
     }
-    
+
     @Get('reviews')
     async getReviews() {
         return this.frontService.getReviews();
     }
-    
+
     @Get('branches')
     async getBranches() {
         return this.frontService.getBranches();

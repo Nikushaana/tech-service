@@ -31,8 +31,8 @@ export class FrontService {
         private readonly baseUserService: BaseUserService,
     ) { }
 
-    async getCategories(page: number, limit: number) {
-        const skip = (page - 1) * limit;
+    async getCategories(page: number, limit: number | undefined) {
+        const skip = limit ? (page - 1) * limit : undefined;
 
         const [categories, total] = await this.categoryRepo.findAndCount({
             where: { status: true },
@@ -46,7 +46,7 @@ export class FrontService {
             total,
             page,
             limit,
-            totalPages: Math.ceil(total / limit),
+            totalPages: limit ? Math.ceil(total / limit) : 1,
         };
     }
 

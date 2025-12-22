@@ -14,6 +14,7 @@ import { IndividualClientModule } from './individual-client/individual-client.mo
 import { TechnicianModule } from './technician/technician.module';
 import { GoogleApisModule } from './google-apis/google-apis.module';
 import { DeliveryModule } from './delivery/delivery.module';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
   imports: [
@@ -67,6 +68,8 @@ import { DeliveryModule } from './delivery/delivery.module';
     GoogleApisModule,
 
     DeliveryModule,
+
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

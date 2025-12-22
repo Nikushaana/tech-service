@@ -17,9 +17,10 @@ import { CloudinaryModule } from 'src/common/cloudinary/cloudinary.module';
 import { Review } from 'src/reviews/entities/review.entity';
 import { Branch } from 'src/branches/entities/branches.entity';
 import { Delivery } from 'src/delivery/entities/delivery.entity';
+import { Notification } from 'src/notifications/entities/notification.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Admin, IndividualClient, CompanyClient, Technician, Delivery, Order, Category, Faq, Address, Review, Branch]), BaseUserModule, TokensModule, CommonModule, CloudinaryModule],
+  imports: [TypeOrmModule.forFeature([Admin, IndividualClient, CompanyClient, Technician, Delivery, Order, Category, Faq, Address, Review, Branch, Notification]), BaseUserModule, TokensModule, CommonModule, CloudinaryModule],
   controllers: [AdminController],
   providers: [AdminService]
 })

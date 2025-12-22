@@ -20,6 +20,7 @@ import { RegisterCompanyDto } from './dto/register-company.dto';
 import { Delivery } from 'src/delivery/entities/delivery.entity';
 import { DeliveryToken } from 'src/delivery-token/entities/delivery-token.entity';
 import { RegisterIndAdmTechDelDto } from './dto/register-ind-adm-tech-del.dto';
+import { NotificationsService } from 'src/notifications/notifications.service';
 
 @Injectable()
 export class AuthService {
@@ -59,7 +60,9 @@ export class AuthService {
         @InjectRepository(VerificationCode)
         private VerificationCodeRepo: Repository<VerificationCode>,
 
-        private readonly verificationCodeService: VerificationCodeService
+        private readonly verificationCodeService: VerificationCodeService,
+
+        private readonly notificationService: NotificationsService,
     ) { }
 
     signToken(payload: any): string {
@@ -125,6 +128,31 @@ export class AuthService {
         await repo.save(user);
 
         await this.VerificationCodeRepo.delete({ phone: dto.phone, type: 'register' });
+
+
+        // send notification to admin
+        const roleInGeo =
+            role === 'individual'
+                ? "ფიზიკური პირი"
+                : role === 'admin'
+                    ? "ადმინი"
+                    : role === 'technician'
+                        ? "ტექნიკოსი"
+                        : role === 'delivery'
+                            ? "კურიერი"
+                            : role === 'company'
+                                ? "იურიდიული პირი"
+                                : "მომხმარებელი";
+
+        await this.notificationService.sendNotification(
+            `დარეგისტრირდა ${roleInGeo + " " + (user.companyName || (user.name + " " + user.lastName))}`,
+            'new_user',
+            'admin',
+            {
+                new_user_id: user.id,
+                new_user_role: role,
+            },
+        );
 
         return {
             message: `${role} registered successfully`,

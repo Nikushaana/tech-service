@@ -20,6 +20,7 @@ import { CloudinaryService } from "src/common/cloudinary/cloudinary.service";
 import { CreateReviewDto } from "src/reviews/dto/create-review.dto";
 import { Review } from "src/reviews/entities/review.entity";
 import { Branch } from "src/branches/entities/branches.entity";
+import { NotificationsService } from "src/notifications/notifications.service";
 
 interface WithIdAndPassword {
     id: number;
@@ -55,6 +56,8 @@ export class BaseUserService {
         private readonly verificationCodeService: VerificationCodeService,
 
         private readonly cloudinaryService: CloudinaryService,
+
+        private readonly notificationService: NotificationsService,
     ) { }
 
     async changePassword<T extends WithIdAndPassword>(
@@ -249,6 +252,16 @@ export class BaseUserService {
         order.videos = videoUrls;
 
         await this.orderRepo.save(order);
+
+        // send notification to admin
+        await this.notificationService.sendNotification(
+            `დაემატა განაცხადი ${("companyName" in user ? user.companyName : (user.name + " " + user.lastName))}-ს მიერ`,
+            'new_order',
+            'admin',
+            {
+                order_id: order.id
+            },
+        );
 
         return { message: `Order created successfully`, order: instanceToPlain(order) };
     }
@@ -545,6 +558,16 @@ export class BaseUserService {
         }
 
         await this.reviewRepo.save(review);
+
+        // send notification to admin
+        await this.notificationService.sendNotification(
+            `დაემატა შეფასება ${("companyName" in user ? user.companyName : (user.name + " " + user.lastName))}-ს მიერ`,
+            'new_review',
+            'admin',
+            {
+                review_id: review.id
+            },
+        );
 
         return { message: `Review created successfully`, review: instanceToPlain(review) };
     }

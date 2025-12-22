@@ -10,9 +10,10 @@ import { CommonModule } from 'src/common/common.module';
 import { CloudinaryModule } from 'src/common/cloudinary/cloudinary.module';
 import { Review } from 'src/reviews/entities/review.entity';
 import { Branch } from 'src/branches/entities/branches.entity';
+import { NotificationsModule } from 'src/notifications/notifications.module';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([VerificationCode, Category, Order, Address, Review, Branch]), VerificationCodeModule, CommonModule, CloudinaryModule],
+    imports: [TypeOrmModule.forFeature([VerificationCode, Category, Order, Address, Review, Branch]), VerificationCodeModule, CommonModule, CloudinaryModule, NotificationsModule],
     providers: [BaseUserService],
     exports: [BaseUserService],
 })

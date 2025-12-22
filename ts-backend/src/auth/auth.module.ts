@@ -17,6 +17,7 @@ import { AdminAuthController, AuthController, CompanyAuthController, DeliveryAut
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { Delivery } from 'src/delivery/entities/delivery.entity';
 import { DeliveryToken } from 'src/delivery-token/entities/delivery-token.entity';
+import { NotificationsModule } from 'src/notifications/notifications.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { DeliveryToken } from 'src/delivery-token/entities/delivery-token.entity
       VerificationCode,
     ]),
     VerificationCodeModule,
+    NotificationsModule,
     JwtModule.registerAsync({
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({

@@ -329,4 +329,27 @@ export class AdminController {
     async getOrderStats() {
         return this.adminService.getOrderStats();
     }
+
+    // notifications
+
+    @UseGuards(TokenValidationGuard, RolesGuard)
+    @Roles('admin')
+    @Get('notifications')
+    async getNotifications() {
+        return this.adminService.getNotifications();
+    }
+
+    @UseGuards(TokenValidationGuard, RolesGuard)
+    @Roles('admin')
+    @Delete('notifications/:id')
+    async deleteNotification(@Param('id', ParseIntPipe) id: number) {
+        return this.adminService.deleteNotification(id);
+    }
+    
+    @UseGuards(TokenValidationGuard, RolesGuard)
+    @Roles('admin')
+    @Patch('notifications/:id')
+    async readNotification(@Param('id', ParseIntPipe) id: number) {
+        return this.adminService.readNotification(id);
+    }
 }
