@@ -2,6 +2,7 @@
 
 import { useBurgerMenuStore } from "@/app/store/burgerMenuStore";
 import { useAuthStore } from "@/app/store/useAuthStore";
+import { formatPhone } from "@/app/utils/phone";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -61,11 +62,13 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             </h2>
             {currentUser && (
               <p className="mb-8 text-center text-gray-200">
-                {currentUser?.name +
-                  " " +
-                  currentUser?.lastName +
-                  " " +
-                  currentUser?.phone}
+                {formatPhone(
+                  currentUser?.name +
+                    " " +
+                    currentUser?.lastName +
+                    " " +
+                    currentUser?.phone
+                )}
               </p>
             )}
 

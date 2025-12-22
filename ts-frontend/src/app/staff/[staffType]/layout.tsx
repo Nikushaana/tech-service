@@ -7,6 +7,7 @@ import { HiMenu, HiX } from "react-icons/hi";
 import { useAuthStore } from "@/app/store/useAuthStore";
 import { useBurgerMenuStore } from "@/app/store/burgerMenuStore";
 import { Button } from "@/components/ui/button";
+import { formatPhone } from "@/app/utils/phone";
 
 type SidebarLinksWithTitle = {
   title?: string;
@@ -78,11 +79,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             </h2>
             {currentUser && (
               <p className="mb-8 text-center text-gray-200">
-                {currentUser?.name +
+                {formatPhone(currentUser?.name +
                   " " +
                   currentUser?.lastName +
                   " " +
-                  currentUser?.phone}
+                  currentUser?.phone)}
               </p>
             )}
 

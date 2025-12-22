@@ -5,6 +5,7 @@ import { Loader2Icon } from "lucide-react";
 import FormInput from "../components/inputs/form-input";
 import { useAuthStore } from "../store/useAuthStore";
 import { Button } from "@/components/ui/button";
+import { formatPhone } from "../utils/phone";
 
 export default function Page() {
   const router = useRouter();
@@ -27,8 +28,11 @@ export default function Page() {
         <FormInput
           id="phone"
           value={values.phone || ""}
-          onChange={(e) => setValues("phone", e.target.value)}
+          onChange={(e) => {
+            setValues("phone", formatPhone(e.target.value));
+          }}
           label="ტელეფონის ნომერი"
+          type="tel"
           error={errors.phone}
         />
         <FormInput

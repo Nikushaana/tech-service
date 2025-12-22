@@ -38,7 +38,7 @@ export default function AdminStaffRegister() {
       await registerSchema.validate(values, { abortEarly: false });
 
       let payload: any = {
-        phone: values.phone,
+        phone: values.phone && values.phone.replace(/\s+/g, ""),
         password: values.password,
         name: values.name,
         lastName: values.lastName,

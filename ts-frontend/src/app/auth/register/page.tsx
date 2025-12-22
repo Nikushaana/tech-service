@@ -37,7 +37,7 @@ export default function Register() {
       await registerSchema.validate(values, { abortEarly: false });
 
       let payload: any = {
-        phone: values.phone,
+        phone: values.phone && values.phone.replace(/\s+/g, ""),
         password: values.password,
       };
 

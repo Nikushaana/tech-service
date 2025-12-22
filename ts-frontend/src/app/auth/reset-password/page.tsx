@@ -35,7 +35,7 @@ export default function SendResetPasswordCode() {
 
       axiosFront
         .post(`auth/reset-password`, {
-          phone: values.phone,
+          phone: values.phone && values.phone.replace(/\s+/g, ""),
           code: values.code,
           newPassword: values.newPassword,
         })

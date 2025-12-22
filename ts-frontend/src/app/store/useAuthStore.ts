@@ -40,7 +40,7 @@ type Store = LoginState & AuthState;
 
 const loginSchema = Yup.object().shape({
     phone: Yup.string()
-        .matches(/^5\d{8}$/, "ნომერი უნდა დაიწყოს 5-ით და იყოს 9 ციფრი")
+        .matches(/^5\d{2} \d{3} \d{3}$/, "ნომერი უნდა დაიწყოს 5-ით და იყოს ფორმატში: 5** *** ***")
         .required("ტელეფონის ნომერი აუცილებელია"),
     password: Yup.string().required("პაროლი აუცილებელია"),
 });
@@ -87,7 +87,13 @@ export const useAuthStore = create<Store>((set, get) => ({
 
                 const url = roleUrls[role] || "auth/login-client";
 
-                return axiosFront.post(url, values);
+                // Remove spaces from phone
+                const payload = {
+                    ...values,
+                    phone: values.phone && values.phone.replace(/\s+/g, ""),
+                };
+
+                return axiosFront.post(url, payload);
             })
             .then((res) => {
                 const { data } = res;

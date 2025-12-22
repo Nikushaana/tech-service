@@ -11,6 +11,7 @@ import ImageSelector from "@/app/components/inputs/image-selector";
 import { useParams } from "next/navigation";
 import { Switch } from "@/components/ui/switch";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { formatPhone } from "@/app/utils/phone";
 
 interface TechnicianValues {
   name: string;
@@ -76,7 +77,7 @@ export default function Page() {
         ...prev,
         name: staffMember.name,
         lastName: staffMember.lastName,
-        phone: staffMember.phone,
+        phone: formatPhone(staffMember.phone),
         password: "",
         status: staffMember.status,
         images: imagesArray,
@@ -90,7 +91,7 @@ export default function Page() {
     const { id, value } = e.target;
     setValues((prev) => ({
       ...prev,
-      [id]: value,
+      [id]: id === "phone" ? formatPhone(value) : value,
     }));
   };
 
@@ -99,7 +100,10 @@ export default function Page() {
     name: Yup.string().required("სახელი აუცილებელია"),
     lastName: Yup.string().required("გვარი აუცილებელია"),
     phone: Yup.string()
-      .matches(/^5\d{8}$/, "ნომერი უნდა დაიწყოს 5-ით და იყოს 9 ციფრი")
+      .matches(
+        /^5\d{2} \d{3} \d{3}$/,
+        "ნომერი უნდა დაიწყოს 5-ით და იყოს ფორმატში: 5** *** ***"
+      )
       .required("ტელეფონის ნომერი აუცილებელია"),
     password: Yup.string()
       .notRequired()
@@ -163,7 +167,7 @@ export default function Page() {
       // Append other values
       formData.append("name", values.name);
       formData.append("lastName", values.lastName);
-      formData.append("phone", values.phone);
+      formData.append("phone", values.phone && values.phone.replace(/\s+/g, ""));
       if (values.password) {
         formData.append("password", values.password);
       }

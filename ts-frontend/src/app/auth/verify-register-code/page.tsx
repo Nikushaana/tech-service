@@ -32,7 +32,7 @@ export default function VerifyRegisterCode() {
 
       axiosFront
         .post(`auth/verify-register-code`, {
-          phone: values.phone,
+          phone: values.phone && values.phone.replace(/\s+/g, ""),
           code: values.code,
         })
         .then((res) => {

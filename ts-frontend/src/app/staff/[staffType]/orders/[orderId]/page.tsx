@@ -7,6 +7,7 @@ import dayjs from "dayjs";
 import Map from "@/app/components/map/map";
 import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
+import { formatPhone } from "@/app/utils/phone";
 
 const fetchStaffOrder = async (staffType: string, orderId: string) => {
   const api = staffType === "technician" ? axiosTechnician : axiosDelivery;
@@ -107,7 +108,7 @@ export default function Page() {
           </>
         )}
         <p>
-          {order?.individual ? order.individual?.phone : order?.company?.phone}
+          {formatPhone(order?.individual ? order.individual?.phone : order?.company?.phone)}
         </p>
       </div>
 

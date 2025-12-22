@@ -9,6 +9,7 @@ import { toast } from "react-toastify";
 import { sendCodeSchema } from "@/app/utils/validation";
 import { Loader2Icon } from "lucide-react";
 import { useEffect } from "react";
+import { formatPhone } from "@/app/utils/phone";
 
 export default function SendAdminStaffRegisterCode() {
   const router = useRouter();
@@ -41,7 +42,7 @@ export default function SendAdminStaffRegisterCode() {
             values.role == "technician" ? "technician" : "delivery"
           }/send-register-code`,
           {
-            phone: values.phone,
+            phone: values.phone && values.phone.replace(/\s+/g, ""),
           }
         )
         .then((res) => {
@@ -113,7 +114,7 @@ export default function SendAdminStaffRegisterCode() {
       <FormInput
         id="phone"
         value={values.phone || ""}
-        onChange={(e) => setValues("phone", e.target.value)}
+        onChange={(e) => setValues("phone", formatPhone(e.target.value))}
         label="ტელეფონის ნომერი"
         error={errors.phone}
       />

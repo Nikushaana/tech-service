@@ -9,6 +9,7 @@ import { useParams } from "next/navigation";
 import PanelFormInput from "../inputs/panel-form-input";
 import { Loader2Icon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { formatPhone } from "@/app/utils/phone";
 
 export default function StaffPhoneUpdate() {
   const { currentUser } = useAuthStore();
@@ -23,7 +24,7 @@ export default function StaffPhoneUpdate() {
     if (currentUser) {
       setValues((prev) => ({
         ...prev,
-        phone: currentUser.phone || "",
+        phone: formatPhone(currentUser.phone) || "",
       }));
     }
   }, [currentUser]);
@@ -37,7 +38,10 @@ export default function StaffPhoneUpdate() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
-    setValues((prev) => ({ ...prev, [id]: value }));
+    setValues((prev) => ({
+      ...prev,
+      [id]: id === "phone" ? formatPhone(value) : value,
+    }));
   };
 
   // phone update
@@ -61,7 +65,7 @@ export default function StaffPhoneUpdate() {
 
       api
         .post(`${staffType}/send-change-number-code`, {
-          phone: values.phone,
+          phone: values.phone && values.phone.replace(/\s+/g, ""),
         })
         .then((res) => {
           setSentChangeNumberCode(res.data.code);
@@ -126,7 +130,7 @@ export default function StaffPhoneUpdate() {
 
       api
         .post(`${staffType}/change-number`, {
-          phone: values.phone,
+          phone: values.phone && values.phone.replace(/\s+/g, ""),
           code: values.code,
         })
         .then((res) => {

@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 import { axiosIndividual } from "@/app/api/axios";
 import { sendCodeSchema, verifyCodeSchema } from "@/app/utils/validation";
 import UserPhoneUpdate from "../shared components/user-phone-update";
+import { formatPhone } from "@/app/utils/phone";
 
 export default function IndividualPhoneUpdate() {
   const { currentUser } = useAuthStore();
@@ -19,7 +20,7 @@ export default function IndividualPhoneUpdate() {
     if (currentUser) {
       setValues((prev) => ({
         ...prev,
-        phone: currentUser.phone || "",
+        phone: formatPhone(currentUser.phone) || "",
       }));
     }
   }, [currentUser]);
@@ -54,7 +55,7 @@ export default function IndividualPhoneUpdate() {
 
       axiosIndividual
         .post(`individual/send-change-number-code`, {
-          phone: values.phone,
+          phone: values.phone && values.phone.replace(/\s+/g, ""),
         })
         .then((res) => {
           setSentChangeNumberCode(res.data.code);
@@ -119,7 +120,7 @@ export default function IndividualPhoneUpdate() {
 
       axiosIndividual
         .post(`individual/change-number`, {
-          phone: values.phone,
+          phone: values.phone && values.phone.replace(/\s+/g, ""),
           code: values.code,
         })
         .then((res) => {

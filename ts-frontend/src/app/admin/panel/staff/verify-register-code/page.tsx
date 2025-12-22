@@ -41,7 +41,7 @@ export default function VerifyAdminStaffRegisterCode() {
             values.role == "technician" ? "technician" : "delivery"
           }/verify-register-code`,
           {
-            phone: values.phone,
+            phone: values.phone && values.phone.replace(/\s+/g, ""),
             code: values.code,
           }
         )

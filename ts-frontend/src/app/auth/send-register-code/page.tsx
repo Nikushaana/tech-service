@@ -10,6 +10,7 @@ import { toast } from "react-toastify";
 import { sendCodeSchema } from "@/app/utils/validation";
 import { Loader2Icon } from "lucide-react";
 import Link from "next/link";
+import { formatPhone } from "@/app/utils/phone";
 
 export default function SendRegisterCode() {
   const router = useRouter();
@@ -32,7 +33,7 @@ export default function SendRegisterCode() {
 
       axiosFront
         .post(`auth/send-register-code`, {
-          phone: values.phone,
+          phone: values.phone && values.phone.replace(/\s+/g, ""),
         })
         .then((res) => {
           router.push("/auth/verify-register-code");
@@ -94,7 +95,7 @@ export default function SendRegisterCode() {
       <FormInput
         id="phone"
         value={values.phone || ""}
-        onChange={(e) => setValues("phone", e.target.value)}
+        onChange={(e) => setValues("phone", formatPhone(e.target.value))}
         label="ტელეფონის ნომერი"
         error={errors.phone}
       />
@@ -114,9 +115,7 @@ export default function SendRegisterCode() {
         href={"/auth/login"}
         className="absolute bottom-[-95px] self-center mt-3 z-10"
       >
-        <p
-          className="text-center cursor-pointer border-b-[1px] border-transparent hover:border-gray-700 text-sm text-stroke"
-        >
+        <p className="text-center cursor-pointer border-b-[1px] border-transparent hover:border-gray-700 text-sm text-stroke">
           გაქვს ანგარიში? - გაიარე ავტორიზაცია
         </p>
       </Link>

@@ -3,6 +3,7 @@
 import { axiosAdmin } from "@/app/api/axios";
 import { Dropdown } from "@/app/components/inputs/drop-down";
 import { useRegisterStore } from "@/app/store/registerStore";
+import { formatPhone } from "@/app/utils/phone";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -138,7 +139,7 @@ export default function StaffClient() {
                       </TableCell>
                       <TableCell>{staffMember.name}</TableCell>
                       <TableCell>{staffMember.lastName}</TableCell>
-                      <TableCell>{staffMember.phone}</TableCell>
+                      <TableCell>{formatPhone(staffMember.phone)}</TableCell>
                       <TableCell>
                         {staffMember.status ? "აქტიური" : "დაბლოკილი"}
                       </TableCell>

@@ -10,6 +10,7 @@ import { toast } from "react-toastify";
 import { sendCodeSchema } from "@/app/utils/validation";
 import { Loader2Icon } from "lucide-react";
 import Link from "next/link";
+import { formatPhone } from "@/app/utils/phone";
 
 export default function SendResetPasswordCode() {
   const router = useRouter();
@@ -32,7 +33,7 @@ export default function SendResetPasswordCode() {
 
       axiosFront
         .post(`auth/send-reset-password-code`, {
-          phone: values.phone,
+          phone: values.phone && values.phone.replace(/\s+/g, ""),
         })
         .then((res) => {
           router.push("/auth/reset-password");
@@ -94,7 +95,7 @@ export default function SendResetPasswordCode() {
       <FormInput
         id="phone"
         value={values.phone || ""}
-        onChange={(e) => setValues("phone", e.target.value)}
+        onChange={(e) => setValues("phone", formatPhone(e.target.value))}
         label="ტელეფონის ნომერი"
         error={errors.phone}
       />

@@ -4,6 +4,7 @@ import React from "react";
 import PanelFormInput from "../../inputs/panel-form-input";
 import { Loader2Icon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { formatPhone } from "@/app/utils/phone";
 
 interface UserPhoneFormProps {
   values: Record<string, string>;
@@ -52,7 +53,7 @@ export default function UserPhoneUpdate({
             <PanelFormInput
               id="phone"
               value={values.phone}
-              onChange={(e) => onChange("phone", e.target.value)}
+              onChange={(e) => onChange("phone", formatPhone(e.target.value))}
               label="ტელეფონის ნომერი"
               error={errors.phone}
             />

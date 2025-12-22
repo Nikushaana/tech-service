@@ -2,6 +2,7 @@
 
 import { axiosAdmin } from "@/app/api/axios";
 import { Dropdown } from "@/app/components/inputs/drop-down";
+import { formatPhone } from "@/app/utils/phone";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -154,7 +155,7 @@ export default function UsersClient() {
                         </TableCell>
                       </>
                     )}
-                    <TableCell>{user.phone}</TableCell>
+                    <TableCell>{formatPhone(user.phone)}</TableCell>
                     <TableCell>
                       {user.status ? "აქტიური" : "დაბლოკილი"}
                     </TableCell>

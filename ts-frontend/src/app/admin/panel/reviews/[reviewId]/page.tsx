@@ -12,6 +12,7 @@ import StarRating from "@/app/components/inputs/star-rating";
 import PanelFormInput from "@/app/components/inputs/panel-form-input";
 import { useParams } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { formatPhone } from "@/app/utils/phone";
 
 const fetchAdminReviewById = async (reviewId: string) => {
   const { data } = await axiosAdmin.get(`admin/reviews/${reviewId}`);
@@ -185,7 +186,7 @@ export default function Page() {
         </p>
 
         <p>
-          {review.individual ? review.individual?.phone : review.company?.phone}
+          {formatPhone(review.individual ? review.individual?.phone : review.company?.phone)}
         </p>
       </div>
 
