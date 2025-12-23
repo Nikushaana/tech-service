@@ -1,5 +1,4 @@
 export function formatPhone(value: string) {
-    if (!value) return
     return value
         .replace(/\D/g, "")
         .slice(0, 9)
