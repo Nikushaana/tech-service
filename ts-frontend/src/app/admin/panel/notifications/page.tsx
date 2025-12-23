@@ -107,7 +107,7 @@ export default function UsersClient() {
                     <TableCell>{notification.id}</TableCell>
                     <TableCell>{notification.message}</TableCell>
                     <TableCell>
-                      {dayjs(notification.updated_at).format(
+                      {dayjs(notification.created_at).format(
                         "DD.MM.YYYY HH:mm"
                       )}
                     </TableCell>
