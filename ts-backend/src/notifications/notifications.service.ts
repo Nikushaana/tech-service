@@ -28,19 +28,16 @@ export class NotificationsService {
         return this.notificationRepo.save(notification);
     }
 
-    async deleteNotification(id: number) {
-        const notification = await this.notificationRepo.findOne({
-            where: { id },
+    async getNotifications(role, userId?: number) {
+        const notifications = await this.notificationRepo.find({
+            where: { for: role, forId: userId },
+            order: {
+                read: 'ASC',
+                created_at: 'DESC',
+            },
         });
 
-        if (!notification) throw new NotFoundException('Notification not found');
-
-        // Delete notification
-        await this.notificationRepo.remove(notification);
-
-        return {
-            message: 'Notification deleted successfully',
-        };
+        return notifications;
     }
 
     async readNotification(
@@ -61,5 +58,17 @@ export class NotificationsService {
         return {
             message: 'Notification read successfully',
         };
+    }
+
+    async getUnreadNotificationsCount(role, userId?: number) {
+        const notifications = await this.notificationRepo.find({
+            where: { for: role, forId: userId, read: false },
+            order: {
+                read: 'ASC',
+                created_at: 'DESC',
+            },
+        });
+
+        return notifications.length;
     }
 }

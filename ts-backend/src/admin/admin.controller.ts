@@ -341,20 +341,20 @@ export class AdminController {
     @Roles('admin')
     @Get('notifications')
     async getNotifications() {
-        return this.adminService.getNotifications();
+        return this.notificationsService.getNotifications("admin");
     }
-
-    @UseGuards(TokenValidationGuard, RolesGuard)
-    @Roles('admin')
-    @Delete('notifications/:id')
-    async deleteNotification(@Param('id', ParseIntPipe) id: number) {
-        return this.notificationsService.deleteNotification(id);
-    }
-
+    
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('admin')
     @Patch('notifications/:id')
     async readNotification(@Param('id', ParseIntPipe) id: number) {
         return this.notificationsService.readNotification(id);
+    }
+    
+    @UseGuards(TokenValidationGuard, RolesGuard)
+    @Roles('admin')
+    @Get('notifications/unread')
+    async getUnreadNotificationsCount() {
+        return this.notificationsService.getUnreadNotificationsCount("admin");
     }
 }

@@ -54,9 +54,6 @@ export class BaseUserService {
         @InjectRepository(Branch)
         private branchRepo: Repository<Branch>,
 
-        @InjectRepository(Notification)
-        private readonly notificationRepo: Repository<Notification>,
-
         private readonly verificationCodeService: VerificationCodeService,
 
         private readonly cloudinaryService: CloudinaryService,
@@ -589,20 +586,5 @@ export class BaseUserService {
         });
 
         return reviews;
-    }
-
-    // about notifications
-
-    async getNotifications(userId: number, repo: any) {
-        const user = await this.getUser(userId, repo)
-
-        const relationKey = "companyName" in user ? "company" : "individual";
-
-        const notifications = await this.notificationRepo.find({
-            where: { for: relationKey, forId: userId },
-            order: { updated_at: 'DESC' },
-        });
-
-        return notifications;
     }
 }

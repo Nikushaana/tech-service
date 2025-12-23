@@ -97,10 +97,4 @@ export class CompanyClientService {
     async getReviews(companyId: number) {
         return this.baseUserService.getReviews(companyId, this.companyClientRepo);
     }
-
-    // notifications
-
-    async getNotifications(companyId: number) {
-        return this.baseUserService.getNotifications(companyId, this.companyClientRepo);
-    }
 }

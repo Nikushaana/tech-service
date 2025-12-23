@@ -160,14 +160,7 @@ export class CompanyClientController {
     @Roles('company')
     @Get('notifications')
     async getNotifications(@Req() req: RequestInfo) {
-        return this.companyClientService.getNotifications(req.user.id);
-    }
-
-    @UseGuards(TokenValidationGuard, RolesGuard)
-    @Roles('company')
-    @Delete('notifications/:id')
-    async deleteNotification(@Param('id', ParseIntPipe) id: number) {
-        return this.notificationsService.deleteNotification(id);
+        return this.notificationsService.getNotifications("company", req.user.id);
     }
 
     @UseGuards(TokenValidationGuard, RolesGuard)
@@ -175,5 +168,12 @@ export class CompanyClientController {
     @Patch('notifications/:id')
     async readNotification(@Param('id', ParseIntPipe) id: number) {
         return this.notificationsService.readNotification(id);
+    }
+
+    @UseGuards(TokenValidationGuard, RolesGuard)
+    @Roles('company')
+    @Get('notifications/unread')
+    async getUnreadNotificationsCount(@Req() req: RequestInfo) {
+        return this.notificationsService.getUnreadNotificationsCount("company", req.user.id);
     }
 }

@@ -153,14 +153,7 @@ export class IndividualClientController {
     @Roles('individual')
     @Get('notifications')
     async getNotifications(@Req() req: RequestInfo) {
-        return this.individualClientService.getNotifications(req.user.id);
-    }
-
-    @UseGuards(TokenValidationGuard, RolesGuard)
-    @Roles('individual')
-    @Delete('notifications/:id')
-    async deleteNotification(@Param('id', ParseIntPipe) id: number) {
-        return this.notificationsService.deleteNotification(id);
+        return this.notificationsService.getNotifications("individual", req.user.id);
     }
 
     @UseGuards(TokenValidationGuard, RolesGuard)
@@ -168,5 +161,12 @@ export class IndividualClientController {
     @Patch('notifications/:id')
     async readNotification(@Param('id', ParseIntPipe) id: number) {
         return this.notificationsService.readNotification(id);
+    }
+
+    @UseGuards(TokenValidationGuard, RolesGuard)
+    @Roles('individual')
+    @Get('notifications/unread')
+    async getUnreadNotificationsCount(@Req() req: RequestInfo) {
+        return this.notificationsService.getUnreadNotificationsCount("individual", req.user.id);
     }
 }

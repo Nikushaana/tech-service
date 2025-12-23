@@ -97,10 +97,4 @@ export class IndividualClientService {
     async getReviews(individualId: number) {
         return this.baseUserService.getReviews(individualId, this.individualClientRepo);
     }
-
-    // notifications
-
-    async getNotifications(individualId: number) {
-        return this.baseUserService.getNotifications(individualId, this.individualClientRepo);
-    }
 }

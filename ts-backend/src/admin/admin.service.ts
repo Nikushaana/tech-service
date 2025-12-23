@@ -949,15 +949,4 @@ export class AdminService {
 
         return stats;
     }
-
-    // notifications
-
-    async getNotifications() {
-        const notifications = await this.notificationRepo.find({
-            where: { for: 'admin' },
-            order: { updated_at: 'DESC' },
-        });
-
-        return notifications;
-    }
 }
