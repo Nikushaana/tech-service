@@ -1,9 +1,11 @@
 "use client";
 
+import { axiosAdmin } from "@/app/api/axios";
 import { useBurgerMenuStore } from "@/app/store/burgerMenuStore";
 import { useAuthStore } from "@/app/store/useAuthStore";
 import { formatPhone } from "@/app/utils/phone";
 import { Button } from "@/components/ui/button";
+import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { HiMenu, HiX } from "react-icons/hi";
@@ -20,6 +22,11 @@ const sidebarLinks = [
   { name: "შეტყობინებები", href: "/admin/panel/notifications" },
 ];
 
+const fetchAdminUnreadNotifications = async () => {
+  const { data } = await axiosAdmin.get(`admin/notifications/unread`);
+  return data;
+};
+
 export default function Layout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
@@ -27,6 +34,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   const { openAdminSideBar, toggleAdminSideBar, closeAdminSideBar } =
     useBurgerMenuStore();
+
+  const { data: unreadNotifications } = useQuery({
+    queryKey: ["adminUnreadNotifications"],
+    queryFn: () => fetchAdminUnreadNotifications(),
+    staleTime: 1000 * 60 * 10,
+  });
 
   return (
     <div className="flex flex-col items-center">
@@ -52,7 +65,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               closeAdminSideBar();
             }}
             className={`fixed lg:static top-0 left-0 h-[100vh] w-[100vw] lg:h-auto lg:w-auto z-20 duration-300 ${
-              openAdminSideBar ? "bg-[#000000a7]" : "pointer-events-none lg:pointer-events-auto"
+              openAdminSideBar
+                ? "bg-[#000000a7]"
+                : "pointer-events-none lg:pointer-events-auto"
             }`}
           >
             <div
@@ -87,16 +102,20 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                     <Link
                       key={link.href}
                       href={link.href}
-                      className={`px-4 py-2 rounded-lg text-sm font-medium duration-200
-              ${
-                isActive
-                  ? "bg-white text-myBlue"
-                  : "hover:bg-myLightBlue hover:text-white"
-              }
-            `}
+                      className={`flex items-center justify-between px-4 py-2 rounded-lg text-sm font-medium duration-200 ${
+                        isActive
+                          ? "bg-white text-myBlue"
+                          : "hover:bg-myLightBlue hover:text-white"
+                      }`}
                       onClick={() => closeAdminSideBar()}
                     >
-                      {link.name}
+                      {link.name}{" "}
+                      {link.name == "შეტყობინებები" &&
+                        unreadNotifications > 0 && (
+                          <p className="bg-red-600 flex items-center justify-center rounded-full h-full px-[7px] text-white">
+                            {unreadNotifications}
+                          </p>
+                        )}
                     </Link>
                   );
                 })}

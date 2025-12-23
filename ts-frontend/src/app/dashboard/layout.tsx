@@ -7,6 +7,8 @@ import { BsXLg } from "react-icons/bs";
 import { FaChevronRight } from "react-icons/fa6";
 import { useBurgerMenuStore } from "../store/burgerMenuStore";
 import { Button } from "@/components/ui/button";
+import { useQuery } from "@tanstack/react-query";
+import { axiosCompany, axiosIndividual } from "../api/axios";
 
 type SidebarLinksWithTitle = {
   title?: string;
@@ -38,6 +40,15 @@ const sidebarLinks: Record<Role, SidebarLinksWithTitle> = {
   },
 };
 
+const fetchUserUnreadNotifications = async (role?: string) => {
+  if (!role) return 0;
+  const { data } = await (role == "individual"
+    ? axiosIndividual
+    : axiosCompany
+  ).get(`${role}/notifications/unread`);
+  return data;
+};
+
 export default function Layout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { currentUser, authLoading, toggleLogOut } = useAuthStore();
@@ -50,6 +61,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       ? sidebarLinks[role]
       : { title: "იტვირთება..", links: [] };
 
+  const { data: unreadNotifications } = useQuery({
+    queryKey: ["userUnreadNotifications", role],
+    queryFn: () => fetchUserUnreadNotifications(role),
+    staleTime: 1000 * 60 * 10,
+  });
+
   return (
     <div className="flex flex-col items-center">
       <div
@@ -60,7 +77,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         {/* Mobile Hamburger */}
         <div
           onClick={() => toggleSideBar()}
-          className={`lg:hidden fixed top-[40%] z-[2] rounded-r-[10px] shadow-lg border-[1px] flex items-center justify-center text-2xl duration-300 h-[60px] w-[45px] ${openSideBar ? "left-[20px] bg-gray-300 " : "left-0 bg-gray-100 "}`}
+          className={`lg:hidden fixed top-[40%] z-[2] rounded-r-[10px] shadow-lg border-[1px] flex items-center justify-center text-2xl duration-300 h-[60px] w-[45px] ${
+            openSideBar ? "left-[20px] bg-gray-300 " : "left-0 bg-gray-100 "
+          }`}
         >
           <FaChevronRight />
         </div>
@@ -72,7 +91,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               closeSideBar();
             }}
             className={`fixed lg:static top-0 left-0 h-[100vh] w-[100vw] lg:h-auto lg:w-auto z-20 duration-300 ${
-              openSideBar ? "bg-[#000000a7] " : "pointer-events-none lg:pointer-events-auto"
+              openSideBar
+                ? "bg-[#000000a7] "
+                : "pointer-events-none lg:pointer-events-auto"
             } `}
           >
             <div
@@ -96,7 +117,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                     <Link
                       key={link.href}
                       href={link.href}
-                      className={`px-4 py-2 rounded-lg text-sm font-medium duration-200
+                      className={`flex items-center justify-between px-4 py-2 rounded-lg text-sm font-medium duration-200
               ${
                 isActive
                   ? "bg-white text-myBlue"
@@ -105,7 +126,13 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             `}
                       onClick={() => closeSideBar()}
                     >
-                      {link.name}
+                      {link.name}{" "}
+                      {link.name == "შეტყობინებები" &&
+                        unreadNotifications > 0 && (
+                          <p className="bg-red-600 flex items-center justify-center rounded-full h-full px-[7px] text-white">
+                            {unreadNotifications}
+                          </p>
+                        )}
                     </Link>
                   );
                 })}

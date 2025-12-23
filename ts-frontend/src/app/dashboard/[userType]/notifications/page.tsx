@@ -46,6 +46,9 @@ export default function Page() {
       queryClient.invalidateQueries({
         queryKey: ["userNotifications"],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["userUnreadNotifications"],
+      });
     },
   });
 

@@ -62,6 +62,9 @@ export default function UsersClient() {
       queryClient.invalidateQueries({
         queryKey: ["adminNotifications"],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["adminUnreadNotifications"],
+      });
     },
   });
 
