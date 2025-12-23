@@ -8,7 +8,7 @@ import { toast } from "react-toastify";
 import * as Yup from "yup";
 import { Dropdown2 } from "@/app/components/inputs/drop-down-2";
 import Map from "@/app/components/map/map";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchCities, fetchStreets } from "@/app/api/locations";
@@ -34,13 +34,25 @@ export default function Page() {
     branchId: string;
   }>();
 
+  const router = useRouter();
   const queryClient = useQueryClient();
 
-  const { data: branch, isLoading } = useQuery({
+  const {
+    data: branch,
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: ["adminBranch", branchId],
     queryFn: () => fetchAdminBranchById(branchId),
     staleTime: 1000 * 60 * 10,
+    retry: false,
   });
+
+  useEffect(() => {
+    if (isError) {
+      router.back();
+    }
+  }, [isError, router]);
 
   const [values, setValues] = useState<BranchValues>({
     name: "",

@@ -1,7 +1,6 @@
 "use client";
 
 import { axiosAdmin } from "@/app/api/axios";
-import { Dropdown } from "@/app/components/inputs/drop-down";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -15,6 +14,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Loader2Icon } from "lucide-react";
 import Link from "next/link";
 import { BsEye } from "react-icons/bs";
+import dayjs from "dayjs";
 
 const fetchAdminNotifications = async () => {
   const { data } = await axiosAdmin.get(`admin/notifications`);
@@ -34,14 +34,21 @@ export default function UsersClient() {
     const { type, data } = notification;
 
     if (type === "new_user") {
-      const isIndividual = data?.new_user_role === "individual";
-      const base = isIndividual ? "individuals" : "companies";
+      const isStaff =
+        data?.new_user_role === "technician" ||
+        data?.new_user_role === "delivery";
 
-      return `/admin/panel/users/${base}-${data?.new_user_id}`;
+      return `/admin/panel/${isStaff ? "staff" : "users"}/${
+        data?.new_user_role
+      }-${data?.new_user_id}`;
     }
 
     if (type === "new_review") {
       return `/admin/panel/reviews/${data?.review_id}`;
+    }
+
+    if (type === "new_order") {
+      return `/admin/panel/orders/${data?.order_id}`;
     }
 
     return "";
@@ -77,11 +84,12 @@ export default function UsersClient() {
               <TableRow>
                 <TableHead className="font-semibold">ID</TableHead>
                 <TableHead className="font-semibold">შეტყობინება</TableHead>
+                <TableHead className="font-semibold">თარიღი</TableHead>
                 <TableHead className="text-right"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {notifications.length === 0 ? (
+              {notifications?.length === 0 ? (
                 <TableRow>
                   <TableCell
                     colSpan={8}
@@ -91,10 +99,15 @@ export default function UsersClient() {
                   </TableCell>
                 </TableRow>
               ) : (
-                notifications.map((notification: any) => (
+                notifications?.map((notification: any) => (
                   <TableRow key={notification.id} className="hover:bg-gray-50">
                     <TableCell>{notification.id}</TableCell>
                     <TableCell>{notification.message}</TableCell>
+                    <TableCell>
+                      {dayjs(notification.updated_at).format(
+                        "DD.MM.YYYY HH:mm"
+                      )}
+                    </TableCell>
                     <TableCell className="text-right">
                       <Link href={getNotificationLink(notification)}>
                         <Button

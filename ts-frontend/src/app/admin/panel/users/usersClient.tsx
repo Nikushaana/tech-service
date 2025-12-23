@@ -160,13 +160,7 @@ export default function UsersClient() {
                       {user.status ? "აქტიური" : "დაბლოკილი"}
                     </TableCell>
                     <TableCell className="text-right">
-                      <Link
-                        href={`/admin/panel/users/${
-                          filters.type == "ფიზიკური პირი"
-                            ? "individuals-"
-                            : "companies-"
-                        }${user.id}`}
-                      >
+                      <Link href={`/admin/panel/users/${user.role}-${user.id}`}>
                         <Button
                           variant="secondary"
                           size="icon"

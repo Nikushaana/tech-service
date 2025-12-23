@@ -90,6 +90,7 @@ export default function VerifyRegisterCode() {
         value={values.code || ""}
         onChange={(e) => setValues("code", e.target.value)}
         label="კოდი"
+         type="tel"
         error={errors.code}
       />
 

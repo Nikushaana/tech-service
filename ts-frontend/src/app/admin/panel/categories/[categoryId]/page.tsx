@@ -7,7 +7,7 @@ import PanelFormInput from "@/app/components/inputs/panel-form-input";
 import { toast } from "react-toastify";
 import * as Yup from "yup";
 import ImageSelector from "@/app/components/inputs/image-selector";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -30,13 +30,25 @@ export default function Page() {
     categoryId: string;
   }>();
 
+  const router = useRouter();
   const queryClient = useQueryClient();
 
-  const { data: category, isLoading } = useQuery({
+  const {
+    data: category,
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: ["adminCategory", categoryId],
     queryFn: () => fetchAdminCategoryById(categoryId),
     staleTime: 1000 * 60 * 10,
+    retry: false,
   });
+
+  useEffect(() => {
+    if (isError) {
+      router.back();
+    }
+  }, [isError, router]);
 
   const [values, setValues] = useState<CategoryValues>({
     name: "",

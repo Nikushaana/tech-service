@@ -8,7 +8,7 @@ import { toast } from "react-toastify";
 import * as Yup from "yup";
 import { Button } from "@/components/ui/button";
 import ImageSelector from "@/app/components/inputs/image-selector";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { Switch } from "@/components/ui/switch";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { formatPhone } from "@/app/utils/phone";
@@ -39,16 +39,29 @@ export default function Page() {
     staffSlug: string;
   }>();
 
-  const staffMemberType = staffSlug.split("-")[0];
+  const staffMemberType =
+    staffSlug.split("-")[0] == "technician" ? "technicians" : "deliveries";
   const staffMemberId = staffSlug.split("-")[1];
 
+  const router = useRouter();
   const queryClient = useQueryClient();
 
-  const { data: staffMember, isLoading } = useQuery({
+  const {
+    data: staffMember,
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: ["adminStaffMember", staffMemberType, staffMemberId],
     queryFn: () => fetchAdminStaffMemberById(staffMemberType, staffMemberId),
     staleTime: 1000 * 60 * 10,
+    retry: false,
   });
+
+  useEffect(() => {
+    if (isError) {
+      router.back();
+    }
+  }, [isError, router]);
 
   const [values, setValues] = useState<TechnicianValues>({
     name: "",
@@ -167,7 +180,10 @@ export default function Page() {
       // Append other values
       formData.append("name", values.name);
       formData.append("lastName", values.lastName);
-      formData.append("phone", values.phone && values.phone.replace(/\s+/g, ""));
+      formData.append(
+        "phone",
+        values.phone && values.phone.replace(/\s+/g, "")
+      );
       if (values.password) {
         formData.append("password", values.password);
       }

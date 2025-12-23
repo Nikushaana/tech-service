@@ -145,11 +145,7 @@ export default function StaffClient() {
                       </TableCell>
                       <TableCell className="text-right">
                         <Link
-                          href={`/admin/panel/staff/${
-                            values.role == "technician"
-                              ? "technicians-"
-                              : "deliveries-"
-                          }${staffMember.id}`}
+                          href={`/admin/panel/staff/${staffMember.role}-${staffMember.id}`}
                         >
                           <Button
                             variant="secondary"

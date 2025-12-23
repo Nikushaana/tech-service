@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { HiMenu, HiX } from "react-icons/hi";
 import { useMenuStore } from "../store/useMenuStore";
 import { scrollToSection } from "../utils/scroll";

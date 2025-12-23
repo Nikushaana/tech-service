@@ -200,6 +200,7 @@ export default function StaffPhoneUpdate() {
               value={values.code}
               onChange={handleChange}
               label="კოდი"
+               type="tel"
               error={errors.code}
             />
           ) : (

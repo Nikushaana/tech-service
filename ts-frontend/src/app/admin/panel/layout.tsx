@@ -38,9 +38,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         {/* Mobile Hamburger */}
         <div
           onClick={() => toggleAdminSideBar()}
-          className={`lg:hidden flex items-center self-start justify-center text-2xl duration-300 h-[45px] aspect-square ${
-            openAdminSideBar &&
-            "rotate-[360deg] ml-64 bg-myLightBlue text-white rounded-[10px]"
+          className={`lg:hidden flex items-center self-end justify-center text-2xl duration-300 h-[45px] aspect-square ${
+            openAdminSideBar && "rotate-[180deg]"
           }`}
         >
           {openAdminSideBar ? <HiX /> : <HiMenu />}
@@ -49,71 +48,75 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <div className="flex gap-[10px] flex-1">
           {/* Sidebar */}
           <aside
-            className={`fixed lg:static top-0 left-0 h-full lg:h-auto w-64 bg-myLightBlue hover:bg-myBlue text-white flex flex-col px-[10px] py-[20px] shadow-xl rounded-r-xl lg:rounded-xl z-20 transform duration-150 
-            ${
-              openAdminSideBar
-                ? "translate-x-0"
-                : "-translate-x-full lg:translate-x-0"
-            }
-          `}
+            onClick={() => {
+              closeAdminSideBar();
+            }}
+            className={`fixed lg:static top-0 left-0 h-[100vh] w-[100vw] lg:h-auto lg:w-auto z-20 duration-300 ${
+              openAdminSideBar ? "bg-[#000000a7]" : "pointer-events-none lg:pointer-events-auto"
+            }`}
           >
-            <h2 className="text-[20px] text-center font-bold tracking-wide">
-              ადმინი
-            </h2>
-            {currentUser && (
-              <p className="mb-8 text-center text-gray-200">
-                {formatPhone(
-                  currentUser?.name +
-                    " " +
-                    currentUser?.lastName +
-                    " " +
-                    currentUser?.phone
-                )}
-              </p>
-            )}
-
-            <nav
-              className={`flex flex-col gap-2 mb-6 duration-300 w-full ${
-                !authLoading ? "" : "ml-[-300px]"
-              }`}
+            <div
+              onClick={(e) => e.stopPropagation()}
+              className={`h-full w-[256px] bg-myLightBlue hover:bg-myBlue text-white flex flex-col px-[10px] py-[20px] shadow-xl rounded-r-xl lg:rounded-xl duration-100
+            ${!openAdminSideBar && "ml-[-256px] lg:ml-0"}
+          `}
             >
-              {sidebarLinks.map((link) => {
-                const isActive = pathname.startsWith(link.href);
-                return (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium duration-200
+              <h2 className="text-[20px] text-center font-bold tracking-wide">
+                ადმინი
+              </h2>
+              {currentUser && (
+                <p className="mb-8 text-center text-gray-200">
+                  {formatPhone(
+                    currentUser?.name +
+                      " " +
+                      currentUser?.lastName +
+                      " " +
+                      currentUser?.phone
+                  )}
+                </p>
+              )}
+
+              <nav
+                className={`flex flex-col gap-2 mb-6 duration-300 w-full ${
+                  !authLoading ? "" : "ml-[-300px]"
+                }`}
+              >
+                {sidebarLinks.map((link) => {
+                  const isActive = pathname.startsWith(link.href);
+                  return (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium duration-200
               ${
                 isActive
                   ? "bg-white text-myBlue"
                   : "hover:bg-myLightBlue hover:text-white"
               }
             `}
-                    onClick={() => closeAdminSideBar()}
-                  >
-                    {link.name}
-                  </Link>
-                );
-              })}
-            </nav>
+                      onClick={() => closeAdminSideBar()}
+                    >
+                      {link.name}
+                    </Link>
+                  );
+                })}
+              </nav>
 
-            <Button
-              onClick={() => toggleLogOut()}
-              className={`mt-auto rounded-lg font-semibold text-[#1e40af] bg-white w-full
+              <Button
+                onClick={() => toggleLogOut()}
+                className={`mt-auto rounded-lg font-semibold text-[#1e40af] bg-white w-full
         hover:bg-[#b91c1c] hover:text-white duration-300 cursor-pointer ${
           !authLoading ? "" : "ml-[-300px]"
         }`}
-            >
-              გასვლა
-            </Button>
+              >
+                გასვლა
+              </Button>
+            </div>
           </aside>
 
           {/* Main content */}
           <main
-            className={`${
-              openAdminSideBar && "pointer-events-none brightness-70"
-            } flex-1 flex flex-col overflow-x-auto duration-200 bg-gray-50 p-2 border-[1px] rounded-xl shadow-inner`}
+            className={`flex-1 flex flex-col overflow-x-auto duration-200 bg-gray-50 p-2 border-[1px] rounded-xl shadow-inner`}
           >
             {children}
           </main>

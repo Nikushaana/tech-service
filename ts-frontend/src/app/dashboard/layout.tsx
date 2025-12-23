@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { useAuthStore } from "../store/useAuthStore";
-import { HiMenu, HiX } from "react-icons/hi";
+import { BsXLg } from "react-icons/bs";
+import { FaChevronRight } from "react-icons/fa6";
 import { useBurgerMenuStore } from "../store/burgerMenuStore";
 import { Button } from "@/components/ui/button";
 
@@ -60,71 +60,72 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         {/* Mobile Hamburger */}
         <div
           onClick={() => toggleSideBar()}
-          className={`lg:hidden flex items-center self-start justify-center text-2xl duration-300 h-[45px] aspect-square ${
-            openSideBar &&
-            "rotate-[360deg] ml-64 bg-myLightBlue text-white rounded-[10px]"
-          }`}
+          className={`lg:hidden fixed top-[40%] z-[2] rounded-r-[10px] shadow-lg border-[1px] flex items-center justify-center text-2xl duration-300 h-[60px] w-[45px] ${openSideBar ? "left-[20px] bg-gray-300 " : "left-0 bg-gray-100 "}`}
         >
-          {openSideBar ? <HiX /> : <HiMenu />}
+          <FaChevronRight />
         </div>
 
         <div className="flex gap-[10px] flex-1">
           {/* Sidebar */}
           <aside
-            className={`fixed lg:static top-0 left-0 h-full lg:h-auto w-64 bg-myLightBlue hover:bg-myBlue text-white flex flex-col px-[10px] py-[20px] shadow-xl rounded-r-xl lg:rounded-xl z-20 transform duration-150 
-            ${
-              openSideBar
-                ? "translate-x-0"
-                : "-translate-x-full lg:translate-x-0"
-            }
-          `}
+            onClick={() => {
+              closeSideBar();
+            }}
+            className={`fixed lg:static top-0 left-0 h-[100vh] w-[100vw] lg:h-auto lg:w-auto z-20 duration-300 ${
+              openSideBar ? "bg-[#000000a7] " : "pointer-events-none lg:pointer-events-auto"
+            } `}
           >
-            <h2 className="text-[20px] text-center font-bold mb-8 tracking-wide">
-              {sidebar.title}
-            </h2>
-
-            <nav
-              className={`flex flex-col gap-2 mb-6 duration-300 w-full ${
-                !authLoading ? "" : "ml-[-300px]"
-              }`}
+            <div
+              onClick={(e) => e.stopPropagation()}
+              className={`h-full w-[256px] bg-myLightBlue hover:bg-myBlue text-white flex flex-col px-[10px] py-[20px] shadow-xl rounded-r-xl lg:rounded-xl duration-100
+            ${!openSideBar && "ml-[-256px] lg:ml-0"}
+          `}
             >
-              {sidebar.links.map((link) => {
-                const isActive = pathname.startsWith(link.href);
-                return (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium duration-200
+              <h2 className="text-[20px] text-center font-bold mb-8 tracking-wide">
+                {sidebar.title}
+              </h2>
+
+              <nav
+                className={`flex flex-col gap-2 mb-6 duration-300 w-full ${
+                  !authLoading ? "" : "ml-[-300px]"
+                }`}
+              >
+                {sidebar.links.map((link) => {
+                  const isActive = pathname.startsWith(link.href);
+                  return (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium duration-200
               ${
                 isActive
                   ? "bg-white text-myBlue"
                   : "hover:bg-myLightBlue hover:text-white"
               }
             `}
-                    onClick={() => closeSideBar()}
-                  >
-                    {link.name}
-                  </Link>
-                );
-              })}
-            </nav>
+                      onClick={() => closeSideBar()}
+                    >
+                      {link.name}
+                    </Link>
+                  );
+                })}
+              </nav>
 
-            <Button
-              onClick={() => toggleLogOut()}
-              className={`mt-auto rounded-lg font-semibold text-[#1e40af] bg-white w-full
+              <Button
+                onClick={() => toggleLogOut()}
+                className={`mt-auto rounded-lg font-semibold text-[#1e40af] bg-white w-full
         hover:bg-[#b91c1c] hover:text-white duration-300 cursor-pointer ${
           !authLoading ? "" : "ml-[-300px]"
         }`}
-            >
-              გასვლა
-            </Button>
+              >
+                გასვლა
+              </Button>
+            </div>
           </aside>
 
           {/* Main content */}
           <main
-            className={`${
-              openSideBar && "pointer-events-none brightness-70"
-            } flex-1 flex overflow-x-auto duration-200 bg-gray-50 p-2 border-[1px] rounded-xl shadow-inner`}
+            className={`flex-1 flex overflow-x-auto duration-200 bg-gray-50 p-2 border-[1px] rounded-xl shadow-inner`}
           >
             {children}
           </main>

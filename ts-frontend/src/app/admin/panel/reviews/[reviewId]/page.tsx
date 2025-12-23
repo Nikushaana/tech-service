@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "react-toastify";
 import StarRating from "@/app/components/inputs/star-rating";
 import PanelFormInput from "@/app/components/inputs/panel-form-input";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { formatPhone } from "@/app/utils/phone";
 
@@ -29,13 +29,25 @@ export default function Page() {
     reviewId: string;
   }>();
 
+  const router = useRouter();
   const queryClient = useQueryClient();
 
-  const { data: review, isLoading } = useQuery({
+  const {
+    data: review,
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: ["adminReview", reviewId],
     queryFn: () => fetchAdminReviewById(reviewId),
     staleTime: 1000 * 60 * 10,
+    retry: false,
   });
+
+  useEffect(() => {
+    if (isError) {
+      router.back();
+    }
+  }, [isError, router]);
 
   const [values, setValues] = useState({
     review: "",
@@ -144,7 +156,7 @@ export default function Page() {
     }
   };
 
-  if (isLoading)
+  if (isLoading || isError)
     return (
       <div className="flex justify-center w-full mt-10">
         <Loader2Icon className="animate-spin size-6 text-gray-600" />
@@ -186,7 +198,9 @@ export default function Page() {
         </p>
 
         <p>
-          {formatPhone(review.individual ? review.individual?.phone : review.company?.phone)}
+          {formatPhone(
+            review.individual ? review.individual?.phone : review.company?.phone
+          )}
         </p>
       </div>
 

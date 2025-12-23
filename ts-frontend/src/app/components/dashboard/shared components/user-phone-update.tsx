@@ -47,6 +47,7 @@ export default function UserPhoneUpdate({
               value={values.code}
               onChange={(e) => onChange("code", e.target.value)}
               label="კოდი"
+               type="tel"
               error={errors.code}
             />
           ) : (

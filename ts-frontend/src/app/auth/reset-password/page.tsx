@@ -93,6 +93,7 @@ export default function SendResetPasswordCode() {
         value={values.code || ""}
         onChange={(e) => setValues("code", e.target.value)}
         label="კოდი"
+         type="tel"
         error={errors.code}
       />
       <FormInput

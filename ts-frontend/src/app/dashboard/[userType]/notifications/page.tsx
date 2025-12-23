@@ -1,8 +1,6 @@
 "use client";
 
-import StarRating from "@/app/components/inputs/star-rating";
 import { Button } from "@/components/ui/button";
-import { useReviewsStore } from "@/app/store/useReviewsStore";
 import dayjs from "dayjs";
 import { Loader2Icon } from "lucide-react";
 import { useParams } from "next/navigation";
@@ -72,11 +70,12 @@ export default function Page() {
               <TableRow>
                 <TableHead className="font-semibold">ID</TableHead>
                 <TableHead className="font-semibold">შეტყობინება</TableHead>
+                <TableHead className="font-semibold">თარიღი</TableHead>
                 <TableHead className="text-right"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {notifications.length === 0 ? (
+              {notifications?.length === 0 ? (
                 <TableRow>
                   <TableCell
                     colSpan={8}
@@ -86,10 +85,15 @@ export default function Page() {
                   </TableCell>
                 </TableRow>
               ) : (
-                notifications.map((notification: any) => (
+                notifications?.map((notification: any) => (
                   <TableRow key={notification.id} className="hover:bg-gray-50">
                     <TableCell>{notification.id}</TableCell>
                     <TableCell>{notification.message}</TableCell>
+                    <TableCell>
+                      {dayjs(notification.created_at).format(
+                        "DD.MM.YYYY HH:mm"
+                      )}
+                    </TableCell>
                     <TableCell className="text-right">
                       <Button
                         onClick={() => {

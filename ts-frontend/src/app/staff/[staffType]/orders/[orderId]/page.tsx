@@ -5,9 +5,10 @@ import { statusTranslations } from "@/app/utils/status-translations";
 import { Loader2Icon } from "lucide-react";
 import dayjs from "dayjs";
 import Map from "@/app/components/map/map";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { formatPhone } from "@/app/utils/phone";
+import { useEffect } from "react";
 
 const fetchStaffOrder = async (staffType: string, orderId: string) => {
   const api = staffType === "technician" ? axiosTechnician : axiosDelivery;
@@ -21,13 +22,26 @@ export default function Page() {
     orderId: string;
   }>();
 
-  const { data: order = [], isLoading } = useQuery({
+  const router = useRouter();
+
+  const {
+    data: order = [],
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: ["staffOrders", staffType, orderId],
     queryFn: () => fetchStaffOrder(staffType, orderId),
     staleTime: 1000 * 60 * 10,
+    retry: false,
   });
 
-  if (isLoading)
+  useEffect(() => {
+    if (isError) {
+      router.back();
+    }
+  }, [isError, router]);
+
+  if (isLoading || isError)
     return (
       <div className="flex justify-center w-full mt-10">
         <Loader2Icon className="animate-spin size-6 text-gray-600" />
@@ -108,7 +122,9 @@ export default function Page() {
           </>
         )}
         <p>
-          {formatPhone(order?.individual ? order.individual?.phone : order?.company?.phone)}
+          {formatPhone(
+            order?.individual ? order.individual?.phone : order?.company?.phone
+          )}
         </p>
       </div>
 

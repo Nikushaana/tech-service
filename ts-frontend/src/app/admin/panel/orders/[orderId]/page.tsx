@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "react-toastify";
 import { useOrderStatusOptionsStore } from "@/app/store/orderStatusOptionsStore";
 import Map from "@/app/components/map/map";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { formatPhone } from "@/app/utils/phone";
 
@@ -37,6 +37,7 @@ export default function Page() {
     orderId: string;
   }>();
 
+  const router = useRouter();
   const queryClient = useQueryClient();
 
   const { data: employees } = useQuery({
@@ -44,10 +45,21 @@ export default function Page() {
     queryFn: fetchAdminActiveEmployees,
   });
 
-  const { data: order, isLoading } = useQuery({
+  const {
+    data: order,
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: ["adminOrder", orderId],
     queryFn: () => fetchAdminOrderById(orderId),
+    retry: false,
   });
+
+  useEffect(() => {
+    if (isError) {
+      router.back();
+    }
+  }, [isError, router]);
 
   const { statusOptions } = useOrderStatusOptionsStore();
 
@@ -156,7 +168,7 @@ export default function Page() {
     }
   };
 
-  if (isLoading)
+  if (isLoading || isError)
     return (
       <div className="flex justify-center w-full mt-10">
         <Loader2Icon className="animate-spin size-6 text-gray-600" />
@@ -235,7 +247,9 @@ export default function Page() {
           </>
         )}
         <p>
-          {formatPhone(order.individual ? order.individual?.phone : order.company?.phone)}
+          {formatPhone(
+            order.individual ? order.individual?.phone : order.company?.phone
+          )}
         </p>
       </div>
 

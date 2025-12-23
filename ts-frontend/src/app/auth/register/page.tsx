@@ -117,7 +117,7 @@ export default function Register() {
         Tech Service-ში რეგისტრაცია
       </h1>
 
-      <div className="flex gap-6 items-center">
+      <div className="flex flex-wrap gap-6 items-center">
         <label className="flex items-center gap-2 cursor-pointer">
           <Checkbox
             checked={values.role === "individual"}

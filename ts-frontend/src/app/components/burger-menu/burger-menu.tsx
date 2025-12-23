@@ -8,6 +8,7 @@ import React, { useEffect } from "react";
 import { useAuthStore } from "@/app/store/useAuthStore";
 import { toast } from "react-toastify";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export default function BurgerMenu() {
   const menu = useMenuStore((state) => state.menu);
@@ -16,72 +17,62 @@ export default function BurgerMenu() {
   const pathname = usePathname();
   const router = useRouter();
 
+  const path = currentUser
+    ? currentUser.role === "individual"
+      ? "/dashboard/individual/orders"
+      : "/dashboard/company/orders"
+    : "/auth/login";
+
   return (
     <div
+      onClick={() => {
+        closeBurgerMenu();
+      }}
       className={`${
-        isOpen
-          ? "rounded-tr-[180px] inset-0"
-          : "rounded-tr-[700px] ml-[-100vw] top-[200px] left-[-100vw]"
-      } duration-300 fixed z-50 bg-[#000000a7] w-[100vw] h-[100vh] overflow-hidden shadow-2xl shadow-[black]`}
+        isOpen ? "bg-[#000000a7] " : "pointer-events-none"
+      } duration-300 inset-0 fixed z-50 w-[100vw] h-[100vh] overflow-hidden shadow-2xl shadow-[black]`}
     >
       <div
+        onClick={(e) => e.stopPropagation()}
         className={`
       ${!isOpen && "ml-[-300px]"}      
-          duration-1000 bg-gray-100 h-full w-[300px] px-4 overflow-hidden`}
+          duration-100 bg-gray-100 h-full w-[300px] px-4 py-[20px] flex flex-col gap-6 overflow-hidden`}
       >
-        <div
-          className={`w-full h-full ${
-            isOpen ? "" : "ml-[320px]"
-          } duration-1000 py-[20px] flex flex-col gap-6`}
-        >
-          <img
-            src="/images/logo.png"
-            alt="logo"
-            className="h-[60px] aspect-square self-start"
-          />
+        <img
+          src="/images/logo.png"
+          alt="logo"
+          className="h-[60px] aspect-square self-start"
+        />
 
+        <Link href={path}>
           <Button
             onClick={() => {
-              if (currentUser) {
-                const path =
-                  currentUser.role === "individual"
-                    ? "/dashboard/individual/orders"
-                    : "/dashboard/company/orders";
-
-                router.push(path);
-              } else {
-                router.push("/auth/login");
-                toast.warning("ასარჩევად გაიარე ავტორიზაცია", {
-                  position: "bottom-right",
-                  autoClose: 3000,
-                });
-              }
               closeBurgerMenu();
             }}
-            className="flex h-[45px] cursor-pointer"
+            className="flex cursor-pointer h-[45px] w-full"
           >
-            აირჩიე სერვისი
+            {currentUser ? "აირჩიე სერვისი" : "ავტორიზაცია"}
           </Button>
+        </Link>
 
-          <nav className="flex flex-col gap-6">
-            {menu.map((item) => (
-              <h1
-                key={item.id}
-                onClick={() => {
-                  if (pathname.split("/")[1]) {
-                    router.push("/");
-                  } else {
-                    scrollToSection(item.target);
-                    closeBurgerMenu();
-                  }
-                }}
-                className="cursor-pointer text-myLightGray hover:text-myLightBlue duration-100"
-              >
-                {item.text}
-              </h1>
-            ))}
-          </nav>
-        </div>
+        <nav className="flex flex-col gap-6">
+          {menu.map((item) => (
+            <h1
+              key={item.id}
+              onClick={() => {
+                if (pathname.split("/")[1]) {
+                  router.push("/");
+                } else {
+                  scrollToSection(item.target);
+                  closeBurgerMenu();
+                }
+              }}
+              className="cursor-pointer text-myLightGray hover:text-myLightBlue duration-100"
+            >
+              {item.text}
+            </h1>
+          ))}
+        </nav>
       </div>
     </div>
   );

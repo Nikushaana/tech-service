@@ -8,7 +8,7 @@ import { toast } from "react-toastify";
 import * as Yup from "yup";
 import { Button } from "@/components/ui/button";
 import ImageSelector from "@/app/components/inputs/image-selector";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { Switch } from "@/components/ui/switch";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { formatPhone } from "@/app/utils/phone";
@@ -41,16 +41,29 @@ export default function Page() {
     userSlug: string;
   }>();
 
-  const userType = userSlug.split("-")[0];
+  const userType =
+    userSlug.split("-")[0] == "individual" ? "individuals" : "companies";
   const userId = userSlug.split("-")[1];
 
+  const router = useRouter();
   const queryClient = useQueryClient();
 
-  const { data: user, isLoading } = useQuery({
+  const {
+    data: user,
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: ["adminUser", userType, userId],
     queryFn: () => fetchAdminUserById(userType, userId),
     staleTime: 1000 * 60 * 10,
+    retry: false,
   });
+
+  useEffect(() => {
+    if (isError) {
+      router.back();
+    }
+  }, [isError, router]);
 
   const [values, setValues] = useState<UserValues>({
     // individdual
@@ -220,7 +233,10 @@ export default function Page() {
           values.companyIdentificationCode
         );
       }
-      formData.append("phone", values.phone && values.phone.replace(/\s+/g, ""));
+      formData.append(
+        "phone",
+        values.phone && values.phone.replace(/\s+/g, "")
+      );
       if (values.password) {
         formData.append("password", values.password);
       }

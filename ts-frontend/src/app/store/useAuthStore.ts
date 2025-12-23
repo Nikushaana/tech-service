@@ -243,6 +243,10 @@ export const useAuthStore = create<Store>((set, get) => ({
                         router.push(`/admin/panel/main`)
                     }
 
+                    if (activeRole !== "admin" && pathname.startsWith("/admin/")) {
+                        router.push(`/admin`)
+                    }
+
                     if ((activeRole == "company" || activeRole == "individual") && pathname.startsWith("/dashboard")) {
                         const section = pathname.split("/")[3] || "profile";
                         const subsection = pathname.split("/")[4] ? `/${pathname.split("/")[4]}` : "";
@@ -250,7 +254,13 @@ export const useAuthStore = create<Store>((set, get) => ({
                     }
 
                     if ((activeRole == "technician" || activeRole == "delivery") && pathname.startsWith("/staff")) {
-                        router.push(`/staff/${activeRole}/${pathname.split("/")[3] || "orders"}`)
+                        const section = pathname.split("/")[3] || "orders";
+                        const subsection = pathname.split("/")[4] ? `/${pathname.split("/")[4]}` : "";
+                        router.push(`/staff/${activeRole}/${section}/${subsection}`)
+                    }
+
+                    if ((activeRole !== "technician" && activeRole !== "delivery") && pathname.startsWith("/staff/")) {
+                        router.push(`/staff`)
                     }
                 })
                 .catch(() => {

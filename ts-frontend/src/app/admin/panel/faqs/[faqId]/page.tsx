@@ -6,7 +6,7 @@ import React, { useEffect, useState } from "react";
 import PanelFormInput from "@/app/components/inputs/panel-form-input";
 import { toast } from "react-toastify";
 import * as Yup from "yup";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -21,13 +21,25 @@ export default function Page() {
     faqId: string;
   }>();
 
+  const router = useRouter();
   const queryClient = useQueryClient();
 
-  const { data: faq, isLoading } = useQuery({
+  const {
+    data: faq,
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: ["adminFaq", faqId],
     queryFn: () => fetchAdminFaqById(faqId),
     staleTime: 1000 * 60 * 10,
+    retry: false,
   });
+
+  useEffect(() => {
+    if (isError) {
+      router.back();
+    }
+  }, [isError, router]);
 
   const [values, setValues] = useState({
     question: "",
