@@ -1,4 +1,4 @@
-import { BadRequestException, ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { instanceToPlain } from 'class-transformer';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
@@ -72,9 +72,7 @@ export class AuthService {
     // send and verify sent code
 
     async sendRegisterCode(phoneDto: PhoneDto) {
-        const result = await this.verificationCodeService.sendCode(phoneDto, 'register');
-
-        return { message: `Code ${result.code} sent to ${result.phone}`, code: result.code };
+        return this.verificationCodeService.sendCode(phoneDto, 'register');
     }
 
     async verifyRegisterCode(verifyCodeDto: VerifyCodeDto) {
@@ -252,8 +250,7 @@ export class AuthService {
     }
 
     async sendResetPasswordCode(phoneDto: PhoneDto) {
-        const result = await this.verificationCodeService.sendCode(phoneDto, 'reset-password');
-        return { message: `Code ${result.code} sent to ${result.phone}`, code: result.code };
+        return this.verificationCodeService.sendCode(phoneDto, 'reset-password');
     }
 
     async resetPassword(

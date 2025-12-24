@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, Req, UploadedFiles, UseFilters, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, Req, UploadedFiles, UseGuards, UseInterceptors } from '@nestjs/common';
 import { AdminService } from './admin.service';
 import { TokenValidationGuard } from 'src/auth/guards/token-validation.guard';
 import { Roles } from 'src/common/decorators/roles.decorator';
@@ -17,17 +17,46 @@ import { CreateBranchDto } from 'src/branches/dto/create-branch.dto';
 import { UpdateBranchDto } from 'src/branches/dto/update-branch.dto';
 import { UpdateAdminIndividualTechnicianDeliveryDto } from './dto/update-adm-ind-tech-del.dto';
 import { NotificationsService } from 'src/notifications/notifications.service';
+import { ReviewsService } from 'src/reviews/reviews.service';
+import { BranchesService } from 'src/branches/branches.service';
+import { OrderService } from 'src/order/order.service';
+import { FaqService } from 'src/faq/faq.service';
+import { CategoryService } from 'src/category/category.service';
+import { IndividualClientService } from 'src/individual-client/individual-client.service';
+import { CompanyClientService } from 'src/company-client/company-client.service';
+import { TechnicianService } from 'src/technician/technician.service';
+import { DeliveryService } from 'src/delivery/delivery.service';
+import { BaseUserService } from 'src/common/services/base-user/base-user.service';
 
 @Controller('admin')
 export class AdminController {
     constructor(
         private readonly adminService: AdminService,
 
-        private readonly notificationsService: NotificationsService
+        private readonly notificationsService: NotificationsService,
+
+        private readonly reviewsService: ReviewsService,
+
+        private readonly branchesService: BranchesService,
+
+        private readonly orderService: OrderService,
+
+        private readonly faqService: FaqService,
+
+        private readonly categoryService: CategoryService,
+
+        private readonly individualClientService: IndividualClientService,
+
+        private readonly companyClientService: CompanyClientService,
+
+        private readonly technicianService: TechnicianService,
+
+        private readonly deliveryService: DeliveryService,
+
+        private readonly baseUserService: BaseUserService,
     ) { }
 
-    // admin
-
+    // admin info
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('admin')
     @Get('')
@@ -36,19 +65,18 @@ export class AdminController {
     }
 
     // individuals
-
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('admin')
     @Get('individuals')
-    async getAdminIndividuals() {
-        return this.adminService.getAdminIndividuals();
+    async getIndividuals() {
+        return this.individualClientService.getIndividuals();
     }
 
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('admin')
     @Get('individuals/:id')
     async getAdminOneIndividual(@Param('id', ParseIntPipe) id: number) {
-        return this.adminService.getAdminOneIndividual(id);
+        return this.individualClientService.getAdminOneIndividual(id);
     }
 
     @UseGuards(TokenValidationGuard, RolesGuard)
@@ -56,23 +84,22 @@ export class AdminController {
     @Patch('individuals/:id')
     @UseInterceptors(MultipleImagesUpload('images', 1))
     async updateAdminOneIndividual(@Param('id', ParseIntPipe) id: number, @Body() updateAdminIndividualTechnicianDeliveryDto: UpdateAdminIndividualTechnicianDeliveryDto, @UploadedFiles() images: Express.Multer.File[]) {
-        return this.adminService.updateAdminOneIndividual(id, updateAdminIndividualTechnicianDeliveryDto, images);
+        return this.individualClientService.updateAdminOneIndividual(id, updateAdminIndividualTechnicianDeliveryDto, images);
     }
 
     // companies
-
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('admin')
     @Get('companies')
-    async getAdminCompanies() {
-        return this.adminService.getAdminCompanies();
+    async getCompanies() {
+        return this.companyClientService.getCompanies();
     }
 
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('admin')
     @Get('companies/:id')
     async getAdminOneCompany(@Param('id', ParseIntPipe) id: number) {
-        return this.adminService.getAdminOneCompany(id);
+        return this.companyClientService.getAdminOneCompany(id);
     }
 
     @UseGuards(TokenValidationGuard, RolesGuard)
@@ -80,23 +107,22 @@ export class AdminController {
     @Patch('companies/:id')
     @UseInterceptors(MultipleImagesUpload('images', 1))
     async updateAdminOneCompany(@Param('id', ParseIntPipe) id: number, @Body() updateAdminCompanyDto: UpdateAdminCompanyDto, @UploadedFiles() images: Express.Multer.File[]) {
-        return this.adminService.updateAdminOneCompany(id, updateAdminCompanyDto, images);
+        return this.companyClientService.updateAdminOneCompany(id, updateAdminCompanyDto, images);
     }
 
     // technicians
-
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('admin')
     @Get('technicians')
-    async getAdminTechnicians(@Query() userFilterDto: UserFilterDto) {
-        return this.adminService.getAdminTechnicians(userFilterDto);
+    async getTechnicians(@Query() userFilterDto: UserFilterDto) {
+        return this.technicianService.getTechnicians(userFilterDto);
     }
 
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('admin')
     @Get('technicians/:id')
     async getAdminOneTechnician(@Param('id', ParseIntPipe) id: number) {
-        return this.adminService.getAdminOneTechnician(id);
+        return this.technicianService.getAdminOneTechnician(id);
     }
 
     @UseGuards(TokenValidationGuard, RolesGuard)
@@ -104,23 +130,22 @@ export class AdminController {
     @Patch('technicians/:id')
     @UseInterceptors(MultipleImagesUpload('images', 1))
     async updateAdminOneTechnician(@Param('id', ParseIntPipe) id: number, @Body() updateAdminIndividualTechnicianDeliveryDto: UpdateAdminIndividualTechnicianDeliveryDto, @UploadedFiles() images: Express.Multer.File[]) {
-        return this.adminService.updateAdminOneTechnician(id, updateAdminIndividualTechnicianDeliveryDto, images);
+        return this.technicianService.updateAdminOneTechnician(id, updateAdminIndividualTechnicianDeliveryDto, images);
     }
 
     // deliveries
-
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('admin')
     @Get('deliveries')
-    async getAdminDeliveries(@Query() userFilterDto: UserFilterDto) {
-        return this.adminService.getAdminDeliveries(userFilterDto);
+    async getDeliveries(@Query() userFilterDto: UserFilterDto) {
+        return this.deliveryService.getDeliveries(userFilterDto);
     }
 
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('admin')
     @Get('deliveries/:id')
     async getAdminOneDelivery(@Param('id', ParseIntPipe) id: number) {
-        return this.adminService.getAdminOneDelivery(id);
+        return this.deliveryService.getAdminOneDelivery(id);
     }
 
     @UseGuards(TokenValidationGuard, RolesGuard)
@@ -128,53 +153,51 @@ export class AdminController {
     @Patch('deliveries/:id')
     @UseInterceptors(MultipleImagesUpload('images', 1))
     async updateAdminOneDelivery(@Param('id', ParseIntPipe) id: number, @Body() updateAdminIndividualTechnicianDeliveryDto: UpdateAdminIndividualTechnicianDeliveryDto, @UploadedFiles() images: Express.Multer.File[]) {
-        return this.adminService.updateAdminOneDelivery(id, updateAdminIndividualTechnicianDeliveryDto, images);
+        return this.deliveryService.updateAdminOneDelivery(id, updateAdminIndividualTechnicianDeliveryDto, images);
     }
 
     // orders
-
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('admin')
     @Get('orders')
-    async getOrders() {
-        return this.adminService.getOrders();
+    async getAdminOrders() {
+        return this.orderService.getAdminOrders();
     }
 
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('admin')
     @Get('orders/:id')
-    async getOneOrder(@Param('id', ParseIntPipe) id: number) {
-        return this.adminService.getOneOrder(id);
+    async getAdminOneOrder(@Param('id', ParseIntPipe) id: number) {
+        return this.orderService.getAdminOneOrder(id);
     }
 
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('admin')
     @Patch('orders/:id')
-    async updateOneOrder(@Param('id', ParseIntPipe) id: number, @Body() updateAdminOrderDto: UpdateAdminOrderDto) {
-        return this.adminService.updateOneOrder(id, updateAdminOrderDto);
+    async updateAdminOneOrder(@Param('id', ParseIntPipe) id: number, @Body() updateAdminOrderDto: UpdateAdminOrderDto) {
+        return this.orderService.updateAdminOneOrder(id, updateAdminOrderDto);
     }
 
     // categories
-
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('admin')
     @Post('category')
     async createCategory(@Body() createCategoryDto: CreateCategoryDto) {
-        return this.adminService.createCategory(createCategoryDto);
+        return this.categoryService.createCategory(createCategoryDto);
     }
 
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('admin')
     @Get('categories')
     async getCategories() {
-        return this.adminService.getCategories();
+        return this.categoryService.getCategories();
     }
 
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('admin')
     @Get('categories/:id')
     async getOneCategory(@Param('id', ParseIntPipe) id: number) {
-        return this.adminService.getOneCategory(id);
+        return this.categoryService.getOneCategory(id);
     }
 
     @UseGuards(TokenValidationGuard, RolesGuard)
@@ -182,175 +205,154 @@ export class AdminController {
     @Patch('categories/:id')
     @UseInterceptors(MultipleImagesUpload('images', 1))
     async updateOneCategory(@Param('id', ParseIntPipe) id: number, @Body() updateCategoryDto: UpdateCategoryDto, @UploadedFiles() images: Express.Multer.File[]) {
-        return this.adminService.updateOneCategory(id, updateCategoryDto, images);
+        return this.categoryService.updateOneCategory(id, updateCategoryDto, images);
     }
 
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('admin')
     @Delete('categories/:id')
     async deleteCategory(@Param('id', ParseIntPipe) id: number) {
-        return this.adminService.deleteCategory(id);
+        return this.categoryService.deleteCategory(id);
     }
 
     // faqs
-
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('admin')
     @Post('faq')
     async createFaq(@Body() createFaqDto: CreateFaqDto) {
-        return this.adminService.createFaq(createFaqDto);
+        return this.faqService.createFaq(createFaqDto);
     }
 
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('admin')
     @Get('faqs')
     async getFaqs() {
-        return this.adminService.getFaqs();
+        return this.faqService.getFaqs();
     }
 
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('admin')
     @Get('faqs/:id')
     async getOneFaq(@Param('id', ParseIntPipe) id: number) {
-        return this.adminService.getOneFaq(id);
+        return this.faqService.getOneFaq(id);
     }
 
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('admin')
     @Patch('faqs/:id')
     async updateOneFaq(@Param('id', ParseIntPipe) id: number, @Body() updateFaqDto: UpdateFaqDto) {
-        return this.adminService.updateOneFaq(id, updateFaqDto);
+        return this.faqService.updateOneFaq(id, updateFaqDto);
     }
 
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('admin')
     @Delete('faqs/:id')
     async deleteFaq(@Param('id', ParseIntPipe) id: number) {
-        return this.adminService.deleteFaq(id);
-    }
-
-    // addresses
-
-    @UseGuards(TokenValidationGuard, RolesGuard)
-    @Roles('admin')
-    @Get('addresses')
-    async getAddresses() {
-        return this.adminService.getAddresses();
-    }
-
-    @UseGuards(TokenValidationGuard, RolesGuard)
-    @Roles('admin')
-    @Get('addresses/:id')
-    async getUserAddresses(@Param('id', ParseIntPipe) id: number, @Query('role') role: 'individual' | 'company') {
-        return this.adminService.getUserAddresses(id, role);
+        return this.faqService.deleteFaq(id);
     }
 
     // reviews
-
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('admin')
     @Get('reviews')
-    async getReviews() {
-        return this.adminService.getReviews();
+    async getAdminReviews() {
+        return this.reviewsService.getAdminReviews();
     }
 
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('admin')
     @Get('reviews/:id')
-    async getOneReview(@Param('id', ParseIntPipe) id: number) {
-        return this.adminService.getOneReview(id);
+    async getAdminOneReview(@Param('id', ParseIntPipe) id: number) {
+        return this.reviewsService.getAdminOneReview(id);
     }
 
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('admin')
     @Patch('reviews/:id')
-    async updateOneReview(@Param('id', ParseIntPipe) id: number, @Body() updateReviewDto: UpdateReviewDto) {
-        return this.adminService.updateOneReview(id, updateReviewDto);
+    async updateAdminOneReview(@Param('id', ParseIntPipe) id: number, @Body() updateReviewDto: UpdateReviewDto) {
+        return this.reviewsService.updateAdminOneReview(id, updateReviewDto);
     }
 
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('admin')
     @Delete('reviews/:id')
-    async deleteReview(@Param('id', ParseIntPipe) id: number) {
-        return this.adminService.deleteReview(id);
+    async deleteAdminReview(@Param('id', ParseIntPipe) id: number) {
+        return this.reviewsService.deleteAdminReview(id);
     }
 
     // branches
-
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('admin')
     @Post('create-branch')
     async createBranch(@Body() createBranchDto: CreateBranchDto) {
-        return this.adminService.createBranch(createBranchDto);
+        return this.branchesService.createBranch(createBranchDto);
     }
 
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('admin')
     @Get('branches')
     async getBranches() {
-        return this.adminService.getBranches();
+        return this.branchesService.getBranches();
     }
 
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('admin')
     @Get('branches/:id')
     async getOneBranch(@Param('id', ParseIntPipe) id: number) {
-        return this.adminService.getOneBranch(id);
+        return this.branchesService.getOneBranch(id);
     }
 
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('admin')
     @Patch('branches/:id')
     async updateOneBranch(@Param('id', ParseIntPipe) id: number, @Body() updateBranchDto: UpdateBranchDto) {
-        return this.adminService.updateOneBranch(id, updateBranchDto);
+        return this.branchesService.updateOneBranch(id, updateBranchDto);
     }
 
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('admin')
     @Delete('branches/:id')
     async deleteBranch(@Param('id', ParseIntPipe) id: number) {
-        return this.adminService.deleteBranch(id);
+        return this.branchesService.deleteBranch(id);
     }
 
     // statistics
-
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('admin')
     @Get('user-registration-stats')
     async getUserRegistrationStats() {
-        return this.adminService.getUserRegistrationStats();
+        return this.baseUserService.getUserRegistrationStats();
     }
 
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('admin')
     @Get('used-devices-stats')
     async getUsedDevicesStats() {
-        return this.adminService.getUsedDevicesStats();
+        return this.baseUserService.getUsedDevicesStats();
     }
 
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('admin')
     @Get('order-stats')
     async getOrderStats() {
-        return this.adminService.getOrderStats();
+        return this.orderService.getOrderStats();
     }
 
     // notifications
-
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('admin')
     @Get('notifications')
     async getNotifications() {
         return this.notificationsService.getNotifications("admin");
     }
-    
+
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('admin')
     @Patch('notifications/:id')
     async readNotification(@Param('id', ParseIntPipe) id: number) {
         return this.notificationsService.readNotification(id);
     }
-    
+
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('admin')
     @Get('notifications/unread')

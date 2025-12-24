@@ -6,14 +6,16 @@ import { Delivery } from './entities/delivery.entity';
 import { BaseUserModule } from 'src/common/services/base-user/base-user.module';
 import { VerificationCodeModule } from 'src/verification-code/verification-code.module';
 import { TokensModule } from 'src/common/tokens/token.module';
-import { Order } from 'src/order/entities/order.entity';
+import { OrderModule } from 'src/order/order.module';
+import { CloudinaryModule } from 'src/common/cloudinary/cloudinary.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Delivery, Order]),
-    BaseUserModule, VerificationCodeModule, TokensModule
+    TypeOrmModule.forFeature([Delivery]),
+    BaseUserModule, VerificationCodeModule, TokensModule, OrderModule, CloudinaryModule
   ],
   providers: [DeliveryService],
-  controllers: [DeliveryController]
+  controllers: [DeliveryController],
+  exports: [DeliveryService, TypeOrmModule],
 })
 export class DeliveryModule { }

@@ -23,11 +23,10 @@ export class CompanyClientController {
     ) { }
 
     // company
-
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('company')
     @Get('')
-    async getIndividual(@Req() req: RequestInfo) {
+    async getCompany(@Req() req: RequestInfo) {
         const userAgent = req.headers['user-agent'] || 'Not Found';
 
         return this.companyClientService.getCompany(req.user.id, userAgent);
@@ -63,7 +62,6 @@ export class CompanyClientController {
     }
 
     // order
-
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('company')
     @Post('create-order')
@@ -109,7 +107,6 @@ export class CompanyClientController {
     }
 
     // address
-
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('company')
     @Post('create-address')
@@ -139,7 +136,6 @@ export class CompanyClientController {
     }
 
     // review
-
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('company')
     @Post('create-review')
@@ -155,7 +151,6 @@ export class CompanyClientController {
     }
 
     // notifications
-
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('company')
     @Get('notifications')

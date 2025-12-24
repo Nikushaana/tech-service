@@ -8,19 +8,21 @@ import { UpdateDeliveryDto } from './dto/update-delivery.dto';
 import { TokenValidationGuard } from 'src/auth/guards/token-validation.guard';
 import { RolesGuard } from 'src/common/guards/roles.guard';
 import type { RequestInfo } from 'src/common/types/request-info';
+import { OrderService } from 'src/order/order.service';
 
 @Controller('delivery')
 export class DeliveryController {
     constructor(
         private readonly deliveryService: DeliveryService,
+
+        private readonly orderService: OrderService,
     ) { }
 
     // delivery
-
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('delivery')
     @Get('')
-    async getTechnician(@Req() req: RequestInfo) {
+    async getDelivery(@Req() req: RequestInfo) {
         return this.deliveryService.getDelivery(req.user.id);
     }
 
@@ -28,7 +30,7 @@ export class DeliveryController {
     @Roles('delivery')
     @Patch('')
     @UseInterceptors(MultipleImagesUpload('images', 1))
-    async updateTechnician(@Req() req: RequestInfo, @Body() updateTechnicianDto: UpdateDeliveryDto, @UploadedFiles() images: Express.Multer.File[]) {
+    async updateDelivery(@Req() req: RequestInfo, @Body() updateTechnicianDto: UpdateDeliveryDto, @UploadedFiles() images: Express.Multer.File[]) {
         return this.deliveryService.updateDelivery(req.user.id, updateTechnicianDto, images);
     }
 
@@ -54,18 +56,17 @@ export class DeliveryController {
     }
 
     // order
-
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('delivery')
     @Get('orders')
-    async getOrders(@Req() req: RequestInfo) {
-        return this.deliveryService.getOrders(req.user.id);
+    async getDeliveryOrders(@Req() req: RequestInfo) {
+        return this.orderService.getDeliveryOrders(req.user.id);
     }
 
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('delivery')
     @Get('orders/:id')
-    async getOneOrder(@Req() req: RequestInfo, @Param('id', ParseIntPipe) id: number) {
-        return this.deliveryService.getOneOrder(req.user.id, id);
+    async getDeliveryOneOrder(@Req() req: RequestInfo, @Param('id', ParseIntPipe) id: number) {
+        return this.orderService.getDeliveryOneOrder(req.user.id, id);
     }
 }

@@ -1,17 +1,14 @@
 import { Module } from '@nestjs/common';
-import { FrontService } from './front.service';
 import { FrontController } from './front.controller';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { Category } from 'src/category/entities/category.entity';
-import { Technician } from 'src/technician/entities/technician.entity';
-import { Faq } from 'src/faq/entities/faq.entity';
 import { BaseUserModule } from 'src/common/services/base-user/base-user.module';
-import { Review } from 'src/reviews/entities/review.entity';
-import { Branch } from 'src/branches/entities/branches.entity';
+import { BranchesModule } from 'src/branches/branches.module';
+import { FaqModule } from 'src/faq/faq.module';
+import { CategoryModule } from 'src/category/category.module';
+import { ReviewsModule } from 'src/reviews/reviews.module';
+import { TechnicianModule } from 'src/technician/technician.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Category, Technician, Faq, Review, Branch]), BaseUserModule],
-  providers: [FrontService],
+  imports: [BaseUserModule, BranchesModule, FaqModule, CategoryModule, ReviewsModule, TechnicianModule],
   controllers: [FrontController]
 })
-export class FrontModule {}
+export class FrontModule { }

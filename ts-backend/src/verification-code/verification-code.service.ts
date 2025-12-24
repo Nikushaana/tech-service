@@ -6,6 +6,8 @@ import { Technician } from 'src/technician/entities/technician.entity';
 import { Repository } from 'typeorm';
 import { VerificationCode } from './entities/verification-code.entity';
 import { PhoneDto, VerifyCodeDto } from './dto/verification-code.dto';
+import { Delivery } from 'src/delivery/entities/delivery.entity';
+import { Admin } from 'src/admin/entities/admin.entity';
 
 @Injectable()
 export class VerificationCodeService {
@@ -18,6 +20,12 @@ export class VerificationCodeService {
 
         @InjectRepository(Technician)
         private technicianRepo: Repository<Technician>,
+        
+        @InjectRepository(Delivery)
+        private deliveryRepo: Repository<Delivery>,
+        
+        @InjectRepository(Admin)
+        private adminRepo: Repository<Admin>,
 
         @InjectRepository(VerificationCode)
         private VerificationCodeRepo: Repository<VerificationCode>,
@@ -27,7 +35,10 @@ export class VerificationCodeService {
         const exists =
             (await this.individualClientRepo.findOne({ where: { phone: phoneDto.phone } })) ||
             (await this.companyClientRepo.findOne({ where: { phone: phoneDto.phone } })) ||
-            (await this.technicianRepo.findOne({ where: { phone: phoneDto.phone } }));
+            (await this.deliveryRepo.findOne({ where: { phone: phoneDto.phone } })) ||
+            (await this.technicianRepo.findOne({ where: { phone: phoneDto.phone } })) ||
+            (await this.adminRepo.findOne({ where: { phone: phoneDto.phone } }))
+            ;
         if (type === 'register' || type === 'change-number') {
             if (exists) throw new BadRequestException('Phone already used');
         } else if (type === 'reset-password') {
@@ -42,7 +53,7 @@ export class VerificationCodeService {
             ['phone', 'type'], // phone + type unique
         );
 
-        return { code, phone: phoneDto.phone };
+        return { message: `Code ${code} sent to ${phoneDto.phone}`, code: code };
     }
 
     async verifyCode(verifyCodeDto: VerifyCodeDto, type: 'register' | 'reset-password' | 'change-number') {

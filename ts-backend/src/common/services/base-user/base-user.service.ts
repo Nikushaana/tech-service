@@ -1,8 +1,5 @@
-import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Address } from "src/address/entities/address.entity";
-import { Category } from "src/category/entities/category.entity";
-import { Order } from "src/order/entities/order.entity";
 import { VerificationCode } from "src/verification-code/entities/verification-code.entity";
 import { VerificationCodeService } from "src/verification-code/verification-code.service";
 import { Repository } from "typeorm";
@@ -13,15 +10,13 @@ import * as bcrypt from 'bcrypt';
 import { UserFilterDto } from "./dto/user-filter.dto";
 import { UpdateCompanyDto } from "src/company-client/dto/update-company.dto";
 import { UpdateIndividualDto } from "src/individual-client/dto/update-individual.dto";
-import { CreateOrderDto } from "src/order/dto/create-order.dto";
-import { UpdateUserOrderDto } from "src/order/dto/update-user-order.dto";
-import { CreateAddressDto } from "src/address/dto/create-address.dto";
 import { CloudinaryService } from "src/common/cloudinary/cloudinary.service";
-import { CreateReviewDto } from "src/reviews/dto/create-review.dto";
-import { Review } from "src/reviews/entities/review.entity";
-import { Branch } from "src/branches/entities/branches.entity";
-import { NotificationsService } from "src/notifications/notifications.service";
-import { Notification } from "src/notifications/entities/notification.entity";
+import { IndividualClient } from "src/individual-client/entities/individual-client.entity";
+import { CompanyClient } from "src/company-client/entities/company-client.entity";
+import { Technician } from "src/technician/entities/technician.entity";
+import { Delivery } from "src/delivery/entities/delivery.entity";
+import { Admin } from "src/admin/entities/admin.entity";
+import { UpdateAdminIndividualTechnicianDeliveryDto } from "src/admin/dto/update-adm-ind-tech-del.dto";
 
 interface WithIdAndPassword {
     id: number;
@@ -39,26 +34,24 @@ export class BaseUserService {
         @InjectRepository(VerificationCode)
         private VerificationCodeRepo: Repository<VerificationCode>,
 
-        @InjectRepository(Category)
-        private readonly categoryRepo: Repository<Category>,
+        @InjectRepository(IndividualClient)
+        private individualClientRepo: Repository<IndividualClient>,
 
-        @InjectRepository(Order)
-        private readonly orderRepo: Repository<Order>,
+        @InjectRepository(CompanyClient)
+        private companyClientRepo: Repository<CompanyClient>,
 
-        @InjectRepository(Address)
-        private readonly addressRepo: Repository<Address>,
+        @InjectRepository(Technician)
+        private technicianRepo: Repository<Technician>,
 
-        @InjectRepository(Review)
-        private readonly reviewRepo: Repository<Review>,
+        @InjectRepository(Delivery)
+        private deliveryRepo: Repository<Delivery>,
 
-        @InjectRepository(Branch)
-        private branchRepo: Repository<Branch>,
+        @InjectRepository(Admin)
+        private adminRepo: Repository<Admin>,
 
         private readonly verificationCodeService: VerificationCodeService,
 
         private readonly cloudinaryService: CloudinaryService,
-
-        private readonly notificationService: NotificationsService,
     ) { }
 
     async changePassword<T extends WithIdAndPassword>(
@@ -99,8 +92,24 @@ export class BaseUserService {
         };
     }
 
-    // registered user services
+    // check phone exists or not
+    async checkPhoneExists(phone: string, excludeUserId?: number) {
+        const userExists =
+            (await this.individualClientRepo.findOne({ where: { phone } })) ||
+            (await this.companyClientRepo.findOne({ where: { phone } })) ||
+            (await this.technicianRepo.findOne({ where: { phone } })) ||
+            (await this.deliveryRepo.findOne({ where: { phone } })) ||
+            (await this.adminRepo.findOne({ where: { phone } }))
+            ;
 
+        if (userExists && userExists.id !== excludeUserId) {
+            throw new ConflictException('Phone is already in use');
+        }
+
+        return false;
+    }
+
+    // registered user services
     async getUsers(repo: any, userFilterDto?: UserFilterDto) {
         const findUsers = await repo.find({
             where: userFilterDto,
@@ -134,8 +143,18 @@ export class BaseUserService {
         return findUser;
     }
 
-    async updateUser(userId: number, repo: any, updateUserDto: UpdateCompanyDto | UpdateIndividualDto, images: Express.Multer.File[] = []) {
-        const user = await this.getUser(userId, repo)
+    async updateUser(userId: number, repo: any, updateUserDto: UpdateAdminIndividualTechnicianDeliveryDto | UpdateCompanyDto | UpdateIndividualDto, images: Express.Multer.File[] = [], role?: string) {
+        const user = await this.getUser(userId, repo);
+
+        if (role == "admin") {
+            if ('phone' in updateUserDto && updateUserDto.phone && updateUserDto.phone !== user.phone) {
+                await this.checkPhoneExists(updateUserDto.phone, userId);
+            }
+
+            if ('password' in updateUserDto && updateUserDto.password) {
+                updateUserDto.password = await bcrypt.hash(updateUserDto.password, 10);
+            }
+        }
 
         let imagesToDeleteArray: string[] = [];
         if (updateUserDto.imagesToDelete) {
@@ -171,7 +190,7 @@ export class BaseUserService {
         // Upload images to Cloudinary if any
         const imageUrls = await this.cloudinaryService.uploadImages(
             images,
-            `tech_service_project/images/${user.role == "company" ? "companies" : user.role == "individual" ? "individuals" : "technicians"}`,
+            `tech_service_project/images/${user.role == "company" ? "companies" : user.role == "individual" ? "individuals" : user.role == "technician" ? "technicians" : "deliveries"}`,
         );
 
         const updatedUser = repo.merge(user, updateUserDto);
@@ -184,407 +203,56 @@ export class BaseUserService {
         await repo.save(updatedUser);
 
         return {
-            message: 'user updated successfully',
+            message: 'User updated successfully',
             user: instanceToPlain(updatedUser),
         };
     }
 
-    // about orders
+    // statistics
+    async getUserRegistrationStats() {
+        const individuals = await this.getUsers(this.individualClientRepo);
+        const companies = await this.getUsers(this.companyClientRepo);
 
-    async createOrder(userId: number, repo: any, createOrderDto: CreateOrderDto, images: Express.Multer.File[] = [], videos: Express.Multer.File[] = []) {
-        const user = await this.getUser(userId, repo)
+        const groupByMonth = (users: { created_at: Date }[]) =>
+            users.reduce((acc, user) => {
+                const date = new Date(user.created_at);
+                const yearMonth = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-01`;
+                acc[yearMonth] = (acc[yearMonth] || 0) + 1;
+                return acc;
+            }, {} as Record<string, number>);
 
-        if (!user.status) {
-            throw new BadRequestException('Inactive user cannot create orders');
-        }
+        const individualsByMonth = groupByMonth(individuals);
+        const companiesByMonth = groupByMonth(companies);
 
-        const category = await this.categoryRepo.findOne({ where: { id: createOrderDto.categoryId, status: true } });
-        if (!category) throw new NotFoundException('Category not found');
+        const allMonths = Array.from(new Set([...Object.keys(individualsByMonth), ...Object.keys(companiesByMonth)])).sort();
 
-        const relationKey = "companyName" in user ? "company" : "individual";
+        const stats = allMonths.map((month) => ({
+            date: month,
+            individuals: individualsByMonth[month] || 0,
+            companies: companiesByMonth[month] || 0,
+        }));
 
-        const address = await this.addressRepo.findOne({ where: { id: createOrderDto.addressId, [relationKey]: { id: userId } } });
-        if (!address) throw new NotFoundException('Address not found');
+        const individualsLength = individuals.length;
+        const companiesLength = companies.length;
 
-        const branches = await this.branchRepo.find();
-        if (!branches.length) throw new BadRequestException('No branches available — cannot add order');
-
-        // Check if location is within any branch coverage
-        const isWithinCoverage = branches.some((branch) => {
-            const distance = this.getDistanceFromLatLonInKm(
-                address.location.lat,
-                address.location.lng,
-                branch.location.lat,
-                branch.location.lng
-            );
-            return distance <= Number(branch.coverage_radius_km);
-        });
-
-        if (!isWithinCoverage) {
-            throw new BadRequestException(
-                'Address is outside all branch coverage areas. Please choose a closer location.'
-            );
-        }
-
-        const order = this.orderRepo.create({
-            ...createOrderDto,
-            category,
-            address
-        });
-
-        if ("companyName" in user) {
-            order.company = user;
-        } else {
-            order.individual = user;
-        }
-
-        await this.orderRepo.save(order);
-
-        // Upload images to Cloudinary if any
-        const imageUrls = images.length
-            ? await this.cloudinaryService.uploadImages(images, `tech_service_project/images/orders/${order.id}`)
-            : [];
-
-        const videoUrls = videos.length
-            ? await this.cloudinaryService.uploadVideos(videos, `tech_service_project/videos/orders/${order.id}`)
-            : [];
-
-        order.images = imageUrls;
-        order.videos = videoUrls;
-
-        await this.orderRepo.save(order);
-
-        // send notification to admin
-        await this.notificationService.sendNotification(
-            `დაემატა შეკვეთა ${("companyName" in user ? user.companyName : (user.name + " " + user.lastName))}-ს მიერ`,
-            'new_order',
-            'admin',
-            undefined,
-            {
-                order_id: order.id
-            },
-        );
-
-        return { message: `Order created successfully`, order: instanceToPlain(order) };
+        return { stats, individualsLength, companiesLength };
     }
 
-    async getOrders(userId: number, repo: any) {
-        const user = await this.getUser(userId, repo)
+    async getUsedDevicesStats() {
+        const individuals = await this.getUsers(this.individualClientRepo);
+        const companies = await this.getUsers(this.companyClientRepo);
 
-        const relationKey = "companyName" in user ? "company" : "individual";
+        const allUsers = [...individuals, ...companies];
 
-        const orders = await this.orderRepo.find({
-            where: { [relationKey]: { id: userId } },
-            order: { created_at: 'DESC' },
-        });
+        const stats = { mobile: 0, desktop: 0 };
 
-        return orders;
-    }
-
-    async getOneOrder(userId: number, id: number, repo: any) {
-        const user = await this.getUser(userId, repo)
-
-        const relationKey = "companyName" in user ? "company" : "individual";
-
-        const order = await this.orderRepo.findOne({
-            where: { [relationKey]: { id: userId }, id },
-        });
-        if (!order) throw new NotFoundException('Order not found');
-
-        return order
-    }
-
-    async updateOneOrder(userId: number, id: number, repo: any, updateUserOrderDto: UpdateUserOrderDto, images: Express.Multer.File[] = [], videos: Express.Multer.File[] = []) {
-        const user = await this.getUser(userId, repo)
-
-        if (!user.status) {
-            throw new BadRequestException('Inactive user cannot update orders');
-        }
-
-        const relationKey = "companyName" in user ? "company" : "individual";
-
-        const order = await this.orderRepo.findOne({
-            where: { [relationKey]: { id: userId }, id },
-        });
-        if (!order) throw new NotFoundException('Order not found');
-
-        if (order.status !== 'pending') {
-            throw new BadRequestException('Only pending orders can be updated');
-        }
-
-        if (updateUserOrderDto.categoryId) {
-            const category = await this.categoryRepo.findOne({
-                where: { id: updateUserOrderDto.categoryId, status: true },
-            });
-            if (!category) throw new NotFoundException('Category not found');
-            order.category = category;
-        }
-
-        if (updateUserOrderDto.addressId) {
-            const address = await this.addressRepo.findOne({
-                where: { id: updateUserOrderDto.addressId, [relationKey]: { id: userId } },
-            });
-            if (!address) throw new NotFoundException('Address not found');
-
-            const branches = await this.branchRepo.find();
-            if (!branches.length) throw new BadRequestException('No branches available — cannot add order');
-
-            // Check if location is within any branch coverage
-            const isWithinCoverage = branches.some((branch) => {
-                const distance = this.getDistanceFromLatLonInKm(
-                    address.location.lat,
-                    address.location.lng,
-                    branch.location.lat,
-                    branch.location.lng
-                );
-                return distance <= Number(branch.coverage_radius_km);
-            });
-
-            if (!isWithinCoverage) {
-                throw new BadRequestException(
-                    'Address is outside all branch coverage areas. Please choose a closer location.'
-                );
+        allUsers.forEach(user => {
+            if (user.used_devices) {
+                stats.mobile += user.used_devices.mobile || 0;
+                stats.desktop += user.used_devices.desktop || 0;
             }
-
-            order.address = address;
-        }
-
-        // Handle deleted media
-        let imagesToDeleteArray: string[] = [];
-        let videosToDeleteArray: string[] = [];
-
-        if (updateUserOrderDto.imagesToDelete) {
-            try {
-                imagesToDeleteArray = JSON.parse(updateUserOrderDto.imagesToDelete);
-            } catch (err) {
-                throw new BadRequestException('imagesToDelete must be a JSON string array');
-            }
-        }
-
-        if (updateUserOrderDto.videosToDelete) {
-            try {
-                videosToDeleteArray = JSON.parse(updateUserOrderDto.videosToDelete);
-            } catch (err) {
-                throw new BadRequestException('videosToDeleteArray must be a JSON string array');
-            }
-        }
-
-        // Then use imagesToDeleteArray and videosToDeleteArray in your deletion logic
-        if (imagesToDeleteArray.length > 0) {
-            await Promise.all(
-                imagesToDeleteArray.map(async (url) => {
-                    await this.cloudinaryService.deleteByUrl(url);
-                    order.images = order.images.filter((img) => img !== url);
-                }),
-            );
-        }
-        if (videosToDeleteArray.length > 0) {
-            await Promise.all(
-                videosToDeleteArray.map(async (url) => {
-                    await this.cloudinaryService.deleteByUrl(url);
-                    order.videos = order.videos.filter((img) => img !== url);
-                }),
-            );
-        }
-
-        // Upload images to Cloudinary if any
-        const newImageUrls = images.length
-            ? await this.cloudinaryService.uploadImages(images, `tech_service_project/images/orders/${order.id}`)
-            : [];
-
-        const newVideoUrls = videos.length
-            ? await this.cloudinaryService.uploadVideos(videos, `tech_service_project/videos/orders/${order.id}`)
-            : [];
-
-        // Merge with existing media but respect total limits
-        const existingImages = order.images || [];
-        const existingVideos = order.videos || [];
-
-        const totalImages = existingImages.length + newImageUrls.length;
-        const totalVideos = existingVideos.length + newVideoUrls.length;
-
-        if (totalImages > 3) {
-            throw new BadRequestException('Total number of images cannot exceed 3');
-        }
-
-        if (totalVideos > 1) {
-            throw new BadRequestException('Total number of videos cannot exceed 1');
-        }
-
-        order.images = [...existingImages, ...newImageUrls];
-        order.videos = [...existingVideos, ...newVideoUrls];
-
-        const { categoryId, addressId, ...rest } = updateUserOrderDto;
-        this.orderRepo.merge(order, rest);
-        await this.orderRepo.save(order);
-
-        return {
-            message: 'Order updated successfully',
-            order,
-        };
-    }
-
-    // Distance between two lat/lng in km
-    private getDistanceFromLatLonInKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
-        const R = 6371; // Radius of Earth in km
-        const dLat = this.deg2rad(lat2 - lat1);
-        const dLon = this.deg2rad(lon2 - lon1);
-        const a =
-            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-            Math.cos(this.deg2rad(lat1)) *
-            Math.cos(this.deg2rad(lat2)) *
-            Math.sin(dLon / 2) *
-            Math.sin(dLon / 2);
-        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        return R * c;
-    }
-
-    private deg2rad(deg: number): number {
-        return deg * (Math.PI / 180);
-    }
-
-    // about address
-
-    async createAddress(userId: number, repo: any, createAddressDto: CreateAddressDto) {
-        const user = await repo.findOne({ where: { id: userId } });
-        if (!user) throw new BadRequestException('User not found');
-
-        const branches = await this.branchRepo.find();
-        if (!branches.length) throw new BadRequestException('No branches available — cannot add address');
-
-        const { location } = createAddressDto;
-
-        // Check if location is within any branch coverage
-        const isWithinCoverage = branches.some((branch) => {
-            const distance = this.getDistanceFromLatLonInKm(
-                location.lat,
-                location.lng,
-                branch.location.lat,
-                branch.location.lng
-            );
-            return distance <= Number(branch.coverage_radius_km);
         });
 
-        if (!isWithinCoverage) {
-            throw new BadRequestException(
-                'Address is outside all branch coverage areas. Please choose a closer location.'
-            );
-        }
-
-        const address = this.addressRepo.create({
-            ...createAddressDto
-        });
-
-        if ("companyName" in user) {
-            address.company = user;
-        } else {
-            address.individual = user;
-        }
-
-        await this.addressRepo.save(address);
-
-        return { message: `Address created successfully`, address: instanceToPlain(address) };
-    }
-
-    async getAddresses(userId: number, repo: any) {
-        const user = await this.getUser(userId, repo)
-
-        const relationKey = "companyName" in user ? "company" : "individual";
-
-        const addresses = await this.addressRepo.find({
-            where: { [relationKey]: { id: userId } },
-            order: { created_at: 'DESC' },
-        });
-
-        return addresses;
-    }
-
-    async getOneAddress(userId: number, id: number, repo: any) {
-        const user = await this.getUser(userId, repo)
-
-        const relationKey = "companyName" in user ? "company" : "individual";
-
-        const address = await this.addressRepo.findOne({
-            where: { [relationKey]: { id: userId }, id },
-        });
-        if (!address) throw new NotFoundException('Address not found');
-
-        return address
-    }
-
-    async deleteOneAddress(userId: number, id: number, repo: any) {
-        const user = await this.getUser(userId, repo)
-
-        const relationKey = "companyName" in user ? "company" : "individual";
-
-        const address = await this.addressRepo.findOne({
-            where: { [relationKey]: { id: userId }, id },
-        });
-        if (!address) throw new NotFoundException('Address  not found');
-
-        const usedInOrders = await this.orderRepo.count({
-            where: [
-                { [relationKey]: { id: userId }, address: { id } },
-            ],
-        });
-
-        if (usedInOrders > 0) {
-            throw new BadRequestException('Address cannot be deleted because it is used in an order');
-        }
-
-        await this.addressRepo.delete({
-            id,
-            [relationKey]: { id: userId },
-        });
-
-        return {
-            message: 'Address deleted successfully',
-            address,
-        };
-    }
-
-    // about review
-
-    async createReview(userId: number, repo: any, createReviewDto: CreateReviewDto) {
-        const user = await repo.findOne({ where: { id: userId } });
-        if (!user) throw new BadRequestException('User not found');
-
-        const review = this.reviewRepo.create({
-            ...createReviewDto
-        });
-
-        if ("companyName" in user) {
-            review.company = user;
-        } else {
-            review.individual = user;
-        }
-
-        await this.reviewRepo.save(review);
-
-        // send notification to admin
-        await this.notificationService.sendNotification(
-            `დაემატა შეფასება ${("companyName" in user ? user.companyName : (user.name + " " + user.lastName))}-ს მიერ`,
-            'new_review',
-            'admin',
-            undefined,
-            {
-                review_id: review.id
-            },
-        );
-
-        return { message: `Review created successfully`, review: instanceToPlain(review) };
-    }
-
-    async getReviews(userId: number, repo: any) {
-        const user = await this.getUser(userId, repo)
-
-        const relationKey = "companyName" in user ? "company" : "individual";
-
-        const reviews = await this.reviewRepo.find({
-            where: { [relationKey]: { id: userId } },
-            order: { created_at: 'DESC' },
-        });
-
-        return reviews;
+        return stats;
     }
 }

@@ -6,12 +6,16 @@ import { VerificationCodeModule } from 'src/verification-code/verification-code.
 import { CompanyClientController } from './company-client.controller';
 import { CompanyClientService } from './company-client.service';
 import { TokensModule } from 'src/common/tokens/token.module';
-import { Review } from 'src/reviews/entities/review.entity';
 import { NotificationsModule } from 'src/notifications/notifications.module';
+import { ReviewsModule } from 'src/reviews/reviews.module';
+import { AddressModule } from 'src/address/address.module';
+import { OrderModule } from 'src/order/order.module';
+import { CloudinaryModule } from 'src/common/cloudinary/cloudinary.module';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([CompanyClient, Review]), BaseUserModule, VerificationCodeModule, TokensModule, NotificationsModule],
+    imports: [TypeOrmModule.forFeature([CompanyClient]), BaseUserModule, VerificationCodeModule, TokensModule, NotificationsModule, ReviewsModule, AddressModule, OrderModule, CloudinaryModule],
     controllers: [CompanyClientController],
     providers: [CompanyClientService],
+    exports: [CompanyClientService, TypeOrmModule],
 })
 export class CompanyClientModule { }

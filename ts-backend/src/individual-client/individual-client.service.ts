@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IndividualClient } from './entities/individual-client.entity';
 import { Repository } from 'typeorm';
@@ -12,6 +12,13 @@ import { CreateOrderDto } from 'src/order/dto/create-order.dto';
 import { UpdateUserOrderDto } from 'src/order/dto/update-user-order.dto';
 import { CreateAddressDto } from 'src/address/dto/create-address.dto';
 import { CreateReviewDto } from 'src/reviews/dto/create-review.dto';
+import { ReviewsService } from 'src/reviews/reviews.service';
+import { AddressService } from 'src/address/address.service';
+import { OrderService } from 'src/order/order.service';
+import { UpdateAdminIndividualTechnicianDeliveryDto } from 'src/admin/dto/update-adm-ind-tech-del.dto';
+import * as bcrypt from 'bcrypt';
+import { CloudinaryService } from 'src/common/cloudinary/cloudinary.service';
+import { NotificationsService } from 'src/notifications/notifications.service';
 
 @Injectable()
 export class IndividualClientService {
@@ -22,9 +29,34 @@ export class IndividualClientService {
         private readonly baseUserService: BaseUserService,
 
         private readonly verificationCodeService: VerificationCodeService,
+
+        private readonly reviewsService: ReviewsService,
+
+        private readonly addressService: AddressService,
+
+        private readonly orderService: OrderService,
+
+        private readonly cloudinaryService: CloudinaryService,
+
+        private readonly notificationService: NotificationsService,
     ) { }
 
     // individual
+    async getIndividuals() {
+        const findIndividuals = await this.baseUserService.getUsers(this.individualClientRepo);
+
+        return instanceToPlain(findIndividuals);
+    }
+
+    async getAdminOneIndividual(individualId: number) {
+        const findOneIndividual = await this.baseUserService.getUser(individualId, this.individualClientRepo);
+
+        return instanceToPlain(findOneIndividual)
+    }
+
+    async updateAdminOneIndividual(individualId: number, updateAdminIndividualTechnicianDeliveryDto: UpdateAdminIndividualTechnicianDeliveryDto, images: Express.Multer.File[] = []) {
+        return this.baseUserService.updateUser(individualId, this.individualClientRepo, updateAdminIndividualTechnicianDeliveryDto, images, "admin");
+    }
 
     async getIndividual(individualId: number, userAgent?: string) {
         const findIndividual = await this.baseUserService.getUser(individualId, this.individualClientRepo, userAgent);
@@ -41,60 +73,54 @@ export class IndividualClientService {
     }
 
     // send and verify sent code
-
     async sendChangeNumberCode(phoneDto: PhoneDto) {
-        const result = await this.verificationCodeService.sendCode(phoneDto, 'change-number');
-
-        return { message: `Code ${result.code} sent to ${result.phone}`, code: result.code };
+        return this.verificationCodeService.sendCode(phoneDto, 'change-number');
     }
 
     async changeNumber(individualId: number, changeNumberDto: ChangeNumberDto) {
         return this.baseUserService.changeNumber(this.individualClientRepo, individualId, changeNumberDto);
     }
 
-    // create order
-
+    // order
     async createOrder(individualId: number, createOrderDto: CreateOrderDto, images: Express.Multer.File[] = [], videos: Express.Multer.File[] = []) {
-        return this.baseUserService.createOrder(individualId, this.individualClientRepo, createOrderDto, images, videos);
+        return this.orderService.createOrder(individualId, this.individualClientRepo, createOrderDto, images, videos);
     }
 
     async getOrders(individualId: number) {
-        return this.baseUserService.getOrders(individualId, this.individualClientRepo);
+        return this.orderService.getOrders(individualId, this.individualClientRepo);
     }
 
     async getOneOrder(individualId: number, id: number) {
-        return this.baseUserService.getOneOrder(individualId, id, this.individualClientRepo);
+        return this.orderService.getOneOrder(individualId, id, this.individualClientRepo);
     }
 
     async updateOneOrder(individualId: number, id: number, updateUserOrderDto: UpdateUserOrderDto) {
-        return this.baseUserService.updateOneOrder(individualId, id, this.individualClientRepo, updateUserOrderDto);
+        return this.orderService.updateOneOrder(individualId, id, this.individualClientRepo, updateUserOrderDto);
     }
 
-    // create address
-
+    // address
     async createAddress(individualId: number, createAddressDto: CreateAddressDto) {
-        return this.baseUserService.createAddress(individualId, this.individualClientRepo, createAddressDto);
+        return this.addressService.createAddress(individualId, this.individualClientRepo, createAddressDto);
     }
 
     async getAddresses(individualId: number) {
-        return this.baseUserService.getAddresses(individualId, this.individualClientRepo);
+        return this.addressService.getAddresses(individualId, this.individualClientRepo);
     }
 
     async getOneAddress(individualId: number, id: number) {
-        return this.baseUserService.getOneAddress(individualId, id, this.individualClientRepo);
+        return this.addressService.getOneAddress(individualId, id, this.individualClientRepo);
     }
 
     async deleteOneAddress(individualId: number, id: number) {
-        return this.baseUserService.deleteOneAddress(individualId, id, this.individualClientRepo);
+        return this.addressService.deleteOneAddress(individualId, id, this.individualClientRepo);
     }
 
     // review
-
     async createReview(individualId: number, createReviewDto: CreateReviewDto) {
-        return this.baseUserService.createReview(individualId, this.individualClientRepo, createReviewDto);
+        return this.reviewsService.createReview(individualId, this.individualClientRepo, createReviewDto);
     }
 
-    async getReviews(individualId: number) {
-        return this.baseUserService.getReviews(individualId, this.individualClientRepo);
+    async getIndividualReviews(individualId: number) {
+        return this.reviewsService.getReviews(individualId, this.individualClientRepo);
     }
 }

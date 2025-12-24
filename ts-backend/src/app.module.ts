@@ -4,10 +4,7 @@ import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AdminModule } from './admin/admin.module';
-import { AuthController } from './auth/auth.controller';
 import { AuthModule } from './auth/auth.module';
-import { CompanyClientController } from './company-client/company-client.controller';
-import { CompanyClientService } from './company-client/company-client.service';
 import { CompanyClientModule } from './company-client/company-client.module';
 import { FrontModule } from './front/front.module';
 import { IndividualClientModule } from './individual-client/individual-client.module';
@@ -15,6 +12,12 @@ import { TechnicianModule } from './technician/technician.module';
 import { GoogleApisModule } from './google-apis/google-apis.module';
 import { DeliveryModule } from './delivery/delivery.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { ReviewsModule } from './reviews/reviews.module';
+import { BranchesModule } from './branches/branches.module';
+import { AddressModule } from './address/address.module';
+import { OrderModule } from './order/order.module';
+import { CategoryModule } from './category/category.module';
+import { FaqModule } from './faq/faq.module';
 
 @Module({
   imports: [
@@ -70,6 +73,18 @@ import { NotificationsModule } from './notifications/notifications.module';
     DeliveryModule,
 
     NotificationsModule,
+
+    ReviewsModule,
+
+    BranchesModule,
+
+    AddressModule,
+
+    OrderModule,
+
+    CategoryModule,
+
+    FaqModule,
   ],
   controllers: [AppController],
   providers: [AppService],

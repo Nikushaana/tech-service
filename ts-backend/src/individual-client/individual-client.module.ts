@@ -6,15 +6,19 @@ import { IndividualClient } from './entities/individual-client.entity';
 import { VerificationCodeModule } from 'src/verification-code/verification-code.module';
 import { BaseUserModule } from 'src/common/services/base-user/base-user.module';
 import { TokensModule } from 'src/common/tokens/token.module';
-import { Review } from 'src/reviews/entities/review.entity';
 import { NotificationsModule } from 'src/notifications/notifications.module';
+import { ReviewsModule } from 'src/reviews/reviews.module';
+import { AddressModule } from 'src/address/address.module';
+import { OrderModule } from 'src/order/order.module';
+import { CloudinaryModule } from 'src/common/cloudinary/cloudinary.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([IndividualClient, Review]),
-    BaseUserModule, VerificationCodeModule, TokensModule, NotificationsModule
+    TypeOrmModule.forFeature([IndividualClient]),
+    BaseUserModule, VerificationCodeModule, TokensModule, NotificationsModule, ReviewsModule, AddressModule, OrderModule, CloudinaryModule
   ],
   controllers: [IndividualClientController],
-  providers: [IndividualClientService]
+  providers: [IndividualClientService],
+  exports: [IndividualClientService, TypeOrmModule],
 })
 export class IndividualClientModule { }

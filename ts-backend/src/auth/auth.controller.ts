@@ -8,14 +8,11 @@ import { Roles } from 'src/common/decorators/roles.decorator';
 import { RegisterCompanyDto } from './dto/register-company.dto';
 import { RegisterIndAdmTechDelDto } from './dto/register-ind-adm-tech-del.dto';
 
-
-
 @Controller('auth')
 export class AuthController {
     constructor(private readonly authService: AuthService) { }
 
     // register
-
     @Post('send-register-code')
     async SendRegisterCode(@Body() phoneDto: PhoneDto) {
         return this.authService.sendRegisterCode(phoneDto);
@@ -27,7 +24,6 @@ export class AuthController {
     }
 
     // reset password
-
     @Post('send-reset-password-code')
     async SendResetPasswordCode(@Body() phoneDto: PhoneDto) {
         return this.authService.sendResetPasswordCode(phoneDto);
@@ -39,7 +35,6 @@ export class AuthController {
     }
 
     // login individual or company
-
     @Post('login-client')
     async IndividualOrCompanyLogin(@Body() loginUserDto: LoginUserDto) {
         return this.authService.login(loginUserDto, "individualOrCompany");

@@ -24,7 +24,6 @@ export class IndividualClientController {
     ) { }
 
     // individual
-
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('individual')
     @Get('')
@@ -64,7 +63,6 @@ export class IndividualClientController {
     }
 
     // order
-
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('individual')
     @Post('create-order')
@@ -102,7 +100,6 @@ export class IndividualClientController {
     }
 
     // address
-
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('individual')
     @Post('create-address')
@@ -132,7 +129,6 @@ export class IndividualClientController {
     }
 
     // review
-
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('individual')
     @Post('create-review')
@@ -143,12 +139,11 @@ export class IndividualClientController {
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('individual')
     @Get('reviews')
-    async getReviews(@Req() req: RequestInfo) {
-        return this.individualClientService.getReviews(req.user.id);
+    async getIndividualReviews(@Req() req: RequestInfo) {
+        return this.individualClientService.getIndividualReviews(req.user.id);
     }
 
     // notifications
-
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('individual')
     @Get('notifications')

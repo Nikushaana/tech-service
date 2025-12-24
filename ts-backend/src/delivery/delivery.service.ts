@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Delivery } from './entities/delivery.entity';
 import { Repository } from 'typeorm';
@@ -8,7 +8,10 @@ import { ChangePasswordDto } from 'src/common/services/base-user/dto/change-pass
 import { instanceToPlain } from 'class-transformer';
 import { UpdateDeliveryDto } from './dto/update-delivery.dto';
 import { ChangeNumberDto, PhoneDto } from 'src/verification-code/dto/verification-code.dto';
-import { Order } from 'src/order/entities/order.entity';
+import { UserFilterDto } from 'src/common/services/base-user/dto/user-filter.dto';
+import { UpdateAdminIndividualTechnicianDeliveryDto } from 'src/admin/dto/update-adm-ind-tech-del.dto';
+import * as bcrypt from 'bcrypt';
+import { CloudinaryService } from 'src/common/cloudinary/cloudinary.service';
 
 @Injectable()
 export class DeliveryService {
@@ -16,15 +19,29 @@ export class DeliveryService {
         @InjectRepository(Delivery)
         private deliveryRepo: Repository<Delivery>,
 
-        @InjectRepository(Order)
-        private readonly orderRepo: Repository<Order>,
-
         private readonly baseUserService: BaseUserService,
 
         private readonly verificationCodeService: VerificationCodeService,
+
+        private readonly cloudinaryService: CloudinaryService,
     ) { }
 
     // delivery
+    async getDeliveries(userFilterDto: UserFilterDto) {
+        const findDeliveries = await this.baseUserService.getUsers(this.deliveryRepo, userFilterDto);
+
+        return instanceToPlain(findDeliveries);
+    }
+
+    async getAdminOneDelivery(deliveryId: number) {
+        const findOneDelivery = await this.baseUserService.getUser(deliveryId, this.deliveryRepo);
+
+        return instanceToPlain(findOneDelivery)
+    }
+
+    async updateAdminOneDelivery(deliveryId: number, updateAdminIndividualTechnicianDeliveryDto: UpdateAdminIndividualTechnicianDeliveryDto, images: Express.Multer.File[] = []) {
+        return this.baseUserService.updateUser(deliveryId, this.deliveryRepo, updateAdminIndividualTechnicianDeliveryDto, images, "admin");
+    }
 
     async getDelivery(deliveryId: number) {
         const findDelivery = await this.baseUserService.getUser(deliveryId, this.deliveryRepo);
@@ -41,36 +58,11 @@ export class DeliveryService {
     }
 
     // send and verify sent code
-
     async sendChangeNumberCode(phoneDto: PhoneDto) {
-        const result = await this.verificationCodeService.sendCode(phoneDto, 'change-number');
-
-        return { message: `Code ${result.code} sent to ${result.phone}`, code: result.code };
+        return this.verificationCodeService.sendCode(phoneDto, 'change-number');
     }
 
     async changeNumber(deliveryId: number, changeNumberDto: ChangeNumberDto) {
         return this.baseUserService.changeNumber(this.deliveryRepo, deliveryId, changeNumberDto);
-    }
-
-    // order
-
-    async getOrders(deliveryId: number) {
-        const orders = await this.orderRepo.find({
-            where: { delivery: { id: deliveryId } },
-            order: { created_at: 'DESC' },
-            relations: ['individual', 'company', 'technician'],
-        });
-
-        return instanceToPlain(orders);
-    }
-
-    async getOneOrder(deliveryId: number, id: number) {
-        const order = await this.orderRepo.findOne({
-            where: { id, delivery: { id: deliveryId } },
-            relations: ['individual', 'company', 'technician'],
-        });
-        if (!order) throw new NotFoundException('Order not found');
-
-        return instanceToPlain(order)
     }
 }

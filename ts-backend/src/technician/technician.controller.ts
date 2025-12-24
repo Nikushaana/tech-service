@@ -8,15 +8,17 @@ import { UpdateTechnicianDto } from './dto/update-technician.dto';
 import { ChangePasswordDto } from 'src/common/services/base-user/dto/change-password.dto';
 import { ChangeNumberDto, PhoneDto } from 'src/verification-code/dto/verification-code.dto';
 import { MultipleImagesUpload } from 'src/common/interceptors/multiple-images-upload.factory';
+import { OrderService } from 'src/order/order.service';
 
 @Controller('technician')
 export class TechnicianController {
     constructor(
         private readonly technicianService: TechnicianService,
+
+        private readonly orderService: OrderService,
     ) { }
 
     // technician
-
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('technician')
     @Get('')
@@ -54,18 +56,17 @@ export class TechnicianController {
     }
 
     // order
-
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('technician')
     @Get('orders')
-    async getOrders(@Req() req: RequestInfo) {
-        return this.technicianService.getOrders(req.user.id);
+    async getTechnicianOrders(@Req() req: RequestInfo) {
+        return this.orderService.getTechnicianOrders(req.user.id);
     }
 
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('technician')
     @Get('orders/:id')
-    async getOneOrder(@Req() req: RequestInfo, @Param('id', ParseIntPipe) id: number) {
-        return this.technicianService.getOneOrder(req.user.id, id);
+    async getTechnicianOneOrder(@Req() req: RequestInfo, @Param('id', ParseIntPipe) id: number) {
+        return this.orderService.getTechnicianOneOrder(req.user.id, id);
     }
 }
