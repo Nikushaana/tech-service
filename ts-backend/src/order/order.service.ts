@@ -240,21 +240,12 @@ export class OrderService {
             );
         }
 
-        // Upload images to Cloudinary if any
-        const newImageUrls = images.length
-            ? await this.cloudinaryService.uploadImages(images, `tech_service_project/images/orders/${order.id}`)
-            : [];
-
-        const newVideoUrls = videos.length
-            ? await this.cloudinaryService.uploadVideos(videos, `tech_service_project/videos/orders/${order.id}`)
-            : [];
-
         // Merge with existing media but respect total limits
         const existingImages = order.images || [];
         const existingVideos = order.videos || [];
 
-        const totalImages = existingImages.length + newImageUrls.length;
-        const totalVideos = existingVideos.length + newVideoUrls.length;
+        const totalImages = existingImages.length + images.length;
+        const totalVideos = existingVideos.length + videos.length;
 
         if (totalImages > 3) {
             throw new BadRequestException('Total number of images cannot exceed 3');
@@ -263,6 +254,15 @@ export class OrderService {
         if (totalVideos > 1) {
             throw new BadRequestException('Total number of videos cannot exceed 1');
         }
+
+        // Upload images to Cloudinary if any
+        const newImageUrls = images.length
+            ? await this.cloudinaryService.uploadImages(images, `tech_service_project/images/orders/${order.id}`)
+            : [];
+
+        const newVideoUrls = videos.length
+            ? await this.cloudinaryService.uploadVideos(videos, `tech_service_project/videos/orders/${order.id}`)
+            : [];
 
         order.images = [...existingImages, ...newImageUrls];
         order.videos = [...existingVideos, ...newVideoUrls];

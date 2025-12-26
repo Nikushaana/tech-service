@@ -70,7 +70,6 @@ export class AuthService {
     }
 
     // send and verify sent code
-
     async sendRegisterCode(phoneDto: PhoneDto) {
         return this.verificationCodeService.sendCode(phoneDto, 'register');
     }
@@ -80,7 +79,6 @@ export class AuthService {
     }
 
     // users
-
     async register(dto: RegisterCompanyDto | RegisterIndAdmTechDelDto, role: 'individual' | 'company' | 'technician' | 'delivery' | 'admin') {
         const codeEntry = await this.VerificationCodeRepo.findOne({
             where: { phone: dto.phone, verified: true, type: 'register' },

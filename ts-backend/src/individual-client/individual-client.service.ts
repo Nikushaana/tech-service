@@ -94,8 +94,8 @@ export class IndividualClientService {
         return this.orderService.getOneOrder(individualId, id, this.individualClientRepo);
     }
 
-    async updateOneOrder(individualId: number, id: number, updateUserOrderDto: UpdateUserOrderDto) {
-        return this.orderService.updateOneOrder(individualId, id, this.individualClientRepo, updateUserOrderDto);
+    async updateOneOrder(individualId: number, id: number, updateUserOrderDto: UpdateUserOrderDto, images: Express.Multer.File[] = [], videos: Express.Multer.File[] = []) {
+        return this.orderService.updateOneOrder(individualId, id, this.individualClientRepo, updateUserOrderDto, images, videos);
     }
 
     // address
