@@ -43,6 +43,9 @@ export class Order {
   @UpdateDateColumn()
   updated_at: Date;
 
+  @Column({ type: 'enum', enum: OrderStatus, default: OrderStatus.PENDING })
+  status: OrderStatus;
+
   @ManyToOne(() => Category, (category) => category.orders, { eager: true })
   category: Category;
 
@@ -54,9 +57,6 @@ export class Order {
 
   @ManyToOne(() => IndividualClient, (individual) => individual.orders, { nullable: true })
   individual: IndividualClient;
-
-  @Column({ type: 'enum', enum: OrderStatus, default: OrderStatus.PENDING })
-  status: OrderStatus;
 
   @ManyToOne(() => Technician, (technician) => technician.orders, { nullable: true })
   technician: Technician | null;
