@@ -133,6 +133,7 @@ export class AdminController {
         return this.technicianService.updateAdminOneTechnician(id, updateAdminIndividualTechnicianDeliveryDto, images);
     }
 
+    
     // deliveries
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('admin')
