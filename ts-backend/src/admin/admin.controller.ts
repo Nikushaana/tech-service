@@ -350,7 +350,7 @@ export class AdminController {
     @Roles('admin')
     @Patch('notifications/:id')
     async readNotification(@Param('id', ParseIntPipe) id: number) {
-        return this.notificationsService.readNotification(id);
+        return this.notificationsService.readNotification("admin", id);
     }
 
     @UseGuards(TokenValidationGuard, RolesGuard)

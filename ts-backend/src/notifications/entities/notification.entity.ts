@@ -7,7 +7,7 @@ import {
 } from 'typeorm';
 
 export type NotificationType = 'new_user' | 'new_order' | 'new_review' | 'profile_activated' | 'profile_blocked';
-export type NotificationFor = 'admin' | 'individual' | 'company';
+export type NotificationFor = 'admin' | 'individual' | 'company' | 'delivery' | 'technician';
 
 @Entity('notifications')
 export class Notification {
@@ -29,7 +29,7 @@ export class Notification {
     @UpdateDateColumn()
     updated_at: Date;
 
-    @Column({ type: 'enum', enum: ['admin', 'individual', 'company'], nullable: true })
+    @Column({ type: 'enum', enum: ['admin', 'individual', 'company', 'delivery', 'technician'], nullable: true })
     for: NotificationFor;
 
     @Column({ type: 'int', nullable: true })

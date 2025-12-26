@@ -19,6 +19,7 @@ import { NotificationsService } from 'src/notifications/notifications.service';
 export class CompanyClientController {
     constructor(
         private readonly companyClientService: CompanyClientService,
+        
         private readonly notificationsService: NotificationsService
     ) { }
 
@@ -162,7 +163,7 @@ export class CompanyClientController {
     @Roles('company')
     @Patch('notifications/:id')
     async readNotification(@Param('id', ParseIntPipe) id: number) {
-        return this.notificationsService.readNotification(id);
+        return this.notificationsService.readNotification("company", id);
     }
 
     @UseGuards(TokenValidationGuard, RolesGuard)

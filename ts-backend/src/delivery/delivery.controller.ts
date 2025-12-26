@@ -9,6 +9,7 @@ import { TokenValidationGuard } from 'src/auth/guards/token-validation.guard';
 import { RolesGuard } from 'src/common/guards/roles.guard';
 import type { RequestInfo } from 'src/common/types/request-info';
 import { OrderService } from 'src/order/order.service';
+import { NotificationsService } from 'src/notifications/notifications.service';
 
 @Controller('delivery')
 export class DeliveryController {
@@ -16,6 +17,8 @@ export class DeliveryController {
         private readonly deliveryService: DeliveryService,
 
         private readonly orderService: OrderService,
+
+        private readonly notificationsService: NotificationsService
     ) { }
 
     // delivery
@@ -68,5 +71,27 @@ export class DeliveryController {
     @Get('orders/:id')
     async getDeliveryOneOrder(@Req() req: RequestInfo, @Param('id', ParseIntPipe) id: number) {
         return this.orderService.getDeliveryOneOrder(req.user.id, id);
+    }
+
+    // notifications
+    @UseGuards(TokenValidationGuard, RolesGuard)
+    @Roles('delivery')
+    @Get('notifications')
+    async getNotifications(@Req() req: RequestInfo) {
+        return this.notificationsService.getNotifications("delivery", req.user.id);
+    }
+
+    @UseGuards(TokenValidationGuard, RolesGuard)
+    @Roles('delivery')
+    @Patch('notifications/:id')
+    async readNotification(@Param('id', ParseIntPipe) id: number) {
+        return this.notificationsService.readNotification("delivery", id);
+    }
+
+    @UseGuards(TokenValidationGuard, RolesGuard)
+    @Roles('delivery')
+    @Get('notifications/unread')
+    async getUnreadNotificationsCount(@Req() req: RequestInfo) {
+        return this.notificationsService.getUnreadNotificationsCount("delivery", req.user.id);
     }
 }

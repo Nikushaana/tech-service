@@ -9,6 +9,7 @@ import { ChangePasswordDto } from 'src/common/services/base-user/dto/change-pass
 import { ChangeNumberDto, PhoneDto } from 'src/verification-code/dto/verification-code.dto';
 import { MultipleImagesUpload } from 'src/common/interceptors/multiple-images-upload.factory';
 import { OrderService } from 'src/order/order.service';
+import { NotificationsService } from 'src/notifications/notifications.service';
 
 @Controller('technician')
 export class TechnicianController {
@@ -16,6 +17,8 @@ export class TechnicianController {
         private readonly technicianService: TechnicianService,
 
         private readonly orderService: OrderService,
+
+        private readonly notificationsService: NotificationsService
     ) { }
 
     // technician
@@ -68,5 +71,27 @@ export class TechnicianController {
     @Get('orders/:id')
     async getTechnicianOneOrder(@Req() req: RequestInfo, @Param('id', ParseIntPipe) id: number) {
         return this.orderService.getTechnicianOneOrder(req.user.id, id);
+    }
+
+    // notifications
+    @UseGuards(TokenValidationGuard, RolesGuard)
+    @Roles('technician')
+    @Get('notifications')
+    async getNotifications(@Req() req: RequestInfo) {
+        return this.notificationsService.getNotifications("technician", req.user.id);
+    }
+
+    @UseGuards(TokenValidationGuard, RolesGuard)
+    @Roles('technician')
+    @Patch('notifications/:id')
+    async readNotification(@Param('id', ParseIntPipe) id: number) {
+        return this.notificationsService.readNotification("technician", id);
+    }
+
+    @UseGuards(TokenValidationGuard, RolesGuard)
+    @Roles('technician')
+    @Get('notifications/unread')
+    async getUnreadNotificationsCount(@Req() req: RequestInfo) {
+        return this.notificationsService.getUnreadNotificationsCount("technician", req.user.id);
     }
 }

@@ -8,11 +8,12 @@ import { VerificationCodeModule } from 'src/verification-code/verification-code.
 import { TokensModule } from 'src/common/tokens/token.module';
 import { OrderModule } from 'src/order/order.module';
 import { CloudinaryModule } from 'src/common/cloudinary/cloudinary.module';
+import { NotificationsModule } from 'src/notifications/notifications.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Delivery]),
-    BaseUserModule, VerificationCodeModule, TokensModule, OrderModule, CloudinaryModule
+    BaseUserModule, VerificationCodeModule, TokensModule, OrderModule, CloudinaryModule, NotificationsModule
   ],
   providers: [DeliveryService],
   controllers: [DeliveryController],

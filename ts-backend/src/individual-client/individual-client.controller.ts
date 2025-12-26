@@ -163,7 +163,7 @@ export class IndividualClientController {
     @Roles('individual')
     @Patch('notifications/:id')
     async readNotification(@Param('id', ParseIntPipe) id: number) {
-        return this.notificationsService.readNotification(id);
+        return this.notificationsService.readNotification("individual", id);
     }
 
     @UseGuards(TokenValidationGuard, RolesGuard)

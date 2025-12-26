@@ -28,7 +28,7 @@ export class NotificationsService {
         return this.notificationRepo.save(notification);
     }
 
-    async getNotifications(role, userId?: number) {
+    async getNotifications(role: 'admin' | 'individual' | 'company' | 'technician' | 'delivery', userId?: number) {
         const notifications = await this.notificationRepo.find({
             where: { for: role, forId: userId },
             order: {
@@ -41,10 +41,11 @@ export class NotificationsService {
     }
 
     async readNotification(
+        role: 'admin' | 'individual' | 'company' | 'technician' | 'delivery', 
         id: number,
     ) {
         const notification = await this.notificationRepo.findOne({
-            where: { id },
+            where: { for: role, id },
         });
         if (!notification) throw new NotFoundException('Notification not found');
 
@@ -60,7 +61,7 @@ export class NotificationsService {
         };
     }
 
-    async getUnreadNotificationsCount(role, userId?: number) {
+    async getUnreadNotificationsCount(role: 'admin' | 'individual' | 'company' | 'technician' | 'delivery', userId?: number) {
         const notifications = await this.notificationRepo.find({
             where: { for: role, forId: userId, read: false },
             order: {

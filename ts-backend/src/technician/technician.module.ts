@@ -9,11 +9,12 @@ import { TokensModule } from 'src/common/tokens/token.module';
 import { Order } from 'src/order/entities/order.entity';
 import { CloudinaryModule } from 'src/common/cloudinary/cloudinary.module';
 import { OrderModule } from 'src/order/order.module';
+import { NotificationsModule } from 'src/notifications/notifications.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Technician]),
-    BaseUserModule, VerificationCodeModule, TokensModule, CloudinaryModule, OrderModule
+    BaseUserModule, VerificationCodeModule, TokensModule, CloudinaryModule, OrderModule, NotificationsModule
   ],
   providers: [TechnicianService],
   controllers: [TechnicianController],
