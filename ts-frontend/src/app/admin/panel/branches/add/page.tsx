@@ -177,6 +177,9 @@ export default function Page() {
       queryClient.invalidateQueries({
         queryKey: ["adminBranches"],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["frontBranches"],
+      });
     },
 
     onError: () => {
