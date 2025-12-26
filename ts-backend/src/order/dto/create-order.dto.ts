@@ -1,11 +1,10 @@
 import { Transform } from 'class-transformer';
-import { IsIn, IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { OrderType } from 'src/common/types/order-type.enum';
 
 export class CreateOrderDto {
-    @IsString()
-    @IsNotEmpty()
-    @IsIn(['მონტაჟი', 'შეკეთება'])
-    service_type: string;
+    @IsEnum(OrderType)
+    service_type: OrderType;
 
     @IsNumber()
     @Transform(({ value }) => Number(value))

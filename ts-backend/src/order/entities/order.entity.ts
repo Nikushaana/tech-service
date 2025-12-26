@@ -1,6 +1,7 @@
 import { Address } from 'src/address/entities/address.entity';
 import { Category } from 'src/category/entities/category.entity';
 import { OrderStatus } from 'src/common/types/order-status.enum';
+import { OrderType } from 'src/common/types/order-type.enum';
 import { CompanyClient } from 'src/company-client/entities/company-client.entity';
 import { Delivery } from 'src/delivery/entities/delivery.entity';
 import { IndividualClient } from 'src/individual-client/entities/individual-client.entity';
@@ -28,8 +29,8 @@ export class Order {
   @Column()
   description: string;
   
-  @Column()
-  service_type: string;
+  @Column({ type: 'enum', enum: OrderType })
+  service_type: OrderType;
 
   @Column("simple-array", { default: "" })
   images: string[];

@@ -151,6 +151,14 @@ export class AuthService {
             },
         );
 
+        // send notification to user
+        await this.notificationService.sendNotification(
+            `გამარჯობა ${user.companyName || (user.name + " " + user.lastName)}, თქვენ წარმატებით დარეგისტრირდით.`,
+            "new_user",
+            user.role,
+            user.id,
+        );
+
         return {
             message: `${role} registered successfully`,
             user: instanceToPlain(user),

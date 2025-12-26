@@ -45,6 +45,13 @@ export class ReviewsService {
                 review_id: review.id
             },
         );
+        // send notification to user
+        await this.notificationService.sendNotification(
+            `თქვენი შეფასება დაემატა.`,
+            "new_review",
+            user.role,
+            userId,
+        );
 
         return { message: `Review created successfully`, review: instanceToPlain(review) };
     }
@@ -79,7 +86,7 @@ export class ReviewsService {
 
         return review
     }
-    
+
     async getAdminOneReview(id: number) {
         const review = await this.getAdminOneReviewEntity(id)
 

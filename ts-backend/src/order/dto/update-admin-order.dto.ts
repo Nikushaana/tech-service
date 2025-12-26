@@ -1,5 +1,6 @@
 import { IsEnum, IsIn, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 import { OrderStatus } from 'src/common/types/order-status.enum';
+import { OrderType } from 'src/common/types/order-type.enum';
 
 export class UpdateAdminOrderDto {
     @IsOptional()
@@ -15,16 +16,14 @@ export class UpdateAdminOrderDto {
     @IsOptional()
     @IsNumber({}, { each: false })
     technicianId: number | null;
-    
+
     @IsOptional()
     @IsNumber({}, { each: false })
     deliveryId: number | null;
 
     @IsOptional()
-    @IsString()
-    @IsNotEmpty()
-    @IsIn(['მონტაჟი', 'შეკეთება'])
-    service_type: string;
+    @IsEnum(OrderType)
+    service_type: OrderType;
 
     @IsOptional()
     @IsString()

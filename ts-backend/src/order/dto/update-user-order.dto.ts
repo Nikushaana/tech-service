@@ -1,5 +1,6 @@
 import { Transform } from 'class-transformer';
-import { IsIn, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsEnum, IsIn, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+import { OrderType } from 'src/common/types/order-type.enum';
 
 export class UpdateUserOrderDto {
     @IsOptional()
@@ -15,10 +16,8 @@ export class UpdateUserOrderDto {
     addressId: number;
 
     @IsOptional()
-    @IsString()
-    @IsNotEmpty()
-    @IsIn(['მონტაჟი', 'შეკეთება'])
-    service_type: string;
+    @IsEnum(OrderType)
+    service_type: OrderType;
 
     @IsOptional()
     @IsString()
