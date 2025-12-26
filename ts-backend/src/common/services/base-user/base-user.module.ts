@@ -9,9 +9,10 @@ import { CompanyClient } from 'src/company-client/entities/company-client.entity
 import { Technician } from 'src/technician/entities/technician.entity';
 import { Delivery } from 'src/delivery/entities/delivery.entity';
 import { Admin } from 'src/admin/entities/admin.entity';
+import { NotificationsModule } from 'src/notifications/notifications.module';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([VerificationCode, IndividualClient, CompanyClient, Technician, Delivery, Admin]), VerificationCodeModule, CloudinaryModule],
+    imports: [TypeOrmModule.forFeature([VerificationCode, IndividualClient, CompanyClient, Technician, Delivery, Admin]), VerificationCodeModule, CloudinaryModule, NotificationsModule],
     providers: [BaseUserService],
     exports: [BaseUserService],
 })

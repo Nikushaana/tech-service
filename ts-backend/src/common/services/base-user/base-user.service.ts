@@ -17,6 +17,7 @@ import { Technician } from "src/technician/entities/technician.entity";
 import { Delivery } from "src/delivery/entities/delivery.entity";
 import { Admin } from "src/admin/entities/admin.entity";
 import { UpdateAdminIndividualTechnicianDeliveryDto } from "src/admin/dto/update-adm-ind-tech-del.dto";
+import { NotificationsService } from "src/notifications/notifications.service";
 
 interface WithIdAndPassword {
     id: number;
@@ -52,6 +53,8 @@ export class BaseUserService {
         private readonly verificationCodeService: VerificationCodeService,
 
         private readonly cloudinaryService: CloudinaryService,
+
+        private readonly notificationService: NotificationsService,
     ) { }
 
     async changePassword<T extends WithIdAndPassword>(
@@ -193,6 +196,8 @@ export class BaseUserService {
             `tech_service_project/images/${user.role == "company" ? "companies" : user.role == "individual" ? "individuals" : user.role == "technician" ? "technicians" : "deliveries"}`,
         );
 
+        const oldStatus = user.status;
+
         const updatedUser = repo.merge(user, updateUserDto);
 
         // Append new images to existing ones
@@ -201,6 +206,16 @@ export class BaseUserService {
         }
 
         await repo.save(updatedUser);
+
+        // send notification to individual if status changes
+        if ('status' in updateUserDto && oldStatus !== updateUserDto.status) {
+            await this.notificationService.sendNotification(
+                `${updateUserDto.status ? "თქვენი პროფილი გააქტიურებულია" : "თქვენი პროფილი დაიბლოკა"}`,
+                `${updateUserDto.status ? "profile_activated" : "profile_blocked"}`,
+                user.role,
+                userId,
+            );
+        }
 
         return {
             message: 'User updated successfully',

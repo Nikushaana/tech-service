@@ -16,9 +16,6 @@ import { ReviewsService } from 'src/reviews/reviews.service';
 import { AddressService } from 'src/address/address.service';
 import { OrderService } from 'src/order/order.service';
 import { UpdateAdminIndividualTechnicianDeliveryDto } from 'src/admin/dto/update-adm-ind-tech-del.dto';
-import * as bcrypt from 'bcrypt';
-import { CloudinaryService } from 'src/common/cloudinary/cloudinary.service';
-import { NotificationsService } from 'src/notifications/notifications.service';
 
 @Injectable()
 export class IndividualClientService {
@@ -35,10 +32,6 @@ export class IndividualClientService {
         private readonly addressService: AddressService,
 
         private readonly orderService: OrderService,
-
-        private readonly cloudinaryService: CloudinaryService,
-
-        private readonly notificationService: NotificationsService,
     ) { }
 
     // individual
