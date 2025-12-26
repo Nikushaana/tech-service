@@ -211,7 +211,7 @@ export class BaseUserService {
         if ('status' in updateUserDto && oldStatus !== updateUserDto.status) {
             await this.notificationService.sendNotification(
                 `${updateUserDto.status ? "თქვენი პროფილი გააქტიურებულია" : "თქვენი პროფილი დაიბლოკა"}`,
-                `${updateUserDto.status ? "profile_activated" : "profile_blocked"}`,
+                "profile_updated",
                 user.role,
                 userId,
             );
