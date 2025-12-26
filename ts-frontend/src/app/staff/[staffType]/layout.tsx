@@ -22,6 +22,7 @@ const sidebarLinks: Record<Role, SidebarLinksWithTitle> = {
     links: [
       { name: "ჩემი სერვისები", href: "/staff/technician/orders" },
       { name: "პროფილი", href: "/staff/technician/profile" },
+      { name: "შეტყობინებები", href: "/staff/technician/notifications" },
     ],
   },
   delivery: {
@@ -29,6 +30,7 @@ const sidebarLinks: Record<Role, SidebarLinksWithTitle> = {
     links: [
       { name: "ჩემი სერვისები", href: "/staff/delivery/orders" },
       { name: "პროფილი", href: "/staff/delivery/profile" },
+      { name: "შეტყობინებები", href: "/staff/delivery/notifications" },
     ],
   },
 };
