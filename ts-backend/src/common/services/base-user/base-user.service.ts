@@ -210,15 +210,15 @@ export class BaseUserService {
         if ('status' in updateUserDto && oldStatus !== updateUserDto.status) {
             // send notification to admin
             const roleInGeo =
-                role === 'individual'
+                user.role === 'individual'
                     ? "ფიზიკური პირი"
-                    : role === 'admin'
+                    : user.role === 'admin'
                         ? "ადმინი"
-                        : role === 'technician'
+                        : user.role === 'technician'
                             ? "ტექნიკოსი"
-                            : role === 'delivery'
+                            : user.role === 'delivery'
                                 ? "კურიერი"
-                                : role === 'company'
+                                : user.role === 'company'
                                     ? "იურიდიული პირი"
                                     : "მომხმარებელი";
 
@@ -229,7 +229,7 @@ export class BaseUserService {
                 undefined,
                 {
                     new_user_id: user.id,
-                    new_user_role: role,
+                    new_user_role: user.role,
                 },
             );
 
