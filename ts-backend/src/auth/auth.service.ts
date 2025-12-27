@@ -146,8 +146,8 @@ export class AuthService {
             'admin',
             undefined,
             {
-                new_user_id: user.id,
-                new_user_role: role,
+                user_id: user.id,
+                user_role: role,
             },
         );
 

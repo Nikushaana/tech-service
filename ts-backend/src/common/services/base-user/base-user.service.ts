@@ -235,7 +235,7 @@ export class BaseUserService {
 
             // send notification to user if status changes
             await this.notificationService.sendNotification(
-                `${updateUserDto.status ? "თქვენი პროფილი გააქტიურებულია" : "თქვენი პროფილი დაიბლოკა"}`,
+                `${updateUserDto.status ? "თქვენი პროფილი გააქტიურებულია" : "თქვენი პროფილი დაიბლოკა"}.`,
                 "profile_updated",
                 user.role,
                 userId,
