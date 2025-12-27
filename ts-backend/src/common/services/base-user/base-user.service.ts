@@ -228,8 +228,8 @@ export class BaseUserService {
                 'admin',
                 undefined,
                 {
-                    new_user_id: user.id,
-                    new_user_role: user.role,
+                    user_id: user.id,
+                    user_role: user.role,
                 },
             );
 
