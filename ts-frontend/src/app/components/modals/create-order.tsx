@@ -16,6 +16,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchFrontCategories } from "@/app/api/frontCategories";
 import { axiosCompany, axiosIndividual } from "@/app/api/axios";
 import { fetchUserAddresses } from "@/app/api/userAddresses";
+import { useOrderTypeStatusOptionsStore } from "@/app/store/orderTypeStatusOptionsStore";
 
 interface CreateOrderValues {
   serviceType: string;
@@ -32,6 +33,7 @@ export default function CreateOrder() {
   const { openCreateOrderModal, toggleOpenCreateOrderModal, modalType } =
     useOrdersStore();
   const { toggleOpenCreateAddressModal } = useAddressesStore();
+  const { typeOptions } = useOrderTypeStatusOptionsStore();
 
   const queryClient = useQueryClient();
 
@@ -79,7 +81,12 @@ export default function CreateOrder() {
   };
 
   const orderSchema = Yup.object().shape({
-    serviceType: Yup.string().required("აირჩიე სერვისის ტიპი"),
+    serviceType: Yup.string()
+      .oneOf(
+        typeOptions.map((o) => o.id),
+        "არასწორი სერვისის ტიპი"
+      )
+      .required("აირჩიე სერვისის ტიპი"),
     categoryId: Yup.string().required("კატეგორია აუცილებელია"),
     brand: Yup.string().required("ბრენდი აუცილებელია"),
     model: Yup.string().required("მოდელი აუცილებელია"),
@@ -165,10 +172,7 @@ export default function CreateOrder() {
       await orderSchema.validate(values, { abortEarly: false });
 
       const formData = new FormData();
-      formData.append(
-        "service_type",
-        values.serviceType == "1" ? "მონტაჟი" : "შეკეთება"
-      );
+      formData.append("service_type", values.serviceType);
       formData.append("categoryId", values.categoryId);
       formData.append("brand", values.brand);
       formData.append("model", values.model);
@@ -222,18 +226,12 @@ export default function CreateOrder() {
         }`}
       >
         <h2 className="text-lg font-semibold ">შეავსე განაცხადი</h2>
-        <p className="text-sm text-myLightGray">
-          სერვისის არჩევიდან მაქსიმუმ 24 საათში ჩვენ დაგიკავშირდებით
-        </p>
         <div className="flex-1 overflow-y-auto showScroll pr-2">
           <div className="flex flex-col gap-y-[10px]">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-[10px]">
               <div className="col-span-1 sm:col-span-2">
                 <Dropdown
-                  data={[
-                    { id: 1, name: "მონტაჟი" },
-                    { id: 2, name: "შეკეთება" },
-                  ]}
+                  data={typeOptions}
                   id="serviceType"
                   value={values.serviceType}
                   label="სერვისის ტიპი"
@@ -308,13 +306,7 @@ export default function CreateOrder() {
                   id="description"
                   value={values.description || ""}
                   onChange={handleChange}
-                  label={
-                    values.serviceType == "1"
-                      ? "მონტაჟის დეტალები"
-                      : values.serviceType == "2"
-                      ? "პრობლემის აღწერა"
-                      : "აღწერა"
-                  }
+                  label="აღწერა"
                   error={errors.description}
                 />
               </div>

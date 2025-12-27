@@ -101,6 +101,8 @@ export default function Page() {
       setHelperValues((prev) => ({
         ...prev,
         cityLocation: branch.location,
+        searchCity: branch.city,
+        searchStreet: branch.street,
       }));
     }
   }, [branch]);
@@ -143,12 +145,22 @@ export default function Page() {
       ...prev,
       [key]: value,
       [`isSelecting${key === "searchCity" ? "City" : "Street"}`]: false,
+      ...(key === "searchCity" && {
+        searchStreet: "",
+      }),
     }));
 
     // Reset form value (city/street) when typing
     setValues((prev) => ({
       ...prev,
-      [key === "searchCity" ? "city" : "street"]: "",
+      ...(key === "searchCity" && {
+        city: value,
+        street: "",
+      }),
+      ...(key === "searchStreet" && {
+        street: value,
+      }),
+      location: null,
     }));
   };
 
@@ -185,7 +197,7 @@ export default function Page() {
         lat: Yup.number().required(),
         lng: Yup.number().required(),
       })
-      .required("გთხოვთ აირჩიოთ მდებარეობა რუკაზე"),
+      .required("მდებარეობა რუკაზე აუცილებელია"),
   });
 
   const updateBranchMutation = useMutation({

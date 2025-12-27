@@ -51,7 +51,7 @@ export function Dropdown2({
       />
 
       {open && (
-        <div className="absolute z-50 w-full mt-1 max-h-[140px] overflow-y-scroll rounded-[8px] border-2 border-gray-300 shadow-lg bg-white">
+        <div className="absolute z-20 w-full mt-1 max-h-[140px] overflow-y-scroll rounded-[8px] border-2 border-gray-300 shadow-lg bg-white">
           {data.map((item, idx) => (
             <div
               key={idx}

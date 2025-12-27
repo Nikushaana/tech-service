@@ -90,12 +90,22 @@ export default function CreateAddress() {
       ...prev,
       [key]: value,
       [`isSelecting${key === "searchCity" ? "City" : "Street"}`]: false,
+      ...(key === "searchCity" && {
+        searchStreet: "",
+      }),
     }));
 
     // Reset form value (city/street) when typing
     setValues((prev) => ({
       ...prev,
-      [key === "searchCity" ? "city" : "street"]: "",
+      ...(key === "searchCity" && {
+        city: value,
+        street: "",
+      }),
+      ...(key === "searchStreet" && {
+        street: value,
+      }),
+      location: null,
     }));
   };
 
@@ -129,7 +139,7 @@ export default function CreateAddress() {
         lat: Yup.number().required(),
         lng: Yup.number().required(),
       })
-      .required("გთხოვთ აირჩიოთ მდებარეობა რუკაზე"),
+      .required("მდებარეობა რუკაზე აუცილებელია"),
   });
 
   //add address
@@ -236,7 +246,39 @@ export default function CreateAddress() {
         className={`absolute inset-0 bg-black transition-opacity ${
           openCreateAddressModal ? "opacity-50" : "opacity-0"
         }`}
-        onClick={() => toggleOpenCreateAddressModal()}
+        onClick={() => {
+          toggleOpenCreateAddressModal();
+          setValues({
+            name: "",
+            city: "",
+            street: "",
+            building_number: "",
+            building_entrance: "",
+            building_floor: "",
+            apartment_number: "",
+            description: "",
+            location: null,
+          });
+          setErrors({
+            name: "",
+            city: "",
+            street: "",
+            building_number: "",
+            building_entrance: "",
+            building_floor: "",
+            apartment_number: "",
+            description: "",
+            location: "",
+          });
+          setHelperValues({
+            searchCity: "",
+            searchStreet: "",
+            cityLocation: null,
+            streetLocation: null,
+            isSelectingCity: false,
+            isSelectingStreet: false,
+          });
+        }}
       ></div>
 
       <div

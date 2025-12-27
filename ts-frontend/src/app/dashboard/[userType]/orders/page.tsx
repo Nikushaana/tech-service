@@ -3,7 +3,6 @@
 import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/app/store/useAuthStore";
 import { useOrdersStore } from "@/app/store/useOrdersStore";
-import { statusTranslations } from "@/app/utils/status-translations";
 import dayjs from "dayjs";
 import { Loader2Icon } from "lucide-react";
 import { useParams } from "next/navigation";
@@ -20,6 +19,7 @@ import {
 } from "@/components/ui/table";
 import { axiosCompany, axiosIndividual } from "@/app/api/axios";
 import { useQuery } from "@tanstack/react-query";
+import { statusLabels, typeLabels } from "@/app/utils/order-type-status-translations";
 
 const fetchUserOrders = async (userType: string) => {
   const api = userType === "company" ? axiosCompany : axiosIndividual;
@@ -103,12 +103,12 @@ export default function Page() {
                 orders.map((order: Order) => (
                   <TableRow key={order.id} className="hover:bg-gray-50">
                     <TableCell>{order.id}</TableCell>
-                    <TableCell>{order.service_type}</TableCell>
+                    <TableCell>{typeLabels[order.service_type] || order.service_type}</TableCell>
                     <TableCell>{order.category.name}</TableCell>
                     <TableCell>{order.brand}</TableCell>
                     <TableCell>{order.model}</TableCell>
                     <TableCell>
-                      {statusTranslations[order.status] || order.status}
+                      {statusLabels[order.status] || order.status}
                     </TableCell>
                     <TableCell>
                       {dayjs(order.created_at).format("DD.MM.YYYY HH:mm")}

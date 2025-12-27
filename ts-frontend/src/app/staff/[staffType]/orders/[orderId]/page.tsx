@@ -1,7 +1,6 @@
 "use client";
 
 import { axiosDelivery, axiosTechnician } from "@/app/api/axios";
-import { statusTranslations } from "@/app/utils/status-translations";
 import { Loader2Icon } from "lucide-react";
 import dayjs from "dayjs";
 import Map from "@/app/components/map/map";
@@ -9,6 +8,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { formatPhone } from "@/app/utils/phone";
 import { useEffect } from "react";
+import { statusDescriptions, typeLabels } from "@/app/utils/order-type-status-translations";
 
 const fetchStaffOrder = async (staffType: string, orderId: string) => {
   const api = staffType === "technician" ? axiosTechnician : axiosDelivery;
@@ -54,7 +54,7 @@ export default function Page() {
     >
       {/* Header */}
       <h2 className="flex justify-end text-sm">
-        {(order && statusTranslations[order.status]) || order?.status}
+        {(order && statusDescriptions[order.status]) || order?.status}
       </h2>
 
       {/* Main Info */}
@@ -63,7 +63,7 @@ export default function Page() {
           <p className="text-sm">
             სერვისის ტიპი:{" "}
             <span className="text-base font-semibold">
-              {order?.service_type}
+              {typeLabels[order.service_type] || order.service_type}
             </span>
           </p>
           <p className="text-sm">

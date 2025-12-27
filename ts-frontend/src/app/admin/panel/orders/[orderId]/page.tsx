@@ -1,7 +1,6 @@
 "use client";
 
 import { axiosAdmin } from "@/app/api/axios";
-import { statusTranslations } from "@/app/utils/status-translations";
 import { Loader2Icon } from "lucide-react";
 import { useEffect, useState } from "react";
 import dayjs from "dayjs";
@@ -9,11 +8,12 @@ import { Dropdown } from "@/app/components/inputs/drop-down";
 import * as Yup from "yup";
 import { Button } from "@/components/ui/button";
 import { toast } from "react-toastify";
-import { useOrderStatusOptionsStore } from "@/app/store/orderStatusOptionsStore";
 import Map from "@/app/components/map/map";
 import { useParams, useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { formatPhone } from "@/app/utils/phone";
+import { useOrderTypeStatusOptionsStore } from "@/app/store/orderTypeStatusOptionsStore";
+import { statusDescriptions, typeLabels } from "@/app/utils/order-type-status-translations";
 
 const fetchAdminActiveEmployees = async () => {
   const [technicians, deliveries] = await Promise.all([
@@ -61,7 +61,7 @@ export default function Page() {
     }
   }, [isError, router]);
 
-  const { statusOptions } = useOrderStatusOptionsStore();
+  const { statusOptions } = useOrderTypeStatusOptionsStore();
 
   const [values, setValues] = useState({
     technicianId: "",
@@ -176,10 +176,10 @@ export default function Page() {
     );
 
   return (
-    <div className="border rounded-lg shadow px-[10px] py-[20px] sm:p-[20px] bg-white w-full max-w-3xl mx-auto flex flex-col gap-y-4">
+    <div className="border rounded-lg shadow px-[10px] py-[20px] sm:p-[20px] bg-white flex flex-col gap-y-4">
       {/* Header */}
       <h2 className={`flex justify-end text-sm`}>
-        {statusTranslations[order.status] || order.status}
+        {statusDescriptions[order.status] || order.status}
       </h2>
 
       {/* Main Info */}
@@ -188,7 +188,7 @@ export default function Page() {
           <p className="text-sm">
             სერვისის ტიპი:{" "}
             <span className="text-base font-semibold">
-              {order.service_type}
+              {typeLabels[order.service_type] || order.service_type}
             </span>
           </p>
           <p className="text-sm">
@@ -347,7 +347,7 @@ export default function Page() {
           ))}
         </div>
       </div>
-
+      <hr />
       <div className="flex flex-col sm:flex-row gap-[10px]">
         <Dropdown
           data={employees?.deliveries}

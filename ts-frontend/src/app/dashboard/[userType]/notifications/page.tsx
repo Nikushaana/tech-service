@@ -15,6 +15,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { BsEye } from "react-icons/bs";
+import Link from "next/link";
 
 const fetchUserNotifications = async (userType: string) => {
   const api = userType === "company" ? axiosCompany : axiosIndividual;
@@ -34,6 +35,24 @@ export default function Page() {
     queryFn: () => fetchUserNotifications(userType),
     staleTime: 1000 * 60 * 10,
   });
+
+  const getNotificationLink = (notification: any) => {
+    const { type, data } = notification;
+
+    if (type === "new_user" || type === "profile_updated") {
+      return `/dashboard/${userType}/profile`;
+    }
+
+    if (type === "new_review") {
+      return `/dashboard/${userType}/reviews`;
+    }
+
+    if (type === "new_order") {
+      return `/dashboard/${userType}/orders/${data?.order_id}`;
+    }
+
+    return "";
+  };
 
   // read notification
   const readNotificationMutation = useMutation({
@@ -98,6 +117,7 @@ export default function Page() {
                       )}
                     </TableCell>
                     <TableCell className="text-right">
+                      <Link href={getNotificationLink(notification)}>
                       <Button
                         onClick={() => {
                           if (!notification.read)
@@ -123,6 +143,7 @@ export default function Page() {
                           <BsEye className="size-4" />
                         )}
                       </Button>
+                      </Link>
                     </TableCell>
                   </TableRow>
                 ))

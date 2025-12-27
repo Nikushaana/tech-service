@@ -64,7 +64,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             onClick={() => {
               closeAdminSideBar();
             }}
-            className={`fixed lg:static top-0 left-0 h-[100vh] w-[100vw] lg:h-auto lg:w-auto z-20 duration-300 ${
+            className={`fixed lg:static top-0 left-0 h-[100vh] w-[100vw] lg:h-auto lg:w-auto z-50 duration-300 ${
               openAdminSideBar
                 ? "bg-[#000000a7]"
                 : "pointer-events-none lg:pointer-events-auto"

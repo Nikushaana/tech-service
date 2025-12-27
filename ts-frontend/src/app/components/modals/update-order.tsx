@@ -14,6 +14,9 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchFrontCategories } from "@/app/api/frontCategories";
 import { fetchUserAddresses } from "@/app/api/userAddresses";
 import { axiosCompany, axiosIndividual } from "@/app/api/axios";
+import { MdAddLocationAlt } from "react-icons/md";
+import { useAddressesStore } from "@/app/store/useAddressesStore";
+import { useOrderTypeStatusOptionsStore } from "@/app/store/orderTypeStatusOptionsStore";
 
 interface UpdateOrderValues {
   serviceType: string;
@@ -35,6 +38,8 @@ export default function UpdateOrder() {
     toggleOpenUpdateOrderModal,
     modalType,
   } = useUpdateOrderStore();
+  const { toggleOpenCreateAddressModal } = useAddressesStore();
+  const { typeOptions } = useOrderTypeStatusOptionsStore();
 
   const queryClient = useQueryClient();
 
@@ -77,7 +82,7 @@ export default function UpdateOrder() {
   useEffect(() => {
     if (openUpdateOrderModal && currentOrder) {
       setValues({
-        serviceType: currentOrder.service_type == "მონტაჟი" ? "1" : "2",
+        serviceType: currentOrder.service_type,
         categoryId: String(currentOrder.category.id) || "",
         addressId: String(currentOrder.address.id) || "",
         brand: currentOrder.brand || "",
@@ -115,7 +120,12 @@ export default function UpdateOrder() {
   };
 
   const updateOrderSchema = Yup.object().shape({
-    serviceType: Yup.string().required("აირჩიე სერვისის ტიპი"),
+    serviceType: Yup.string()
+      .oneOf(
+        typeOptions.map((o) => o.id),
+        "არასწორი სერვისის ტიპი"
+      )
+      .required("აირჩიე სერვისის ტიპი"),
     categoryId: Yup.string().required("კატეგორია აუცილებელია"),
     brand: Yup.string().required("ბრენდი აუცილებელია"),
     model: Yup.string().required("მოდელი აუცილებელია"),
@@ -225,10 +235,7 @@ export default function UpdateOrder() {
       await updateOrderSchema.validate(values, { abortEarly: false });
 
       const formData = new FormData();
-      formData.append(
-        "service_type",
-        values.serviceType == "1" ? "მონტაჟი" : "შეკეთება"
-      );
+      formData.append("service_type", values.serviceType);
       formData.append("categoryId", values.categoryId);
       formData.append("brand", values.brand);
       formData.append("model", values.model);
@@ -305,10 +312,7 @@ export default function UpdateOrder() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-[10px]">
               <div className="col-span-1 sm:col-span-2">
                 <Dropdown
-                  data={[
-                    { id: 1, name: "მონტაჟი" },
-                    { id: 2, name: "შეკეთება" },
-                  ]}
+                  data={typeOptions}
                   id="serviceType"
                   value={values.serviceType}
                   label="სერვისის ტიპი"
@@ -342,28 +346,48 @@ export default function UpdateOrder() {
                 label="მოდელი"
                 error={errors.model}
               />
-              <Dropdown
-                data={addresses}
-                id="addressId"
-                value={values.addressId}
-                label="მისამართი"
-                valueKey="id"
-                labelKey="name"
-                onChange={handleChange}
-                error={errors.addressId}
-              />
+              <div
+                onClick={() => {
+                  addresses.length <= 0 &&
+                    modalType &&
+                    toggleOpenCreateAddressModal(modalType);
+                }}
+                className="flex items-end gap-1"
+              >
+                <div
+                  className={`flex-1 ${
+                    addresses.length <= 0 && "pointer-events-none"
+                  }`}
+                >
+                  <Dropdown
+                    data={addresses}
+                    id="addressId"
+                    value={values.addressId}
+                    label="მისამართი"
+                    valueKey="id"
+                    labelKey="name"
+                    onChange={handleChange}
+                    error={errors.addressId}
+                  />
+                </div>
+                <Button
+                  onClick={() => {
+                    addresses.length > 0 &&
+                      modalType &&
+                      toggleOpenCreateAddressModal(modalType);
+                  }}
+                  variant="secondary"
+                  className="h-9 aspect-square rounded-[8px] bg-myLightBlue hover:bg-myBlue text-white text-[18px]"
+                >
+                  <MdAddLocationAlt />
+                </Button>
+              </div>
               <div className="col-span-1 sm:col-span-2">
                 <PanelFormInput
                   id="description"
                   value={values.description || ""}
                   onChange={handleChange}
-                  label={
-                    values.serviceType == "1"
-                      ? "მონტაჟის დეტალები"
-                      : values.serviceType == "2"
-                      ? "პრობლემის აღწერა"
-                      : "აღწერა"
-                  }
+                  label="აღწერა"
                   error={errors.description}
                 />
               </div>

@@ -33,14 +33,13 @@ export default function UsersClient() {
   const getNotificationLink = (notification: any) => {
     const { type, data } = notification;
 
-    if (type === "new_user") {
+    if (type === "new_user" || type === "profile_updated") {
       const isStaff =
-        data?.new_user_role === "technician" ||
-        data?.new_user_role === "delivery";
+        data?.user_role === "technician" || data?.user_role === "delivery";
 
-      return `/admin/panel/${isStaff ? "staff" : "users"}/${
-        data?.new_user_role
-      }-${data?.new_user_id}`;
+      return `/admin/panel/${isStaff ? "staff" : "users"}/${data?.user_role}-${
+        data?.user_id
+      }`;
     }
 
     if (type === "new_review") {

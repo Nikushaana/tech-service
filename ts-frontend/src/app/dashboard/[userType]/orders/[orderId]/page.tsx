@@ -1,7 +1,6 @@
 "use client";
 
 import { axiosCompany, axiosIndividual } from "@/app/api/axios";
-import { statusTranslations } from "@/app/utils/status-translations";
 import { Loader2Icon } from "lucide-react";
 import dayjs from "dayjs";
 import Map from "@/app/components/map/map";
@@ -9,6 +8,7 @@ import { useUpdateOrderStore } from "@/app/store/useUpdateOrderStore";
 import { useParams, useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
+import { statusDescriptions, typeLabels } from "@/app/utils/order-type-status-translations";
 
 const fetchUserOrder = async (userType: string, orderId: string) => {
   const api = userType === "company" ? axiosCompany : axiosIndividual;
@@ -52,7 +52,7 @@ export default function Page() {
 
   return (
     <div
-      className={`border rounded-lg shadow px-[10px] py-[20px] sm:p-[20px] bg-white w-full max-w-3xl mx-auto flex flex-col gap-y-4 `}
+      className={`border rounded-lg shadow px-[10px] py-[20px] sm:p-[20px] bg-white w-full flex flex-col gap-y-4 `}
     >
       {/* Header */}
       <div
@@ -73,7 +73,7 @@ export default function Page() {
           </p>
         )}
         <h2 className="text-sm">
-          {(order && statusTranslations[order.status]) || order?.status}
+          {(order && statusDescriptions[order.status]) || order?.status}
         </h2>
       </div>
 
@@ -83,7 +83,7 @@ export default function Page() {
           <p className="text-sm">
             სერვისის ტიპი:{" "}
             <span className="text-base font-semibold">
-              {order?.service_type}
+              {typeLabels[order.service_type] || order.service_type}
             </span>
           </p>
           <p className="text-sm">

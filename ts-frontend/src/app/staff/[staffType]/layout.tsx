@@ -8,6 +8,8 @@ import { useAuthStore } from "@/app/store/useAuthStore";
 import { useBurgerMenuStore } from "@/app/store/burgerMenuStore";
 import { Button } from "@/components/ui/button";
 import { formatPhone } from "@/app/utils/phone";
+import { axiosDelivery, axiosTechnician } from "@/app/api/axios";
+import { useQuery } from "@tanstack/react-query";
 
 type SidebarLinksWithTitle = {
   title?: string;
@@ -35,6 +37,15 @@ const sidebarLinks: Record<Role, SidebarLinksWithTitle> = {
   },
 };
 
+const fetchStaffUnreadNotifications = async (role?: string) => {
+  if (!role) return 0;
+  const { data } = await (role == "technician"
+    ? axiosTechnician
+    : axiosDelivery
+  ).get(`${role}/notifications/unread`);
+  return data;
+};
+
 export default function Layout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { currentUser, authLoading, toggleLogOut } = useAuthStore();
@@ -46,6 +57,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     role && sidebarLinks[role]
       ? sidebarLinks[role]
       : { title: "იტვირთება..", links: [] };
+
+  const { data: unreadNotifications } = useQuery({
+    queryKey: ["staffUnreadNotifications", role],
+    queryFn: () => fetchStaffUnreadNotifications(role),
+    staleTime: 1000 * 60 * 10,
+  });
 
   return (
     <div className="flex flex-col items-center">
@@ -108,7 +125,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                     <Link
                       key={link.href}
                       href={link.href}
-                      className={`px-4 py-2 rounded-lg text-sm font-medium duration-200
+                      className={`flex items-center justify-between px-4 py-2 rounded-lg text-sm font-medium duration-200
               ${
                 isActive
                   ? "bg-white text-myBlue"
@@ -117,7 +134,13 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             `}
                       onClick={() => closeSideBar()}
                     >
-                      {link.name}
+                      {link.name}{" "}
+                      {link.name == "შეტყობინებები" &&
+                        unreadNotifications > 0 && (
+                          <p className="bg-red-600 flex items-center justify-center rounded-full h-full px-[7px] text-white">
+                            {unreadNotifications}
+                          </p>
+                        )}
                     </Link>
                   );
                 })}
