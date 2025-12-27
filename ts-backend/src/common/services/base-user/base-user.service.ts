@@ -207,8 +207,33 @@ export class BaseUserService {
 
         await repo.save(updatedUser);
 
-        // send notification to individual if status changes
         if ('status' in updateUserDto && oldStatus !== updateUserDto.status) {
+            // send notification to admin
+            const roleInGeo =
+                role === 'individual'
+                    ? "ფიზიკური პირი"
+                    : role === 'admin'
+                        ? "ადმინი"
+                        : role === 'technician'
+                            ? "ტექნიკოსი"
+                            : role === 'delivery'
+                                ? "კურიერი"
+                                : role === 'company'
+                                    ? "იურიდიული პირი"
+                                    : "მომხმარებელი";
+
+            await this.notificationService.sendNotification(
+                `${updateUserDto.status ? "გააქტიურდა" : "დაიბლოკა"} ${roleInGeo + " " + (user.companyName || (user.name + " " + user.lastName))}-ს პროფილი.`,
+                'profile_updated',
+                'admin',
+                undefined,
+                {
+                    new_user_id: user.id,
+                    new_user_role: role,
+                },
+            );
+
+            // send notification to user if status changes
             await this.notificationService.sendNotification(
                 `${updateUserDto.status ? "თქვენი პროფილი გააქტიურებულია" : "თქვენი პროფილი დაიბლოკა"}`,
                 "profile_updated",
