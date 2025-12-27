@@ -157,7 +157,7 @@ export class AuthService {
             "new_user",
             user.role,
             user.id,
-        );
+        ); 
 
         return {
             message: `${role} registered successfully`,
