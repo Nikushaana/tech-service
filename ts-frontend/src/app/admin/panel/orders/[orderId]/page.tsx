@@ -13,7 +13,10 @@ import { useParams, useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { formatPhone } from "@/app/utils/phone";
 import { useOrderTypeStatusOptionsStore } from "@/app/store/orderTypeStatusOptionsStore";
-import { statusDescriptions, typeLabels } from "@/app/utils/order-type-status-translations";
+import {
+  statusDescriptions,
+  typeLabels,
+} from "@/app/utils/order-type-status-translations";
 
 const fetchAdminActiveEmployees = async () => {
   const [technicians, deliveries] = await Promise.all([
@@ -39,6 +42,7 @@ export default function Page() {
 
   const router = useRouter();
   const queryClient = useQueryClient();
+  const { statusOptions, typeOptions } = useOrderTypeStatusOptionsStore();
 
   const { data: employees } = useQuery({
     queryKey: ["adminActiveEmployees"],
@@ -61,17 +65,17 @@ export default function Page() {
     }
   }, [isError, router]);
 
-  const { statusOptions } = useOrderTypeStatusOptionsStore();
-
   const [values, setValues] = useState({
     technicianId: "",
     deliveryId: "",
+    serviceType: "",
     status: "",
   });
 
   const [errors, setErrors] = useState({
     technicianId: "",
     deliveryId: "",
+    serviceType: "",
     status: "",
   });
 
@@ -80,6 +84,7 @@ export default function Page() {
       setValues({
         technicianId: order.technician?.id || "",
         deliveryId: order.delivery?.id || "",
+        serviceType: order.service_type || "",
         status: order.status || "",
       });
     }
@@ -106,6 +111,12 @@ export default function Page() {
         originalValue === "" ? undefined : value
       )
       .required("კურიერი აუცილებელია"),
+    serviceType: Yup.string()
+      .oneOf(
+        typeOptions.map((o) => o.id),
+        "სერვისის ტიპი აუცილებელია"
+      )
+      .required("აირჩიე სერვისის ტიპი"),
     status: Yup.string().required("სტატუსი აუცილებელია"),
   });
 
@@ -142,6 +153,7 @@ export default function Page() {
       setErrors({
         technicianId: "",
         deliveryId: "",
+        serviceType: "",
         status: "",
       });
 
@@ -150,6 +162,7 @@ export default function Page() {
       updateOrderMutation.mutate({
         technicianId: Number(values.technicianId),
         deliveryId: Number(values.deliveryId),
+        serviceType: values.serviceType,
         status: values.status,
       });
     } catch (err: any) {
@@ -348,7 +361,7 @@ export default function Page() {
         </div>
       </div>
       <hr />
-      <div className="flex flex-col sm:flex-row gap-[10px]">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-[10px]">
         <Dropdown
           data={employees?.deliveries}
           id="deliveryId"
@@ -368,6 +381,16 @@ export default function Page() {
           labelKey={(item: any) => `${item.name} ${item.lastName}`}
           onChange={handleChange}
           error={errors.technicianId}
+        />
+        <Dropdown
+          data={typeOptions}
+          id="serviceType"
+          value={values.serviceType}
+          label="სერვისის ტიპი"
+          valueKey="id"
+          labelKey="name"
+          onChange={handleChange}
+          error={errors.serviceType}
         />
         <Dropdown
           data={statusOptions}
