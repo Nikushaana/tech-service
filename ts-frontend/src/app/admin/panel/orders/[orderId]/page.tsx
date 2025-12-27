@@ -162,7 +162,7 @@ export default function Page() {
       updateOrderMutation.mutate({
         technicianId: Number(values.technicianId),
         deliveryId: Number(values.deliveryId),
-        serviceType: values.serviceType,
+        service_type: values.serviceType,
         status: values.status,
       });
     } catch (err: any) {
