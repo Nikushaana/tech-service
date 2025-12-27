@@ -77,7 +77,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         {/* Mobile Hamburger */}
         <div
           onClick={() => toggleSideBar()}
-          className={`lg:hidden fixed top-[40%] z-[2] rounded-r-[10px] shadow-lg border-[1px] flex items-center justify-center text-2xl duration-300 h-[60px] w-[45px] ${
+          className={`lg:hidden fixed top-[40%] z-[2] rounded-r-[10px] shadow-lg border-[1px] flex items-center justify-center text-xl duration-300 h-[60px] w-[30px] ${
             openSideBar ? "left-[20px] bg-gray-300 " : "left-0 bg-gray-100 "
           }`}
         >
