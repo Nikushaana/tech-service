@@ -364,17 +364,17 @@ export class OrderService {
                     },
                 );
                 // send notification to user
-                // await this.notificationService.sendNotification(
-                //     `შეკვეთა №${order.id}: ${oldTechnician?.id
-                //         ? `დაენიშნა ახალი ტექნიკოსი — ${technician.name} ${technician.lastName}, ${oldTechnician?.name} ${oldTechnician?.lastName}-ს ნაცვლად`
-                //         : `დაენიშნა ტექნიკოსი ${technician.name + " " + technician.lastName}`}`,
-                //     'order_updated',
-                //     `${order.company.id ? "company" : "individual"}`,
-                //     order.company.id || order.individual.id,
-                //     {
-                //         order_id: order.id
-                //     },
-                // );
+                await this.notificationService.sendNotification(
+                    `შეკვეთა №${order.id}: ${oldTechnician?.id
+                        ? `დაენიშნა ახალი ტექნიკოსი — ${technician.name} ${technician.lastName}, ${oldTechnician?.name} ${oldTechnician?.lastName}-ს ნაცვლად`
+                        : `დაენიშნა ტექნიკოსი ${technician.name + " " + technician.lastName}`}`,
+                    'order_updated',
+                    `${order.company?.id ? "company" : "individual"}`,
+                    order.company?.id || order.individual?.id,
+                    {
+                        order_id: order.id
+                    },
+                );
             }
 
             order.technician = technician;
