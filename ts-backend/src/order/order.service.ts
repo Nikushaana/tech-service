@@ -457,8 +457,8 @@ export class OrderService {
             await this.notificationService.sendNotification(
                 `შეკვეთა №${order.id}:`,
                 'order_updated',
-                `${order.company.id ? "company" : "individual"}`,
-                order.company.id || order.individual.id,
+                `${order.company?.id ? "company" : "individual"}`,
+                order.company?.id || order.individual?.id,
                 {
                     order_id: order.id,
                     status: updateAdminOrderDto.status
