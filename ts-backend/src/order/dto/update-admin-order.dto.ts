@@ -1,42 +1,19 @@
-import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsEnum, IsNumber, IsOptional } from 'class-validator';
 import { OrderStatus } from 'src/common/types/order-status.enum';
 import { OrderType } from 'src/common/types/order-type.enum';
 
 export class UpdateAdminOrderDto {
     @IsOptional()
     @IsNumber()
-    @IsNotEmpty()
-    categoryId: number;
+    technicianId: number | null;
 
     @IsOptional()
     @IsNumber()
-    @IsNotEmpty()
-    addressId: number;
-
-    @IsNumber({}, { each: false })
-    technicianId: number | null;
-
-    @IsNumber({}, { each: false })
     deliveryId: number | null;
 
     @IsOptional()
     @IsEnum(OrderType)
     service_type: OrderType;
-
-    @IsOptional()
-    @IsString()
-    @IsNotEmpty()
-    brand: string;
-
-    @IsOptional()
-    @IsString()
-    @IsNotEmpty()
-    model: string;
-
-    @IsOptional()
-    @IsString()
-    @IsNotEmpty()
-    description: string;
 
     @IsOptional()
     @IsEnum(OrderStatus)

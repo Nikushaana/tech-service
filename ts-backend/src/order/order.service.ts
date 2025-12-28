@@ -317,21 +317,7 @@ export class OrderService {
     async updateAdminOneOrder(id: number, updateAdminOrderDto: UpdateAdminOrderDto) {
         const order = await this.findAdminOneOrderEntity(id)
 
-        const { addressId, technicianId, deliveryId, ...rest } = updateAdminOrderDto;
-
-        if (addressId) {
-            const relationKey = order.company ? 'company' : 'individual';
-            const user = order[relationKey];
-            if (!user) throw new NotFoundException(`${relationKey} not found for this order`);
-            const userId = user.id;
-
-            const address = await this.addressRepo.findOne({
-                where: { id: addressId, [relationKey]: { id: userId } },
-            });
-
-            if (!address) throw new NotFoundException('Address not found');
-            order.address = address;
-        }
+        const { technicianId, deliveryId, ...rest } = updateAdminOrderDto;
 
         if (technicianId !== undefined) {
             if (technicianId === null) {
@@ -341,6 +327,57 @@ export class OrderService {
                     where: { id: technicianId, status: true }
                 });
                 if (!technician) throw new NotFoundException('Technician not found or inactive');
+
+                if (order.technician?.id !== technicianId) {
+                    // send notification to admin
+                    await this.notificationService.sendNotification(
+                        `შეკვეთა №${order.id}: ${order.technician?.id
+                            ? `დაენიშნა ახალი ტექნიკოსი — ${technician.name} ${technician.lastName}, ${order.technician.name} ${order.technician.lastName}-ს ნაცვლად`
+                            : `დაენიშნა ტექნიკოსი ${technician.name + " " + technician.lastName}`}`,
+                        'order_updated',
+                        'admin',
+                        undefined,
+                        {
+                            order_id: order.id
+                        },
+                    );
+                    {
+                        order.technician?.id &&
+                            // send notification to old technician
+                            await this.notificationService.sendNotification(
+                                `შეკვეთა №${order.id}: აღარ არის თქვენზე მიბმული.`,
+                                'order_updated',
+                                'technician',
+                                order.technician?.id,
+                                {
+                                    order_id: order.id
+                                },
+                            );
+                    }
+                    // send notification to new technician
+                    await this.notificationService.sendNotification(
+                        `თქვენზე დაინიშნა ახალი შეკვეთა — №${order.id}.`,
+                        'order_updated',
+                        'technician',
+                        technician.id,
+                        {
+                            order_id: order.id
+                        },
+                    );
+                    // send notification to user
+                    await this.notificationService.sendNotification(
+                        `შეკვეთა №${order.id}: ${order.technician?.id
+                            ? `დაენიშნა ახალი ტექნიკოსი — ${technician.name} ${technician.lastName}, ${order.technician.name} ${order.technician.lastName}-ს ნაცვლად`
+                            : `დაენიშნა ტექნიკოსი ${technician.name + " " + technician.lastName}`}`,
+                        'order_updated',
+                        `${order.company.id ? "company" : "individual"}`,
+                        order.company.id || order.individual.id,
+                        {
+                            order_id: order.id
+                        },
+                    );
+                }
+
                 order.technician = technician;
             }
         }
@@ -353,15 +390,116 @@ export class OrderService {
                     where: { id: deliveryId, status: true }
                 });
                 if (!delivery) throw new NotFoundException('Delivery not found or inactive');
+
+                if (order.delivery?.id !== deliveryId) {
+                    // send notification to admin
+                    await this.notificationService.sendNotification(
+                        `შეკვეთა №${order.id}: ${order.delivery?.id
+                            ? `დაენიშნა ახალი კურიერი — ${delivery.name} ${delivery.lastName}, ${order.delivery.name} ${order.delivery.lastName}-ს ნაცვლად`
+                            : `დაენიშნა კურიერი ${delivery.name + " " + delivery.lastName}`}`,
+                        'order_updated',
+                        'admin',
+                        undefined,
+                        {
+                            order_id: order.id
+                        },
+                    );
+                    {
+                        order.delivery?.id &&
+                            // send notification to old delivery
+                            await this.notificationService.sendNotification(
+                                `შეკვეთა №${order.id}: აღარ არის თქვენზე მიბმული.`,
+                                'order_updated',
+                                'delivery',
+                                order.delivery?.id,
+                                {
+                                    order_id: order.id
+                                },
+                            );
+                    }
+                    // send notification to new delivery
+                    await this.notificationService.sendNotification(
+                        `თქვენზე დაინიშნა ახალი შეკვეთა — №${order.id}.`,
+                        'order_updated',
+                        'delivery',
+                        delivery.id,
+                        {
+                            order_id: order.id
+                        },
+                    );
+                    // send notification to user
+                    await this.notificationService.sendNotification(
+                        `შეკვეთა №${order.id}: ${order.delivery?.id
+                            ? `დაენიშნა ახალი კურიერი — ${delivery.name} ${delivery.lastName}, ${order.delivery.name} ${order.delivery.lastName}-ს ნაცვლად`
+                            : `დაენიშნა კურიერი ${delivery.name + " " + delivery.lastName}`}`,
+                        'order_updated',
+                        `${order.company.id ? "company" : "individual"}`,
+                        order.company.id || order.individual.id,
+                        {
+                            order_id: order.id
+                        },
+                    );
+                }
+
                 order.delivery = delivery;
             }
+        }
+
+        if (updateAdminOrderDto.status !== order.status) {
+            // send notification to admin
+            await this.notificationService.sendNotification(
+                `შეკვეთა №${order.id}:`,
+                'order_updated',
+                'admin',
+                undefined,
+                {
+                    order_id: order.id,
+                    status: updateAdminOrderDto.status
+                },
+            );
+            // send notification to user
+            await this.notificationService.sendNotification(
+                `შეკვეთა №${order.id}:`,
+                'order_updated',
+                `${order.company.id ? "company" : "individual"}`,
+                order.company.id || order.individual.id,
+                {
+                    order_id: order.id,
+                    status: updateAdminOrderDto.status
+                },
+            );
+        }
+        
+        if (updateAdminOrderDto.service_type !== order.service_type) {
+            // send notification to admin
+            await this.notificationService.sendNotification(
+                `შეკვეთა №${order.id}:`,
+                'order_updated',
+                'admin',
+                undefined,
+                {
+                    order_id: order.id,
+                    service_type: updateAdminOrderDto.service_type
+                },
+            );
+            // send notification to user
+            await this.notificationService.sendNotification(
+                `შეკვეთა №${order.id}:`,
+                'order_updated',
+                `${order.company.id ? "company" : "individual"}`,
+                order.company.id || order.individual.id,
+                {
+                    order_id: order.id,
+                    service_type: updateAdminOrderDto.service_type
+                },
+            );
         }
 
         this.orderRepo.merge(order, rest);
         await this.orderRepo.save(order);
 
         return {
-            message: 'Order updated successfully',
+            message: `Order updated successfully`,
             order: instanceToPlain(order),
         };
     }

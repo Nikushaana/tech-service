@@ -1,4 +1,4 @@
-import { BadRequestException, ConflictException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Delivery } from './entities/delivery.entity';
 import { Repository } from 'typeorm';
@@ -10,8 +10,6 @@ import { UpdateDeliveryDto } from './dto/update-delivery.dto';
 import { ChangeNumberDto, PhoneDto } from 'src/verification-code/dto/verification-code.dto';
 import { UserFilterDto } from 'src/common/services/base-user/dto/user-filter.dto';
 import { UpdateAdminIndividualTechnicianDeliveryDto } from 'src/admin/dto/update-adm-ind-tech-del.dto';
-import * as bcrypt from 'bcrypt';
-import { CloudinaryService } from 'src/common/cloudinary/cloudinary.service';
 
 @Injectable()
 export class DeliveryService {
@@ -22,8 +20,6 @@ export class DeliveryService {
         private readonly baseUserService: BaseUserService,
 
         private readonly verificationCodeService: VerificationCodeService,
-
-        private readonly cloudinaryService: CloudinaryService,
     ) { }
 
     // delivery
