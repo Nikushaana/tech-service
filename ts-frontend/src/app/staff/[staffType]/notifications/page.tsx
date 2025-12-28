@@ -37,7 +37,11 @@ export default function Page() {
   const getNotificationLink = (notification: any) => {
     const { type, data } = notification;
 
-    if (type === "profile_updated") {
+     if (type === "new_order" || type === "order_updated") {
+      return `/staff/${staffType}/orders/${data?.order_id}`;
+    }
+
+    if (type === "new_user" || type === "profile_updated") {
       return `/staff/${staffType}/profile`;
     }
 

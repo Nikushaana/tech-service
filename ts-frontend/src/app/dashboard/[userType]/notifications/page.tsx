@@ -16,6 +16,10 @@ import {
 } from "@/components/ui/table";
 import { BsEye } from "react-icons/bs";
 import Link from "next/link";
+import {
+  statusDescriptions,
+  typeLabels,
+} from "@/app/utils/order-type-status-translations";
 
 const fetchUserNotifications = async (userType: string) => {
   const api = userType === "company" ? axiosCompany : axiosIndividual;
@@ -47,7 +51,7 @@ export default function Page() {
       return `/dashboard/${userType}/reviews`;
     }
 
-    if (type === "new_order") {
+    if (type === "new_order" || type === "order_updated") {
       return `/dashboard/${userType}/orders/${data?.order_id}`;
     }
 
@@ -110,7 +114,14 @@ export default function Page() {
                 notifications?.map((notification: any) => (
                   <TableRow key={notification.id} className="hover:bg-gray-50">
                     <TableCell>{notification.id}</TableCell>
-                    <TableCell>{notification.message}</TableCell>
+                    <TableCell>
+                      {notification.message}{" "}
+                      {notification.data?.status &&
+                        (statusDescriptions[notification.data?.status] ||
+                          notification.data?.status)}{" "}
+                      {typeLabels[notification.data?.service_type] ||
+                        notification.data?.service_type}
+                    </TableCell>
                     <TableCell>
                       {dayjs(notification.created_at).format(
                         "DD.MM.YYYY HH:mm"
@@ -118,31 +129,32 @@ export default function Page() {
                     </TableCell>
                     <TableCell className="text-right">
                       <Link href={getNotificationLink(notification)}>
-                      <Button
-                        onClick={() => {
-                          if (!notification.read)
-                            handleReadNotification(notification.id);
-                        }}
-                        variant="secondary"
-                        size="icon"
-                        disabled={
-                          readNotificationMutation.isPending &&
-                          readNotificationMutation.variables === notification.id
-                        }
-                        className={`${
-                          !notification.read
-                            ? "text-white bg-myLightBlue hover:bg-myBlue"
-                            : "hover:bg-gray-100"
-                        } cursor-pointer duration-100`}
-                      >
-                        {readNotificationMutation.isPending &&
-                        readNotificationMutation.variables ===
-                          notification.id ? (
-                          <Loader2Icon className="animate-spin size-4" />
-                        ) : (
-                          <BsEye className="size-4" />
-                        )}
-                      </Button>
+                        <Button
+                          onClick={() => {
+                            if (!notification.read)
+                              handleReadNotification(notification.id);
+                          }}
+                          variant="secondary"
+                          size="icon"
+                          disabled={
+                            readNotificationMutation.isPending &&
+                            readNotificationMutation.variables ===
+                              notification.id
+                          }
+                          className={`${
+                            !notification.read
+                              ? "text-white bg-myLightBlue hover:bg-myBlue"
+                              : "hover:bg-gray-100"
+                          } cursor-pointer duration-100`}
+                        >
+                          {readNotificationMutation.isPending &&
+                          readNotificationMutation.variables ===
+                            notification.id ? (
+                            <Loader2Icon className="animate-spin size-4" />
+                          ) : (
+                            <BsEye className="size-4" />
+                          )}
+                        </Button>
                       </Link>
                     </TableCell>
                   </TableRow>

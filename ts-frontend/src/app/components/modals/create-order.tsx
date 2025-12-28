@@ -82,11 +82,12 @@ export default function CreateOrder() {
 
   const orderSchema = Yup.object().shape({
     serviceType: Yup.string()
-      .oneOf(
-        typeOptions.map((o) => o.id),
-        "არასწორი სერვისის ტიპი"
-      )
-      .required("აირჩიე სერვისის ტიპი"),
+    .transform((value) => (value === "" ? undefined : value))
+    .required("სერვისის ტიპი აუცილებელია")
+    .oneOf(
+      typeOptions.map((o) => o.id),
+      "არასწორი სერვისის ტიპი"
+    ),
     categoryId: Yup.string().required("კატეგორია აუცილებელია"),
     brand: Yup.string().required("ბრენდი აუცილებელია"),
     model: Yup.string().required("მოდელი აუცილებელია"),

@@ -15,6 +15,10 @@ import { Loader2Icon } from "lucide-react";
 import Link from "next/link";
 import { BsEye } from "react-icons/bs";
 import dayjs from "dayjs";
+import {
+  statusDescriptions,
+  typeLabels,
+} from "@/app/utils/order-type-status-translations";
 
 const fetchAdminNotifications = async () => {
   const { data } = await axiosAdmin.get(`admin/notifications`);
@@ -46,7 +50,7 @@ export default function UsersClient() {
       return `/admin/panel/reviews/${data?.review_id}`;
     }
 
-    if (type === "new_order") {
+    if (type === "new_order" || type === "order_updated") {
       return `/admin/panel/orders/${data?.order_id}`;
     }
 
@@ -104,7 +108,14 @@ export default function UsersClient() {
                 notifications?.map((notification: any) => (
                   <TableRow key={notification.id} className="hover:bg-gray-50">
                     <TableCell>{notification.id}</TableCell>
-                    <TableCell>{notification.message}</TableCell>
+                    <TableCell>
+                      {notification.message}{" "}
+                      {notification.data?.status &&
+                        (statusDescriptions[notification.data?.status] ||
+                          notification.data?.status)}{" "}
+                      {typeLabels[notification.data?.service_type] ||
+                        notification.data?.service_type}
+                    </TableCell>
                     <TableCell>
                       {dayjs(notification.created_at).format(
                         "DD.MM.YYYY HH:mm"

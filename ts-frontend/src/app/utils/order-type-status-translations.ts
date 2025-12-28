@@ -7,9 +7,10 @@ export const typeLabels: Record<string, string> = {
 export const statusLabels: Record<string, string> = {
   pending: "მიღებულია",
   assigned: "გადაცემულია",
-
-  // service center fix
   pickup_started: "კურიერი გზაშია",
+
+  technician_coming: "ტექნიკოსი გზაშია",
+  
   picked_up: "აღებულია",
   to_technician: "ტექნიკოსთან მიდის",
   delivered_to_technician: "ტექნიკოსთან მიწოდებულია",
@@ -17,24 +18,19 @@ export const statusLabels: Record<string, string> = {
   waiting_payment: "ანგარიშსწორების მოლოდინი",
 
   repairing: "მიმდინარეობს შეკეთება",
+  installing: "მიმდინარეობს ინსტალაცია",
+  
   fixed_ready: "მზად არის",
   returning_fixed: "ბრუნდება",
   returned_fixed: "მიწოდებულია",
   completed: "დასრულდა",
+  completed_on_site: "დასრულდა გამოძახებით",
 
   repair_cancelled: "სერვისი გაუქმდა",
   broken_ready: "მზად არის დაბრუნებისთვის",
   returning_broken: "ბრუნდება",
   returned_broken: "დაბრუნებულია",
   cancelled: "გაუქმებულია",
-
-  // On-site repair or instalation
-  technician_coming: "ტექნიკოსი გზაშია",
-  // next status -> if repair: "repairing" used same status as for top
-  // if installing:
-  installing: "მიმდინარეობს ინსტალაცია",
-  // next status -> "waiting_payment" used same as top
-  completed_on_site: "დასრულდა გამოძახებით",
 };
 
 export const statusDescriptions: Record<string, string> = {

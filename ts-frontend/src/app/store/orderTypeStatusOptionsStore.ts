@@ -18,7 +18,7 @@ export const useOrderTypeStatusOptionsStore = create<OrderTypeStatusOptionsState
     ],
     statusOptions: [
         { id: "pending", name: "მიღებულია" },
-        { id: "assigned", name: "გადანაწილებულია" },
+        { id: "assigned", name: "გადაცემულია" },
         { id: "pickup_started", name: "კურიერი გზაშია" },
 
         { id: "technician_coming", name: "ტექნიკოსი გზაშია" },
