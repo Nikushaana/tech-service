@@ -340,41 +340,41 @@ export class OrderService {
                         order_id: order.id
                     },
                 );
-                // {
-                //     oldTechnician?.id &&
-                //         // send notification to old technician
-                //         await this.notificationService.sendNotification(
-                //             `შეკვეთა №${order.id}: აღარ არის თქვენზე მიბმული.`,
-                //             'order_updated',
-                //             'technician',
-                //             oldTechnician?.id,
-                //             {
-                //                 order_id: order.id
-                //             },
-                //         );
-                // }
-                // // send notification to new technician
-                // await this.notificationService.sendNotification(
-                //     `თქვენზე დაინიშნა ახალი შეკვეთა — №${order.id}.`,
-                //     'order_updated',
-                //     'technician',
-                //     technician.id,
-                //     {
-                //         order_id: order.id
-                //     },
-                // );
-                // // send notification to user
-                // await this.notificationService.sendNotification(
-                //     `შეკვეთა №${order.id}: ${oldTechnician?.id
-                //         ? `დაენიშნა ახალი ტექნიკოსი — ${technician.name} ${technician.lastName}, ${oldTechnician.name} ${oldTechnician.lastName}-ს ნაცვლად`
-                //         : `დაენიშნა ტექნიკოსი ${technician.name + " " + technician.lastName}`}`,
-                //     'order_updated',
-                //     `${order.company.id ? "company" : "individual"}`,
-                //     order.company.id || order.individual.id,
-                //     {
-                //         order_id: order.id
-                //     },
-                // );
+                {
+                    oldTechnician?.id &&
+                        // send notification to old technician
+                        await this.notificationService.sendNotification(
+                            `შეკვეთა №${order.id}: აღარ არის თქვენზე მიბმული.`,
+                            'order_updated',
+                            'technician',
+                            oldTechnician?.id,
+                            {
+                                order_id: order.id
+                            },
+                        );
+                }
+                // send notification to new technician
+                await this.notificationService.sendNotification(
+                    `თქვენზე დაინიშნა ახალი შეკვეთა — №${order.id}.`,
+                    'order_updated',
+                    'technician',
+                    technician.id,
+                    {
+                        order_id: order.id
+                    },
+                );
+                // send notification to user
+                await this.notificationService.sendNotification(
+                    `შეკვეთა №${order.id}: ${oldTechnician?.id
+                        ? `დაენიშნა ახალი ტექნიკოსი — ${technician.name} ${technician.lastName}, ${oldTechnician.name} ${oldTechnician.lastName}-ს ნაცვლად`
+                        : `დაენიშნა ტექნიკოსი ${technician.name + " " + technician.lastName}`}`,
+                    'order_updated',
+                    `${order.company.id ? "company" : "individual"}`,
+                    order.company.id || order.individual.id,
+                    {
+                        order_id: order.id
+                    },
+                );
             }
 
             order.technician = technician;
