@@ -5,11 +5,11 @@ import { OrderType } from 'src/common/types/order-type.enum';
 export class UpdateAdminOrderDto {
     @IsOptional()
     @IsNumber()
-    technicianId: number | null;
+    technicianId: number;
 
     @IsOptional()
     @IsNumber()
-    deliveryId: number | null;
+    deliveryId: number;
 
     @IsOptional()
     @IsEnum(OrderType)

@@ -319,130 +319,122 @@ export class OrderService {
 
         const { technicianId, deliveryId, ...rest } = updateAdminOrderDto;
 
-        if (technicianId !== undefined) {
-            if (technicianId === null) {
-                order.technician = null;
-            } else {
-                const technician = await this.technicianRepo.findOne({
-                    where: { id: technicianId, status: true }
-                });
-                if (!technician) throw new NotFoundException('Technician not found or inactive');
+        if (technicianId) {
+            const technician = await this.technicianRepo.findOne({
+                where: { id: technicianId, status: true }
+            });
+            if (!technician) throw new NotFoundException('Technician not found or inactive');
 
-                if (order.technician?.id !== technicianId) {
-                    // send notification to admin
-                    await this.notificationService.sendNotification(
-                        `შეკვეთა №${order.id}: ${order.technician?.id
-                            ? `დაენიშნა ახალი ტექნიკოსი — ${technician.name} ${technician.lastName}, ${order.technician.name} ${order.technician.lastName}-ს ნაცვლად`
-                            : `დაენიშნა ტექნიკოსი ${technician.name + " " + technician.lastName}`}`,
-                        'order_updated',
-                        'admin',
-                        undefined,
-                        {
-                            order_id: order.id
-                        },
-                    );
+            if (order.technician?.id !== technicianId) {
+                // send notification to admin
+                await this.notificationService.sendNotification(
+                    `შეკვეთა №${order.id}: ${order.technician?.id
+                        ? `დაენიშნა ახალი ტექნიკოსი — ${technician.name} ${technician.lastName}, ${order.technician.name} ${order.technician.lastName}-ს ნაცვლად`
+                        : `დაენიშნა ტექნიკოსი ${technician.name + " " + technician.lastName}`}`,
+                    'order_updated',
+                    'admin',
+                    undefined,
                     {
-                        order.technician?.id &&
-                            // send notification to old technician
-                            await this.notificationService.sendNotification(
-                                `შეკვეთა №${order.id}: აღარ არის თქვენზე მიბმული.`,
-                                'order_updated',
-                                'technician',
-                                order.technician?.id,
-                                {
-                                    order_id: order.id
-                                },
-                            );
-                    }
-                    // send notification to new technician
-                    await this.notificationService.sendNotification(
-                        `თქვენზე დაინიშნა ახალი შეკვეთა — №${order.id}.`,
-                        'order_updated',
-                        'technician',
-                        technician.id,
-                        {
-                            order_id: order.id
-                        },
-                    );
-                    // send notification to user
-                    await this.notificationService.sendNotification(
-                        `შეკვეთა №${order.id}: ${order.technician?.id
-                            ? `დაენიშნა ახალი ტექნიკოსი — ${technician.name} ${technician.lastName}, ${order.technician.name} ${order.technician.lastName}-ს ნაცვლად`
-                            : `დაენიშნა ტექნიკოსი ${technician.name + " " + technician.lastName}`}`,
-                        'order_updated',
-                        `${order.company.id ? "company" : "individual"}`,
-                        order.company.id || order.individual.id,
-                        {
-                            order_id: order.id
-                        },
-                    );
+                        order_id: order.id
+                    },
+                );
+                {
+                    order.technician?.id &&
+                        // send notification to old technician
+                        await this.notificationService.sendNotification(
+                            `შეკვეთა №${order.id}: აღარ არის თქვენზე მიბმული.`,
+                            'order_updated',
+                            'technician',
+                            order.technician?.id,
+                            {
+                                order_id: order.id
+                            },
+                        );
                 }
-
-                order.technician = technician;
+                // send notification to new technician
+                await this.notificationService.sendNotification(
+                    `თქვენზე დაინიშნა ახალი შეკვეთა — №${order.id}.`,
+                    'order_updated',
+                    'technician',
+                    technician.id,
+                    {
+                        order_id: order.id
+                    },
+                );
+                // send notification to user
+                await this.notificationService.sendNotification(
+                    `შეკვეთა №${order.id}: ${order.technician?.id
+                        ? `დაენიშნა ახალი ტექნიკოსი — ${technician.name} ${technician.lastName}, ${order.technician.name} ${order.technician.lastName}-ს ნაცვლად`
+                        : `დაენიშნა ტექნიკოსი ${technician.name + " " + technician.lastName}`}`,
+                    'order_updated',
+                    `${order.company.id ? "company" : "individual"}`,
+                    order.company.id || order.individual.id,
+                    {
+                        order_id: order.id
+                    },
+                );
             }
+
+            order.technician = technician;
         }
 
-        if (deliveryId !== undefined) {
-            if (deliveryId === null) {
-                order.delivery = null;
-            } else {
-                const delivery = await this.deliveryRepo.findOne({
-                    where: { id: deliveryId, status: true }
-                });
-                if (!delivery) throw new NotFoundException('Delivery not found or inactive');
+        if (deliveryId) {
+            const delivery = await this.deliveryRepo.findOne({
+                where: { id: deliveryId, status: true }
+            });
+            if (!delivery) throw new NotFoundException('Delivery not found or inactive');
 
-                if (order.delivery?.id !== deliveryId) {
-                    // send notification to admin
-                    await this.notificationService.sendNotification(
-                        `შეკვეთა №${order.id}: ${order.delivery?.id
-                            ? `დაენიშნა ახალი კურიერი — ${delivery.name} ${delivery.lastName}, ${order.delivery.name} ${order.delivery.lastName}-ს ნაცვლად`
-                            : `დაენიშნა კურიერი ${delivery.name + " " + delivery.lastName}`}`,
-                        'order_updated',
-                        'admin',
-                        undefined,
-                        {
-                            order_id: order.id
-                        },
-                    );
+            if (order.delivery?.id !== deliveryId) {
+                // send notification to admin
+                await this.notificationService.sendNotification(
+                    `შეკვეთა №${order.id}: ${order.delivery?.id
+                        ? `დაენიშნა ახალი კურიერი — ${delivery.name} ${delivery.lastName}, ${order.delivery.name} ${order.delivery.lastName}-ს ნაცვლად`
+                        : `დაენიშნა კურიერი ${delivery.name + " " + delivery.lastName}`}`,
+                    'order_updated',
+                    'admin',
+                    undefined,
                     {
-                        order.delivery?.id &&
-                            // send notification to old delivery
-                            await this.notificationService.sendNotification(
-                                `შეკვეთა №${order.id}: აღარ არის თქვენზე მიბმული.`,
-                                'order_updated',
-                                'delivery',
-                                order.delivery?.id,
-                                {
-                                    order_id: order.id
-                                },
-                            );
-                    }
-                    // send notification to new delivery
-                    await this.notificationService.sendNotification(
-                        `თქვენზე დაინიშნა ახალი შეკვეთა — №${order.id}.`,
-                        'order_updated',
-                        'delivery',
-                        delivery.id,
-                        {
-                            order_id: order.id
-                        },
-                    );
-                    // send notification to user
-                    await this.notificationService.sendNotification(
-                        `შეკვეთა №${order.id}: ${order.delivery?.id
-                            ? `დაენიშნა ახალი კურიერი — ${delivery.name} ${delivery.lastName}, ${order.delivery.name} ${order.delivery.lastName}-ს ნაცვლად`
-                            : `დაენიშნა კურიერი ${delivery.name + " " + delivery.lastName}`}`,
-                        'order_updated',
-                        `${order.company.id ? "company" : "individual"}`,
-                        order.company.id || order.individual.id,
-                        {
-                            order_id: order.id
-                        },
-                    );
+                        order_id: order.id
+                    },
+                );
+                {
+                    order.delivery?.id &&
+                        // send notification to old delivery
+                        await this.notificationService.sendNotification(
+                            `შეკვეთა №${order.id}: აღარ არის თქვენზე მიბმული.`,
+                            'order_updated',
+                            'delivery',
+                            order.delivery?.id,
+                            {
+                                order_id: order.id
+                            },
+                        );
                 }
-
-                order.delivery = delivery;
+                // send notification to new delivery
+                await this.notificationService.sendNotification(
+                    `თქვენზე დაინიშნა ახალი შეკვეთა — №${order.id}.`,
+                    'order_updated',
+                    'delivery',
+                    delivery.id,
+                    {
+                        order_id: order.id
+                    },
+                );
+                // send notification to user
+                await this.notificationService.sendNotification(
+                    `შეკვეთა №${order.id}: ${order.delivery?.id
+                        ? `დაენიშნა ახალი კურიერი — ${delivery.name} ${delivery.lastName}, ${order.delivery.name} ${order.delivery.lastName}-ს ნაცვლად`
+                        : `დაენიშნა კურიერი ${delivery.name + " " + delivery.lastName}`}`,
+                    'order_updated',
+                    `${order.company.id ? "company" : "individual"}`,
+                    order.company.id || order.individual.id,
+                    {
+                        order_id: order.id
+                    },
+                );
             }
+
+            order.delivery = delivery;
         }
 
         if (updateAdminOrderDto.status !== order.status) {
@@ -469,7 +461,7 @@ export class OrderService {
                 },
             );
         }
-        
+
         if (updateAdminOrderDto.service_type !== order.service_type) {
             // send notification to admin
             await this.notificationService.sendNotification(
