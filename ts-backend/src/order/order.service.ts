@@ -430,8 +430,8 @@ export class OrderService {
                         ? `დაენიშნა ახალი კურიერი — ${delivery.name} ${delivery.lastName}, ${oldDelivery.name} ${oldDelivery.lastName}-ს ნაცვლად`
                         : `დაენიშნა კურიერი ${delivery.name + " " + delivery.lastName}`}`,
                     'order_updated',
-                    `${order.company.id ? "company" : "individual"}`,
-                    order.company.id || order.individual.id,
+                    `${order.company?.id ? "company" : "individual"}`,
+                    order.company?.id || order.individual?.id,
                     {
                         order_id: order.id
                     },
