@@ -389,54 +389,53 @@ export class OrderService {
             const oldDelivery = order.delivery;
 
             if (oldDelivery?.id !== deliveryId) {
-                // // send notification to admin
-                // await this.notificationService.sendNotification(
-                //     `შეკვეთა №${order.id}: ${oldDelivery?.id
-                //         ? `დაენიშნა ახალი კურიერი — ${delivery.name} ${delivery.lastName}, ${oldDelivery.name} ${oldDelivery.lastName}-ს ნაცვლად`
-                //         : `დაენიშნა კურიერი ${delivery.name + " " + delivery.lastName}`}`,
-                //     'order_updated',
-                //     'admin',
-                //     undefined,
-                //     {
-                //         order_id: order.id
-                //     },
-                // );
-                // {
-                //     oldDelivery?.id &&
-                //         // send notification to old delivery
-                //         await this.notificationService.sendNotification(
-                //             `შეკვეთა №${order.id}: აღარ არის თქვენზე მიბმული.`,
-                //             'order_updated',
-                //             'delivery',
-                //             oldDelivery?.id,
-                //             {
-                //                 order_id: order.id
-                //             },
-                //         );
-                // }
-                // // send notification to new delivery
-                // await this.notificationService.sendNotification(
-                //     `თქვენზე დაინიშნა ახალი შეკვეთა — №${order.id}.`,
-                //     'order_updated',
-                //     'delivery',
-                //     delivery.id,
-                //     {
-                //         order_id: order.id
-                //     },
-                // );
-                // // send notification to user
-                // await this.notificationService.sendNotification(
-                //     `შეკვეთა №${order.id}: ${oldDelivery?.id
-                //         ? `დაენიშნა ახალი კურიერი — ${delivery.name} ${delivery.lastName}, ${oldDelivery.name} ${oldDelivery.lastName}-ს ნაცვლად`
-                //         : `დაენიშნა კურიერი ${delivery.name + " " + delivery.lastName}`}`,
-                //     'order_updated',
-                //     `${order.company.id ? "company" : "individual"}`,
-                //     order.company.id || order.individual.id,
-                //     {
-                //         order_id: order.id
-                //     },
-                // );
-                console.log("in delivery notif");
+                // send notification to admin
+                await this.notificationService.sendNotification(
+                    `შეკვეთა №${order.id}: ${oldDelivery?.id
+                        ? `დაენიშნა ახალი კურიერი — ${delivery.name} ${delivery.lastName}, ${oldDelivery.name} ${oldDelivery.lastName}-ს ნაცვლად`
+                        : `დაენიშნა კურიერი ${delivery.name + " " + delivery.lastName}`}`,
+                    'order_updated',
+                    'admin',
+                    undefined,
+                    {
+                        order_id: order.id
+                    },
+                );
+                {
+                    oldDelivery?.id &&
+                        // send notification to old delivery
+                        await this.notificationService.sendNotification(
+                            `შეკვეთა №${order.id}: აღარ არის თქვენზე მიბმული.`,
+                            'order_updated',
+                            'delivery',
+                            oldDelivery?.id,
+                            {
+                                order_id: order.id
+                            },
+                        );
+                }
+                // send notification to new delivery
+                await this.notificationService.sendNotification(
+                    `თქვენზე დაინიშნა ახალი შეკვეთა — №${order.id}.`,
+                    'order_updated',
+                    'delivery',
+                    delivery.id,
+                    {
+                        order_id: order.id
+                    },
+                );
+                // send notification to user
+                await this.notificationService.sendNotification(
+                    `შეკვეთა №${order.id}: ${oldDelivery?.id
+                        ? `დაენიშნა ახალი კურიერი — ${delivery.name} ${delivery.lastName}, ${oldDelivery.name} ${oldDelivery.lastName}-ს ნაცვლად`
+                        : `დაენიშნა კურიერი ${delivery.name + " " + delivery.lastName}`}`,
+                    'order_updated',
+                    `${order.company.id ? "company" : "individual"}`,
+                    order.company.id || order.individual.id,
+                    {
+                        order_id: order.id
+                    },
+                );
             }
 
             order.delivery = delivery;
