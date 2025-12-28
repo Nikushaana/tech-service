@@ -325,11 +325,13 @@ export class OrderService {
             });
             if (!technician) throw new NotFoundException('Technician not found or inactive');
 
-            if (order.technician?.id !== technicianId) {
+            const oldTechnician = order.technician;
+
+            if (oldTechnician?.id !== technicianId) {
                 // send notification to admin
                 await this.notificationService.sendNotification(
-                    `შეკვეთა №${order.id}: ${order.technician?.id
-                        ? `დაენიშნა ახალი ტექნიკოსი — ${technician.name} ${technician.lastName}, ${order.technician.name} ${order.technician.lastName}-ს ნაცვლად`
+                    `შეკვეთა №${order.id}: ${oldTechnician?.id
+                        ? `დაენიშნა ახალი ტექნიკოსი — ${technician.name} ${technician.lastName}, ${oldTechnician.name} ${oldTechnician.lastName}-ს ნაცვლად`
                         : `დაენიშნა ტექნიკოსი ${technician.name + " " + technician.lastName}`}`,
                     'order_updated',
                     'admin',
@@ -339,13 +341,13 @@ export class OrderService {
                     },
                 );
                 {
-                    order.technician?.id &&
+                    oldTechnician?.id &&
                         // send notification to old technician
                         await this.notificationService.sendNotification(
                             `შეკვეთა №${order.id}: აღარ არის თქვენზე მიბმული.`,
                             'order_updated',
                             'technician',
-                            order.technician?.id,
+                            oldTechnician?.id,
                             {
                                 order_id: order.id
                             },
@@ -363,8 +365,8 @@ export class OrderService {
                 );
                 // send notification to user
                 await this.notificationService.sendNotification(
-                    `შეკვეთა №${order.id}: ${order.technician?.id
-                        ? `დაენიშნა ახალი ტექნიკოსი — ${technician.name} ${technician.lastName}, ${order.technician.name} ${order.technician.lastName}-ს ნაცვლად`
+                    `შეკვეთა №${order.id}: ${oldTechnician?.id
+                        ? `დაენიშნა ახალი ტექნიკოსი — ${technician.name} ${technician.lastName}, ${oldTechnician.name} ${oldTechnician.lastName}-ს ნაცვლად`
                         : `დაენიშნა ტექნიკოსი ${technician.name + " " + technician.lastName}`}`,
                     'order_updated',
                     `${order.company.id ? "company" : "individual"}`,
@@ -384,11 +386,13 @@ export class OrderService {
             });
             if (!delivery) throw new NotFoundException('Delivery not found or inactive');
 
-            if (order.delivery?.id !== deliveryId) {
+            const oldDelivery = order.delivery;
+
+            if (oldDelivery?.id !== deliveryId) {
                 // send notification to admin
                 await this.notificationService.sendNotification(
-                    `შეკვეთა №${order.id}: ${order.delivery?.id
-                        ? `დაენიშნა ახალი კურიერი — ${delivery.name} ${delivery.lastName}, ${order.delivery.name} ${order.delivery.lastName}-ს ნაცვლად`
+                    `შეკვეთა №${order.id}: ${oldDelivery?.id
+                        ? `დაენიშნა ახალი კურიერი — ${delivery.name} ${delivery.lastName}, ${oldDelivery.name} ${oldDelivery.lastName}-ს ნაცვლად`
                         : `დაენიშნა კურიერი ${delivery.name + " " + delivery.lastName}`}`,
                     'order_updated',
                     'admin',
@@ -398,13 +402,13 @@ export class OrderService {
                     },
                 );
                 {
-                    order.delivery?.id &&
+                    oldDelivery?.id &&
                         // send notification to old delivery
                         await this.notificationService.sendNotification(
                             `შეკვეთა №${order.id}: აღარ არის თქვენზე მიბმული.`,
                             'order_updated',
                             'delivery',
-                            order.delivery?.id,
+                            oldDelivery?.id,
                             {
                                 order_id: order.id
                             },
@@ -422,8 +426,8 @@ export class OrderService {
                 );
                 // send notification to user
                 await this.notificationService.sendNotification(
-                    `შეკვეთა №${order.id}: ${order.delivery?.id
-                        ? `დაენიშნა ახალი კურიერი — ${delivery.name} ${delivery.lastName}, ${order.delivery.name} ${order.delivery.lastName}-ს ნაცვლად`
+                    `შეკვეთა №${order.id}: ${oldDelivery?.id
+                        ? `დაენიშნა ახალი კურიერი — ${delivery.name} ${delivery.lastName}, ${oldDelivery.name} ${oldDelivery.lastName}-ს ნაცვლად`
                         : `დაენიშნა კურიერი ${delivery.name + " " + delivery.lastName}`}`,
                     'order_updated',
                     `${order.company.id ? "company" : "individual"}`,
