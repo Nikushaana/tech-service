@@ -10,10 +10,9 @@ import { NotificationsModule } from 'src/notifications/notifications.module';
 import { ReviewsModule } from 'src/reviews/reviews.module';
 import { AddressModule } from 'src/address/address.module';
 import { OrderModule } from 'src/order/order.module';
-import { CloudinaryModule } from 'src/common/cloudinary/cloudinary.module';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([CompanyClient]), BaseUserModule, VerificationCodeModule, TokensModule, NotificationsModule, ReviewsModule, AddressModule, OrderModule, CloudinaryModule],
+    imports: [TypeOrmModule.forFeature([CompanyClient]), BaseUserModule, VerificationCodeModule, TokensModule, NotificationsModule, ReviewsModule, AddressModule, OrderModule],
     controllers: [CompanyClientController],
     providers: [CompanyClientService],
     exports: [CompanyClientService, TypeOrmModule],

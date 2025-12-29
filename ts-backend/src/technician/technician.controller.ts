@@ -10,6 +10,7 @@ import { ChangeNumberDto, PhoneDto } from 'src/verification-code/dto/verificatio
 import { MultipleImagesUpload } from 'src/common/interceptors/multiple-images-upload.factory';
 import { OrderService } from 'src/order/order.service';
 import { NotificationsService } from 'src/notifications/notifications.service';
+import { TechnicianRequestPaymentDto } from 'src/order/dto/technician-request-payment.dto';
 
 @Controller('technician')
 export class TechnicianController {
@@ -71,6 +72,63 @@ export class TechnicianController {
     @Get('orders/:id')
     async getTechnicianOneOrder(@Req() req: RequestInfo, @Param('id', ParseIntPipe) id: number) {
         return this.orderService.getTechnicianOneOrder(req.user.id, id);
+    }
+
+    // order flow
+    @UseGuards(TokenValidationGuard, RolesGuard)
+    @Roles('technician')
+    @Patch('orders/:id/inspection')
+    async inspection(@Req() req: RequestInfo, @Param('id', ParseIntPipe) id: number) {
+        return this.orderService.inspection(req.user.id, id);
+    }
+    
+    @UseGuards(TokenValidationGuard, RolesGuard)
+    @Roles('technician')
+    @Patch('orders/:id/waiting-decision')
+    async waitingDecision(@Req() req: RequestInfo, @Param('id', ParseIntPipe) id: number, @Body() technicianRequestPaymentDto: TechnicianRequestPaymentDto) {
+        return this.orderService.waitingDecision(req.user.id, id, technicianRequestPaymentDto);
+    }
+    
+    @UseGuards(TokenValidationGuard, RolesGuard)
+    @Roles('technician')
+    @Patch('orders/:id/broken-ready')
+    async brokenReady(@Req() req: RequestInfo, @Param('id', ParseIntPipe) id: number) {
+        return this.orderService.brokenReady(req.user.id, id);
+    }
+    
+    @UseGuards(TokenValidationGuard, RolesGuard)
+    @Roles('technician')
+    @Patch('orders/:id/fixed-ready')
+    async fixedReady(@Req() req: RequestInfo, @Param('id', ParseIntPipe) id: number) {
+        return this.orderService.fixedReady(req.user.id, id);
+    }
+    
+    @UseGuards(TokenValidationGuard, RolesGuard)
+    @Roles('technician')
+    @Patch('orders/:id/technician-coming')
+    async technicianComing(@Req() req: RequestInfo, @Param('id', ParseIntPipe) id: number) {
+        return this.orderService.technicianComing(req.user.id, id);
+    }
+    
+    @UseGuards(TokenValidationGuard, RolesGuard)
+    @Roles('technician')
+    @Patch('orders/:id/repairing-on-site')
+    async repairingOnSite(@Req() req: RequestInfo, @Param('id', ParseIntPipe) id: number) {
+        return this.orderService.repairingOnSite(req.user.id, id);
+    }
+   
+    @UseGuards(TokenValidationGuard, RolesGuard)
+    @Roles('technician')
+    @Patch('orders/:id/installing')
+    async installing(@Req() req: RequestInfo, @Param('id', ParseIntPipe) id: number) {
+        return this.orderService.installing(req.user.id, id);
+    }
+    
+    @UseGuards(TokenValidationGuard, RolesGuard)
+    @Roles('technician')
+    @Patch('orders/:id/waiting-payment')
+    async waitingPayment(@Req() req: RequestInfo, @Param('id', ParseIntPipe) id: number, @Body() technicianRequestPaymentDto: TechnicianRequestPaymentDto) {
+        return this.orderService.waitingPayment(req.user.id, id, technicianRequestPaymentDto);
     }
 
     // notifications

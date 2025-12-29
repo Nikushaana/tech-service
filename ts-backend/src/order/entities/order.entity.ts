@@ -28,15 +28,24 @@ export class Order {
 
   @Column()
   description: string;
-  
+
   @Column({ type: 'enum', enum: OrderType })
   service_type: OrderType;
 
   @Column("simple-array", { default: "" })
   images: string[];
-  
+
   @Column("simple-array", { default: "" })
   videos: string[];
+
+  @Column({ type: 'text', nullable: true })
+  cancel_reason?: string;
+
+  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
+  payment_amount?: number;
+
+  @Column({ type: 'text', nullable: true })
+  payment_reason?: string;
 
   @CreateDateColumn()
   created_at: Date;
@@ -61,7 +70,7 @@ export class Order {
 
   @ManyToOne(() => Technician, (technician) => technician.orders, { nullable: true })
   technician: Technician | null;
-  
+
   @ManyToOne(() => Delivery, (delivery) => delivery.orders, { nullable: true })
   delivery: Delivery | null;
 }

@@ -14,6 +14,7 @@ import { MultipleImagesUpload } from 'src/common/interceptors/multiple-images-up
 import { MultipleFilesUpload } from 'src/common/interceptors/MultipleFilesUpload.interceptor';
 import { CreateReviewDto } from 'src/reviews/dto/create-review.dto';
 import { NotificationsService } from 'src/notifications/notifications.service';
+import { RepairDecisionDto } from 'src/order/dto/repair-decision.dto';
 
 @Controller('company')
 export class CompanyClientController {
@@ -105,6 +106,42 @@ export class CompanyClientController {
         const images = files.images || [];
         const videos = files.videos || [];
         return this.companyClientService.updateOneOrder(req.user.id, id, updateUserOrderDto, images, videos);
+    }
+
+    // order flow
+    @UseGuards(TokenValidationGuard, RolesGuard)
+    @Roles('company')
+    @Patch('orders/:id/to-technician')
+    async toTechnician(@Req() req: RequestInfo, @Param('id', ParseIntPipe) id: number) {
+        return this.companyClientService.toTechnician(req.user.id, id);
+    }
+    
+    @UseGuards(TokenValidationGuard, RolesGuard)
+    @Roles('company')
+    @Patch('orders/:id/decision')
+    async decideRepair(@Req() req: RequestInfo, @Param('id', ParseIntPipe) id: number, @Body() repairDecisionDto: RepairDecisionDto) {
+        return this.companyClientService.decideRepair(req.user.id, id, repairDecisionDto);
+    }
+    
+    @UseGuards(TokenValidationGuard, RolesGuard)
+    @Roles('company')
+    @Patch('orders/:id/cancelled')
+    async cancelled(@Req() req: RequestInfo, @Param('id', ParseIntPipe) id: number) {
+        return this.companyClientService.cancelled(req.user.id, id);
+    }
+    
+    @UseGuards(TokenValidationGuard, RolesGuard)
+    @Roles('company')
+    @Patch('orders/:id/completed')
+    async completed(@Req() req: RequestInfo, @Param('id', ParseIntPipe) id: number) {
+        return this.companyClientService.completed(req.user.id, id);
+    }
+    
+    @UseGuards(TokenValidationGuard, RolesGuard)
+    @Roles('company')
+    @Patch('orders/:id/completed-on-site')
+    async completedOnSite(@Req() req: RequestInfo, @Param('id', ParseIntPipe) id: number) {
+        return this.companyClientService.completedOnSite(req.user.id, id);
     }
 
     // address

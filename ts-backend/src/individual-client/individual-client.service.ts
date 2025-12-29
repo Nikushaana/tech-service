@@ -16,6 +16,7 @@ import { ReviewsService } from 'src/reviews/reviews.service';
 import { AddressService } from 'src/address/address.service';
 import { OrderService } from 'src/order/order.service';
 import { UpdateAdminIndividualTechnicianDeliveryDto } from 'src/admin/dto/update-adm-ind-tech-del.dto';
+import { RepairDecisionDto } from 'src/order/dto/repair-decision.dto';
 
 @Injectable()
 export class IndividualClientService {
@@ -89,6 +90,27 @@ export class IndividualClientService {
 
     async updateOneOrder(individualId: number, id: number, updateUserOrderDto: UpdateUserOrderDto, images: Express.Multer.File[] = [], videos: Express.Multer.File[] = []) {
         return this.orderService.updateOneOrder(individualId, id, this.individualClientRepo, updateUserOrderDto, images, videos);
+    }
+
+    // order flow
+    async toTechnician(individualId: number, id: number) {
+        return this.orderService.toTechnician(individualId, id, this.individualClientRepo);
+    }
+
+    async decideRepair(individualId: number, id: number, repairDecisionDto: RepairDecisionDto) {
+        return this.orderService.decideRepair(individualId, id, this.individualClientRepo, repairDecisionDto);
+    }
+
+    async cancelled(individualId: number, id: number) {
+        return this.orderService.cancelled(individualId, id, this.individualClientRepo);
+    }
+
+    async completed(individualId: number, id: number) {
+        return this.orderService.completed(individualId, id, this.individualClientRepo);
+    }
+
+    async completedOnSite(individualId: number, id: number) {
+        return this.orderService.completedOnSite(individualId, id, this.individualClientRepo);
     }
 
     // address

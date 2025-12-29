@@ -1,4 +1,4 @@
-import { BadRequestException, ConflictException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CompanyClient } from './entities/company-client.entity';
 import { Repository } from 'typeorm';
@@ -15,10 +15,8 @@ import { CreateReviewDto } from 'src/reviews/dto/create-review.dto';
 import { ReviewsService } from 'src/reviews/reviews.service';
 import { AddressService } from 'src/address/address.service';
 import { OrderService } from 'src/order/order.service';
-import * as bcrypt from 'bcrypt';
 import { UpdateAdminCompanyDto } from 'src/admin/dto/update-admin-company.dto';
-import { CloudinaryService } from 'src/common/cloudinary/cloudinary.service';
-import { NotificationsService } from 'src/notifications/notifications.service';
+import { RepairDecisionDto } from 'src/order/dto/repair-decision.dto';
 
 @Injectable()
 export class CompanyClientService {
@@ -35,10 +33,6 @@ export class CompanyClientService {
         private readonly addressService: AddressService,
 
         private readonly orderService: OrderService,
-
-        private readonly cloudinaryService: CloudinaryService,
-
-        private readonly notificationService: NotificationsService,
     ) { }
 
     // company
@@ -81,7 +75,7 @@ export class CompanyClientService {
         return this.baseUserService.changeNumber(this.companyClientRepo, companyId, changeNumberDto);
     }
 
-    // create order
+    // order
     async createOrder(companyId: number, createOrderDto: CreateOrderDto, images: Express.Multer.File[] = [], videos: Express.Multer.File[] = []) {
         return this.orderService.createOrder(companyId, this.companyClientRepo, createOrderDto, images, videos);
     }
@@ -97,8 +91,29 @@ export class CompanyClientService {
     async updateOneOrder(companyId: number, id: number, updateUserOrderDto: UpdateUserOrderDto, images: Express.Multer.File[] = [], videos: Express.Multer.File[] = []) {
         return this.orderService.updateOneOrder(companyId, id, this.companyClientRepo, updateUserOrderDto, images, videos);
     }
+    
+    // order flow
+    async toTechnician(companyId: number, id: number) {
+        return this.orderService.toTechnician(companyId, id, this.companyClientRepo);
+    }
+    
+    async decideRepair(companyId: number, id: number, repairDecisionDto: RepairDecisionDto) {
+        return this.orderService.decideRepair(companyId, id, this.companyClientRepo, repairDecisionDto);
+    }
+    
+    async cancelled(companyId: number, id: number) {
+        return this.orderService.cancelled(companyId, id, this.companyClientRepo);
+    }
+    
+    async completed(companyId: number, id: number) {
+        return this.orderService.completed(companyId, id, this.companyClientRepo);
+    }
+    
+    async completedOnSite(companyId: number, id: number) {
+        return this.orderService.completedOnSite(companyId, id, this.companyClientRepo);
+    }
 
-    // create address
+    // address
     async createAddress(companyId: number, createAddressDto: CreateAddressDto) {
         return this.addressService.createAddress(companyId, this.companyClientRepo, createAddressDto);
     }

@@ -72,6 +72,56 @@ export class DeliveryController {
     async getDeliveryOneOrder(@Req() req: RequestInfo, @Param('id', ParseIntPipe) id: number) {
         return this.orderService.getDeliveryOneOrder(req.user.id, id);
     }
+    
+    // order flow
+    @UseGuards(TokenValidationGuard, RolesGuard)
+    @Roles('delivery')
+    @Patch('orders/:id/pickup-started')
+    async startPickup(@Req() req: RequestInfo, @Param('id', ParseIntPipe) id: number) {
+        return this.orderService.startPickup(req.user.id, id);
+    }
+    
+    @UseGuards(TokenValidationGuard, RolesGuard)
+    @Roles('delivery')
+    @Patch('orders/:id/picked-up')
+    async pickedUp(@Req() req: RequestInfo, @Param('id', ParseIntPipe) id: number) {
+        return this.orderService.pickedUp(req.user.id, id);
+    }
+    
+    @UseGuards(TokenValidationGuard, RolesGuard)
+    @Roles('delivery')
+    @Patch('orders/:id/delivered-to-technician')
+    async deliveredToTechnician(@Req() req: RequestInfo, @Param('id', ParseIntPipe) id: number) {
+        return this.orderService.deliveredToTechnician(req.user.id, id);
+    }
+    
+    @UseGuards(TokenValidationGuard, RolesGuard)
+    @Roles('delivery')
+    @Patch('orders/:id/returning-broken')
+    async returningBroken(@Req() req: RequestInfo, @Param('id', ParseIntPipe) id: number) {
+        return this.orderService.returningBroken(req.user.id, id);
+    }
+    
+    @UseGuards(TokenValidationGuard, RolesGuard)
+    @Roles('delivery')
+    @Patch('orders/:id/returned-broken')
+    async returnedBroken(@Req() req: RequestInfo, @Param('id', ParseIntPipe) id: number) {
+        return this.orderService.returnedBroken(req.user.id, id);
+    }
+    
+    @UseGuards(TokenValidationGuard, RolesGuard)
+    @Roles('delivery')
+    @Patch('orders/:id/returning-fixed')
+    async returningFixed(@Req() req: RequestInfo, @Param('id', ParseIntPipe) id: number) {
+        return this.orderService.returningFixed(req.user.id, id);
+    }
+    
+    @UseGuards(TokenValidationGuard, RolesGuard)
+    @Roles('delivery')
+    @Patch('orders/:id/returned-fixed')
+    async returnedFixed(@Req() req: RequestInfo, @Param('id', ParseIntPipe) id: number) {
+        return this.orderService.returnedFixed(req.user.id, id);
+    }
 
     // notifications
     @UseGuards(TokenValidationGuard, RolesGuard)

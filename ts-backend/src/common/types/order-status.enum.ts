@@ -1,24 +1,32 @@
 export enum OrderStatus {
   PENDING = 'pending',
   ASSIGNED = 'assigned',
+
+  // off site
   PICKUP_STARTED = 'pickup_started',
   PICKED_UP = 'picked_up',
   TO_TECHNICIAN = 'to_technician',
   DELIVERED_TO_TECHNICIAN = 'delivered_to_technician',
   INSPECTION = 'inspection',
-  WAITING_APPROVAL = 'waiting_approval',
-
-  //if customer pay for fix
-  REPAIRING = 'repairing',
+  WAITING_DECISION = 'waiting_decision',
+  // approve
+  REPAIRING_OFF_SITE = 'repairing_off_site',
   FIXED_READY = 'fixed_ready',
   RETURNING_FIXED = 'returning_fixed',
   RETURNED_FIXED = 'returned_fixed',
   COMPLETED = 'completed',
-
-  //if customer want to cancel and don't pay for fix
+  // cancel
   REPAIR_CANCELLED = 'repair_cancelled',
   BROKEN_READY = 'broken_ready',
   RETURNING_BROKEN = 'returning_broken',
   RETURNED_BROKEN = 'returned_broken',
   CANCELLED = 'cancelled',
+
+  // on site
+  TECHNICIAN_COMING = 'technician_coming',
+  INSTALLING = 'installing',
+  REPAIRING_ON_SITE = 'repairing_on_site',
+  WAITING_PAYMENT = 'waiting_payment',
+  COMPLETED_ON_SITE_INSTALLING = 'completed_on_site_installing',
+  COMPLETED_ON_SITE_REPAIRING = 'completed_on_site_repairing'
 }
