@@ -117,7 +117,7 @@ export const orderActions: OrderAction[] = [
         key: "technicianComing",
         role: ["technician"],
         status: ["assigned"],
-        serviceType: ["installation"],
+        serviceType: ["installation", "fix_on_site"],
         label: "წავედი ადგილზე გმოძახებაზე",
     },
     {
