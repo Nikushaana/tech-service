@@ -8,7 +8,11 @@ import { useUpdateOrderStore } from "@/app/store/useUpdateOrderStore";
 import { useParams, useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
-import { statusDescriptions, typeLabels } from "@/app/utils/order-type-status-translations";
+import {
+  statusDescriptions,
+  typeLabels,
+} from "@/app/utils/order-type-status-translations";
+import { OrderFlowActions } from "@/app/components/order-flow-actions/order-flow-actions";
 
 const fetchUserOrder = async (userType: string, orderId: string) => {
   const api = userType === "company" ? axiosCompany : axiosIndividual;
@@ -72,10 +76,12 @@ export default function Page() {
             ინფორმაციის ცვლილება
           </p>
         )}
-        <h2 className="text-sm">
+        <h2 className="text-sm text-center">
           {(order && statusDescriptions[order.status]) || order?.status}
         </h2>
       </div>
+
+      <OrderFlowActions role={userType} order={order} />
 
       {/* Main Info */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

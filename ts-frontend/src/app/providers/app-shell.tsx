@@ -18,6 +18,7 @@ import { useReviewsStore } from "../store/useReviewsStore";
 import { useAuthStore } from "../store/useAuthStore";
 import { useUpdateOrderStore } from "../store/useUpdateOrderStore";
 import { useBurgerMenuStore } from "../store/burgerMenuStore";
+import OrderFlow from "../components/modals/order-flow";
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const { openCreateAddressModal } = useAddressesStore();
@@ -66,6 +67,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       <CreateOrder />
       <UpdateOrder />
       <CreateReview />
+      <OrderFlow />
     </>
   );
 }

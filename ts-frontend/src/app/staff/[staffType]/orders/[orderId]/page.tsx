@@ -8,7 +8,11 @@ import { useParams, useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { formatPhone } from "@/app/utils/phone";
 import { useEffect } from "react";
-import { statusDescriptions, typeLabels } from "@/app/utils/order-type-status-translations";
+import {
+  statusDescriptions,
+  typeLabels,
+} from "@/app/utils/order-type-status-translations";
+import { OrderFlowActions } from "@/app/components/order-flow-actions/order-flow-actions";
 
 const fetchStaffOrder = async (staffType: string, orderId: string) => {
   const api = staffType === "technician" ? axiosTechnician : axiosDelivery;
@@ -25,7 +29,7 @@ export default function Page() {
   const router = useRouter();
 
   const {
-    data: order = [],
+    data: order = {},
     isLoading,
     isError,
   } = useQuery({
@@ -50,12 +54,14 @@ export default function Page() {
 
   return (
     <div
-      className={`border rounded-lg shadow px-[10px] py-[20px] sm:p-[20px] bg-white w-full max-w-3xl mx-auto flex flex-col gap-y-4 `}
+      className={`border rounded-lg shadow px-[10px] py-[20px] sm:p-[20px] w-full bg-white flex flex-col gap-y-4 `}
     >
       {/* Header */}
-      <h2 className="flex justify-end text-sm">
+      <h2 className="flex justify-end text-sm text-center">
         {(order && statusDescriptions[order.status]) || order?.status}
       </h2>
+
+      <OrderFlowActions role={staffType} order={order} />
 
       {/* Main Info */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

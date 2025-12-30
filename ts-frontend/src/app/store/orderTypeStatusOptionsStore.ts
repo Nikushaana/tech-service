@@ -19,29 +19,33 @@ export const useOrderTypeStatusOptionsStore = create<OrderTypeStatusOptionsState
     statusOptions: [
         { id: "pending", name: "მიღებულია" },
         { id: "assigned", name: "გადაცემულია" },
+
+        // off site
         { id: "pickup_started", name: "კურიერი გზაშია" },
-
-        { id: "technician_coming", name: "ტექნიკოსი გზაშია" },
-
-        { id: "picked_up", name: "აღებულია" },
-        { id: "to_technician", name: "ტექნიკოსთან მიდის" },
-        { id: "delivered_to_technician", name: "ტექნიკოსთან მიწოდებულია" },
+        { id: "picked_up", name: "ტექნიკა ჩატვირთულია" },
+        { id: "to_technician", name: "მიდის ტექნიკოსთან" },
+        { id: "delivered_to_technician", name: "ტექნიკოსის ხელშია" },
         { id: "inspection", name: "დიაგნოსტიკა" },
-        { id: "waiting_payment", name: "ანგარიშსწორების მოლოდინი" },
-
-        { id: "repairing", name: "მიმდინარეობს შეკეთება" },
-        { id: "installing", name: "მიმდინარეობს ინსტალაცია" },
-
-        { id: "fixed_ready", name: "მზად არის" },
-        { id: "returning_fixed", name: "ბრუნდება" },
-        { id: "returned_fixed", name: "მიწოდებულია" },
+        { id: "waiting_decision", name: "გადაწყვეტილების მოლოდინში" },
+        // approve
+        { id: "repairing_off_site", name: "სერვისი მიმდინარეობს სერვისცენტრში" },
+        { id: "fixed_ready", name: "შეკეთებულია" },
+        { id: "returning_fixed", name: "შეკეთებული ტექნიკა ბრუნდება" },
+        { id: "returned_fixed", name: "შეკეთებული ტექნიკა დაბრუნდა" },
         { id: "completed", name: "დასრულდა" },
-        { id: "completed_on_site", name: "დასრულდა გამოძახებით" },
-
+        // cancel
         { id: "repair_cancelled", name: "სერვისი გაუქმდა" },
-        { id: "broken_ready", name: "მზად არის დაბრუნებისთვის" },
-        { id: "returning_broken", name: "ბრუნდება" },
-        { id: "returned_broken", name: "დაბრუნებულია" },
-        { id: "cancelled", name: "გაუქმებულია" },
+        { id: "broken_ready", name: "დაზიანებული ტექნიკა მზად არის დაბრუნებისთვის" },
+        { id: "returning_broken", name: "დაზიანებული ტექნიკა ბრუნდება" },
+        { id: "returned_broken", name: "დაზიანებული ტექნიკა დაბრუნდა" },
+        { id: "cancelled", name: "გაუქმდა" },
+
+        // on site
+        { id: "technician_coming", name: "ტექნიკოსი გზაშია" },
+        { id: "installing", name: "მიმდინარეობს ინსტალაცია" },
+        { id: "repairing_on_site", name: "შეკეთება მიმდინარეობს ადგილზე" },
+        { id: "waiting_payment", name: "ანგარიშსწორების მოლოდინში" },
+        { id: "completed_on_site_installing", name: "ინსტალაცია დასრულდა" },
+        { id: "completed_on_site_repairing", name: "ადგილზე შეკეთება დასრულდა" },
     ],
 }));
