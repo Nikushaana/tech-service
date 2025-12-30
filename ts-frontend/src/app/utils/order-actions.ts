@@ -181,7 +181,7 @@ export const orderActions: OrderAction[] = [
         key: "completedOnSite",
         role: ["company", "individual"],
         status: ["waiting_payment"],
-        serviceType: ["fix_off_site"],
+        serviceType: ["installation", "fix_on_site"],
         label: "გამოძახებით მომსახურება წარმატებით შესრულდა",
     },
 ];
