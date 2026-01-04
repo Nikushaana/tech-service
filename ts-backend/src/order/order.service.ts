@@ -334,6 +334,15 @@ export class OrderService {
     async updateAdminOneOrder(id: number, updateAdminOrderDto: UpdateAdminOrderDto) {
         const order = await this.findAdminOneOrderEntity(id)
 
+        if (
+            updateAdminOrderDto.status !== undefined &&
+            updateAdminOrderDto.status === order.status
+        ) {
+            throw new BadRequestException(
+                'The new status must be different from the current status.'
+            );
+        }
+
         const { technicianId, deliveryId, ...rest } = updateAdminOrderDto;
 
         if (technicianId) {
