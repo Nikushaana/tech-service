@@ -365,9 +365,6 @@ export class OrderService {
                             'order_updated',
                             'technician',
                             oldTechnician?.id,
-                            {
-                                order_id: order.id
-                            },
                         );
                 }
                 // send notification to new technician
@@ -426,9 +423,6 @@ export class OrderService {
                             'order_updated',
                             'delivery',
                             oldDelivery?.id,
-                            {
-                                order_id: order.id
-                            },
                         );
                 }
                 // send notification to new delivery

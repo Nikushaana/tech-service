@@ -1,3 +1,4 @@
+import { Transform } from 'class-transformer';
 import { Address } from 'src/address/entities/address.entity';
 import { Category } from 'src/category/entities/category.entity';
 import { OrderStatus } from 'src/common/types/order-status.enum';
@@ -42,6 +43,7 @@ export class Order {
   cancel_reason?: string;
 
   @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
+  @Transform(({ value }) => value ? Number(value) : null)
   payment_amount?: number;
 
   @Column({ type: 'text', nullable: true })
