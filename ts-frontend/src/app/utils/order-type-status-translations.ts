@@ -1,71 +1,71 @@
 export const typeLabels: Record<string, string> = {
-  installation: "მონტაჟი",
   fix_off_site: "შეკეთება სერვისცენტრში",
+  installation: "მონტაჟი",
   fix_on_site: "შეკეთება ადგილზე",
 };
 
 export const statusLabels: Record<string, string> = {
   pending: "მიღებულია",
-  assigned: "გადაცემულია",
+  assigned: "გადანაწილებულია",
 
   // off site
   pickup_started: "კურიერი გზაშია",
   picked_up: "ტექნიკა ჩატვირთულია",
   to_technician: "მიდის ტექნიკოსთან",
-  delivered_to_technician: "ტექნიკოსის ხელშია",
-  inspection: "დიაგნოსტიკა",
+  delivered_to_technician: "ტექნიკოსს გადაეცა",
+  inspection: "მიმდინარეობს დიაგნოსტიკა",
   waiting_decision: "გადაწყვეტილების მოლოდინში",
   // approve
   repairing_off_site: "სერვისი მიმდინარეობს სერვისცენტრში",
   fixed_ready: "შეკეთებულია",
   returning_fixed: "შეკეთებული ტექნიკა ბრუნდება",
   returned_fixed: "შეკეთებული ტექნიკა დაბრუნდა",
-  completed: "დასრულდა",
+  completed: "დასრულდა წარმატებით",
   // cancel
-  repair_cancelled: "სერვისი გაუქმდა",
-  broken_ready: "დაზიანებული ტექნიკა მზად არის დაბრუნებისთვის",
-  returning_broken: "დაზიანებული ტექნიკა ბრუნდება",
-  returned_broken: "დაზიანებული ტექნიკა დაბრუნდა",
-  cancelled: "გაუქმდა",
+  repair_cancelled: "შეკეთებაზე დაფიქსირდა უარი",
+  broken_ready: "შეუკეთებელი ტექნიკა მზად არის დაბრუნებისთვის",
+  returning_broken: "ბრუნდება შეუკეთებელი ტექნიკა",
+  returned_broken: "დაბრუნდა შეუკეთებელი ტექნიკა",
+  cancelled: "დასრულდა შეუკეთებლად",
 
   // on site
   technician_coming: "ტექნიკოსი გზაშია",
-  installing: "მიმდინარეობს ინსტალაცია",
-  repairing_on_site: "შეკეთება მიმდინარეობს ადგილზე",
+  installing: "მიმდინარეობს მონტაჟი",
+  repairing_on_site: "მიმდინარეობს ადგილზე შეკეთება",
   waiting_payment: "ანგარიშსწორების მოლოდინში",
-  completed_on_site_installing: "ინსტალაცია დასრულდა",
+  completed_on_site_installing: "მონტაჟი დასრულდა",
   completed_on_site_repairing: "ადგილზე შეკეთება დასრულდა",
 };
 
 export const statusDescriptions: Record<string, string> = {
-  pending: "განაცხადი მიღებულია და დამუშავებას ელოდება.",
-  assigned: "გადაცემულია კურიერსა და ტექნიკოსზე.",
+  pending: "განაცხადი მიღებულია და დამუშავებას ელოდება",
+  assigned: "განაცხადი გადანაწილებულია",
 
   // off site
-  pickup_started: "კურიერი გზაშია ტექნიკის ასაღებად.",
-  picked_up: "ტექნიკა ჩატვირთულია სერვისცენტრში წასაღებად.",
-  to_technician: "ტექნიკა მიემართება ტექნიკოსთან სერვისცენტრში შეკეთებისთვის.",
-  delivered_to_technician: "ტექნიკა ტექნიკოსის ხელშია და ელოდება დიაგნოსტიკას.",
-  inspection: "მიმდინარეობს ტექნიკის დიაგნოსტიკა.",
-  waiting_decision: "ტექნიკა ელოდება მომხმარებლის გადაწყვეტილებას შეკეთების დასაწყებად.",
+  pickup_started: "კურიერი გზაშია ტექნიკის ასაღებად",
+  picked_up: "ტექნიკა ჩატვირთულია სერვისცენტრში წასაღებად",
+  to_technician: "ტექნიკა მიემართება ტექნიკოსთან სერვისცენტრში შესაკეთებლად",
+  delivered_to_technician: "ტექნიკა ტექნიკოსის ხელშია და ელოდება დიაგნოსტიკას",
+  inspection: "მიმდინარეობს ტექნიკის დიაგნოსტიკა",
+  waiting_decision: "ტექნიკა ელოდება მომხმარებლის გადაწყვეტილებას შეკეთების დასაწყებად",
   // approve
-  repairing_off_site: "მიმდინარეობს ტექნიკის შეკეთება სერვისცენტრში.",
-  fixed_ready: "შეკეთებული ტექნიკა მზად არის დასაბრუნებლად.",
-  returning_fixed: "შეკეთებული ტექნიკა ბრუნდება მომხმარებელთან.",
-  returned_fixed: "შეკეთებული ტექნიკა დაბრუნდა მომხმარებელთან.",
-  completed: "შეკვეთა წარმატებით დასრულდა.",
+  repairing_off_site: "მიმდინარეობს ტექნიკის შეკეთება სერვისცენტრში",
+  fixed_ready: "შეკეთებული ტექნიკა მზად არის დასაბრუნებლად",
+  returning_fixed: "შეკეთებული ტექნიკა ბრუნდება მომხმარებელთან",
+  returned_fixed: "შეკეთებული ტექნიკა დაბრუნდა მომხმარებელთან",
+  completed: "შეკეთება წარმატებით დასრულდა",
   // cancel
-  repair_cancelled: "სერვისი გაუქმებულია.",
-  broken_ready: "დაზიანებული ტექნიკა მზად არის დასაბრუნებლად.",
-  returning_broken: "დაზიანებული ტექნიკა ბრუნდება მომხმარებელთან.",
-  returned_broken: "დაზიანებული ტექნიკა დაბრუნდა მომხმარებელთან.",
-  cancelled: "დასრულდა გაუქმებული შეკვეთა.",
+  repair_cancelled: "შეკეთებაზე დაფიქსირდა უარი",
+  broken_ready: "შეუკეთებელი ტექნიკა მზად არის დასაბრუნებლად",
+  returning_broken: "შეუკეთებელი ტექნიკა ბრუნდება მომხმარებელთან",
+  returned_broken: "შეუკეთებელი ტექნიკა დაბრუნდა მომხმარებელთან",
+  cancelled: "დასრულდა შეუკეთებლად",
 
   // on site
-  technician_coming: "ტექნიკოსი გზაშია.",
-  installing: "მიმდინარეობს ტექნიკის ინსტალაცია.",
-  repairing_on_site: "მიმდინარეობს ტექნიკის შეკეთება ადგილზე.",
-  waiting_payment: "მომხმარებლის ანგარიშსწორების მოლოდინში.",
-  completed_on_site_installing: "ინსტალაცია წარმატებით დასრულდა.",
-  completed_on_site_repairing: "შეკეთება ადგილზე წარმატებით დასრულდა.",
+  technician_coming: "ტექნიკოსი გზაშია",
+  installing: "მიმდინარეობს ტექნიკის მონტაჟი",
+  repairing_on_site: "მიმდინარეობს ტექნიკის შეკეთება ადგილზე",
+  waiting_payment: "მომხმარებლის ანგარიშსწორების მოლოდინში",
+  completed_on_site_installing: "მონტაჟი წარმატებით დასრულდა",
+  completed_on_site_repairing: "შეკეთება ადგილზე წარმატებით დასრულდა",
 };

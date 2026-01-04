@@ -31,6 +31,7 @@ export function useOrderActions() {
     return {
         loadingAction,
 
+        // DELIVERY
         startPickup: (id: number) =>
             handle(
                 "startPickup",
@@ -42,42 +43,42 @@ export function useOrderActions() {
             handle(
                 "pickedUp",
                 () => axiosDelivery.patch(`/delivery/orders/${id}/picked-up`),
-                "ტექნიკა ჩატვირთულია"
+                "დაფიქსირდა ტექნიკის აღება"
             ),
 
         deliveredToTechnician: (id: number) =>
             handle(
                 "deliveredToTechnician",
                 () => axiosDelivery.patch(`/delivery/orders/${id}/delivered-to-technician`),
-                "ტექნიკა მიწოდებულია ტექნიკოსთან"
+                "ტექნიკა წარმატებით გადაეცა ტექნიკოსს"
             ),
 
         returningFixed: (id: number) =>
             handle(
                 "returningFixed",
                 () => axiosDelivery.patch(`/delivery/orders/${id}/returning-fixed`),
-                "შეკეთებული ტექნიკა ბრუნდება მომხმარებელთან"
+                "ბრუნდება შეკეთებული ტექნიკა"
             ),
 
         returnedFixed: (id: number) =>
             handle(
                 "returnedFixed",
                 () => axiosDelivery.patch(`/delivery/orders/${id}/returned-fixed`),
-                "შეკეთებული ტექნიკა დაბრუნდა მომხმარებელთან"
+                "შეკეთებული ტექნიკა წარმატებით დაბრუნდა მომხმარებელთან"
             ),
 
         returningBroken: (id: number) =>
             handle(
                 "returningBroken",
                 () => axiosDelivery.patch(`/delivery/orders/${id}/returning-broken`),
-                "შეუკეთებელი ტექნიკა ბრუნდება მომხმარებელთან"
+                "ბრუნდება შეუკეთებული ტექნიკა"
             ),
 
         returnedBroken: (id: number) =>
             handle(
                 "returnedBroken",
                 () => axiosDelivery.patch(`/delivery/orders/${id}/returned-broken`),
-                "შეუკეთებელი ტექნიკა დაბრუნდა მომხმარებელთან"
+                "შეუკეთებული ტექნიკა დაბრუნდა მომხმარებელთან"
             ),
 
         // technician
@@ -85,7 +86,7 @@ export function useOrderActions() {
             handle(
                 "inspection",
                 () => axiosTechnician.patch(`/technician/orders/${id}/inspection`),
-                "მიმდინარეობს დიაგნოსტიკა"
+                "დიაგნოსტიკა დაწყებულია"
             ),
 
         waitingDecision: (id: number, values: { payment_amount: string, payment_reason: string }) =>
@@ -95,39 +96,39 @@ export function useOrderActions() {
                     payment_amount: Number(values.payment_amount),
                     payment_reason: values.payment_reason
                 }),
-                "მიმდინარეობს დიაგნოსტიკა"
+                "პრობლემა და ხარჯი აიტვირთა — ველოდებით მომხმარებლის გადაწყვეტილებას"
             ),
 
         fixedReady: (id: number) =>
             handle(
                 "fixedReady",
                 () => axiosTechnician.patch(`/technician/orders/${id}/fixed-ready`),
-                "ტექნიკა შეკეთდა"
+                "ტექნიკის შეკეთება დასრულებულია"
             ),
 
         brokenReady: (id: number) =>
             handle(
                 "brokenReady",
                 () => axiosTechnician.patch(`/technician/orders/${id}/broken-ready`),
-                "შეუკეთებელი ტექნიკა მზად არის"
+                "შეუკეთებელი ტექნიკა მზად არის დასაბრუნებლად"
             ),
         technicianComing: (id: number) =>
             handle(
                 "technicianComing",
                 () => axiosTechnician.patch(`/technician/orders/${id}/technician-coming`),
-                "წავედი ადგილზე გამოძახებაზე"
+                "ტექნიკოსი გზაშია"
             ),
         installing: (id: number) =>
             handle(
                 "installing",
                 () => axiosTechnician.patch(`/technician/orders/${id}/installing`),
-                "ვამონტაჟებ"
+                "მონტაჟი დაწყებულია"
             ),
         repairingOnSite: (id: number) =>
             handle(
                 "repairingOnSite",
                 () => axiosTechnician.patch(`/technician/orders/${id}/repairing-on-site`),
-                "ვარემონტებ ადგილზე"
+                "ადგილზე შეკეთება დაწყებულია"
             ),
         waitingPayment: (id: number, values: { payment_amount: string, payment_reason: string }) =>
             handle(
@@ -147,7 +148,7 @@ export function useOrderActions() {
                     ? axiosCompany
                     : axiosIndividual
                 ).patch(`/${role}/orders/${id}/to-technician`),
-                "კურიერმა ტექნიკა წაიღო"
+                "ტექნიკა გადაეცა კურიერს"
             ),
         decision: (actionKey: "decisionApprove" | "decisionCancel", id: number, values: { decision: string, reason?: string }, role: "company" | "individual") =>
             handle(
@@ -159,7 +160,7 @@ export function useOrderActions() {
                     decision: values.decision,
                     reason: values.reason
                 }),
-                "გადაწყვეტილება აიტვირთა"
+                actionKey === "decisionApprove" ? "შეკეთება დადასტურდა" : "შეკეთებაზე უარი დაფიქსირდა"
             ),
         cancelled: (id: number, role: "company" | "individual") =>
             handle(
@@ -168,7 +169,7 @@ export function useOrderActions() {
                     ? axiosCompany
                     : axiosIndividual
                 ).patch(`/${role}/orders/${id}/cancelled`),
-                "გაფუჭებული ტექნიკა ჩავიბარე"
+                "შეუკეთებელი ტექნიკა ჩაბარდა"
             ),
         completed: (id: number, role: "company" | "individual") =>
             handle(
@@ -177,7 +178,7 @@ export function useOrderActions() {
                     ? axiosCompany
                     : axiosIndividual
                 ).patch(`/${role}/orders/${id}/completed`),
-                "ტექნიკა ჩავიბარე"
+                "შეკეთებელი ტექნიკა ჩაბარდა"
             ),
         completedOnSite: (id: number, role: "company" | "individual") =>
             handle(
@@ -186,7 +187,7 @@ export function useOrderActions() {
                     ? axiosCompany
                     : axiosIndividual
                 ).patch(`/${role}/orders/${id}/completed-on-site`),
-                "გამოძახებით მომსახურება წარმატებით შესრულდა"
+                "მომსახურება წარმატებით დასრულდა"
             ),
     };
 }

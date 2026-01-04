@@ -24,7 +24,7 @@ const fetchStaffNotifications = async (staffType: string) => {
 };
 
 export default function Page() {
-    const { staffType } = useParams<{ staffType: "technician" | "delivery" }>();
+  const { staffType } = useParams<{ staffType: "technician" | "delivery" }>();
 
   const queryClient = useQueryClient();
 
@@ -37,7 +37,8 @@ export default function Page() {
   const getNotificationLink = (notification: any) => {
     const { type, data } = notification;
 
-     if (type === "new_order" || type === "order_updated") {
+    if (type === "new_order" || type === "order_updated") {
+      if (!data?.order_id) return "";
       return `/staff/${staffType}/orders/${data?.order_id}`;
     }
 
@@ -50,7 +51,10 @@ export default function Page() {
 
   // read notification
   const readNotificationMutation = useMutation({
-    mutationFn: (id: number) => (staffType === "technician" ? axiosTechnician : axiosDelivery).patch(`${staffType}/notifications/${id}`),
+    mutationFn: (id: number) =>
+      (staffType === "technician" ? axiosTechnician : axiosDelivery).patch(
+        `${staffType}/notifications/${id}`
+      ),
 
     onSuccess: () => {
       queryClient.invalidateQueries({

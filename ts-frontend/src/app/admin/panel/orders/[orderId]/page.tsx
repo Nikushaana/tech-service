@@ -101,6 +101,12 @@ export default function Page() {
 
   // update order
   const updateOrderSchema = Yup.object().shape({
+    serviceType: Yup.string()
+      .oneOf(
+        typeOptions.map((o) => o.id),
+        "სერვისის ტიპი აუცილებელია"
+      )
+      .required("აირჩიე სერვისის ტიპი"),
     technicianId: Yup.number()
       .transform((value, originalValue) =>
         originalValue === "" ? undefined : value
@@ -110,14 +116,18 @@ export default function Page() {
       .transform((value, originalValue) =>
         originalValue === "" ? undefined : value
       )
-      .required("კურიერი აუცილებელია"),
-    serviceType: Yup.string()
-      .oneOf(
-        typeOptions.map((o) => o.id),
-        "სერვისის ტიპი აუცილებელია"
-      )
-      .required("აირჩიე სერვისის ტიპი"),
-    status: Yup.string().required("სტატუსი აუცილებელია"),
+      .when("serviceType", {
+        is: "fix_off_site",
+        then: (schema) => schema.required("კურიერი აუცილებელია"),
+        otherwise: (schema) => schema.notRequired(),
+      }),
+    status: Yup.string()
+      .required("სტატუსი აუცილებელია")
+      .test(
+        "status-changed",
+        "აირჩიე განსხვავებული სტატუსი",
+        (value) => value !== order.status
+      ),
   });
 
   const updateOrderMutation = useMutation({
@@ -195,6 +205,62 @@ export default function Page() {
         {statusDescriptions[order.status] || order.status}
       </h2>
 
+      <hr />
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-[10px]">
+        <Dropdown
+          data={employees?.deliveries}
+          id="deliveryId"
+          value={values.deliveryId}
+          label="კურიერი"
+          valueKey="id"
+          labelKey={(item: any) => `${item.name} ${item.lastName}`}
+          onChange={handleChange}
+          error={errors.deliveryId}
+        />
+        <Dropdown
+          data={employees?.technicians}
+          id="technicianId"
+          value={values.technicianId}
+          label="ტექნიკოსი"
+          valueKey="id"
+          labelKey={(item: any) => `${item.name} ${item.lastName}`}
+          onChange={handleChange}
+          error={errors.technicianId}
+        />
+        <Dropdown
+          data={typeOptions}
+          id="serviceType"
+          value={values.serviceType}
+          label="სერვისის ტიპი"
+          valueKey="id"
+          labelKey="name"
+          onChange={handleChange}
+          error={errors.serviceType}
+        />
+        <Dropdown
+          data={statusOptions}
+          id="status"
+          value={values.status}
+          label="სტატუსი"
+          valueKey="id"
+          labelKey="name"
+          onChange={handleChange}
+          error={errors.status}
+        />
+      </div>
+
+      <Button
+        onClick={handleAdminUpdateOrder}
+        disabled={updateOrderMutation.isPending}
+        className="h-11 cursor-pointer self-end"
+      >
+        {updateOrderMutation.isPending && (
+          <Loader2Icon className="animate-spin" />
+        )}
+        ცვლილებების შენახვა
+      </Button>
+      <hr />
+
       {/* Main Info */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
@@ -267,7 +333,7 @@ export default function Page() {
       </div>
 
       {/* Address */}
-      <div className="flex flex-col">
+      <div>
         <h3>მისამართი</h3>
         <p>{order?.address?.name}</p>
         <p className="text-sm">
@@ -360,60 +426,6 @@ export default function Page() {
           ))}
         </div>
       </div>
-      <hr />
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-[10px]">
-        <Dropdown
-          data={employees?.deliveries}
-          id="deliveryId"
-          value={values.deliveryId}
-          label="კურიერი"
-          valueKey="id"
-          labelKey={(item: any) => `${item.name} ${item.lastName}`}
-          onChange={handleChange}
-          error={errors.deliveryId}
-        />
-        <Dropdown
-          data={employees?.technicians}
-          id="technicianId"
-          value={values.technicianId}
-          label="ტექნიკოსი"
-          valueKey="id"
-          labelKey={(item: any) => `${item.name} ${item.lastName}`}
-          onChange={handleChange}
-          error={errors.technicianId}
-        />
-        <Dropdown
-          data={typeOptions}
-          id="serviceType"
-          value={values.serviceType}
-          label="სერვისის ტიპი"
-          valueKey="id"
-          labelKey="name"
-          onChange={handleChange}
-          error={errors.serviceType}
-        />
-        <Dropdown
-          data={statusOptions}
-          id="status"
-          value={values.status}
-          label="სტატუსი"
-          valueKey="id"
-          labelKey="name"
-          onChange={handleChange}
-          error={errors.status}
-        />
-      </div>
-
-      <Button
-        onClick={handleAdminUpdateOrder}
-        disabled={updateOrderMutation.isPending}
-        className="h-11 cursor-pointer self-end"
-      >
-        {updateOrderMutation.isPending && (
-          <Loader2Icon className="animate-spin" />
-        )}
-        ცვლილებების შენახვა
-      </Button>
     </div>
   );
 }
