@@ -19,6 +19,8 @@ import { OrderStatus } from 'src/common/types/order-status.enum';
 import { RepairDecisionDto } from './dto/repair-decision.dto';
 import { OrderType } from 'src/common/types/order-type.enum';
 import { TechnicianRequestPaymentDto } from './dto/technician-request-payment.dto';
+import { OrderTypeLabelsGeorgian } from 'src/common/labels/order-type-labels';
+import { OrderStatusLabelsGeorgian } from 'src/common/labels/order-status-labels';
 
 @Injectable()
 export class OrderService {
@@ -124,9 +126,11 @@ export class OrderService {
 
         await this.orderRepo.save(order);
 
+        const serviceTypeLabel = OrderTypeLabelsGeorgian[order.service_type] || order.service_type;
+
         // send notification to admin
         await this.notificationService.sendNotification(
-            `დაემატა განაცხადი ${("companyName" in user ? user.companyName : (user.name + " " + user.lastName))}-ს მიერ. (${order.service_type})`,
+            `დაემატა განაცხადი ${("companyName" in user ? user.companyName : (user.name + " " + user.lastName))}-ს მიერ. (${serviceTypeLabel})`,
             'new_order',
             'admin',
             undefined,
@@ -137,7 +141,7 @@ export class OrderService {
 
         // send notification to user
         await this.notificationService.sendNotification(
-            `თქვენი განაცხადი ${order.service_type}-ს შესახებ დაემატა.`,
+            `თქვენი განაცხადი ${serviceTypeLabel}-ს შესახებ დაემატა.`,
             "new_order",
             user.role,
             userId,
@@ -596,6 +600,23 @@ export class OrderService {
 
     // order status flow
 
+    private async notifyOrderUpdate(
+        order: Order,
+        roles: Array<{ role: "admin" | "company" | "individual" | "delivery" | "technician"; id?: number }>
+    ) {
+        const label = OrderStatusLabelsGeorgian[order.status] || order.status;
+
+        for (const r of roles) {
+            await this.notificationService.sendNotification(
+                `შეკვეთა №${order.id}: ${label}.`,
+                'order_updated',
+                r.role,
+                r.id,
+                { order_id: order.id }
+            );
+        }
+    }
+
     // delivery
     async startPickup(deliveryId: number, id: number) {
         const order = await this.findDeliveryOneOrderEntity(deliveryId, id);
@@ -617,6 +638,13 @@ export class OrderService {
 
         await this.orderRepo.save(order)
 
+        // sent notifications
+        await this.notifyOrderUpdate(order, [
+            { role: 'admin' },
+            { role: order.company?.id ? 'company' : 'individual', id: order.company?.id || order.individual?.id },
+            { role: 'delivery', id: deliveryId },
+        ]);
+
         return {
             message: 'Pickup started successfully',
             order: instanceToPlain(order),
@@ -636,6 +664,13 @@ export class OrderService {
         order.status = OrderStatus.PICKED_UP;
 
         await this.orderRepo.save(order)
+
+        // sent notifications
+        await this.notifyOrderUpdate(order, [
+            { role: 'admin' },
+            { role: order.company?.id ? 'company' : 'individual', id: order.company?.id || order.individual?.id },
+            { role: 'delivery', id: deliveryId },
+        ]);
 
         return {
             message: 'Picked up successfully',
@@ -657,6 +692,13 @@ export class OrderService {
 
         await this.orderRepo.save(order)
 
+        // sent notifications
+        await this.notifyOrderUpdate(order, [
+            { role: 'admin' },
+            { role: order.company?.id ? 'company' : 'individual', id: userId },
+            { role: 'delivery', id: order.delivery?.id },
+        ]);
+
         return {
             message: 'Technic sent to technician successfully',
             order: instanceToPlain(order),
@@ -677,6 +719,14 @@ export class OrderService {
 
         await this.orderRepo.save(order)
 
+        // sent notifications
+        await this.notifyOrderUpdate(order, [
+            { role: 'admin' },
+            { role: order.company?.id ? 'company' : 'individual', id: order.company?.id || order.individual?.id },
+            { role: 'delivery', id: deliveryId },
+            { role: 'technician', id: order.technician?.id },
+        ]);
+
         return {
             message: 'Technic delivered to technician successfully',
             order: instanceToPlain(order),
@@ -696,6 +746,13 @@ export class OrderService {
         order.status = OrderStatus.INSPECTION;
 
         await this.orderRepo.save(order)
+
+        // sent notifications
+        await this.notifyOrderUpdate(order, [
+            { role: 'admin' },
+            { role: order.company?.id ? 'company' : 'individual', id: order.company?.id || order.individual?.id },
+            { role: 'technician', id: technicianId },
+        ]);
 
         return {
             message: 'Inspection started successfully',
@@ -718,6 +775,13 @@ export class OrderService {
         order.status = OrderStatus.WAITING_DECISION;
 
         await this.orderRepo.save(order)
+
+        // sent notifications
+        await this.notifyOrderUpdate(order, [
+            { role: 'admin' },
+            { role: order.company?.id ? 'company' : 'individual', id: order.company?.id || order.individual?.id },
+            { role: 'technician', id: technicianId },
+        ]);
 
         return {
             message: 'Waiting for user repair decision',
@@ -746,6 +810,13 @@ export class OrderService {
 
         await this.orderRepo.save(order)
 
+        // sent notifications
+        await this.notifyOrderUpdate(order, [
+            { role: 'admin' },
+            { role: order.company?.id ? 'company' : 'individual', id: userId },
+            { role: 'technician', id: order.technician?.id },
+        ]);
+
         return {
             message: repairDecisionDto.decision === 'approve'
                 ? 'Repair approved'
@@ -768,6 +839,14 @@ export class OrderService {
 
         await this.orderRepo.save(order)
 
+        // sent notifications
+        await this.notifyOrderUpdate(order, [
+            { role: 'admin' },
+            { role: order.company?.id ? 'company' : 'individual', id: order.company?.id || order.individual?.id },
+            { role: 'technician', id: technicianId },
+            { role: 'delivery', id: order.delivery?.id },
+        ]);
+
         return {
             message: 'Broken technic is ready to return',
             order: instanceToPlain(order),
@@ -787,6 +866,14 @@ export class OrderService {
         order.status = OrderStatus.RETURNING_BROKEN;
 
         await this.orderRepo.save(order)
+
+        // sent notifications
+        await this.notifyOrderUpdate(order, [
+            { role: 'admin' },
+            { role: order.company?.id ? 'company' : 'individual', id: order.company?.id || order.individual?.id },
+            { role: 'technician', id: order.technician?.id },
+            { role: 'delivery', id: deliveryId },
+        ]);
 
         return {
             message: 'Broken technic is returning successfully',
@@ -808,6 +895,13 @@ export class OrderService {
 
         await this.orderRepo.save(order)
 
+        // sent notifications
+        await this.notifyOrderUpdate(order, [
+            { role: 'admin' },
+            { role: order.company?.id ? 'company' : 'individual', id: order.company?.id || order.individual?.id },
+            { role: 'delivery', id: deliveryId },
+        ]);
+
         return {
             message: 'Broken technic returned successfully',
             order: instanceToPlain(order),
@@ -827,6 +921,13 @@ export class OrderService {
         order.status = OrderStatus.CANCELLED;
 
         await this.orderRepo.save(order)
+
+        // sent notifications
+        await this.notifyOrderUpdate(order, [
+            { role: 'admin' },
+            { role: order.company?.id ? 'company' : 'individual', id: userId },
+            { role: 'delivery', id: order.delivery?.id },
+        ]);
 
         return {
             message: `Order Cancelled successfully`,
@@ -848,6 +949,14 @@ export class OrderService {
 
         await this.orderRepo.save(order)
 
+        // sent notifications
+        await this.notifyOrderUpdate(order, [
+            { role: 'admin' },
+            { role: order.company?.id ? 'company' : 'individual', id: order.company?.id || order.individual?.id },
+            { role: 'technician', id: technicianId },
+            { role: 'delivery', id: order.delivery?.id },
+        ]);
+
         return {
             message: 'Fixed technic is ready to return',
             order: instanceToPlain(order),
@@ -867,6 +976,13 @@ export class OrderService {
         order.status = OrderStatus.RETURNING_FIXED;
 
         await this.orderRepo.save(order)
+
+        // sent notifications
+        await this.notifyOrderUpdate(order, [
+            { role: 'admin' },
+            { role: order.company?.id ? 'company' : 'individual', id: order.company?.id || order.individual?.id },
+            { role: 'delivery', id: deliveryId },
+        ]);
 
         return {
             message: 'Fixed technic is returning successfully',
@@ -888,6 +1004,14 @@ export class OrderService {
 
         await this.orderRepo.save(order)
 
+        // sent notifications
+        await this.notifyOrderUpdate(order, [
+            { role: 'admin' },
+            { role: order.company?.id ? 'company' : 'individual', id: order.company?.id || order.individual?.id },
+            { role: 'technician', id: order.technician?.id },
+            { role: 'delivery', id: deliveryId },
+        ]);
+
         return {
             message: 'Fixed technic returned successfully',
             order: instanceToPlain(order),
@@ -907,6 +1031,13 @@ export class OrderService {
         order.status = OrderStatus.COMPLETED;
 
         await this.orderRepo.save(order)
+
+        // sent notifications
+        await this.notifyOrderUpdate(order, [
+            { role: 'admin' },
+            { role: order.company?.id ? 'company' : 'individual', id: userId },
+            { role: 'delivery', id: order.delivery?.id },
+        ]);
 
         return {
             message: `Off-site service completed successfully.`,
@@ -934,6 +1065,13 @@ export class OrderService {
 
         await this.orderRepo.save(order)
 
+        // sent notifications
+        await this.notifyOrderUpdate(order, [
+            { role: 'admin' },
+            { role: order.company?.id ? 'company' : 'individual', id: order.company?.id || order.individual?.id },
+            { role: 'technician', id: technicianId }
+        ]);
+
         return {
             message: 'Technician coming successfully',
             order: instanceToPlain(order),
@@ -959,6 +1097,13 @@ export class OrderService {
         order.status = OrderStatus.REPAIRING_ON_SITE;
 
         await this.orderRepo.save(order)
+
+        // sent notifications
+        await this.notifyOrderUpdate(order, [
+            { role: 'admin' },
+            { role: order.company?.id ? 'company' : 'individual', id: order.company?.id || order.individual?.id },
+            { role: 'technician', id: technicianId },
+        ]);
 
         return {
             message: 'Repairing on site goes successfully',
@@ -986,6 +1131,13 @@ export class OrderService {
 
         await this.orderRepo.save(order)
 
+        // sent notifications
+        await this.notifyOrderUpdate(order, [
+            { role: 'admin' },
+            { role: order.company?.id ? 'company' : 'individual', id: order.company?.id || order.individual?.id },
+            { role: 'technician', id: technicianId }
+        ]);
+
         return {
             message: 'Installing goes successfully',
             order: instanceToPlain(order),
@@ -1008,6 +1160,13 @@ export class OrderService {
 
         await this.orderRepo.save(order)
 
+        // sent notifications
+        await this.notifyOrderUpdate(order, [
+            { role: 'admin' },
+            { role: order.company?.id ? 'company' : 'individual', id: order.company?.id || order.individual?.id },
+            { role: 'technician', id: technicianId }
+        ]);
+
         return {
             message: 'Payment request sent successfully',
             order: instanceToPlain(order),
@@ -1027,6 +1186,13 @@ export class OrderService {
         order.status = order.service_type == OrderType.INSTALLATION ? OrderStatus.COMPLETED_ON_SITE_INSTALLING : OrderStatus.COMPLETED_ON_SITE_REPAIRING;
 
         await this.orderRepo.save(order)
+
+        // sent notifications
+        await this.notifyOrderUpdate(order, [
+            { role: 'admin' },
+            { role: order.company?.id ? 'company' : 'individual', id: userId },
+            { role: 'technician', id: order.technician?.id }
+        ]);
 
         return {
             message: `Completed on site successfully`,
