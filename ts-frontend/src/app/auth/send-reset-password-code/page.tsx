@@ -10,7 +10,7 @@ import { toast } from "react-toastify";
 import { sendCodeSchema } from "@/app/utils/validation";
 import { Loader2Icon } from "lucide-react";
 import Link from "next/link";
-import { formatPhone } from "@/app/utils/phone";
+import { formatPhone } from "@/app/utils/formatPhone";
 
 export default function SendResetPasswordCode() {
   const router = useRouter();

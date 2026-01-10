@@ -3,7 +3,7 @@
 import { axiosAdmin } from "@/app/api/axios";
 import { useBurgerMenuStore } from "@/app/store/burgerMenuStore";
 import { useAuthStore } from "@/app/store/useAuthStore";
-import { formatPhone } from "@/app/utils/phone";
+import { formatPhone } from "@/app/utils/formatPhone";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";

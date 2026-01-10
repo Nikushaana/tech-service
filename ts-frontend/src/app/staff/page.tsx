@@ -7,7 +7,7 @@ import FormInput from "../components/inputs/form-input";
 import { useAuthStore } from "../store/useAuthStore";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
-import { formatPhone } from "../utils/phone";
+import { formatPhone } from "../utils/formatPhone";
 
 export default function Page() {
   const router = useRouter();

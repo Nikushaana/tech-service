@@ -19,6 +19,7 @@ import { useAuthStore } from "../store/useAuthStore";
 import { useUpdateOrderStore } from "../store/useUpdateOrderStore";
 import { useBurgerMenuStore } from "../store/burgerMenuStore";
 import OrderFlow from "../components/modals/order-flow";
+import { useOrderFlowStore } from "../store/useOrderFlowStore";
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const { openCreateAddressModal } = useAddressesStore();
@@ -27,6 +28,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const { openLogOut } = useAuthStore();
   const { openUpdateOrderModal } = useUpdateOrderStore();
   const { openAdminSideBar, isOpen, openSideBar } = useBurgerMenuStore();
+  const { openOrderFlowModal } = useOrderFlowStore();
 
   const isAnyModalOpen =
     openCreateAddressModal ||
@@ -36,7 +38,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     openUpdateOrderModal ||
     openAdminSideBar ||
     isOpen ||
-    openSideBar;
+    openSideBar ||
+    openOrderFlowModal;
 
   useEffect(() => {
     document.body.style.overflow = isAnyModalOpen ? "hidden" : "auto";

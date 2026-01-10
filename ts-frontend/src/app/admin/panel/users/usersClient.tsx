@@ -2,7 +2,7 @@
 
 import { axiosAdmin } from "@/app/api/axios";
 import { Dropdown } from "@/app/components/inputs/drop-down";
-import { formatPhone } from "@/app/utils/phone";
+import { formatPhone } from "@/app/utils/formatPhone";
 import { Button } from "@/components/ui/button";
 import {
   Table,

@@ -1,13 +1,12 @@
 "use client";
 
-import React from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/app/store/useAuthStore";
 import FormInput from "@/app/components/inputs/form-input";
 import { Loader2Icon } from "lucide-react";
 import Link from "next/link";
-import { formatPhone } from "@/app/utils/phone";
+import { formatPhone } from "@/app/utils/formatPhone";
 
 export default function Login() {
   const router = useRouter();

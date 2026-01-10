@@ -8,6 +8,7 @@ import { Loader2Icon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useOrderActions } from "@/app/hooks/useOrderActions";
 import { useOrderFlowStore } from "@/app/store/useOrderFlowStore";
+import { formatPrice } from "@/app/utils/formatPrice";
 
 interface FormValues {
   payment_amount?: string;
@@ -36,18 +37,18 @@ export default function OrderFlow() {
 
     setValues((prev) => ({
       ...prev,
-      [id]: value,
+      [id]: id == "payment_amount" ? formatPrice(value) : value,
     }));
   };
 
   const schemas = {
     waitingDecision: Yup.object({
-      payment_amount: Yup.string().required("საფასური აუცილებელია"),
-      payment_reason: Yup.string().required("აღწერა აუცილებელია"),
+      payment_amount: Yup.string().required("ფასი აუცილებელია"),
+      payment_reason: Yup.string().required("დანიშნულება აუცილებელია"),
     }),
     waitingPayment: Yup.object({
-      payment_amount: Yup.string().required("საფასური აუცილებელია"),
-      payment_reason: Yup.string().required("აღწერა აუცილებელია"),
+      payment_amount: Yup.string().required("ფასი აუცილებელია"),
+      payment_reason: Yup.string().required("დანიშნულება აუცილებელია"),
     }),
     decisionCancel: Yup.object({
       reason: Yup.string().required("გაუქმების მიზეზი აუცილებელია"),
@@ -126,7 +127,8 @@ export default function OrderFlow() {
                 id="payment_amount"
                 value={values.payment_amount || ""}
                 onChange={handleChange}
-                label={"საფასური"}
+                label={"ფასი (₾)"}
+                type="tel"
                 error={errors.payment_amount}
               />
             )}
@@ -135,7 +137,7 @@ export default function OrderFlow() {
                 id="payment_reason"
                 value={values.payment_reason || ""}
                 onChange={handleChange}
-                label={"საფასურის აღწერა"}
+                label={"დანიშნულება"}
                 error={errors.payment_reason}
               />
             )}

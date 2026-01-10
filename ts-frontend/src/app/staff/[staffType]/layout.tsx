@@ -7,7 +7,7 @@ import { HiMenu, HiX } from "react-icons/hi";
 import { useAuthStore } from "@/app/store/useAuthStore";
 import { useBurgerMenuStore } from "@/app/store/burgerMenuStore";
 import { Button } from "@/components/ui/button";
-import { formatPhone } from "@/app/utils/phone";
+import { formatPhone } from "@/app/utils/formatPhone";
 import { axiosDelivery, axiosTechnician } from "@/app/api/axios";
 import { useQuery } from "@tanstack/react-query";
 

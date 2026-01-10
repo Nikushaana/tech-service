@@ -6,7 +6,7 @@ import dayjs from "dayjs";
 import Map from "@/app/components/map/map";
 import { useParams, useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { formatPhone } from "@/app/utils/phone";
+import { formatPhone } from "@/app/utils/formatPhone";
 import { useEffect } from "react";
 import {
   statusDescriptions,
@@ -60,6 +60,45 @@ export default function Page() {
       <h2 className="flex justify-end text-sm text-center">
         {(order && statusDescriptions[order.status]) || order?.status}
       </h2>
+
+      {/* Service Details */}
+      {(order.payment_reason ||
+        order.payment_amount ||
+        order.cancel_reason) && (
+        <>
+          <div>
+            <h3 className="font-semibold mb-2">სერვისის დეტალები</h3>
+
+            {order.payment_reason && (
+              <p className="text-sm">
+                დანიშნულება:{" "}
+                <span className="text-base font-semibold">
+                  {order.payment_reason}
+                </span>
+              </p>
+            )}
+
+            {order.payment_amount && (
+              <p className="text-sm">
+                ფასი:{" "}
+                <span className="text-base font-semibold">
+                  {order.payment_amount} ₾
+                </span>
+              </p>
+            )}
+
+            {order.cancel_reason && (
+              <p className="text-sm text-red-600">
+                გაუქმების მიზეზი:{" "}
+                <span className="text-base font-semibold">
+                  {order.cancel_reason}
+                </span>
+              </p>
+            )}
+          </div>
+          <hr />
+        </>
+      )}
 
       <OrderFlowActions role={staffType} order={order} />
 

@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 import { axiosCompany } from "@/app/api/axios";
 import { sendCodeSchema, verifyCodeSchema } from "@/app/utils/validation";
 import UserPhoneUpdate from "../shared components/user-phone-update";
-import { formatPhone } from "@/app/utils/phone";
+import { formatPhone } from "@/app/utils/formatPhone";
 
 export default function CompanyPhoneUpdate() {
   const { currentUser } = useAuthStore();

@@ -147,14 +147,7 @@ export const orderActions: OrderAction[] = [
         role: ["company", "individual"],
         status: ["picked_up"],
         serviceType: ["fix_off_site"],
-        label: "ტექნიკა გადაეცა ტექნიკოსს",
-    },
-    {
-        key: "decisionCancel",
-        role: ["company", "individual"],
-        status: ["waiting_decision"],
-        serviceType: ["fix_off_site"],
-        label: "შეკეთებაზე უარის თქმა",
+        label: "ტექნიკა გადაეცა კურიერს",
     },
     {
         key: "decisionApprove",
@@ -162,6 +155,13 @@ export const orderActions: OrderAction[] = [
         status: ["waiting_decision"],
         serviceType: ["fix_off_site"],
         label: "შეკეთებაზე თანხმობა",
+    },
+    {
+        key: "decisionCancel",
+        role: ["company", "individual"],
+        status: ["waiting_decision"],
+        serviceType: ["fix_off_site"],
+        label: "შეკეთებაზე უარის თქმა",
     },
     {
         key: "cancelled",

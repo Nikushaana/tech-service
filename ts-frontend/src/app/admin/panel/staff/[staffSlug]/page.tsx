@@ -11,7 +11,7 @@ import ImageSelector from "@/app/components/inputs/image-selector";
 import { useParams, useRouter } from "next/navigation";
 import { Switch } from "@/components/ui/switch";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { formatPhone } from "@/app/utils/phone";
+import { formatPhone } from "@/app/utils/formatPhone";
 
 interface TechnicianValues {
   name: string;

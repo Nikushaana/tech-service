@@ -19,7 +19,6 @@ export function OrderFlowActions({ role, order }: any) {
 
   return (
     <>
-      <hr />
       <div className="flex flex-wrap justify-center gap-4">
         {activeButton.map((action) => (
           <Button

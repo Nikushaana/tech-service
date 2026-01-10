@@ -9,7 +9,7 @@ import { useParams } from "next/navigation";
 import PanelFormInput from "../inputs/panel-form-input";
 import { Loader2Icon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { formatPhone } from "@/app/utils/phone";
+import { formatPhone } from "@/app/utils/formatPhone";
 
 export default function StaffPhoneUpdate() {
   const { currentUser } = useAuthStore();

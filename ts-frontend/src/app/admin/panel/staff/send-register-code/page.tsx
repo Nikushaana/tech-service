@@ -9,7 +9,7 @@ import { toast } from "react-toastify";
 import { sendCodeSchema } from "@/app/utils/validation";
 import { Loader2Icon } from "lucide-react";
 import { useEffect } from "react";
-import { formatPhone } from "@/app/utils/phone";
+import { formatPhone } from "@/app/utils/formatPhone";
 
 export default function SendAdminStaffRegisterCode() {
   const router = useRouter();

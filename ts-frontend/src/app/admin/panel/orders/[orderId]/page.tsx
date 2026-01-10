@@ -11,7 +11,7 @@ import { toast } from "react-toastify";
 import Map from "@/app/components/map/map";
 import { useParams, useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { formatPhone } from "@/app/utils/phone";
+import { formatPhone } from "@/app/utils/formatPhone";
 import { useOrderTypeStatusOptionsStore } from "@/app/store/orderTypeStatusOptionsStore";
 import {
   statusDescriptions,
@@ -205,7 +205,45 @@ export default function Page() {
         {statusDescriptions[order.status] || order.status}
       </h2>
 
-      <hr />
+      {/* Service Details */}
+      {(order.payment_reason ||
+        order.payment_amount ||
+        order.cancel_reason) && (
+        <>
+          <div>
+            <h3 className="font-semibold mb-2">სერვისის დეტალები</h3>
+
+            {order.payment_reason && (
+              <p className="text-sm">
+                დანიშნულება:{" "}
+                <span className="text-base font-semibold">
+                  {order.payment_reason}
+                </span>
+              </p>
+            )}
+
+            {order.payment_amount && (
+              <p className="text-sm">
+                ფასი:{" "}
+                <span className="text-base font-semibold">
+                  {order.payment_amount} ₾
+                </span>
+              </p>
+            )}
+
+            {order.cancel_reason && (
+              <p className="text-sm text-red-600">
+                გაუქმების მიზეზი:{" "}
+                <span className="text-base font-semibold">
+                  {order.cancel_reason}
+                </span>
+              </p>
+            )}
+          </div>
+          <hr />
+        </>
+      )}
+
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-[10px]">
         <Dropdown
           data={employees?.deliveries}
