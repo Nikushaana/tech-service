@@ -130,7 +130,7 @@ export class OrderService {
 
         // send notification to admin
         await this.notificationService.sendNotification(
-            `დაემატა განაცხადი ${("companyName" in user ? user.companyName : (user.name + " " + user.lastName))}-ს მიერ. (${serviceTypeLabel})`,
+            `დაემატა განაცხადი "${serviceTypeLabel}"-ს შესახებ ${("companyName" in user ? user.companyName : (user.name + " " + user.lastName))}-ს მიერ.`,
             'new_order',
             'admin',
             undefined,
@@ -141,7 +141,7 @@ export class OrderService {
 
         // send notification to user
         await this.notificationService.sendNotification(
-            `თქვენი განაცხადი ${serviceTypeLabel}-ს შესახებ დაემატა.`,
+            `თქვენი განაცხადი "${serviceTypeLabel}"-ს შესახებ დაემატა.`,
             "new_order",
             user.role,
             userId,
