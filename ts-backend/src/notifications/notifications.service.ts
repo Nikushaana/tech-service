@@ -32,7 +32,6 @@ export class NotificationsService {
         const notifications = await this.notificationRepo.find({
             where: { for: role, forId: userId },
             order: {
-                read: 'ASC',
                 created_at: 'DESC',
             },
         });
