@@ -468,7 +468,7 @@ export class OrderService {
         if (updateAdminOrderDto.status !== order.status) {
             // send notification to admin
             await this.notificationService.sendNotification(
-                `შეკვეთა №${order.id}: ახალი სტატუსი -`,
+                `შეკვეთა №${order.id}:`,
                 'order_updated',
                 'admin',
                 undefined,
@@ -479,7 +479,7 @@ export class OrderService {
             );
             // send notification to user
             await this.notificationService.sendNotification(
-                `შეკვეთა №${order.id}: ახალი სტატუსი -`,
+                `შეკვეთა №${order.id}:`,
                 'order_updated',
                 `${order.company?.id ? "company" : "individual"}`,
                 order.company?.id || order.individual?.id,
