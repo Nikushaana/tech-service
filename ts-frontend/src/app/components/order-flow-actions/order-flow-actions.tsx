@@ -23,7 +23,7 @@ export function OrderFlowActions({ role, order }: any) {
         {activeButton.map((action) => (
           <Button
             key={action.key}
-            className={`${action.key === "decisionCancel" && "bg-red-400 hover:bg-red-500"}`}
+            className={`${action.key === "decisionCancel" && "bg-red-400 hover:bg-red-500"} cursor-pointer`}
             disabled={actions.loadingAction === action.key}
             onClick={() => {
               if (
