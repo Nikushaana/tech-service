@@ -68,7 +68,7 @@ export default function Page() {
   return (
     <div className="flex flex-col items-center gap-y-2 w-full">
       <Link href={"/admin/panel/branches/add"} className="w-auto self-end">
-        <Button className="h-[45px] w-full px-6 text-white">დამატება</Button>
+        <Button className="h-[45px] w-full px-6 text-white cursor-pointer">დამატება</Button>
       </Link>
       <div className="w-full bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6">
         <h2 className="text-xl font-semibold mb-4">ფილიალები</h2>

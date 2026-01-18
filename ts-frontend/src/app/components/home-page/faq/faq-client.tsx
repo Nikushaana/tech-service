@@ -16,7 +16,7 @@ export default function FaqClient({ faqs }: { faqs: Faq[] }) {
     <div className="flex flex-col gap-y-[40px]">
       <h2 className="text-[28px] sm:text-[30px]">შესაძლებელია დაგაინტერესოს</h2>
       <div className="flex flex-col items-center gap-[20px] sm:gap-[30px] w-full">
-        {faqs.map((item) => (
+        {faqs.length > 0 && faqs?.map((item) => (
           <div
             key={item.id}
             className="rounded-[10px] border-[2px] border-gray-200 flex flex-col overflow-hidden w-full"

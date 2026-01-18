@@ -1,6 +1,6 @@
 "use client";
 
-import { axiosAdmin, axiosDelivery, axiosTechnician } from "@/app/api/axios";
+import { axiosDelivery, axiosTechnician } from "@/app/api/axios";
 import { Button } from "@/components/ui/button";
 import {
   Table,

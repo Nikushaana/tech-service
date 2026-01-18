@@ -24,7 +24,7 @@ export default function ServicesClient({
         ჩვენ შევაკეთებთ შენს ტექნიკას
       </h2>
       <div className="flex flex-wrap justify-center gap-[20px] sm:gap-[40px]">
-        {categories.data.map((item, index) => (
+        {categories.data?.map((item, index) => (
           <div
             key={item.id}
             className="rounded-[10px] border-[2px] border-gray-200 px-[10px] sm:px-[20px] py-[10px] flex flex-col items-center gap-y-[15px] sm:gap-y-[20px] cursor-default hover:hover:scale-110 duration-200 w-[calc((100%-20px)/2)] sm:w-[calc((100%-80px)/3)] lg:w-[calc((100%-160px)/5)]"

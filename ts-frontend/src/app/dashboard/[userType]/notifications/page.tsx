@@ -16,10 +16,6 @@ import {
 } from "@/components/ui/table";
 import { BsEye } from "react-icons/bs";
 import Link from "next/link";
-import {
-  statusDescriptions,
-  typeLabels,
-} from "@/app/utils/order-type-status-translations";
 
 const fetchUserNotifications = async (userType: string) => {
   const api = userType === "company" ? axiosCompany : axiosIndividual;
@@ -62,7 +58,7 @@ export default function Page() {
   const readNotificationMutation = useMutation({
     mutationFn: (id: number) =>
       (userType === "company" ? axiosCompany : axiosIndividual).patch(
-        `${userType}/notifications/${id}`
+        `${userType}/notifications/${id}`,
       ),
 
     onSuccess: () => {
@@ -114,17 +110,10 @@ export default function Page() {
                 notifications?.map((notification: any) => (
                   <TableRow key={notification.id} className="hover:bg-gray-50">
                     <TableCell>{notification.id}</TableCell>
-                    <TableCell>
-                      {notification.message}{" "}
-                      {notification.data?.status &&
-                        (statusDescriptions[notification.data?.status] ||
-                          notification.data?.status)}{" "}
-                      {typeLabels[notification.data?.service_type] ||
-                        notification.data?.service_type}
-                    </TableCell>
+                    <TableCell>{notification.message}</TableCell>
                     <TableCell>
                       {dayjs(notification.created_at).format(
-                        "DD.MM.YYYY HH:mm"
+                        "DD.MM.YYYY HH:mm",
                       )}
                     </TableCell>
                     <TableCell className="text-right">

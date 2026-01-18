@@ -297,7 +297,7 @@ export default function CreateOrder() {
                       toggleOpenCreateAddressModal(modalType);
                   }}
                   variant="secondary"
-                  className="h-9 aspect-square rounded-[8px] bg-myLightBlue hover:bg-myBlue text-white text-[18px]"
+                  className="h-9 aspect-square rounded-[8px] bg-myLightBlue hover:bg-myBlue text-white text-[18px] cursor-pointer"
                 >
                   <MdAddLocationAlt />
                 </Button>

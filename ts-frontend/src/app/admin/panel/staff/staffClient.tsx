@@ -72,7 +72,7 @@ export default function StaffClient() {
         href={"/admin/panel/staff/send-register-code"}
         className="w-auto self-end"
       >
-        <Button className="h-[45px] px-6 text-white">
+        <Button className="h-[45px] px-6 text-white cursor-pointer">
           {values.role == "delivery" ? "კურიერის" : "ტექნიკოსის"} რეგისტრაცია
         </Button>
       </Link>
