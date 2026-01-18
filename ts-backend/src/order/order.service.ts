@@ -62,6 +62,42 @@ export class OrderService {
         }
     }
 
+    // order status update notification
+    private async notifyOrderStatusUpdate(
+        order: Order,
+        roles: Array<{ role: "admin" | "company" | "individual" | "delivery" | "technician"; id?: number }>
+    ) {
+        const label = OrderStatusLabelsGeorgian[order.status] || order.status;
+
+        for (const r of roles) {
+            await this.notificationService.sendNotification(
+                `შეკვეთა №${order.id}: ${label}.`,
+                'order_updated',
+                r.role,
+                r.id,
+                { order_id: order.id }
+            );
+        }
+    }
+
+    // order service type update notification
+    private async notifyOrderServiceTypeUpdate(
+        order: Order,
+        roles: Array<{ role: "admin" | "company" | "individual" | "delivery" | "technician"; id?: number }>
+    ) {
+        const label = OrderTypeLabelsGeorgian[order.service_type] || order.service_type;
+
+        for (const r of roles) {
+            await this.notificationService.sendNotification(
+                `შეკვეთა №${order.id}: ახალი სერვისის ტიპი - ${label}.`,
+                'order_updated',
+                r.role,
+                r.id,
+                { order_id: order.id }
+            );
+        }
+    }
+
     // individual and company
     async createOrder(userId: number, repo: any, createOrderDto: CreateOrderDto, images: Express.Multer.File[] = [], videos: Express.Multer.File[] = []) {
         const user = await this.baseUserService.getUser(userId, repo);
@@ -130,7 +166,7 @@ export class OrderService {
 
         // send notification to admin
         await this.notificationService.sendNotification(
-            `დაემატა განაცხადი "${serviceTypeLabel}"-ს შესახებ ${("companyName" in user ? user.companyName : (user.name + " " + user.lastName))}-ს მიერ.`,
+            `შეკვეთა №${order.id}: განაცხადი "${serviceTypeLabel}"-ს შესახებ დაემატა "${("companyName" in user ? user.companyName : (user.name + " " + user.lastName))}"-ს მიერ.`,
             'new_order',
             'admin',
             undefined,
@@ -141,7 +177,7 @@ export class OrderService {
 
         // send notification to user
         await this.notificationService.sendNotification(
-            `თქვენი განაცხადი "${serviceTypeLabel}"-ს შესახებ დაემატა.`,
+            `შეკვეთა №${order.id}: დაემატა "${serviceTypeLabel}"-ს შესახებ.`,
             "new_order",
             user.role,
             userId,
@@ -166,17 +202,23 @@ export class OrderService {
         return orders;
     }
 
-    async getOneOrder(userId: number, id: number, repo: any) {
+    async getOneOrderEntity(userId: number, id: number, repo: any) {
         const user = await this.baseUserService.getUser(userId, repo);
 
         const relationKey = "companyName" in user ? "company" : "individual";
 
         const order = await this.orderRepo.findOne({
             where: { [relationKey]: { id: userId }, id },
+            relations: ['company', 'individual', 'technician', 'delivery'],
         });
         if (!order) throw new NotFoundException('Order not found');
 
         return order
+    }
+
+    async getOneOrder(userId: number, id: number, repo: any) {
+        const order = await this.getOneOrderEntity(userId, id, repo);
+        return instanceToPlain(order);
     }
 
     async updateOneOrder(userId: number, id: number, repo: any, updateUserOrderDto: UpdateUserOrderDto, images: Express.Multer.File[] = [], videos: Express.Multer.File[] = []) {
@@ -349,13 +391,16 @@ export class OrderService {
 
         const { technicianId, deliveryId, ...rest } = updateAdminOrderDto;
 
+        const oldDelivery = order.delivery;
+        const oldTechnician = order.technician;
+        const oldStatus = order.status;
+        const oldServiceType = order.service_type;
+
         if (technicianId) {
             const technician = await this.technicianRepo.findOne({
                 where: { id: technicianId, status: true }
             });
             if (!technician) throw new NotFoundException('Technician not found or inactive');
-
-            const oldTechnician = order.technician;
 
             if (oldTechnician?.id !== technicianId) {
                 // send notification to admin
@@ -413,8 +458,6 @@ export class OrderService {
             });
             if (!delivery) throw new NotFoundException('Delivery not found or inactive');
 
-            const oldDelivery = order.delivery;
-
             if (oldDelivery?.id !== deliveryId) {
                 // send notification to admin
                 await this.notificationService.sendNotification(
@@ -465,58 +508,28 @@ export class OrderService {
             order.delivery = delivery;
         }
 
-        if (updateAdminOrderDto.status !== order.status) {
-            // send notification to admin
-            await this.notificationService.sendNotification(
-                `შეკვეთა №${order.id}:`,
-                'order_updated',
-                'admin',
-                undefined,
-                {
-                    order_id: order.id,
-                    status: updateAdminOrderDto.status
-                },
-            );
-            // send notification to user
-            await this.notificationService.sendNotification(
-                `შეკვეთა №${order.id}:`,
-                'order_updated',
-                `${order.company?.id ? "company" : "individual"}`,
-                order.company?.id || order.individual?.id,
-                {
-                    order_id: order.id,
-                    status: updateAdminOrderDto.status
-                },
-            );
-        }
-
-        if (updateAdminOrderDto.service_type !== order.service_type) {
-            // send notification to admin
-            await this.notificationService.sendNotification(
-                `შეკვეთა №${order.id}: ახალი სერვისის ტიპი -`,
-                'order_updated',
-                'admin',
-                undefined,
-                {
-                    order_id: order.id,
-                    service_type: updateAdminOrderDto.service_type
-                },
-            );
-            // send notification to user
-            await this.notificationService.sendNotification(
-                `შეკვეთა №${order.id}: ახალი სერვისის ტიპი -`,
-                'order_updated',
-                `${order.company?.id ? "company" : "individual"}`,
-                order.company?.id || order.individual?.id,
-                {
-                    order_id: order.id,
-                    service_type: updateAdminOrderDto.service_type
-                },
-            );
-        }
-
         this.orderRepo.merge(order, rest);
         await this.orderRepo.save(order);
+
+        if (updateAdminOrderDto.status !== oldStatus) {
+            // sent status notifications
+            await this.notifyOrderStatusUpdate(order, [
+                { role: 'admin' },
+                { role: order.company?.id ? 'company' : 'individual', id: order.company?.id || order.individual?.id },
+                ...((order.delivery?.id && oldDelivery?.id) ? [{ role: 'delivery' as const, id: order.delivery?.id }] : []),
+                ...((order.technician?.id && oldTechnician?.id) ? [{ role: 'technician' as const, id: order.technician?.id }] : []),
+            ]);
+        }
+
+        if (updateAdminOrderDto.service_type !== oldServiceType) {
+            // sent service type notifications
+            await this.notifyOrderServiceTypeUpdate(order, [
+                { role: 'admin' },
+                { role: order.company?.id ? 'company' : 'individual', id: order.company?.id || order.individual?.id },
+                ...((order.delivery?.id && oldDelivery?.id) ? [{ role: 'delivery' as const, id: order.delivery?.id }] : []),
+                ...((order.technician?.id && oldTechnician?.id) ? [{ role: 'technician' as const, id: order.technician?.id }] : []),
+            ]);
+        }
 
         return {
             message: `Order updated successfully`,
@@ -600,23 +613,6 @@ export class OrderService {
 
     // order status flow
 
-    private async notifyOrderUpdate(
-        order: Order,
-        roles: Array<{ role: "admin" | "company" | "individual" | "delivery" | "technician"; id?: number }>
-    ) {
-        const label = OrderStatusLabelsGeorgian[order.status] || order.status;
-
-        for (const r of roles) {
-            await this.notificationService.sendNotification(
-                `შეკვეთა №${order.id}: ${label}.`,
-                'order_updated',
-                r.role,
-                r.id,
-                { order_id: order.id }
-            );
-        }
-    }
-
     // delivery
     async startPickup(deliveryId: number, id: number) {
         const order = await this.findDeliveryOneOrderEntity(deliveryId, id);
@@ -639,7 +635,7 @@ export class OrderService {
         await this.orderRepo.save(order)
 
         // sent notifications
-        await this.notifyOrderUpdate(order, [
+        await this.notifyOrderStatusUpdate(order, [
             { role: 'admin' },
             { role: order.company?.id ? 'company' : 'individual', id: order.company?.id || order.individual?.id },
             { role: 'delivery', id: deliveryId },
@@ -666,7 +662,7 @@ export class OrderService {
         await this.orderRepo.save(order)
 
         // sent notifications
-        await this.notifyOrderUpdate(order, [
+        await this.notifyOrderStatusUpdate(order, [
             { role: 'admin' },
             { role: order.company?.id ? 'company' : 'individual', id: order.company?.id || order.individual?.id },
             { role: 'delivery', id: deliveryId },
@@ -679,7 +675,7 @@ export class OrderService {
     }
     // user
     async toTechnician(userId: number, id: number, repo: any) {
-        const order = await this.getOneOrder(userId, id, repo);
+        const order = await this.getOneOrderEntity(userId, id, repo);
 
         // status guard
         this.assertStatus(
@@ -693,7 +689,7 @@ export class OrderService {
         await this.orderRepo.save(order)
 
         // sent notifications
-        await this.notifyOrderUpdate(order, [
+        await this.notifyOrderStatusUpdate(order, [
             { role: 'admin' },
             { role: order.company?.id ? 'company' : 'individual', id: userId },
             { role: 'delivery', id: order.delivery?.id },
@@ -720,7 +716,7 @@ export class OrderService {
         await this.orderRepo.save(order)
 
         // sent notifications
-        await this.notifyOrderUpdate(order, [
+        await this.notifyOrderStatusUpdate(order, [
             { role: 'admin' },
             { role: order.company?.id ? 'company' : 'individual', id: order.company?.id || order.individual?.id },
             { role: 'delivery', id: deliveryId },
@@ -748,9 +744,10 @@ export class OrderService {
         await this.orderRepo.save(order)
 
         // sent notifications
-        await this.notifyOrderUpdate(order, [
+        await this.notifyOrderStatusUpdate(order, [
             { role: 'admin' },
             { role: order.company?.id ? 'company' : 'individual', id: order.company?.id || order.individual?.id },
+            { role: 'delivery', id: order.delivery?.id },
             { role: 'technician', id: technicianId },
         ]);
 
@@ -777,7 +774,7 @@ export class OrderService {
         await this.orderRepo.save(order)
 
         // sent notifications
-        await this.notifyOrderUpdate(order, [
+        await this.notifyOrderStatusUpdate(order, [
             { role: 'admin' },
             { role: order.company?.id ? 'company' : 'individual', id: order.company?.id || order.individual?.id },
             { role: 'technician', id: technicianId },
@@ -790,7 +787,7 @@ export class OrderService {
     }
     // user
     async decideRepair(userId: number, id: number, repo: any, repairDecisionDto: RepairDecisionDto) {
-        const order = await this.getOneOrder(userId, id, repo);
+        const order = await this.getOneOrderEntity(userId, id, repo);
 
         // status guard
         this.assertStatus(
@@ -811,7 +808,7 @@ export class OrderService {
         await this.orderRepo.save(order)
 
         // sent notifications
-        await this.notifyOrderUpdate(order, [
+        await this.notifyOrderStatusUpdate(order, [
             { role: 'admin' },
             { role: order.company?.id ? 'company' : 'individual', id: userId },
             { role: 'technician', id: order.technician?.id },
@@ -840,7 +837,7 @@ export class OrderService {
         await this.orderRepo.save(order)
 
         // sent notifications
-        await this.notifyOrderUpdate(order, [
+        await this.notifyOrderStatusUpdate(order, [
             { role: 'admin' },
             { role: order.company?.id ? 'company' : 'individual', id: order.company?.id || order.individual?.id },
             { role: 'technician', id: technicianId },
@@ -868,7 +865,7 @@ export class OrderService {
         await this.orderRepo.save(order)
 
         // sent notifications
-        await this.notifyOrderUpdate(order, [
+        await this.notifyOrderStatusUpdate(order, [
             { role: 'admin' },
             { role: order.company?.id ? 'company' : 'individual', id: order.company?.id || order.individual?.id },
             { role: 'technician', id: order.technician?.id },
@@ -896,7 +893,7 @@ export class OrderService {
         await this.orderRepo.save(order)
 
         // sent notifications
-        await this.notifyOrderUpdate(order, [
+        await this.notifyOrderStatusUpdate(order, [
             { role: 'admin' },
             { role: order.company?.id ? 'company' : 'individual', id: order.company?.id || order.individual?.id },
             { role: 'delivery', id: deliveryId },
@@ -909,7 +906,7 @@ export class OrderService {
     }
     // user
     async cancelled(userId: number, id: number, repo: any) {
-        const order = await this.getOneOrder(userId, id, repo);
+        const order = await this.getOneOrderEntity(userId, id, repo);
 
         // status guard
         this.assertStatus(
@@ -923,7 +920,7 @@ export class OrderService {
         await this.orderRepo.save(order)
 
         // sent notifications
-        await this.notifyOrderUpdate(order, [
+        await this.notifyOrderStatusUpdate(order, [
             { role: 'admin' },
             { role: order.company?.id ? 'company' : 'individual', id: userId },
             { role: 'delivery', id: order.delivery?.id },
@@ -950,7 +947,7 @@ export class OrderService {
         await this.orderRepo.save(order)
 
         // sent notifications
-        await this.notifyOrderUpdate(order, [
+        await this.notifyOrderStatusUpdate(order, [
             { role: 'admin' },
             { role: order.company?.id ? 'company' : 'individual', id: order.company?.id || order.individual?.id },
             { role: 'technician', id: technicianId },
@@ -978,9 +975,10 @@ export class OrderService {
         await this.orderRepo.save(order)
 
         // sent notifications
-        await this.notifyOrderUpdate(order, [
+        await this.notifyOrderStatusUpdate(order, [
             { role: 'admin' },
             { role: order.company?.id ? 'company' : 'individual', id: order.company?.id || order.individual?.id },
+            { role: 'technician', id: order.technician?.id },
             { role: 'delivery', id: deliveryId },
         ]);
 
@@ -1005,10 +1003,9 @@ export class OrderService {
         await this.orderRepo.save(order)
 
         // sent notifications
-        await this.notifyOrderUpdate(order, [
+        await this.notifyOrderStatusUpdate(order, [
             { role: 'admin' },
             { role: order.company?.id ? 'company' : 'individual', id: order.company?.id || order.individual?.id },
-            { role: 'technician', id: order.technician?.id },
             { role: 'delivery', id: deliveryId },
         ]);
 
@@ -1019,7 +1016,7 @@ export class OrderService {
     }
     // user
     async completed(userId: number, id: number, repo: any) {
-        const order = await this.getOneOrder(userId, id, repo);
+        const order = await this.getOneOrderEntity(userId, id, repo);
 
         // status guard
         this.assertStatus(
@@ -1033,7 +1030,7 @@ export class OrderService {
         await this.orderRepo.save(order)
 
         // sent notifications
-        await this.notifyOrderUpdate(order, [
+        await this.notifyOrderStatusUpdate(order, [
             { role: 'admin' },
             { role: order.company?.id ? 'company' : 'individual', id: userId },
             { role: 'delivery', id: order.delivery?.id },
@@ -1066,7 +1063,7 @@ export class OrderService {
         await this.orderRepo.save(order)
 
         // sent notifications
-        await this.notifyOrderUpdate(order, [
+        await this.notifyOrderStatusUpdate(order, [
             { role: 'admin' },
             { role: order.company?.id ? 'company' : 'individual', id: order.company?.id || order.individual?.id },
             { role: 'technician', id: technicianId }
@@ -1099,7 +1096,7 @@ export class OrderService {
         await this.orderRepo.save(order)
 
         // sent notifications
-        await this.notifyOrderUpdate(order, [
+        await this.notifyOrderStatusUpdate(order, [
             { role: 'admin' },
             { role: order.company?.id ? 'company' : 'individual', id: order.company?.id || order.individual?.id },
             { role: 'technician', id: technicianId },
@@ -1132,7 +1129,7 @@ export class OrderService {
         await this.orderRepo.save(order)
 
         // sent notifications
-        await this.notifyOrderUpdate(order, [
+        await this.notifyOrderStatusUpdate(order, [
             { role: 'admin' },
             { role: order.company?.id ? 'company' : 'individual', id: order.company?.id || order.individual?.id },
             { role: 'technician', id: technicianId }
@@ -1161,7 +1158,7 @@ export class OrderService {
         await this.orderRepo.save(order)
 
         // sent notifications
-        await this.notifyOrderUpdate(order, [
+        await this.notifyOrderStatusUpdate(order, [
             { role: 'admin' },
             { role: order.company?.id ? 'company' : 'individual', id: order.company?.id || order.individual?.id },
             { role: 'technician', id: technicianId }
@@ -1174,7 +1171,7 @@ export class OrderService {
     }
     // user
     async completedOnSite(userId: number, id: number, repo: any) {
-        const order = await this.getOneOrder(userId, id, repo);
+        const order = await this.getOneOrderEntity(userId, id, repo);
 
         // status guard
         this.assertStatus(
@@ -1188,7 +1185,7 @@ export class OrderService {
         await this.orderRepo.save(order)
 
         // sent notifications
-        await this.notifyOrderUpdate(order, [
+        await this.notifyOrderStatusUpdate(order, [
             { role: 'admin' },
             { role: order.company?.id ? 'company' : 'individual', id: userId },
             { role: 'technician', id: order.technician?.id }
