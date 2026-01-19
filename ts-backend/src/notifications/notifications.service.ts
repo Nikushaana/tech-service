@@ -30,7 +30,7 @@ export class NotificationsService {
         this.notificationRepo.save(notification);
 
         // send signal to exact user
-        this.gateway.server.emit(`notification:${forRole}:${forId}`);
+        this.gateway.server.emit(`notification:${forRole}:${forId}`, { type: type });
 
         return true
     }
