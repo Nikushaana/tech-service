@@ -20,12 +20,16 @@ import { useUpdateOrderStore } from "../store/useUpdateOrderStore";
 import { useBurgerMenuStore } from "../store/burgerMenuStore";
 import OrderFlow from "../components/modals/order-flow";
 import { useOrderFlowStore } from "../store/useOrderFlowStore";
+import { useQueryClient } from "@tanstack/react-query";
+import { socket } from "@/lib/socket";
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
+  const queryClient = useQueryClient();
+
   const { openCreateAddressModal } = useAddressesStore();
   const { openCreateOrderModal } = useOrdersStore();
   const { openCreateReviewModal } = useReviewsStore();
-  const { openLogOut } = useAuthStore();
+  const { openLogOut, currentUser } = useAuthStore();
   const { openUpdateOrderModal } = useUpdateOrderStore();
   const { openAdminSideBar, isOpen, openSideBar } = useBurgerMenuStore();
   const { openOrderFlowModal } = useOrderFlowStore();
@@ -47,6 +51,49 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       document.body.style.overflow = "auto";
     };
   }, [isAnyModalOpen]);
+
+  // live socket catch
+  useEffect(() => {
+    if (!currentUser?.role || !currentUser?.id) return;
+
+    const channel = `notification:${currentUser.role}:${currentUser.role == "admin" ? undefined : currentUser.id}`;
+
+    const listener = () => {
+      // Refetch the notification queries
+      const role = currentUser.role;
+
+      if (role === "company" || role === "individual") {
+        queryClient.invalidateQueries({ queryKey: ["userNotifications"] });
+        queryClient.invalidateQueries({
+          queryKey: ["userUnreadNotifications"],
+        });
+      }
+
+      if (role === "technician" || role === "delivery") {
+        queryClient.invalidateQueries({ queryKey: ["staffNotifications"] });
+        queryClient.invalidateQueries({
+          queryKey: ["staffUnreadNotifications"],
+        });
+      }
+
+      if (role === "admin") {
+        queryClient.invalidateQueries({ queryKey: ["adminNotifications"] });
+        queryClient.invalidateQueries({
+          queryKey: ["adminUnreadNotifications"],
+        });
+      }
+
+      // Play sound
+      const audio = new Audio("/sounds/light-hearted-message-tone.mp3");
+      audio.play();
+    };
+
+    socket.on(channel, listener);
+
+    return () => {
+      socket.off(channel, listener);
+    };
+  }, [currentUser?.role, currentUser?.id]);
 
   return (
     <>
