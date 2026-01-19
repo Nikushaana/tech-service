@@ -2,12 +2,14 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Notification, NotificationFor, NotificationType } from './entities/notification.entity';
+import { NotificationsGateway } from './notifications.gateway';
 
 @Injectable()
 export class NotificationsService {
     constructor(
         @InjectRepository(Notification)
         private readonly notificationRepo: Repository<Notification>,
+        private gateway: NotificationsGateway,
     ) { }
 
     async sendNotification(
@@ -25,7 +27,12 @@ export class NotificationsService {
             data,
         });
 
-        return this.notificationRepo.save(notification);
+        this.notificationRepo.save(notification);
+
+        // send signal to exact user
+        this.gateway.server.emit(`notification:${forRole}:${forId}`);
+
+        return true
     }
 
     async getNotifications(role: 'admin' | 'individual' | 'company' | 'technician' | 'delivery', userId?: number) {
@@ -40,7 +47,7 @@ export class NotificationsService {
     }
 
     async readNotification(
-        role: 'admin' | 'individual' | 'company' | 'technician' | 'delivery', 
+        role: 'admin' | 'individual' | 'company' | 'technician' | 'delivery',
         id: number,
     ) {
         const notification = await this.notificationRepo.findOne({
@@ -63,10 +70,6 @@ export class NotificationsService {
     async getUnreadNotificationsCount(role: 'admin' | 'individual' | 'company' | 'technician' | 'delivery', userId?: number) {
         const notifications = await this.notificationRepo.find({
             where: { for: role, forId: userId, read: false },
-            order: {
-                read: 'ASC',
-                created_at: 'DESC',
-            },
         });
 
         return notifications.length;
