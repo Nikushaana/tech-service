@@ -7,7 +7,6 @@ import IndividualDetailsForm from "@/app/components/dashboard/individual/individ
 import IndividualPasswordUpdate from "@/app/components/dashboard/individual/individual-password-update";
 import IndividualPhoneUpdate from "@/app/components/dashboard/individual/individual-phone-update";
 import { useParams } from "next/navigation";
-import React from "react";
 
 export default function Page() {
   const { userType } = useParams<{

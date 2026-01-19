@@ -22,14 +22,18 @@ import OrderFlow from "../components/modals/order-flow";
 import { useOrderFlowStore } from "../store/useOrderFlowStore";
 import { useQueryClient } from "@tanstack/react-query";
 import { socket } from "@/lib/socket";
+import { usePathname, useRouter } from "next/navigation";
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
+  const router = useRouter();
+  const pathname = usePathname();
+
   const queryClient = useQueryClient();
 
   const { openCreateAddressModal } = useAddressesStore();
   const { openCreateOrderModal } = useOrdersStore();
   const { openCreateReviewModal } = useReviewsStore();
-  const { openLogOut, currentUser } = useAuthStore();
+  const { openLogOut, currentUser, rehydrate } = useAuthStore();
   const { openUpdateOrderModal } = useUpdateOrderStore();
   const { openAdminSideBar, isOpen, openSideBar } = useBurgerMenuStore();
   const { openOrderFlowModal } = useOrderFlowStore();
@@ -58,7 +62,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
     const channel = `notification:${currentUser.role}:${currentUser.role == "admin" ? undefined : currentUser.id}`;
 
-    const listener = () => {
+    const listener = ({ type }: { type: string }) => {
       // Refetch the notification queries
       const role = currentUser.role;
 
@@ -67,6 +71,12 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         queryClient.invalidateQueries({
           queryKey: ["userUnreadNotifications"],
         });
+        if (type == "profile_updated") {
+          rehydrate(router, pathname);
+        }
+        if (type == "order_updated") {
+          queryClient.invalidateQueries({ queryKey: ["userOrders"] });
+        }
       }
 
       if (role === "technician" || role === "delivery") {
@@ -74,6 +84,12 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         queryClient.invalidateQueries({
           queryKey: ["staffUnreadNotifications"],
         });
+        if (type == "profile_updated") {
+          rehydrate(router, pathname);
+        }
+        if (type == "order_updated") {
+          queryClient.invalidateQueries({ queryKey: ["staffOrders"] });
+        }
       }
 
       if (role === "admin") {
@@ -81,6 +97,15 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         queryClient.invalidateQueries({
           queryKey: ["adminUnreadNotifications"],
         });
+        if (type == "new_user") {
+          queryClient.invalidateQueries({ queryKey: ["adminUsers"] });
+        }
+        if (type == "new_order" || type == "order_updated") {
+          queryClient.invalidateQueries({ queryKey: ["adminOrders"] });
+        }
+        if (type == "new_review") {
+          queryClient.invalidateQueries({ queryKey: ["adminReviews"] });
+        }
       }
 
       // Play sound
