@@ -9,6 +9,8 @@ import { useAuthStore } from "../store/useAuthStore";
 import { IoPersonSharp } from "react-icons/io5";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { useQuery } from "@tanstack/react-query";
+import { fetchUserUnreadNotifications } from "../lib/api/userUnreadNotifications";
 
 export default function Header() {
   const menu = useMenuStore((state) => state.menu);
@@ -17,6 +19,14 @@ export default function Header() {
   const router = useRouter();
 
   const { currentUser } = useAuthStore();
+
+  const role = currentUser?.role as ClientRole | undefined;
+
+  const { data: unreadNotifications } = useQuery({
+    queryKey: ["userUnreadNotifications", role],
+    queryFn: () => fetchUserUnreadNotifications(role),
+    staleTime: 1000 * 60 * 10,
+  });
 
   const firstSegment = pathname.split("/")[1];
   const isHidden = firstSegment === "admin" || firstSegment === "staff";
@@ -67,19 +77,26 @@ export default function Header() {
             href={`/dashboard/${currentUser?.role}/profile`}
             className={`${
               currentUser ? "w-[45px] h-[45px]" : "w-0 h-0"
-            } rounded-full hover:scale-105 duration-200 cursor-pointer overflow-hidden bg-myLightBlue text-white flex items-center justify-center text-[18px]`}
+            } relative group`}
           >
-            {currentUser?.images && currentUser?.images[0] ? (
-              <img
-                onClick={() => {
-                  router.push("/");
-                }}
-                src={currentUser?.images[0]}
-                alt="logo"
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <IoPersonSharp />
+            <div className="w-full h-full overflow-hidden rounded-full bg-myLightBlue group-hover:bg-myBlue duration-200  text-white flex items-center justify-center text-[18px] ">
+              {currentUser?.images && currentUser?.images[0] ? (
+                <img
+                  onClick={() => {
+                    router.push("/");
+                  }}
+                  src={currentUser?.images[0]}
+                  alt="logo"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <IoPersonSharp />
+              )}
+            </div>
+            {unreadNotifications > 0 && (
+              <p className="absolute -top-2 -right-2 bg-red-600 flex items-center justify-center rounded-full px-[8px] py-[2px] text-sm text-white">
+                {unreadNotifications}
+              </p>
             )}
           </Link>
 

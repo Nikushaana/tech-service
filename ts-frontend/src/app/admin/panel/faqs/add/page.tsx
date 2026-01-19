@@ -1,13 +1,13 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { axiosAdmin } from "@/app/api/axios";
 import { toast } from "react-toastify";
 import PanelFormInput from "@/app/components/inputs/panel-form-input";
 import { useState } from "react";
 import * as Yup from "yup";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Loader2Icon } from "lucide-react";
+import { axiosAdmin } from "@/app/lib/api/axios";
 
 export default function Page() {
   const queryClient = useQueryClient();

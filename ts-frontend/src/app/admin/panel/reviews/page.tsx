@@ -1,7 +1,7 @@
 "use client";
 
-import { axiosAdmin } from "@/app/api/axios";
 import StarRating from "@/app/components/inputs/star-rating";
+import { axiosAdmin } from "@/app/lib/api/axios";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -15,7 +15,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import { Loader2Icon } from "lucide-react";
 import Link from "next/link";
-import React, { useEffect, useState } from "react";
 import { AiOutlineDelete } from "react-icons/ai";
 import { BsEye } from "react-icons/bs";
 import { IoPersonSharp } from "react-icons/io5";

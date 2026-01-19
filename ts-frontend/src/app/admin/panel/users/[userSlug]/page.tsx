@@ -1,6 +1,5 @@
 "use client";
 
-import { axiosAdmin } from "@/app/api/axios";
 import { Loader2Icon } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import PanelFormInput from "@/app/components/inputs/panel-form-input";
@@ -12,6 +11,7 @@ import { useParams, useRouter } from "next/navigation";
 import { Switch } from "@/components/ui/switch";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { formatPhone } from "@/app/utils/formatPhone";
+import { axiosAdmin } from "@/app/lib/api/axios";
 
 interface UserValues {
   // individual

@@ -10,7 +10,7 @@ import {
 import { Loader2Icon } from "lucide-react";
 import { toast } from "react-toastify";
 import { useQuery } from "@tanstack/react-query";
-import { fetchFrontBranches } from "@/app/api/frontBranches";
+import { fetchFrontBranches } from "@/app/lib/api/frontBranches";
 
 interface MapProps {
   id?: string;

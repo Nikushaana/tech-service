@@ -3,13 +3,13 @@
 import React, { useEffect, useState } from "react";
 import { useAuthStore } from "@/app/store/useAuthStore";
 import { toast } from "react-toastify";
-import { axiosDelivery, axiosTechnician } from "@/app/api/axios";
 import { sendCodeSchema, verifyCodeSchema } from "@/app/utils/validation";
 import { useParams } from "next/navigation";
 import PanelFormInput from "../inputs/panel-form-input";
 import { Loader2Icon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatPhone } from "@/app/utils/formatPhone";
+import { axiosDelivery, axiosTechnician } from "@/app/lib/api/axios";
 
 export default function StaffPhoneUpdate() {
   const { currentUser } = useAuthStore();

@@ -5,10 +5,10 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { useRegisterStore } from "@/app/store/registerStore";
 import FormInput from "@/app/components/inputs/form-input";
-import { axiosAdmin } from "@/app/api/axios";
 import { toast } from "react-toastify";
 import { verifyCodeSchema } from "@/app/utils/validation";
 import { Loader2Icon } from "lucide-react";
+import { axiosAdmin } from "@/app/lib/api/axios";
 
 export default function VerifyAdminStaffRegisterCode() {
   const router = useRouter();

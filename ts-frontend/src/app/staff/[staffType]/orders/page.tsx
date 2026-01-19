@@ -1,6 +1,5 @@
 "use client";
 
-import { axiosDelivery, axiosTechnician } from "@/app/api/axios";
 import { Button } from "@/components/ui/button";
 import dayjs from "dayjs";
 import { Loader2Icon } from "lucide-react";
@@ -17,6 +16,7 @@ import {
 } from "@/components/ui/table";
 import { useQuery } from "@tanstack/react-query";
 import { statusLabels, typeLabels } from "@/app/utils/order-type-status-translations";
+import { axiosDelivery, axiosTechnician } from "@/app/lib/api/axios";
 
 const fetchStaffOrders = async (staffType: string) => {
   const api = staffType === "technician" ? axiosTechnician : axiosDelivery;

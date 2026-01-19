@@ -1,6 +1,5 @@
 "use client";
 
-import { axiosAdmin } from "@/app/api/axios";
 import { Loader2Icon } from "lucide-react";
 import { useEffect, useState } from "react";
 import dayjs from "dayjs";
@@ -17,6 +16,7 @@ import {
   statusDescriptions,
   typeLabels,
 } from "@/app/utils/order-type-status-translations";
+import { axiosAdmin } from "@/app/lib/api/axios";
 
 const fetchAdminActiveEmployees = async () => {
   const [technicians, deliveries] = await Promise.all([

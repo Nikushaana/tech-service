@@ -1,16 +1,16 @@
 "use client";
 
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { useRegisterStore } from "@/app/store/registerStore";
-import { axiosFront } from "@/app/api/axios";
 import { toast } from "react-toastify";
 import { registerSchema } from "@/app/utils/validation";
 import FormInput from "@/app/components/inputs/form-input";
 import { Loader2Icon } from "lucide-react";
 import Link from "next/link";
 import { Checkbox } from "@/components/ui/checkbox";
+import { axiosFront } from "@/app/lib/api/axios";
 
 export default function Register() {
   const router = useRouter();

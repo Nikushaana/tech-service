@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useAddressesStore } from "@/app/store/useAddressesStore";
 import * as Yup from "yup";
 import { toast } from "react-toastify";
@@ -13,10 +13,10 @@ import OrderImagesSelector from "../inputs/order-images-selector";
 import OrderVideosSelector from "../inputs/order-videos-selector";
 import { Button } from "@/components/ui/button";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { fetchFrontCategories } from "@/app/api/frontCategories";
-import { axiosCompany, axiosIndividual } from "@/app/api/axios";
-import { fetchUserAddresses } from "@/app/api/userAddresses";
 import { useOrderTypeStatusOptionsStore } from "@/app/store/orderTypeStatusOptionsStore";
+import { fetchFrontCategories } from "@/app/lib/api/frontCategories";
+import { fetchUserAddresses } from "@/app/lib/api/userAddresses";
+import { axiosCompany, axiosIndividual } from "@/app/lib/api/axios";
 
 interface CreateOrderValues {
   serviceType: string;

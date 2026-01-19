@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useAddressesStore } from "@/app/store/useAddressesStore";
 import * as Yup from "yup";
 import { toast } from "react-toastify";
@@ -8,10 +8,10 @@ import PanelFormInput from "../inputs/panel-form-input";
 import { Loader2Icon } from "lucide-react";
 import Map from "../map/map";
 import { Dropdown2 } from "../inputs/drop-down-2";
-import { axiosCompany, axiosIndividual } from "@/app/api/axios";
 import { Button } from "@/components/ui/button";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { fetchCities, fetchStreets } from "@/app/api/locations";
+import { fetchCities, fetchStreets } from "@/app/lib/api/locations";
+import { axiosCompany, axiosIndividual } from "@/app/lib/api/axios";
 
 export default function CreateAddress() {
   const { openCreateAddressModal, toggleOpenCreateAddressModal, modalType } =

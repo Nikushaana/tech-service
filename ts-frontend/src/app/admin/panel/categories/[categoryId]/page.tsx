@@ -1,6 +1,5 @@
 "use client";
 
-import { axiosAdmin } from "@/app/api/axios";
 import { Loader2Icon } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import PanelFormInput from "@/app/components/inputs/panel-form-input";
@@ -11,6 +10,7 @@ import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { axiosAdmin } from "@/app/lib/api/axios";
 
 interface CategoryValues {
   name: string;

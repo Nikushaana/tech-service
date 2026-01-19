@@ -1,6 +1,5 @@
 "use client";
 
-import { axiosCompany, axiosIndividual } from "@/app/api/axios";
 import { Loader2Icon } from "lucide-react";
 import dayjs from "dayjs";
 import Map from "@/app/components/map/map";
@@ -13,6 +12,7 @@ import {
   typeLabels,
 } from "@/app/utils/order-type-status-translations";
 import { OrderFlowActions } from "@/app/components/order-flow-actions/order-flow-actions";
+import { axiosCompany, axiosIndividual } from "@/app/lib/api/axios";
 
 const fetchUserOrder = async (userType: string, orderId: string) => {
   const api = userType === "company" ? axiosCompany : axiosIndividual;

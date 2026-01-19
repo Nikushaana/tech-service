@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { toast } from "react-toastify";
-import { axiosDelivery, axiosTechnician } from "@/app/api/axios";
 import { passwordChangeSchema } from "@/app/utils/validation";
 import { useParams } from "next/navigation";
 import { Loader2Icon } from "lucide-react";
 import PanelFormInput from "../inputs/panel-form-input";
 import { Button } from "@/components/ui/button";
+import { axiosDelivery, axiosTechnician } from "@/app/lib/api/axios";
 
 export default function StaffPasswordUpdate() {
   const { staffType } = useParams<{ staffType: "technician" | "delivery" }>();

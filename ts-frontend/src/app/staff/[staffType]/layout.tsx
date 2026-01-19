@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { HiMenu, HiX } from "react-icons/hi";
@@ -8,8 +7,8 @@ import { useAuthStore } from "@/app/store/useAuthStore";
 import { useBurgerMenuStore } from "@/app/store/burgerMenuStore";
 import { Button } from "@/components/ui/button";
 import { formatPhone } from "@/app/utils/formatPhone";
-import { axiosDelivery, axiosTechnician } from "@/app/api/axios";
 import { useQuery } from "@tanstack/react-query";
+import { axiosDelivery, axiosTechnician } from "@/app/lib/api/axios";
 
 type SidebarLinksWithTitle = {
   title?: string;
@@ -74,11 +73,20 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         {/* Mobile Hamburger */}
         <div
           onClick={() => toggleSideBar()}
-          className={`lg:hidden flex items-center self-end justify-center text-2xl duration-300 h-[45px] aspect-square ${
+          className="relative lg:hidden self-end "
+        >
+        <div
+          className={`flex items-center justify-center text-2xl duration-300 h-[45px] aspect-square ${
             openSideBar && "rotate-[360deg]"
           }`}
         >
           {openSideBar ? <HiX /> : <HiMenu />}
+        </div>
+        {unreadNotifications > 0 && (
+            <p className="absolute -top-2 -right-2 bg-red-600 flex items-center justify-center rounded-full px-[8px] py-[2px] text-sm text-white">
+              {unreadNotifications}
+            </p>
+          )}
         </div>
 
         <div className="flex gap-[10px] flex-1">
@@ -148,7 +156,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
               <Button
                 onClick={() => toggleLogOut()}
-                className={`mt-auto rounded-lg font-semibold text-[#1e40af] bg-white w-full
+                className={`mt-[40px] rounded-lg font-semibold text-[#1e40af] bg-white w-full
         hover:bg-[#b91c1c] hover:text-white duration-300 cursor-pointer ${
           !authLoading ? "" : "ml-[-300px]"
         }`}

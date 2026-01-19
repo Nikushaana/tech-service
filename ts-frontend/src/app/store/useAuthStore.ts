@@ -1,7 +1,7 @@
 import { create } from "zustand";
-import { axiosAdmin, axiosCompany, axiosDelivery, axiosFront, axiosIndividual, axiosTechnician } from "../api/axios";
 import { toast } from "react-toastify";
 import * as Yup from "yup";
+import { axiosAdmin, axiosCompany, axiosDelivery, axiosFront, axiosIndividual, axiosTechnician } from "../lib/api/axios";
 
 type Role = "individual" | "company" | "technician" | "delivery" | "admin";
 

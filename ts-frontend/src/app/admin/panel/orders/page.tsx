@@ -1,6 +1,5 @@
 "use client";
 
-import { axiosAdmin } from "@/app/api/axios";
 import { Button } from "@/components/ui/button";
 import dayjs from "dayjs";
 import { Loader2Icon } from "lucide-react";
@@ -19,6 +18,7 @@ import {
   statusLabels,
   typeLabels,
 } from "@/app/utils/order-type-status-translations";
+import { axiosAdmin } from "@/app/lib/api/axios";
 
 const fetchAdminOrders = async () => {
   const { data } = await axiosAdmin.get("admin/orders");

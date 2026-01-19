@@ -6,12 +6,11 @@ import { useAddressesStore } from "@/app/store/useAddressesStore";
 import { Loader2Icon } from "lucide-react";
 import { useParams } from "next/navigation";
 import { AiOutlineDelete } from "react-icons/ai";
-import { LuPlus } from "react-icons/lu";
 import { PiMapPinFill } from "react-icons/pi";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { fetchUserAddresses } from "@/app/api/userAddresses";
-import { axiosCompany, axiosIndividual } from "@/app/api/axios";
 import { toast } from "react-toastify";
+import { fetchUserAddresses } from "@/app/lib/api/userAddresses";
+import { axiosCompany, axiosIndividual } from "@/app/lib/api/axios";
 
 export default function Page() {
   const { userType } = useParams<{

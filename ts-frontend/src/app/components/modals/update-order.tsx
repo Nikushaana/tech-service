@@ -11,12 +11,12 @@ import OrderVideosSelector from "../inputs/order-videos-selector";
 import { useUpdateOrderStore } from "@/app/store/useUpdateOrderStore";
 import { Button } from "@/components/ui/button";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { fetchFrontCategories } from "@/app/api/frontCategories";
-import { fetchUserAddresses } from "@/app/api/userAddresses";
-import { axiosCompany, axiosIndividual } from "@/app/api/axios";
 import { MdAddLocationAlt } from "react-icons/md";
 import { useAddressesStore } from "@/app/store/useAddressesStore";
 import { useOrderTypeStatusOptionsStore } from "@/app/store/orderTypeStatusOptionsStore";
+import { fetchFrontCategories } from "@/app/lib/api/frontCategories";
+import { fetchUserAddresses } from "@/app/lib/api/userAddresses";
+import { axiosCompany, axiosIndividual } from "@/app/lib/api/axios";
 
 interface UpdateOrderValues {
   serviceType: string;

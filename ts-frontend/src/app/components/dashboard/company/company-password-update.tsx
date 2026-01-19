@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { toast } from "react-toastify";
-import { axiosCompany } from "@/app/api/axios";
 import { passwordChangeSchema } from "@/app/utils/validation";
 import UserPasswordUpdate from "../shared components/user-password-update";
+import { axiosCompany } from "@/app/lib/api/axios";
 
 export default function CompanyPasswordUpdate() {
   const [values, setValues] = useState({

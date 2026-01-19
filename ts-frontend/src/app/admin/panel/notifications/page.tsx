@@ -1,6 +1,5 @@
 "use client";
 
-import { axiosAdmin } from "@/app/api/axios";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -15,6 +14,7 @@ import { Loader2Icon } from "lucide-react";
 import Link from "next/link";
 import { BsEye } from "react-icons/bs";
 import dayjs from "dayjs";
+import { axiosAdmin } from "@/app/lib/api/axios";
 
 const fetchAdminNotifications = async () => {
   const { data } = await axiosAdmin.get(`admin/notifications`);

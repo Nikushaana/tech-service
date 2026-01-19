@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { toast } from "react-toastify";
 import { useQueryClient } from "@tanstack/react-query";
-import { axiosCompany, axiosDelivery, axiosIndividual, axiosTechnician } from "@/app/api/axios";
+import { axiosCompany, axiosDelivery, axiosIndividual, axiosTechnician } from "../lib/api/axios";
 
 export function useOrderActions() {
     const queryClient = useQueryClient();

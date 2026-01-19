@@ -1,6 +1,5 @@
 "use client";
 
-import { axiosDelivery, axiosTechnician } from "@/app/api/axios";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -16,6 +15,7 @@ import Link from "next/link";
 import { BsEye } from "react-icons/bs";
 import dayjs from "dayjs";
 import { useParams } from "next/navigation";
+import { axiosDelivery, axiosTechnician } from "@/app/lib/api/axios";
 
 const fetchStaffNotifications = async (staffType: string) => {
   const api = staffType === "technician" ? axiosTechnician : axiosDelivery;

@@ -3,21 +3,18 @@
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { useAuthStore } from "../store/useAuthStore";
-import { BsXLg } from "react-icons/bs";
 import { FaChevronRight } from "react-icons/fa6";
 import { useBurgerMenuStore } from "../store/burgerMenuStore";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
-import { axiosCompany, axiosIndividual } from "../api/axios";
+import { fetchUserUnreadNotifications } from "../lib/api/userUnreadNotifications";
 
 type SidebarLinksWithTitle = {
   title?: string;
   links: { name: string; href: string }[];
 };
 
-type Role = "individual" | "company";
-
-const sidebarLinks: Record<Role, SidebarLinksWithTitle> = {
+const sidebarLinks: Record<ClientRole, SidebarLinksWithTitle> = {
   individual: {
     title: "ჩემი გვერდი",
     links: [
@@ -40,21 +37,12 @@ const sidebarLinks: Record<Role, SidebarLinksWithTitle> = {
   },
 };
 
-const fetchUserUnreadNotifications = async (role?: string) => {
-  if (!role) return 0;
-  const { data } = await (role == "individual"
-    ? axiosIndividual
-    : axiosCompany
-  ).get(`${role}/notifications/unread`);
-  return data;
-};
-
 export default function Layout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { currentUser, authLoading, toggleLogOut } = useAuthStore();
   const { openSideBar, toggleSideBar, closeSideBar } = useBurgerMenuStore();
 
-  const role = currentUser?.role as Role | undefined;
+  const role = currentUser?.role as ClientRole | undefined;
 
   const sidebar =
     role && sidebarLinks[role]
@@ -102,51 +90,53 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             ${!openSideBar && "ml-[-256px] lg:ml-0"}
           `}
             >
-              <h2 className="text-[20px] text-center font-bold mb-8 tracking-wide">
-                {sidebar.title}
-              </h2>
+              <div className="sticky top-[20px]">
+                <h2 className="text-[20px] text-center font-bold mb-8 tracking-wide">
+                  {sidebar.title}
+                </h2>
 
-              <nav
-                className={`flex flex-col gap-2 mb-6 duration-300 w-full ${
-                  !authLoading ? "" : "ml-[-300px]"
-                }`}
-              >
-                {sidebar.links.map((link) => {
-                  const isActive = pathname.startsWith(link.href);
-                  return (
-                    <Link
-                      key={link.href}
-                      href={link.href}
-                      className={`flex items-center justify-between px-4 py-2 rounded-lg text-sm font-medium duration-200
+                <nav
+                  className={`flex flex-col gap-2 mb-6 duration-300 w-full ${
+                    !authLoading ? "" : "ml-[-300px]"
+                  }`}
+                >
+                  {sidebar.links.map((link) => {
+                    const isActive = pathname.startsWith(link.href);
+                    return (
+                      <Link
+                        key={link.href}
+                        href={link.href}
+                        className={`flex items-center justify-between px-4 py-2 rounded-lg text-sm font-medium duration-200
               ${
                 isActive
                   ? "bg-white text-myBlue"
                   : "hover:bg-myLightBlue hover:text-white"
               }
             `}
-                      onClick={() => closeSideBar()}
-                    >
-                      {link.name}{" "}
-                      {link.name == "შეტყობინებები" &&
-                        unreadNotifications > 0 && (
-                          <p className="bg-red-600 flex items-center justify-center rounded-full h-full px-[7px] text-white">
-                            {unreadNotifications}
-                          </p>
-                        )}
-                    </Link>
-                  );
-                })}
-              </nav>
+                        onClick={() => closeSideBar()}
+                      >
+                        {link.name}{" "}
+                        {link.name == "შეტყობინებები" &&
+                          unreadNotifications > 0 && (
+                            <p className="bg-red-600 flex items-center justify-center rounded-full h-full px-[7px] text-white">
+                              {unreadNotifications}
+                            </p>
+                          )}
+                      </Link>
+                    );
+                  })}
+                </nav>
 
-              <Button
-                onClick={() => toggleLogOut()}
-                className={`mt-auto rounded-lg font-semibold text-[#1e40af] bg-white w-full
+                <Button
+                  onClick={() => toggleLogOut()}
+                  className={`mt-[40px] rounded-lg font-semibold text-[#1e40af] bg-white w-full
         hover:bg-[#b91c1c] hover:text-white duration-300 cursor-pointer ${
           !authLoading ? "" : "ml-[-300px]"
         }`}
-              >
-                გასვლა
-              </Button>
+                >
+                  გასვლა
+                </Button>
+              </div>
             </div>
           </aside>
 

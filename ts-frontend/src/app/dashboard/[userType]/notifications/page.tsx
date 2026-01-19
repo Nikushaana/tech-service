@@ -5,7 +5,6 @@ import dayjs from "dayjs";
 import { Loader2Icon } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { axiosCompany, axiosIndividual } from "@/app/api/axios";
 import {
   Table,
   TableBody,
@@ -16,6 +15,7 @@ import {
 } from "@/components/ui/table";
 import { BsEye } from "react-icons/bs";
 import Link from "next/link";
+import { axiosCompany, axiosIndividual } from "@/app/lib/api/axios";
 
 const fetchUserNotifications = async (userType: string) => {
   const api = userType === "company" ? axiosCompany : axiosIndividual;

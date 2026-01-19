@@ -1,6 +1,6 @@
 "use client";
 
-import { axiosAdmin } from "@/app/api/axios";
+import { axiosAdmin } from "@/app/lib/api/axios";
 import { Button } from "@/components/ui/button";
 import {
   Table,

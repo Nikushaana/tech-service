@@ -1,6 +1,5 @@
 "use client";
 
-import { axiosAdmin } from "@/app/api/axios";
 import { Loader2Icon } from "lucide-react";
 import { useEffect, useState } from "react";
 import dayjs from "dayjs";
@@ -13,6 +12,7 @@ import PanelFormInput from "@/app/components/inputs/panel-form-input";
 import { useParams, useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { formatPhone } from "@/app/utils/formatPhone";
+import { axiosAdmin } from "@/app/lib/api/axios";
 
 const fetchAdminReviewById = async (reviewId: string) => {
   const { data } = await axiosAdmin.get(`admin/reviews/${reviewId}`);

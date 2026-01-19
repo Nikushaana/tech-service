@@ -1,7 +1,6 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { axiosAdmin } from "@/app/api/axios";
 import { toast } from "react-toastify";
 import PanelFormInput from "@/app/components/inputs/panel-form-input";
 import { useState } from "react";
@@ -9,8 +8,9 @@ import * as Yup from "yup";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Dropdown2 } from "@/app/components/inputs/drop-down-2";
 import Map from "@/app/components/map/map";
-import { fetchCities, fetchStreets } from "@/app/api/locations";
 import { Loader2Icon } from "lucide-react";
+import { fetchCities, fetchStreets } from "@/app/lib/api/locations";
+import { axiosAdmin } from "@/app/lib/api/axios";
 
 export default function Page() {
   const queryClient = useQueryClient();

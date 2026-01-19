@@ -3,13 +3,13 @@
 import React, { useEffect, useState } from "react";
 import { useAuthStore } from "@/app/store/useAuthStore";
 import { toast } from "react-toastify";
-import { axiosDelivery, axiosTechnician } from "@/app/api/axios";
 import * as Yup from "yup";
 import { Loader2Icon } from "lucide-react";
 import { useParams, usePathname, useRouter } from "next/navigation";
 import ImageSelector from "../inputs/image-selector";
 import PanelFormInput from "../inputs/panel-form-input";
 import { Button } from "@/components/ui/button";
+import { axiosDelivery, axiosTechnician } from "@/app/lib/api/axios";
 
 interface StaffValues {
   name: string;

@@ -7,7 +7,7 @@ import dayjs from "dayjs";
 import { Loader2Icon } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { axiosCompany, axiosIndividual } from "@/app/api/axios";
+import { axiosCompany, axiosIndividual } from "@/app/lib/api/axios";
 
 const fetchUserReviews = async (userType: string) => {
   const api = userType === "company" ? axiosCompany : axiosIndividual;

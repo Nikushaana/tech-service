@@ -1,9 +1,9 @@
 "use client";
 
-import { axiosAdmin } from "@/app/api/axios";
 import { OrdersChart } from "@/app/components/admin/orders-chart";
 import { UsedDevicesChart } from "@/app/components/admin/used-devices-chart";
 import { UsersChart } from "@/app/components/admin/users-chart";
+import { axiosAdmin } from "@/app/lib/api/axios";
 import { useQuery } from "@tanstack/react-query";
 import { Loader2Icon } from "lucide-react";
 

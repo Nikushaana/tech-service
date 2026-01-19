@@ -1,7 +1,7 @@
 "use client";
 
-import { axiosAdmin } from "@/app/api/axios";
 import { Dropdown } from "@/app/components/inputs/drop-down";
+import { axiosAdmin } from "@/app/lib/api/axios";
 import { formatPhone } from "@/app/utils/formatPhone";
 import { Button } from "@/components/ui/button";
 import {

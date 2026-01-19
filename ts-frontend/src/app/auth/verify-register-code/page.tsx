@@ -5,11 +5,11 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { useRegisterStore } from "@/app/store/registerStore";
 import FormInput from "@/app/components/inputs/form-input";
-import { axiosFront } from "@/app/api/axios";
 import { toast } from "react-toastify";
 import { verifyCodeSchema } from "@/app/utils/validation";
 import { Loader2Icon } from "lucide-react";
 import Link from "next/link";
+import { axiosFront } from "@/app/lib/api/axios";
 
 export default function VerifyRegisterCode() {
   const router = useRouter();

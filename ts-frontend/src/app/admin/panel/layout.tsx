@@ -1,6 +1,6 @@
 "use client";
 
-import { axiosAdmin } from "@/app/api/axios";
+import { axiosAdmin } from "@/app/lib/api/axios";
 import { useBurgerMenuStore } from "@/app/store/burgerMenuStore";
 import { useAuthStore } from "@/app/store/useAuthStore";
 import { formatPhone } from "@/app/utils/formatPhone";
@@ -51,11 +51,20 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         {/* Mobile Hamburger */}
         <div
           onClick={() => toggleAdminSideBar()}
-          className={`lg:hidden flex items-center self-end justify-center text-2xl duration-300 h-[45px] aspect-square ${
-            openAdminSideBar && "rotate-[180deg]"
-          }`}
+          className="relative lg:hidden self-end "
         >
-          {openAdminSideBar ? <HiX /> : <HiMenu />}
+          <div
+            className={`flex items-center justify-center text-2xl duration-300 h-[45px] aspect-square ${
+              openAdminSideBar && "rotate-[180deg]"
+            }`}
+          >
+            {openAdminSideBar ? <HiX /> : <HiMenu />}
+          </div>
+          {unreadNotifications > 0 && (
+            <p className="absolute -top-2 -right-2 bg-red-600 flex items-center justify-center rounded-full px-[8px] py-[2px] text-sm text-white">
+              {unreadNotifications}
+            </p>
+          )}
         </div>
 
         <div className="flex gap-[10px] flex-1">
@@ -86,7 +95,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                       " " +
                       currentUser?.lastName +
                       " " +
-                      currentUser?.phone
+                      currentUser?.phone,
                   )}
                 </p>
               )}
@@ -123,7 +132,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
               <Button
                 onClick={() => toggleLogOut()}
-                className={`mt-auto rounded-lg font-semibold text-[#1e40af] bg-white w-full
+                className={`mt-[40px] rounded-lg font-semibold text-[#1e40af] bg-white w-full
         hover:bg-[#b91c1c] hover:text-white duration-300 cursor-pointer ${
           !authLoading ? "" : "ml-[-300px]"
         }`}

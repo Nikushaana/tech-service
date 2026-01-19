@@ -1,6 +1,5 @@
 "use client";
 
-import { axiosAdmin, axiosFront } from "@/app/api/axios";
 import { Loader2Icon } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import PanelFormInput from "@/app/components/inputs/panel-form-input";
@@ -11,7 +10,8 @@ import Map from "@/app/components/map/map";
 import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { fetchCities, fetchStreets } from "@/app/api/locations";
+import { axiosAdmin } from "@/app/lib/api/axios";
+import { fetchCities, fetchStreets } from "@/app/lib/api/locations";
 
 interface BranchValues {
   name: string;

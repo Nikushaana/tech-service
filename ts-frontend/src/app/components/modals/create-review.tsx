@@ -9,7 +9,7 @@ import { useReviewsStore } from "@/app/store/useReviewsStore";
 import StarRating from "../inputs/star-rating";
 import { Button } from "@/components/ui/button";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { axiosCompany, axiosIndividual } from "@/app/api/axios";
+import { axiosCompany, axiosIndividual } from "@/app/lib/api/axios";
 
 interface CreateReviewValues {
   review: string;

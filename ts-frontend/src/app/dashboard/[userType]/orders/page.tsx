@@ -17,9 +17,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { axiosCompany, axiosIndividual } from "@/app/api/axios";
 import { useQuery } from "@tanstack/react-query";
 import { statusLabels, typeLabels } from "@/app/utils/order-type-status-translations";
+import { axiosCompany, axiosIndividual } from "@/app/lib/api/axios";
 
 const fetchUserOrders = async (userType: string) => {
   const api = userType === "company" ? axiosCompany : axiosIndividual;

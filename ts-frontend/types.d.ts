@@ -106,3 +106,5 @@ interface LatLng {
   lat: number;
   lng: number;
 }
+
+type ClientRole = "individual" | "company";
