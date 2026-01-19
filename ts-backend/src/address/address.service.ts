@@ -34,25 +34,32 @@ export class AddressService {
 
         const { location } = createAddressDto;
 
-        // Check if location is within any branch coverage
-        const isWithinCoverage = branches.some((branch) => {
+        let matchedBranch: Branch | null = null;
+        let minDistance = Infinity;
+
+        for (const branch of branches) {
             const distance = getDistanceFromLatLonInKm(
                 location.lat,
                 location.lng,
                 branch.location.lat,
                 branch.location.lng
             );
-            return distance <= Number(branch.coverage_radius_km);
-        });
 
-        if (!isWithinCoverage) {
+            if (distance <= branch.coverage_radius_km && distance < minDistance) {
+                minDistance = distance;
+                matchedBranch = branch;
+            }
+        }
+
+        if (!matchedBranch) {
             throw new BadRequestException(
                 'Address is outside all branch coverage areas. Please choose a closer location.'
             );
         }
 
         const address = this.addressRepo.create({
-            ...createAddressDto
+            ...createAddressDto,
+            branch: matchedBranch,
         });
 
         if ("companyName" in user) {
@@ -73,10 +80,11 @@ export class AddressService {
 
         const addresses = await this.addressRepo.find({
             where: { [relationKey]: { id: userId } },
+            relations: ['branch'],
             order: { created_at: 'DESC' },
         });
 
-        return addresses;
+        return instanceToPlain(addresses);
     }
 
     async getOneAddress(userId: number, id: number, repo: any) {

@@ -1,3 +1,4 @@
+import { Branch } from "src/branches/entities/branches.entity";
 import { CompanyClient } from "src/company-client/entities/company-client.entity";
 import { IndividualClient } from "src/individual-client/entities/individual-client.entity";
 import { Order } from "src/order/entities/order.entity";
@@ -39,6 +40,9 @@ export class Address {
 
     @Column({ type: 'json' })
     location: Location;
+    
+    @ManyToOne(() => Branch, { nullable: false })
+    branch: Branch;
 
     @CreateDateColumn()
     created_at: Date;

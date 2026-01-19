@@ -1,3 +1,4 @@
+import { Exclude } from 'class-transformer';
 import {
     Entity,
     PrimaryGeneratedColumn,
@@ -35,10 +36,15 @@ export class Branch {
     location: Location;
 
     @Column()
-    coverage_radius_km: string;
+    coverage_radius_km: number;
 
+    @Exclude()
     @Column()
-    delivery_price: string;
+    delivery_visit_price: number;
+    
+    @Exclude()
+    @Column()
+    technician_visit_price: number;
 
     @CreateDateColumn()
     created_at: Date;

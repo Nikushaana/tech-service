@@ -23,7 +23,6 @@ export class CreateBranchDto {
     @IsString()
     @IsNotEmpty()
     street: string;
-
     
     @IsString()
     @IsNotEmpty()
@@ -33,13 +32,17 @@ export class CreateBranchDto {
     @IsNotEmpty()
     description: string;
 
-    @IsString()
+    @IsNumber()
     @IsNotEmpty()
-    coverage_radius_km: string;
+    coverage_radius_km: number;
 
-    @IsString()
+    @IsNumber()
     @IsNotEmpty()
-    delivery_price: string;
+    delivery_visit_price: number;
+    
+    @IsNumber()
+    @IsNotEmpty()
+    technician_visit_price: number;
 
     @ValidateNested()
     @Type(() => LocationDto)

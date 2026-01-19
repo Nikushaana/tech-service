@@ -125,7 +125,7 @@ export class OrderService {
                 branch.location.lat,
                 branch.location.lng
             );
-            return distance <= Number(branch.coverage_radius_km);
+            return distance <= branch.coverage_radius_km;
         });
 
         if (!isWithinCoverage) {
@@ -264,7 +264,7 @@ export class OrderService {
                     branch.location.lat,
                     branch.location.lng
                 );
-                return distance <= Number(branch.coverage_radius_km);
+                return distance <= branch.coverage_radius_km;
             });
 
             if (!isWithinCoverage) {

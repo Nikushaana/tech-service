@@ -4,6 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Branch } from './entities/branches.entity';
 import { UpdateBranchDto } from './dto/update-branch.dto';
+import { instanceToPlain } from 'class-transformer';
 
 @Injectable()
 export class BranchesService {
@@ -27,6 +28,12 @@ export class BranchesService {
 
     async getBranches() {
         return this.branchRepo.find();
+    }
+
+    async getFrontBranches() {
+        const branches = await this.branchRepo.find();
+
+        return instanceToPlain(branches);
     }
 
     async getOneBranch(id: number) {

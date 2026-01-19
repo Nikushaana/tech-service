@@ -49,14 +49,14 @@ export class Order {
   @Column({ type: 'text', nullable: true })
   payment_reason?: string;
 
+  @Column({ type: 'enum', enum: OrderStatus, default: OrderStatus.PENDING })
+  status: OrderStatus;
+
   @CreateDateColumn()
   created_at: Date;
 
   @UpdateDateColumn()
   updated_at: Date;
-
-  @Column({ type: 'enum', enum: OrderStatus, default: OrderStatus.PENDING })
-  status: OrderStatus;
 
   @ManyToOne(() => Category, (category) => category.orders, { eager: true })
   category: Category;

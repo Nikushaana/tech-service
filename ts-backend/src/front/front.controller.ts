@@ -37,7 +37,7 @@ export class FrontController {
     }
 
     @Get('branches')
-    async getBranches() {
-        return this.branchesService.getBranches();
+    async getFrontBranches() {
+        return this.branchesService.getFrontBranches();
     }
 }
