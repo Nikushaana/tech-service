@@ -1,5 +1,5 @@
 import { Type } from 'class-transformer';
-import { IsNotEmpty, IsNumber, IsString, ValidateNested } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsString, Min, ValidateNested } from 'class-validator';
 
 class LocationDto {
     @IsNumber()
@@ -23,7 +23,7 @@ export class CreateBranchDto {
     @IsString()
     @IsNotEmpty()
     street: string;
-    
+
     @IsString()
     @IsNotEmpty()
     building_number: string;
@@ -33,13 +33,13 @@ export class CreateBranchDto {
     description: string;
 
     @IsNumber()
-    @IsNotEmpty()
+    @Min(0.01)
     coverage_radius_km: number;
 
     @IsNumber()
     @IsNotEmpty()
     delivery_visit_price: number;
-    
+
     @IsNumber()
     @IsNotEmpty()
     technician_visit_price: number;

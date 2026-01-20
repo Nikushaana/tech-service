@@ -1,5 +1,5 @@
 import { Type } from 'class-transformer';
-import { IsOptional, IsString, IsNumber, IsNotEmpty, ValidateNested } from 'class-validator';
+import { IsOptional, IsString, IsNumber, IsNotEmpty, ValidateNested, Min } from 'class-validator';
 
 class LocationDto {
     @IsNumber()
@@ -39,7 +39,7 @@ export class UpdateBranchDto {
 
     @IsNumber()
     @IsOptional()
-    @IsNotEmpty()
+    @Min(0.01)
     coverage_radius_km: number;
 
     @IsNumber()
