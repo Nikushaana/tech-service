@@ -103,6 +103,7 @@ export class AddressService {
     async getOneAddress(id: number) {
         const address = await this.addressRepo.findOne({
             where: { id },
+            relations: ['branch'],
         });
         if (!address) throw new NotFoundException('Address not found');
 
