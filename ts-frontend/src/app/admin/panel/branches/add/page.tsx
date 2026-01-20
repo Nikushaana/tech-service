@@ -11,6 +11,7 @@ import Map from "@/app/components/map/map";
 import { Loader2Icon } from "lucide-react";
 import { fetchCities, fetchStreets } from "@/app/lib/api/locations";
 import { axiosAdmin } from "@/app/lib/api/axios";
+import { formatNumber } from "@/app/utils/formatNumber";
 
 export default function Page() {
   const queryClient = useQueryClient();
@@ -21,8 +22,9 @@ export default function Page() {
     street: "",
     building_number: "",
     description: "",
-    coverage_radius_km: "",
-    delivery_price: "",
+    coverage_radius_km: 0,
+    delivery_visit_price: 0,
+    technician_visit_price: 0,
     location: null as LatLng | null,
   });
   const [errors, setErrors] = useState({
@@ -32,7 +34,8 @@ export default function Page() {
     building_number: "",
     description: "",
     coverage_radius_km: "",
-    delivery_price: "",
+    delivery_visit_price: "",
+    technician_visit_price: "",
     location: "",
   });
 
@@ -71,13 +74,21 @@ export default function Page() {
       return;
     }
 
-    setValues((prev) => ({ ...prev, [id]: value }));
+    setValues((prev) => ({
+      ...prev,
+      [id]:
+        id == "coverage_radius_km" ||
+        id == "delivery_visit_price" ||
+        id == "technician_visit_price"
+          ? formatNumber(parseFloat(value))
+          : value,
+    }));
   };
 
   // Generic handler for dropdown (city / street)
   const handleDropdownChange = (
     key: "searchCity" | "searchStreet",
-    value: string
+    value: string,
   ) => {
     setHelperValues((prev) => ({
       ...prev,
@@ -105,7 +116,7 @@ export default function Page() {
   // Generic handler for selecting dropdown item
   const handleDropdownSelect = (
     key: "searchCity" | "searchStreet",
-    item: any
+    item: any,
   ) => {
     setValues((prev) => ({
       ...prev,
@@ -128,8 +139,15 @@ export default function Page() {
     street: Yup.string().required("ქუჩა აუცილებელია"),
     building_number: Yup.string().required("შენობის ნომერი აუცილებელია"),
     description: Yup.string().required("აღწერა აუცილებელია"),
-    coverage_radius_km: Yup.string().required("დაფარვის რადიუსი აუცილებელია"),
-    delivery_price: Yup.string().required("კურიერის გადასახადი აუცილებელია"),
+    coverage_radius_km: Yup.number()
+      .moreThan(0, "დაფარვის რადიუსი უნდა იყოს 0-ზე მეტი")
+      .required("დაფარვის რადიუსი აუცილებელია"),
+    delivery_visit_price: Yup.number().required(
+      "კურიერის ვიზიტის ფასი აუცილებელია",
+    ),
+    technician_visit_price: Yup.number().required(
+      "ტექნიკოსის ვიზიტის ფასი აუცილებელია",
+    ),
     location: Yup.object()
       .shape({
         lat: Yup.number().required(),
@@ -146,8 +164,9 @@ export default function Page() {
       street: string;
       building_number: string;
       description: string;
-      coverage_radius_km: string;
-      delivery_price: string;
+      coverage_radius_km: number;
+      delivery_visit_price: number;
+      technician_visit_price: number;
       location: LatLng | null;
     }) => axiosAdmin.post("admin/create-branch", payload),
 
@@ -163,8 +182,9 @@ export default function Page() {
         street: "",
         building_number: "",
         description: "",
-        coverage_radius_km: "",
-        delivery_price: "",
+        coverage_radius_km: 0,
+        delivery_visit_price: 0,
+        technician_visit_price: 0,
         location: null,
       });
       setErrors({
@@ -174,7 +194,8 @@ export default function Page() {
         building_number: "",
         description: "",
         coverage_radius_km: "",
-        delivery_price: "",
+        delivery_visit_price: "",
+        technician_visit_price: "",
         location: "",
       });
       setHelperValues((prev) => ({
@@ -253,20 +274,28 @@ export default function Page() {
         isLoading={streetLoading}
         error={errors.street}
       />
-      <div className="col-span-1 sm:col-span-2 h-[200px] bg-myLightBlue rounded-[8px] overflow-hidden">
-        <Map
-          uiControl={true}
-          id="location"
-          markerCoordinates={values.location || undefined}
-          centerCoordinates={
-            helperValues.streetLocation ||
-            helperValues.cityLocation ||
-            undefined
-          }
+      <div className="col-span-1 sm:col-span-2 flex flex-col gap-[10px]">
+        <div className="h-[200px] bg-myLightBlue rounded-[8px] overflow-hidden">
+          <Map
+            uiControl={true}
+            id="location"
+            markerCoordinates={values.location || undefined}
+            centerCoordinates={
+              helperValues.streetLocation ||
+              helperValues.cityLocation ||
+              undefined
+            }
+            onChange={handleChange}
+          />
+        </div>
+        <PanelFormInput
+          id="description"
+          value={values.description || ""}
           onChange={handleChange}
+          label="აღწერა"
+          error={errors.description}
         />
       </div>
-
       <PanelFormInput
         id="building_number"
         value={values.building_number || ""}
@@ -275,25 +304,28 @@ export default function Page() {
         error={errors.building_number}
       />
       <PanelFormInput
-        id="description"
-        value={values.description || ""}
-        onChange={handleChange}
-        label="აღწერა"
-        error={errors.description}
-      />
-      <PanelFormInput
         id="coverage_radius_km"
-        value={values.coverage_radius_km || ""}
+        value={values.coverage_radius_km}
         onChange={handleChange}
         label="დაფარვის რადიუსი (კმ)"
+        type="tel"
         error={errors.coverage_radius_km}
       />
       <PanelFormInput
-        id="delivery_price"
-        value={values.delivery_price || ""}
+        id="delivery_visit_price"
+        value={values.delivery_visit_price}
         onChange={handleChange}
-        label="კურიერის გადასახადი (კმ)"
-        error={errors.delivery_price}
+        label="კურიერის ვიზიტის ფასი"
+        type="tel"
+        error={errors.delivery_visit_price}
+      />
+      <PanelFormInput
+        id="technician_visit_price"
+        value={values.technician_visit_price}
+        onChange={handleChange}
+        label="ტექნიკოსის ვიზიტის ფასი"
+        type="tel"
+        error={errors.technician_visit_price}
       />
       <div className="col-span-1 sm:col-span-2">
         <Button

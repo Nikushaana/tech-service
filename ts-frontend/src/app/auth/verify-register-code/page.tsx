@@ -90,7 +90,7 @@ export default function VerifyRegisterCode() {
         value={values.code || ""}
         onChange={(e) => setValues("code", e.target.value)}
         label="კოდი"
-         type="tel"
+        type="tel"
         error={errors.code}
       />
 
@@ -109,11 +109,9 @@ export default function VerifyRegisterCode() {
         href={"/auth/login"}
         className="absolute bottom-[-95px] self-center mt-3 z-10"
       >
-      <p
-        className="text-center cursor-pointer border-b-[1px] border-transparent hover:border-gray-700 text-sm text-stroke"
-      >
-        გაქვს ანგარიში? - გაიარე ავტორიზაცია
-      </p>
+        <p className="text-center cursor-pointer border-b-[1px] border-transparent hover:border-gray-700 text-sm text-stroke">
+          გაქვს ანგარიში? - გაიარე ავტორიზაცია
+        </p>
       </Link>
     </div>
   );

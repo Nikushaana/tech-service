@@ -5,7 +5,7 @@ import React from "react";
 
 interface FormInputProps {
   id: string;
-  value: string;
+  value: string | number;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   label: string;
   type?: string;

@@ -47,8 +47,9 @@ interface Branch {
   street: string;
   building_number: string;
   description: string;
-  coverage_radius_km: string;
-  delivery_price: string;
+  coverage_radius_km: number;
+  delivery_visit_price: number;
+  technician_visit_price: number;
   location: LatLng;
   created_at: string;
   updated_at: string;
