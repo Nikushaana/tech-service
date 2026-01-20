@@ -80,7 +80,6 @@ export class AddressService {
 
         const addresses = await this.addressRepo.find({
             where: { [relationKey]: { id: userId } },
-            relations: ['branch'],
             order: { created_at: 'DESC' },
         });
 
