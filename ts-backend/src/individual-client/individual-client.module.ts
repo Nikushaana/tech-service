@@ -11,11 +11,12 @@ import { ReviewsModule } from 'src/reviews/reviews.module';
 import { AddressModule } from 'src/address/address.module';
 import { OrderModule } from 'src/order/order.module';
 import { CloudinaryModule } from 'src/common/cloudinary/cloudinary.module';
+import { PricingModule } from 'src/pricing/pricing.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([IndividualClient]),
-    BaseUserModule, VerificationCodeModule, TokensModule, NotificationsModule, ReviewsModule, AddressModule, OrderModule, CloudinaryModule
+    BaseUserModule, VerificationCodeModule, TokensModule, NotificationsModule, ReviewsModule, AddressModule, OrderModule, CloudinaryModule, PricingModule
   ],
   controllers: [IndividualClientController],
   providers: [IndividualClientService],

@@ -15,13 +15,17 @@ import { MultipleFilesUpload } from 'src/common/interceptors/MultipleFilesUpload
 import { CreateReviewDto } from 'src/reviews/dto/create-review.dto';
 import { NotificationsService } from 'src/notifications/notifications.service';
 import { RepairDecisionDto } from 'src/order/dto/repair-decision.dto';
+import { CalculatePriceDto } from 'src/pricing/dto/calculate-price.dto';
+import { PricingService } from 'src/pricing/pricing.service';
 
 @Controller('company')
 export class CompanyClientController {
     constructor(
         private readonly companyClientService: CompanyClientService,
-        
-        private readonly notificationsService: NotificationsService
+
+        private readonly notificationsService: NotificationsService,
+
+        private readonly pricingService: PricingService,
     ) { }
 
     // company
@@ -108,6 +112,14 @@ export class CompanyClientController {
         return this.companyClientService.updateOneOrder(req.user.id, id, updateUserOrderDto, images, videos);
     }
 
+    // pricing
+    @UseGuards(TokenValidationGuard, RolesGuard)
+    @Roles('company')
+    @Post('calculate-price')
+    async calculatePrice(@Body() calculatePriceDto: CalculatePriceDto) {
+        return this.pricingService.calculatePrice(calculatePriceDto);
+    }
+
     // order flow
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('company')
@@ -115,28 +127,28 @@ export class CompanyClientController {
     async toTechnician(@Req() req: RequestInfo, @Param('id', ParseIntPipe) id: number) {
         return this.companyClientService.toTechnician(req.user.id, id);
     }
-    
+
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('company')
     @Patch('orders/:id/decision')
     async decideRepair(@Req() req: RequestInfo, @Param('id', ParseIntPipe) id: number, @Body() repairDecisionDto: RepairDecisionDto) {
         return this.companyClientService.decideRepair(req.user.id, id, repairDecisionDto);
     }
-    
+
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('company')
     @Patch('orders/:id/cancelled')
     async cancelled(@Req() req: RequestInfo, @Param('id', ParseIntPipe) id: number) {
         return this.companyClientService.cancelled(req.user.id, id);
     }
-    
+
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('company')
     @Patch('orders/:id/completed')
     async completed(@Req() req: RequestInfo, @Param('id', ParseIntPipe) id: number) {
         return this.companyClientService.completed(req.user.id, id);
     }
-    
+
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('company')
     @Patch('orders/:id/completed-on-site')
