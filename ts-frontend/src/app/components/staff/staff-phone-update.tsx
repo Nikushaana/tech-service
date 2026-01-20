@@ -13,7 +13,7 @@ import { axiosDelivery, axiosTechnician } from "@/app/lib/api/axios";
 
 export default function StaffPhoneUpdate() {
   const { currentUser } = useAuthStore();
-  const { staffType } = useParams<{ staffType: "technician" | "delivery" }>();
+  const { staffType } = useParams<{ staffType: StaffRole }>();
 
   const [values, setValues] = useState({
     phone: "",

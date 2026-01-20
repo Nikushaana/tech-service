@@ -20,7 +20,7 @@ export default function Header() {
 
   const { currentUser } = useAuthStore();
 
-  const role = currentUser?.role as ClientRole | undefined;
+  const role = currentUser?.role as ClientRole;
 
   const { data: unreadNotifications } = useQuery({
     queryKey: ["userUnreadNotifications", role],

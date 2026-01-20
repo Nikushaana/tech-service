@@ -17,14 +17,14 @@ import dayjs from "dayjs";
 import { useParams } from "next/navigation";
 import { axiosDelivery, axiosTechnician } from "@/app/lib/api/axios";
 
-const fetchStaffNotifications = async (staffType: string) => {
+const fetchStaffNotifications = async (staffType: StaffRole) => {
   const api = staffType === "technician" ? axiosTechnician : axiosDelivery;
   const { data } = await api.get(`${staffType}/notifications`);
   return data;
 };
 
 export default function Page() {
-  const { staffType } = useParams<{ staffType: "technician" | "delivery" }>();
+  const { staffType } = useParams<{ staffType: StaffRole }>();
 
   const queryClient = useQueryClient();
 

@@ -21,7 +21,7 @@ import { useQuery } from "@tanstack/react-query";
 import { statusLabels, typeLabels } from "@/app/utils/order-type-status-translations";
 import { axiosCompany, axiosIndividual } from "@/app/lib/api/axios";
 
-const fetchUserOrders = async (userType: string) => {
+const fetchUserOrders = async (userType: ClientRole) => {
   const api = userType === "company" ? axiosCompany : axiosIndividual;
   const { data } = await api.get(`${userType}/orders`);
   return data;
@@ -29,7 +29,7 @@ const fetchUserOrders = async (userType: string) => {
 
 export default function Page() {
   const { userType } = useParams<{
-    userType: "company" | "individual";
+    userType: ClientRole;
   }>();
 
   const { data: orders = [], isLoading } = useQuery({
@@ -39,7 +39,7 @@ export default function Page() {
   });
 
   const { currentUser } = useAuthStore();
-  const { toggleOpenCreateOrderModal } = useOrdersStore();
+  const { toggleOpenCreateOrderModal, modalType } = useOrdersStore();
 
   if (isLoading)
     return (

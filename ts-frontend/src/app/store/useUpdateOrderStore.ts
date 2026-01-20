@@ -18,7 +18,7 @@ export const useUpdateOrderStore = create<UpdateOrderStoreState>((set, get) => (
     toggleOpenUpdateOrderModal: (type?: UpdateOrderType, orderData?: any) =>
         set((state) => ({
             openUpdateOrderModal: type ? true : false,
-            modalType: type ?? state.modalType,
+            modalType: type ?? null,
             currentOrder: orderData,
         })),
 }));

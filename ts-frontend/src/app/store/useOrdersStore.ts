@@ -1,21 +1,19 @@
 import { create } from "zustand";
 
-type OrderType = "company" | "individual";
-
 interface OrdersStoreState {
     openCreateOrderModal: boolean;
-    modalType: OrderType | null; // store the type here
+    modalType: ClientRole | null;
 
-    toggleOpenCreateOrderModal: (type?: OrderType) => void;
+    toggleOpenCreateOrderModal: (type?: ClientRole) => void;
 }
 
-export const useOrdersStore = create<OrdersStoreState>((set, get) => ({
+export const useOrdersStore = create<OrdersStoreState>((set) => ({
     openCreateOrderModal: false,
     modalType: null,
 
-    toggleOpenCreateOrderModal: (type?: OrderType) =>
+    toggleOpenCreateOrderModal: (type?: ClientRole) =>
         set((state) => ({
             openCreateOrderModal: type ? true : false,
-            modalType: type ?? state.modalType,
+            modalType: type ?? null,
         })),
 }));

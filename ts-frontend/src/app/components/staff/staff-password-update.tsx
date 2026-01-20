@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { axiosDelivery, axiosTechnician } from "@/app/lib/api/axios";
 
 export default function StaffPasswordUpdate() {
-  const { staffType } = useParams<{ staffType: "technician" | "delivery" }>();
+  const { staffType } = useParams<{ staffType: StaffRole }>();
 
   const [values, setValues] = useState({
     oldPassword: "",

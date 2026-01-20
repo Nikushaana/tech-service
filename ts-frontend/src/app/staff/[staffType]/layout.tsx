@@ -15,9 +15,7 @@ type SidebarLinksWithTitle = {
   links: { name: string; href: string }[];
 };
 
-type Role = "technician" | "delivery";
-
-const sidebarLinks: Record<Role, SidebarLinksWithTitle> = {
+const sidebarLinks: Record<StaffRole, SidebarLinksWithTitle> = {
   technician: {
     title: "ტექნიკოსის გვერდი",
     links: [
@@ -50,7 +48,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const { currentUser, authLoading, toggleLogOut } = useAuthStore();
   const { openSideBar, toggleSideBar, closeSideBar } = useBurgerMenuStore();
 
-  const role = currentUser?.role as Role | undefined;
+  const role = currentUser?.role as StaffRole;
 
   const sidebar =
     role && sidebarLinks[role]

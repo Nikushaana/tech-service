@@ -16,6 +16,6 @@ export const useReviewsStore = create<ReviewsStoreState>((set, get) => ({
     toggleOpenCreateReviewModal: (type?: ReviewType) =>
         set((state) => ({
             openCreateReviewModal: type ? true : false,
-            modalType: type ?? state.modalType,
+            modalType: type ?? null,
         })),
 }));

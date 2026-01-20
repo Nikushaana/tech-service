@@ -109,3 +109,5 @@ interface LatLng {
 }
 
 type ClientRole = "individual" | "company";
+type StaffRole = "technician" | "delivery";
+type OrderType = "fix_off_site" | "fix_on_site" | "installation";

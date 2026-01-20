@@ -17,9 +17,10 @@ import { useOrderTypeStatusOptionsStore } from "@/app/store/orderTypeStatusOptio
 import { fetchFrontCategories } from "@/app/lib/api/frontCategories";
 import { fetchUserAddresses } from "@/app/lib/api/userAddresses";
 import { axiosCompany, axiosIndividual } from "@/app/lib/api/axios";
+import { fetchUserCalculatePrice } from "@/app/lib/api/userCalculatePrice";
 
 interface CreateOrderValues {
-  serviceType: string;
+  serviceType: OrderType | "";
   categoryId: string;
   addressId: string;
   brand: string;
@@ -80,14 +81,31 @@ export default function CreateOrder() {
     }));
   };
 
+  // calculate price
+  const { data: price, isLoading: isLoadingPrice } = useQuery({
+    queryKey: [
+      "userCalculatedPrice",
+      modalType,
+      values.serviceType,
+      values.addressId,
+    ],
+    queryFn: () =>
+      fetchUserCalculatePrice(modalType, {
+        addressId: +values.addressId,
+        service_type: values.serviceType as OrderType,
+      }),
+    enabled: openCreateOrderModal && !!values.serviceType && !!values.addressId,
+    staleTime: 1000 * 60 * 10,
+  });
+
   const orderSchema = Yup.object().shape({
     serviceType: Yup.string()
-    .transform((value) => (value === "" ? undefined : value))
-    .required("სერვისის ტიპი აუცილებელია")
-    .oneOf(
-      typeOptions.map((o) => o.id),
-      "არასწორი სერვისის ტიპი"
-    ),
+      .transform((value) => (value === "" ? undefined : value))
+      .required("სერვისის ტიპი აუცილებელია")
+      .oneOf(
+        typeOptions.map((o) => o.id),
+        "არასწორი სერვისის ტიპი",
+      ),
     categoryId: Yup.string().required("კატეგორია აუცილებელია"),
     brand: Yup.string().required("ბრენდი აუცილებელია"),
     model: Yup.string().required("მოდელი აუცილებელია"),
@@ -106,7 +124,7 @@ export default function CreateOrder() {
     mutationFn: (payload: FormData) =>
       (modalType === "company" ? axiosCompany : axiosIndividual).post(
         `${modalType}/create-order`,
-        payload
+        payload,
       ),
 
     onSuccess: () => {
@@ -157,7 +175,7 @@ export default function CreateOrder() {
       ) {
         toast.error(
           "თქვენ ვერ დაამატებთ შეკვეთას, რადგან თქვენი პროფილი გასააქტიურებელია",
-          { position: "bottom-right", autoClose: 3000 }
+          { position: "bottom-right", autoClose: 3000 },
         );
       } else {
         toast.error("შეკვეთა ვერ დაემატა", {
@@ -218,7 +236,30 @@ export default function CreateOrder() {
         className={`absolute inset-0 bg-black transition-opacity ${
           openCreateOrderModal ? "opacity-50" : "opacity-0"
         }`}
-        onClick={() => toggleOpenCreateOrderModal()} // closes when clicking outside
+        onClick={() => {
+          toggleOpenCreateOrderModal();
+          setErrors((prev) => ({
+            ...prev,
+            serviceType: "",
+            categoryId: "",
+            brand: "",
+            model: "",
+            description: "",
+            addressId: "",
+          }));
+
+          setValues((prev) => ({
+            ...prev,
+            serviceType: "",
+            categoryId: "",
+            brand: "",
+            model: "",
+            description: "",
+            addressId: "",
+            newImages: [],
+            newVideos: [],
+          }));
+        }} // closes when clicking outside
       ></div>
 
       <div
@@ -379,13 +420,13 @@ export default function CreateOrder() {
           </Button>
           <Button
             onClick={handleCreateOrder}
-            disabled={addOrderMutation.isPending}
+            disabled={addOrderMutation.isPending || !price}
             className="h-[45px] px-6 text-white cursor-pointer"
           >
-            {addOrderMutation.isPending && (
+            {(addOrderMutation.isPending || isLoadingPrice) && (
               <Loader2Icon className="animate-spin" />
             )}
-            დამატება
+            დამატება {price?.price && `(${price.price}₾)`}
           </Button>
         </div>
       </div>

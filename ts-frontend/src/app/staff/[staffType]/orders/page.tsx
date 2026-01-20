@@ -18,14 +18,14 @@ import { useQuery } from "@tanstack/react-query";
 import { statusLabels, typeLabels } from "@/app/utils/order-type-status-translations";
 import { axiosDelivery, axiosTechnician } from "@/app/lib/api/axios";
 
-const fetchStaffOrders = async (staffType: string) => {
+const fetchStaffOrders = async (staffType: StaffRole) => {
   const api = staffType === "technician" ? axiosTechnician : axiosDelivery;
   const { data } = await api.get(`${staffType}/orders`);
   return data;
 };
 
 export default function Page() {
-  const { staffType } = useParams<{ staffType: "technician" | "delivery" }>();
+  const { staffType } = useParams<{ staffType: StaffRole }>();
 
   const { data: orders = [], isLoading } = useQuery({
     queryKey: ["staffOrders"],

@@ -42,7 +42,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const { currentUser, authLoading, toggleLogOut } = useAuthStore();
   const { openSideBar, toggleSideBar, closeSideBar } = useBurgerMenuStore();
 
-  const role = currentUser?.role as ClientRole | undefined;
+  const role = currentUser?.role as ClientRole;
 
   const sidebar =
     role && sidebarLinks[role]

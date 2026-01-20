@@ -9,7 +9,7 @@ import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { axiosCompany, axiosIndividual } from "@/app/lib/api/axios";
 
-const fetchUserReviews = async (userType: string) => {
+const fetchUserReviews = async (userType: ClientRole) => {
   const api = userType === "company" ? axiosCompany : axiosIndividual;
   const { data } = await api.get(`${userType}/reviews`);
   return data;
@@ -17,7 +17,7 @@ const fetchUserReviews = async (userType: string) => {
 
 export default function Page() {
   const { userType } = useParams<{
-    userType: "company" | "individual";
+    userType: ClientRole;
   }>();
 
   const { toggleOpenCreateReviewModal } = useReviewsStore();

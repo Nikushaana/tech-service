@@ -14,7 +14,7 @@ import {
 import { OrderFlowActions } from "@/app/components/order-flow-actions/order-flow-actions";
 import { axiosDelivery, axiosTechnician } from "@/app/lib/api/axios";
 
-const fetchStaffOrder = async (staffType: string, orderId: string) => {
+const fetchStaffOrder = async (staffType: StaffRole, orderId: string) => {
   const api = staffType === "technician" ? axiosTechnician : axiosDelivery;
   const { data } = await api.get(`${staffType}/orders/${orderId}`);
   return data;
@@ -22,7 +22,7 @@ const fetchStaffOrder = async (staffType: string, orderId: string) => {
 
 export default function Page() {
   const { staffType, orderId } = useParams<{
-    staffType: "technician" | "delivery";
+    staffType: StaffRole;
     orderId: string;
   }>();
 

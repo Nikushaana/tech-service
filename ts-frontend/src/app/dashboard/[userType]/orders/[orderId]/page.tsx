@@ -14,7 +14,7 @@ import {
 import { OrderFlowActions } from "@/app/components/order-flow-actions/order-flow-actions";
 import { axiosCompany, axiosIndividual } from "@/app/lib/api/axios";
 
-const fetchUserOrder = async (userType: string, orderId: string) => {
+const fetchUserOrder = async (userType: ClientRole, orderId: string) => {
   const api = userType === "company" ? axiosCompany : axiosIndividual;
   const { data } = await api.get(`${userType}/orders/${orderId}`);
   return data;
@@ -22,7 +22,7 @@ const fetchUserOrder = async (userType: string, orderId: string) => {
 
 export default function Page() {
   const { userType, orderId } = useParams<{
-    userType: "company" | "individual";
+    userType: ClientRole;
     orderId: string;
   }>();
 

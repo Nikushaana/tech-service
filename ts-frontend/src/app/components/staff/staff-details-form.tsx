@@ -22,7 +22,7 @@ interface StaffValues {
 export default function StaffDetailsForm() {
   const router = useRouter();
   const pathname = usePathname();
-  const { staffType } = useParams<{ staffType: "technician" | "delivery" }>();
+  const { staffType } = useParams<{ staffType: StaffRole }>();
   const { currentUser } = useAuthStore();
   const rehydrate = useAuthStore((state) => state.rehydrate);
 

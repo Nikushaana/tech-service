@@ -16,6 +16,6 @@ export const useAddressesStore = create<AddressesStoreState>((set) => ({
     toggleOpenCreateAddressModal: (type?: AddressType) =>
         set((state) => ({
             openCreateAddressModal: type ? true : false,
-            modalType: type ?? state.modalType,
+            modalType: type ?? null,
         })),
 }));
