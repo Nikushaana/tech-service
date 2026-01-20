@@ -87,13 +87,22 @@ export class AddressService {
         return instanceToPlain(addresses);
     }
 
-    async getOneAddress(userId: number, id: number, repo: any) {
+    async getUserOneAddress(userId: number, id: number, repo: any) {
         const user = await this.baseUserService.getUser(userId, repo);
 
         const relationKey = "companyName" in user ? "company" : "individual";
 
         const address = await this.addressRepo.findOne({
             where: { [relationKey]: { id: userId }, id },
+        });
+        if (!address) throw new NotFoundException('Address not found');
+
+        return address
+    }
+
+    async getOneAddress(id: number) {
+        const address = await this.addressRepo.findOne({
+            where: { id },
         });
         if (!address) throw new NotFoundException('Address not found');
 

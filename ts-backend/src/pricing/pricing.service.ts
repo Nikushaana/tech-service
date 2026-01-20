@@ -1,16 +1,18 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { CalculatePriceDto } from './dto/calculate-price.dto';
-import { BranchesService } from 'src/branches/branches.service';
 import { OrderType } from 'src/common/types/order-type.enum';
+import { AddressService } from 'src/address/address.service';
 
 @Injectable()
 export class PricingService {
     constructor(
-        private readonly branchesService: BranchesService,
+        private readonly addressService: AddressService,
     ) { }
 
     async calculatePrice(calculatePriceDto: CalculatePriceDto) {
-        const branch = await this.branchesService.getOneBranch(calculatePriceDto.branchId);
+        const address = await this.addressService.getOneAddress(calculatePriceDto.addressId);
+
+        const branch = address.branch
 
         let price: number;
 

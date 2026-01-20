@@ -122,8 +122,8 @@ export class CompanyClientService {
         return this.addressService.getAddresses(companyId, this.companyClientRepo);
     }
 
-    async getOneAddress(companyId: number, id: number) {
-        return this.addressService.getOneAddress(companyId, id, this.companyClientRepo);
+    async getUserOneAddress(companyId: number, id: number) {
+        return this.addressService.getUserOneAddress(companyId, id, this.companyClientRepo);
     }
 
     async deleteOneAddress(companyId: number, id: number) {

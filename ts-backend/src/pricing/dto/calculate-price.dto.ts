@@ -6,7 +6,7 @@ export class CalculatePriceDto {
     @IsNumber()
     @Transform(({ value }) => Number(value))
     @IsNotEmpty()
-    branchId: number;
+    addressId: number;
 
     @IsEnum(OrderType)
     service_type: OrderType;

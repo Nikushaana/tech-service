@@ -174,8 +174,8 @@ export class IndividualClientController {
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('individual')
     @Get('addresses/:id')
-    async getOneAddress(@Req() req: RequestInfo, @Param('id', ParseIntPipe) id: number) {
-        return this.individualClientService.getOneAddress(req.user.id, id);
+    async getUserOneAddress(@Req() req: RequestInfo, @Param('id', ParseIntPipe) id: number) {
+        return this.individualClientService.getUserOneAddress(req.user.id, id);
     }
 
     @UseGuards(TokenValidationGuard, RolesGuard)

@@ -122,8 +122,8 @@ export class IndividualClientService {
         return this.addressService.getAddresses(individualId, this.individualClientRepo);
     }
 
-    async getOneAddress(individualId: number, id: number) {
-        return this.addressService.getOneAddress(individualId, id, this.individualClientRepo);
+    async getUserOneAddress(individualId: number, id: number) {
+        return this.addressService.getUserOneAddress(individualId, id, this.individualClientRepo);
     }
 
     async deleteOneAddress(individualId: number, id: number) {
