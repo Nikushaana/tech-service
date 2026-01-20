@@ -18,6 +18,7 @@ import { AddressModule } from './address/address.module';
 import { OrderModule } from './order/order.module';
 import { CategoryModule } from './category/category.module';
 import { FaqModule } from './faq/faq.module';
+import { PricingModule } from './pricing/pricing.module';
 
 @Module({
   imports: [
@@ -85,6 +86,8 @@ import { FaqModule } from './faq/faq.module';
     CategoryModule,
 
     FaqModule,
+
+    PricingModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -40,11 +40,15 @@ export class Branch {
 
     @Exclude()
     @Column()
-    delivery_visit_price: number;
-    
+    fix_off_site_price: number;
+
     @Exclude()
     @Column()
-    technician_visit_price: number;
+    installation_price: number;
+
+    @Exclude()
+    @Column()
+    fix_on_site_price: number;
 
     @CreateDateColumn()
     created_at: Date;

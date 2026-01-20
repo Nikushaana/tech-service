@@ -45,12 +45,17 @@ export class UpdateBranchDto {
     @IsNumber()
     @IsOptional()
     @IsNotEmpty()
-    delivery_visit_price: number;
+    fix_off_site_price: number;
 
     @IsNumber()
     @IsOptional()
     @IsNotEmpty()
-    technician_visit_price: number;
+    installation_price: number;
+    
+    @IsNumber()
+    @IsOptional()
+    @IsNotEmpty()
+    fix_on_site_price: number;
 
     @ValidateNested()
     @Type(() => LocationDto)
