@@ -21,8 +21,9 @@ interface BranchValues {
   building_number: string;
   description: string;
   coverage_radius_km: number;
-  delivery_visit_price: number;
-  technician_visit_price: number;
+  fix_off_site_price: number;
+  installation_price: number;
+  fix_on_site_price: number;
   location: LatLng | null;
 }
 
@@ -63,8 +64,9 @@ export default function Page() {
     building_number: "",
     description: "",
     coverage_radius_km: 0,
-    delivery_visit_price: 0,
-    technician_visit_price: 0,
+    fix_off_site_price: 0,
+    installation_price: 0,
+    fix_on_site_price: 0,
     location: null as LatLng | null,
   });
 
@@ -75,8 +77,9 @@ export default function Page() {
     building_number: "",
     description: "",
     coverage_radius_km: "",
-    delivery_visit_price: "",
-    technician_visit_price: "",
+    fix_off_site_price: "",
+    installation_price: "",
+    fix_on_site_price: "",
     location: "",
   });
 
@@ -99,8 +102,9 @@ export default function Page() {
         building_number: branch.building_number,
         description: branch.description,
         coverage_radius_km: branch.coverage_radius_km,
-        delivery_visit_price: branch.delivery_visit_price,
-        technician_visit_price: branch.technician_visit_price,
+        fix_off_site_price: branch.fix_off_site_price,
+        installation_price: branch.installation_price,
+        fix_on_site_price: branch.fix_on_site_price,
         location: branch.location,
       }));
       setHelperValues((prev) => ({
@@ -142,8 +146,9 @@ export default function Page() {
       ...prev,
       [id]:
         id == "coverage_radius_km" ||
-        id == "delivery_visit_price" ||
-        id == "technician_visit_price"
+        id == "fix_off_site_price" ||
+        id == "installation_price" ||
+        id == "fix_on_site_price"
           ? formatNumber(parseFloat(value))
           : value,
     }));
@@ -206,11 +211,14 @@ export default function Page() {
     coverage_radius_km: Yup.number()
       .moreThan(0, "დაფარვის რადიუსი უნდა იყოს 0-ზე მეტი")
       .required("დაფარვის რადიუსი აუცილებელია"),
-    delivery_visit_price: Yup.number().required(
-      "კურიერის ვიზიტის ფასი აუცილებელია",
+    fix_off_site_price: Yup.number().required(
+      "სერვისცენტრში შეკეთების გამოძახების ფასი აუცილებელია",
     ),
-    technician_visit_price: Yup.number().required(
-      "ტექნიკოსის ვიზიტის ფასი აუცილებელია",
+    installation_price: Yup.number().required(
+      "მონტაჟის გამოძახების ფასი აუცილებელია",
+    ),
+    fix_on_site_price: Yup.number().required(
+      "ადგილზე შეკეთების გამოძახების ფასი აუცილებელია",
     ),
     location: Yup.object()
       .shape({
@@ -246,8 +254,9 @@ export default function Page() {
         building_number: "",
         description: "",
         coverage_radius_km: "",
-        delivery_visit_price: "",
-        technician_visit_price: "",
+        fix_off_site_price: "",
+        installation_price: "",
+        fix_on_site_price: "",
         location: "",
       });
     },
@@ -321,26 +330,17 @@ export default function Page() {
           isLoading={streetLoading}
           error={errors.street}
         />
-        <div className="col-span-1 sm:col-span-2 flex flex-col gap-[10px]">
-          <div className="h-[200px] bg-myLightBlue rounded-[8px] overflow-hidden">
-            <Map
-              uiControl={true}
-              id="location"
-              markerCoordinates={values.location || undefined}
-              centerCoordinates={
-                helperValues.streetLocation ||
-                helperValues.cityLocation ||
-                undefined
-              }
-              onChange={handleChange}
-            />
-          </div>
-          <PanelFormInput
-            id="description"
-            value={values.description || ""}
+        <div className="col-span-1 sm:col-span-2 h-[200px] bg-myLightBlue rounded-[8px] overflow-hidden">
+          <Map
+            uiControl={true}
+            id="location"
+            markerCoordinates={values.location || undefined}
+            centerCoordinates={
+              helperValues.streetLocation ||
+              helperValues.cityLocation ||
+              undefined
+            }
             onChange={handleChange}
-            label="აღწერა"
-            error={errors.description}
           />
         </div>
         <PanelFormInput
@@ -351,6 +351,13 @@ export default function Page() {
           error={errors.building_number}
         />
         <PanelFormInput
+          id="description"
+          value={values.description || ""}
+          onChange={handleChange}
+          label="აღწერა"
+          error={errors.description}
+        />
+        <PanelFormInput
           id="coverage_radius_km"
           value={values.coverage_radius_km}
           onChange={handleChange}
@@ -359,20 +366,28 @@ export default function Page() {
           error={errors.coverage_radius_km}
         />
         <PanelFormInput
-          id="delivery_visit_price"
-          value={values.delivery_visit_price}
+          id="fix_off_site_price"
+          value={values.fix_off_site_price}
           onChange={handleChange}
-          label="კურიერის ვიზიტის ფასი"
+          label="სერვ-ში შეკეთების გამოძახების ფასი"
           type="tel"
-          error={errors.delivery_visit_price}
+          error={errors.fix_off_site_price}
         />
         <PanelFormInput
-          id="technician_visit_price"
-          value={values.technician_visit_price}
+          id="installation_price"
+          value={values.installation_price}
           onChange={handleChange}
-          label="ტექნიკოსის ვიზიტის ფასი"
+          label="მონტაჟის გამოძახების ფასი"
           type="tel"
-          error={errors.technician_visit_price}
+          error={errors.installation_price}
+        />
+        <PanelFormInput
+          id="fix_on_site_price"
+          value={values.fix_on_site_price}
+          onChange={handleChange}
+          label="ადგილზე შეკეთების გამოძახების ფასი"
+          type="tel"
+          error={errors.fix_on_site_price}
         />
         <div className="col-span-1 sm:col-span-2">
           <Button
