@@ -190,7 +190,7 @@ export class OrderService {
             companyId: "companyName" in user ? user.id : undefined,
             orderId: order.id
         });
-
+ 
         const serviceTypeLabel = OrderTypeLabelsGeorgian[order.service_type] || order.service_type;
 
         // // send notification to admin
