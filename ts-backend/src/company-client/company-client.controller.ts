@@ -17,6 +17,7 @@ import { NotificationsService } from 'src/notifications/notifications.service';
 import { RepairDecisionDto } from 'src/order/dto/repair-decision.dto';
 import { CalculatePriceDto } from 'src/pricing/dto/calculate-price.dto';
 import { PricingService } from 'src/pricing/pricing.service';
+import { TransactionsService } from 'src/transactions/transactions.service';
 
 @Controller('company')
 export class CompanyClientController {
@@ -26,6 +27,8 @@ export class CompanyClientController {
         private readonly notificationsService: NotificationsService,
 
         private readonly pricingService: PricingService,
+
+        private readonly transactionsService: TransactionsService,
     ) { }
 
     // company
@@ -220,5 +223,13 @@ export class CompanyClientController {
     @Get('notifications/unread')
     async getUnreadNotificationsCount(@Req() req: RequestInfo) {
         return this.notificationsService.getUnreadNotificationsCount("company", req.user.id);
+    }
+    
+    // transactions
+    @UseGuards(TokenValidationGuard, RolesGuard)
+    @Roles('company')
+    @Get('transactions')
+    async getUserTransactions(@Req() req: RequestInfo) {
+        return this.transactionsService.getUserTransactions("company", req.user.id);
     }
 }

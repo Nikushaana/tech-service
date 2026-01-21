@@ -49,7 +49,7 @@ export class Order {
   @Column({ type: 'text', nullable: true })
   payment_reason?: string;
 
-  @Column({ type: 'enum', enum: OrderStatus, default: OrderStatus.PENDING })
+  @Column({ type: 'enum', enum: OrderStatus, default: OrderStatus.WAITING_PRE_PAYMENT })
   status: OrderStatus;
 
   @CreateDateColumn()

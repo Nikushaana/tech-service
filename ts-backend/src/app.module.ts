@@ -19,6 +19,7 @@ import { OrderModule } from './order/order.module';
 import { CategoryModule } from './category/category.module';
 import { FaqModule } from './faq/faq.module';
 import { PricingModule } from './pricing/pricing.module';
+import { TransactionsModule } from './transactions/transactions.module';
 
 @Module({
   imports: [
@@ -88,6 +89,8 @@ import { PricingModule } from './pricing/pricing.module';
     FaqModule,
 
     PricingModule,
+
+    TransactionsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

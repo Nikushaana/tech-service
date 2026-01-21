@@ -1,7 +1,8 @@
 import { OrderStatus } from "../types/order-status.enum";
 
 export const OrderStatusLabelsGeorgian: Record<OrderStatus, string> = {
-    [OrderStatus.PENDING]: "მიღებულია",
+    [OrderStatus.WAITING_PRE_PAYMENT]: "წინასწარი ანგარიშსწორების მოლოდინში",
+    [OrderStatus.PENDING]: "მუშავდება",
     [OrderStatus.ASSIGNED]: "გადანაწილებულია",
 
     // off site

@@ -27,6 +27,7 @@ import { CompanyClientService } from 'src/company-client/company-client.service'
 import { TechnicianService } from 'src/technician/technician.service';
 import { DeliveryService } from 'src/delivery/delivery.service';
 import { BaseUserService } from 'src/common/services/base-user/base-user.service';
+import { TransactionsService } from 'src/transactions/transactions.service';
 
 @Controller('admin')
 export class AdminController {
@@ -54,6 +55,8 @@ export class AdminController {
         private readonly deliveryService: DeliveryService,
 
         private readonly baseUserService: BaseUserService,
+
+        private readonly transactionsService: TransactionsService,
     ) { }
 
     // admin info
@@ -133,7 +136,7 @@ export class AdminController {
         return this.technicianService.updateAdminOneTechnician(id, updateAdminIndividualTechnicianDeliveryDto, images);
     }
 
-    
+
     // deliveries
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('admin')
@@ -359,5 +362,13 @@ export class AdminController {
     @Get('notifications/unread')
     async getUnreadNotificationsCount() {
         return this.notificationsService.getUnreadNotificationsCount("admin");
+    }
+
+    // transactions
+    @UseGuards(TokenValidationGuard, RolesGuard)
+    @Roles('admin')
+    @Get('transactions')
+    async getTransactions() {
+        return this.transactionsService.getTransactions();
     }
 }

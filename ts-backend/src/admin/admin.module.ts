@@ -17,9 +17,10 @@ import { IndividualClientModule } from 'src/individual-client/individual-client.
 import { CompanyClientModule } from 'src/company-client/company-client.module';
 import { DeliveryModule } from 'src/delivery/delivery.module';
 import { TechnicianModule } from 'src/technician/technician.module';
+import { TransactionsModule } from 'src/transactions/transactions.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Admin]), BaseUserModule, TokensModule, CloudinaryModule, NotificationsModule, ReviewsModule, BranchesModule, AddressModule, OrderModule, FaqModule, CategoryModule, IndividualClientModule, CompanyClientModule, DeliveryModule, TechnicianModule],
+  imports: [TypeOrmModule.forFeature([Admin]), BaseUserModule, TokensModule, CloudinaryModule, NotificationsModule, ReviewsModule, BranchesModule, AddressModule, OrderModule, FaqModule, CategoryModule, IndividualClientModule, CompanyClientModule, DeliveryModule, TechnicianModule, TransactionsModule],
   controllers: [AdminController],
   providers: [AdminService]
 })

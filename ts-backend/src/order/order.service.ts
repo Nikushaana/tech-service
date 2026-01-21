@@ -21,6 +21,10 @@ import { OrderType } from 'src/common/types/order-type.enum';
 import { TechnicianRequestPaymentDto } from './dto/technician-request-payment.dto';
 import { OrderTypeLabelsGeorgian } from 'src/common/labels/order-type-labels';
 import { OrderStatusLabelsGeorgian } from 'src/common/labels/order-status-labels';
+import { PricingService } from 'src/pricing/pricing.service';
+import { TransactionsService } from 'src/transactions/transactions.service';
+import { TransactionType } from 'src/common/types/transaction-type.enum';
+import { PaymentProvider } from 'src/common/types/payment-provider.enum';
 
 @Injectable()
 export class OrderService {
@@ -47,6 +51,10 @@ export class OrderService {
         private readonly notificationService: NotificationsService,
 
         private readonly branchesService: BranchesService,
+
+        private readonly pricingService: PricingService,
+
+        private readonly transactionsService: TransactionsService,
     ) { }
 
     // order status changes
@@ -149,35 +157,56 @@ export class OrderService {
         await this.orderRepo.save(order);
 
         // Upload images to Cloudinary if any
-        const imageUrls = images.length
-            ? await this.cloudinaryService.uploadImages(images, `tech_service_project/images/orders/${order.id}`)
-            : [];
+        if (images.length || videos.length) {
+            const imageUrls = images.length
+                ? await this.cloudinaryService.uploadImages(images, `tech_service_project/images/orders/${order.id}`)
+                : [];
 
-        const videoUrls = videos.length
-            ? await this.cloudinaryService.uploadVideos(videos, `tech_service_project/videos/orders/${order.id}`)
-            : [];
+            const videoUrls = videos.length
+                ? await this.cloudinaryService.uploadVideos(videos, `tech_service_project/videos/orders/${order.id}`)
+                : [];
 
-        order.images = imageUrls;
-        order.videos = videoUrls;
+            order.images = imageUrls;
+            order.videos = videoUrls;
 
-        await this.orderRepo.save(order);
+            await this.orderRepo.save(order);
+        }
+
+        // Calculate price
+        const { price } = await this.pricingService.calculatePrice({
+            addressId: createOrderDto.addressId,
+            service_type: createOrderDto.service_type,
+        });
+
+        // 1. payment
+
+        // Create transaction for this order
+        await this.transactionsService.createTransaction({
+            amount: price,
+            reason: `Payment for creating order №${order.id}`,
+            type: TransactionType.DEBIT,
+            provider: PaymentProvider.BOG,
+            individualId: "companyName" in user ? undefined : user.id,
+            companyId: "companyName" in user ? user.id : undefined,
+            orderId: order.id
+        });
 
         const serviceTypeLabel = OrderTypeLabelsGeorgian[order.service_type] || order.service_type;
 
-        // send notification to admin
-        await this.notificationService.sendNotification(
-            `შეკვეთა №${order.id}: განაცხადი "${serviceTypeLabel}"-ს შესახებ დაემატა "${("companyName" in user ? user.companyName : (user.name + " " + user.lastName))}"-ს მიერ.`,
-            'new_order',
-            'admin',
-            undefined,
-            {
-                order_id: order.id
-            },
-        );
+        // // send notification to admin
+        // await this.notificationService.sendNotification(
+        //     `შეკვეთა №${order.id}: განაცხადი "${serviceTypeLabel}"-ს შესახებ დაემატა "${("companyName" in user ? user.companyName : (user.name + " " + user.lastName))}"-ს მიერ.`,
+        //     'new_order',
+        //     'admin',
+        //     undefined,
+        //     {
+        //         order_id: order.id
+        //     },
+        // );
 
         // send notification to user
         await this.notificationService.sendNotification(
-            `შეკვეთა №${order.id}: დაემატა "${serviceTypeLabel}"-ს შესახებ.`,
+            `შეკვეთა №${order.id}: დაემატა "${serviceTypeLabel}"-ს შესახებ და ელოდება ანგარიშსწორებას.`,
             "new_order",
             user.role,
             userId,

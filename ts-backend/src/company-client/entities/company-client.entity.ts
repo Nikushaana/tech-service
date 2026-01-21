@@ -12,6 +12,7 @@ import { CompanyClientToken } from 'src/company-client-token/entities/company-cl
 import { Order } from 'src/order/entities/order.entity';
 import { Address } from 'src/address/entities/address.entity';
 import { Review } from 'src/reviews/entities/review.entity';
+import { Transaction } from 'src/transactions/entities/transaction.entity';
 
 @Entity('company_clients')
 export class CompanyClient {
@@ -64,6 +65,9 @@ export class CompanyClient {
 
   @OneToMany(() => Review, (review) => review.company)
   reviews: Review[];
+
+  @OneToMany(() => Transaction, (transaction) => transaction.company)
+  transactions: Transaction[];
 
   @OneToOne(() => CompanyClientToken, (token) => token.companyClient)
   token: CompanyClientToken;

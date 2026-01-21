@@ -12,6 +12,7 @@ import { IndividualClientToken } from 'src/individual-client-token/entities/indi
 import { Order } from 'src/order/entities/order.entity';
 import { Address } from 'src/address/entities/address.entity';
 import { Review } from 'src/reviews/entities/review.entity';
+import { Transaction } from 'src/transactions/entities/transaction.entity';
 
 @Entity('individual_clients')
 export class IndividualClient {
@@ -58,6 +59,9 @@ export class IndividualClient {
 
   @OneToMany(() => Review, (review) => review.individual)
   reviews: Review[];
+
+  @OneToMany(() => Transaction, (transaction) => transaction.individual)
+  transactions: Transaction[];
 
   @OneToOne(() => IndividualClientToken, (token) => token.individualClient)
   token: IndividualClientToken;
