@@ -23,6 +23,7 @@ const sidebarLinks: Record<ClientRole, SidebarLinksWithTitle> = {
       { name: "შეაფასე Tech Service", href: "/dashboard/individual/reviews" },
       { name: "პროფილი", href: "/dashboard/individual/profile" },
       { name: "შეტყობინებები", href: "/dashboard/individual/notifications" },
+      { name: "ტრანზაქციები", href: "/dashboard/individual/transactions" },
     ],
   },
   company: {
@@ -33,6 +34,7 @@ const sidebarLinks: Record<ClientRole, SidebarLinksWithTitle> = {
       { name: "შეაფასე Tech Service", href: "/dashboard/company/reviews" },
       { name: "პროფილი", href: "/dashboard/company/profile" },
       { name: "შეტყობინებები", href: "/dashboard/company/notifications" },
+      { name: "ტრანზაქციები", href: "/dashboard/company/transactions" },
     ],
   },
 };

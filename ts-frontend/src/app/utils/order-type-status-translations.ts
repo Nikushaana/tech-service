@@ -5,7 +5,8 @@ export const typeLabels: Record<string, string> = {
 };
 
 export const statusLabels: Record<string, string> = {
-  pending: "მიღებულია",
+  waiting_pre_payment: "წინასწარი ანგარიშსწორების მოლოდინში",
+  pending: "მუშავდება",
   assigned: "გადანაწილებულია",
 
   // off site
@@ -38,7 +39,8 @@ export const statusLabels: Record<string, string> = {
 };
 
 export const statusDescriptions: Record<string, string> = {
-  pending: "განაცხადი მიღებულია და დამუშავებას ელოდება",
+  waiting_pre_payment: "განაცხადი მიღებულია და ანგარიშსწორებას ელოდება",
+  pending: "დამუშავებას ელოდება",
   assigned: "განაცხადი გადანაწილებულია",
 
   // off site

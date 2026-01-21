@@ -20,6 +20,7 @@ const sidebarLinks = [
   { name: "მომხმარებლები", href: "/admin/panel/users" },
   { name: "თანამშრომლები", href: "/admin/panel/staff" },
   { name: "შეტყობინებები", href: "/admin/panel/notifications" },
+  { name: "ტრანზაქციები", href: "/admin/panel/transactions" },
 ];
 
 const fetchAdminUnreadNotifications = async () => {

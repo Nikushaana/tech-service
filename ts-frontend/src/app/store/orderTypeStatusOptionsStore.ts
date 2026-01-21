@@ -17,7 +17,8 @@ export const useOrderTypeStatusOptionsStore = create<OrderTypeStatusOptionsState
         { id: "fix_on_site", name: "შეკეთება ადგილზე" },
     ],
     statusOptions: [
-        { id: "pending", name: "მიღებულია" },
+        { id: "waiting_pre_payment", name: "წინასწარი ანგარიშსწორების მოლოდინში" },
+        { id: "pending", name: "მუშავდება" },
         { id: "assigned", name: "გადანაწილებულია" },
 
         // off site
