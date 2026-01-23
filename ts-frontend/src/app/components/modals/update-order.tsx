@@ -19,9 +19,7 @@ import { fetchUserAddresses } from "@/app/lib/api/userAddresses";
 import { axiosCompany, axiosIndividual } from "@/app/lib/api/axios";
 
 interface UpdateOrderValues {
-  serviceType: string;
   categoryId: string;
-  addressId: string;
   brand: string;
   model: string;
   description: string;
@@ -58,9 +56,7 @@ export default function UpdateOrder() {
   });
 
   const [values, setValues] = useState<UpdateOrderValues>({
-    serviceType: "",
     categoryId: "",
-    addressId: "",
     brand: "",
     model: "",
     description: "",
@@ -71,9 +67,7 @@ export default function UpdateOrder() {
   });
 
   const [errors, setErrors] = useState({
-    serviceType: "",
     categoryId: "",
-    addressId: "",
     brand: "",
     model: "",
     description: "",
@@ -82,9 +76,7 @@ export default function UpdateOrder() {
   useEffect(() => {
     if (openUpdateOrderModal && currentOrder) {
       setValues({
-        serviceType: currentOrder.service_type,
         categoryId: String(currentOrder.category.id) || "",
-        addressId: String(currentOrder.address.id) || "",
         brand: currentOrder.brand || "",
         model: currentOrder.model || "",
         description: currentOrder.description || "",
@@ -96,9 +88,7 @@ export default function UpdateOrder() {
     } else if (!openUpdateOrderModal) {
       // reset on close
       setValues({
-        serviceType: "",
         categoryId: "",
-        addressId: "",
         brand: "",
         model: "",
         description: "",
@@ -120,17 +110,10 @@ export default function UpdateOrder() {
   };
 
   const updateOrderSchema = Yup.object().shape({
-    serviceType: Yup.string()
-      .oneOf(
-        typeOptions.map((o) => o.id),
-        "არასწორი სერვისის ტიპი"
-      )
-      .required("აირჩიე სერვისის ტიპი"),
     categoryId: Yup.string().required("კატეგორია აუცილებელია"),
     brand: Yup.string().required("ბრენდი აუცილებელია"),
     model: Yup.string().required("მოდელი აუცილებელია"),
     description: Yup.string().required("აღწერა აუცილებელია"),
-    addressId: Yup.string().required("მისამართი აუცილებელია"),
     newImages: Yup.array()
       .of(Yup.mixed())
       .test(
@@ -140,7 +123,7 @@ export default function UpdateOrder() {
           const { images } = this.parent; // get existing images
           const total = (images?.length || 0) + (newImages?.length || 0);
           return total <= 3;
-        }
+        },
       ),
     newVideos: Yup.array()
       .of(Yup.mixed())
@@ -151,7 +134,7 @@ export default function UpdateOrder() {
           const { videos } = this.parent; // get existing videos
           const total = (videos?.length || 0) + (newVideos?.length || 0);
           return total <= 1;
-        }
+        },
       ),
   });
 
@@ -161,7 +144,7 @@ export default function UpdateOrder() {
     mutationFn: (payload: FormData) =>
       (modalType === "company" ? axiosCompany : axiosIndividual).patch(
         `${modalType}/orders/${currentOrder.id}`,
-        payload
+        payload,
       ),
 
     onSuccess: () => {
@@ -183,12 +166,10 @@ export default function UpdateOrder() {
 
       // reset form values
       setValues({
-        serviceType: "",
         categoryId: "",
         brand: "",
         model: "",
         description: "",
-        addressId: "",
         images: [],
         videos: [],
         newImages: [],
@@ -196,30 +177,18 @@ export default function UpdateOrder() {
       });
 
       setErrors({
-        serviceType: "",
         categoryId: "",
         brand: "",
         model: "",
         description: "",
-        addressId: "",
       });
     },
 
     onError: (error: any) => {
-      if (
-        error.response.data.message ==
-        "Address is outside all branch coverage areas. Please choose a closer location."
-      ) {
-        toast.error("აირჩიე მისამართი რომელიც სერვისის დაფარვის ზონაშია", {
-          position: "bottom-right",
-          autoClose: 3000,
-        });
-      } else if (
-        error.response.data.message == "Inactive user cannot update orders"
-      ) {
+      if (error.response.data.message == "Inactive user cannot update orders") {
         toast.error(
           "თქვენ ვერ განაახლებთ სერვისს, რადგან თქვენი პროფილი გასააქტიურებელია",
-          { position: "bottom-right", autoClose: 3000 }
+          { position: "bottom-right", autoClose: 3000 },
         );
       } else {
         toast.error("სერვისი ვერ განახლდა", {
@@ -235,28 +204,26 @@ export default function UpdateOrder() {
       await updateOrderSchema.validate(values, { abortEarly: false });
 
       const formData = new FormData();
-      formData.append("service_type", values.serviceType);
       formData.append("categoryId", values.categoryId);
       formData.append("brand", values.brand);
       formData.append("model", values.model);
       formData.append("description", values.description);
-      formData.append("addressId", values.addressId);
 
       formData.append(
         "imagesToDelete",
         JSON.stringify(
           currentOrder.images.filter(
-            (img: string) => !values.images.includes(img)
-          )
-        )
+            (img: string) => !values.images.includes(img),
+          ),
+        ),
       );
       formData.append(
         "videosToDelete",
         JSON.stringify(
           currentOrder.videos.filter(
-            (img: string) => !values.videos.includes(img)
-          )
-        )
+            (img: string) => !values.videos.includes(img),
+          ),
+        ),
       );
 
       // Append new files
@@ -297,7 +264,24 @@ export default function UpdateOrder() {
         className={`absolute inset-0 bg-black transition-opacity ${
           openUpdateOrderModal ? "opacity-50" : "opacity-0"
         }`}
-        onClick={() => toggleOpenUpdateOrderModal()} // closes when clicking outside
+        onClick={() => {
+          toggleOpenUpdateOrderModal();
+          setErrors((prev) => ({
+            ...prev,
+            categoryId: "",
+            brand: "",
+            model: "",
+            description: "",
+          }));
+
+          setValues((prev) => ({
+            ...prev,
+            categoryId: "",
+            brand: "",
+            model: "",
+            description: "",
+          }));
+        }}
       ></div>
 
       <div
@@ -312,26 +296,16 @@ export default function UpdateOrder() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-[10px]">
               <div className="col-span-1 sm:col-span-2">
                 <Dropdown
-                  data={typeOptions}
-                  id="serviceType"
-                  value={values.serviceType}
-                  label="სერვისის ტიპი"
+                  data={categories?.data}
+                  id="categoryId"
+                  value={values.categoryId}
+                  label="კატეგორია"
                   valueKey="id"
                   labelKey="name"
                   onChange={handleChange}
-                  error={errors.serviceType}
+                  error={errors.categoryId}
                 />
               </div>
-              <Dropdown
-                data={categories?.data}
-                id="categoryId"
-                value={values.categoryId}
-                label="კატეგორია"
-                valueKey="id"
-                labelKey="name"
-                onChange={handleChange}
-                error={errors.categoryId}
-              />
               <PanelFormInput
                 id="brand"
                 value={values.brand || ""}
@@ -346,42 +320,6 @@ export default function UpdateOrder() {
                 label="მოდელი"
                 error={errors.model}
               />
-              <div
-                onClick={() => {
-                  addresses.length <= 0 &&
-                    modalType &&
-                    toggleOpenCreateAddressModal(modalType);
-                }}
-                className="flex items-end gap-1"
-              >
-                <div
-                  className={`flex-1 ${
-                    addresses.length <= 0 && "pointer-events-none"
-                  }`}
-                >
-                  <Dropdown
-                    data={addresses}
-                    id="addressId"
-                    value={values.addressId}
-                    label="მისამართი"
-                    valueKey="id"
-                    labelKey="name"
-                    onChange={handleChange}
-                    error={errors.addressId}
-                  />
-                </div>
-                <Button
-                  onClick={() => {
-                    addresses.length > 0 &&
-                      modalType &&
-                      toggleOpenCreateAddressModal(modalType);
-                  }}
-                  variant="secondary"
-                  className="h-9 aspect-square rounded-[8px] bg-myLightBlue hover:bg-myBlue text-white text-[18px] cursor-pointer"
-                >
-                  <MdAddLocationAlt />
-                </Button>
-              </div>
               <div className="col-span-1 sm:col-span-2">
                 <PanelFormInput
                   id="description"
@@ -417,7 +355,7 @@ export default function UpdateOrder() {
                 }}
               />
               <OrderVideosSelector
-                newVideos={values.newVideos} // use the correct field
+                newVideos={values.newVideos}
                 videos={values.videos}
                 setNewVideos={{
                   add: (files: File[]) =>
@@ -449,22 +387,18 @@ export default function UpdateOrder() {
               toggleOpenUpdateOrderModal();
               setErrors((prev) => ({
                 ...prev,
-                serviceType: "",
                 categoryId: "",
                 brand: "",
                 model: "",
                 description: "",
-                addressId: "",
               }));
 
               setValues((prev) => ({
                 ...prev,
-                serviceType: "",
                 categoryId: "",
                 brand: "",
                 model: "",
                 description: "",
-                addressId: "",
               }));
             }}
             className="h-[45px] px-6 cursor-pointer bg-red-500 hover:bg-[#b91c1c]"

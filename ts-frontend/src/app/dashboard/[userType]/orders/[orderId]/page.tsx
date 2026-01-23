@@ -61,12 +61,13 @@ export default function Page() {
       {/* Header */}
       <div
         className={`flex items-center ${
-          order?.status == "pending"
+          order?.status == "pending" || order?.status == "waiting_pre_payment"
             ? "flex-col sm:flex-row gap-2 justify-between"
             : "justify-end"
         }`}
       >
-        {order?.status == "pending" && (
+        {(order?.status == "pending" ||
+          order?.status == "waiting_pre_payment") && (
           <p
             onClick={() => {
               toggleOpenUpdateOrderModal(userType, order);

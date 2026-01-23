@@ -49,7 +49,7 @@ export default function Page() {
             <TableHeader>
               <TableRow>
                 <TableHead className="font-semibold">ID</TableHead>
-                <TableHead className="font-semibold">თანხა (₾)</TableHead>
+                <TableHead className="font-semibold">თანხა</TableHead>
                 <TableHead className="font-semibold">დანიშნულება</TableHead>
                 <TableHead className="font-semibold">სტატუსი</TableHead>
                 <TableHead className="font-semibold">

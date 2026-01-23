@@ -1,6 +1,6 @@
 "use client";
 
-import { ToastContainer } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import BurgerMenu from "../components/burger-menu/burger-menu";
 import Footer from "../components/footer";
 import Header from "../components/header";
@@ -76,6 +76,13 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         }
         if (type == "order_updated") {
           queryClient.invalidateQueries({ queryKey: ["userOrders"] });
+          queryClient.invalidateQueries({ queryKey: ["userOrder"] });
+        }
+        if (type == "profile_updated" || type == "order_updated") {
+          toast.success(`ახალი შეტყობინება`, {
+            position: "bottom-right",
+            autoClose: 3000,
+          });
         }
       }
 
@@ -89,6 +96,13 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         }
         if (type == "order_updated") {
           queryClient.invalidateQueries({ queryKey: ["staffOrders"] });
+          queryClient.invalidateQueries({ queryKey: ["staffOrder"] });
+        }
+        if (type == "profile_updated" || type == "order_updated") {
+          toast.success(`ახალი შეტყობინება`, {
+            position: "bottom-right",
+            autoClose: 3000,
+          });
         }
       }
 
@@ -102,15 +116,22 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         }
         if (type == "new_order" || type == "order_updated") {
           queryClient.invalidateQueries({ queryKey: ["adminOrders"] });
+          queryClient.invalidateQueries({ queryKey: ["adminOrder"] });
         }
         if (type == "new_review") {
           queryClient.invalidateQueries({ queryKey: ["adminReviews"] });
+        }
+        if (type == "new_user" || type == "new_order" || type == "new_review") {
+          toast.success(`ახალი შეტყობინება`, {
+            position: "bottom-right",
+            autoClose: 3000,
+          });
         }
       }
 
       // Play sound
       const audio = new Audio("/sounds/light-hearted-message-tone.mp3");
-      audio.play();
+      audio.play().catch(() => {});
     };
 
     socket.on(channel, listener);

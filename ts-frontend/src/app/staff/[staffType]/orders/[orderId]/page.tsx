@@ -33,7 +33,7 @@ export default function Page() {
     isLoading,
     isError,
   } = useQuery({
-    queryKey: ["staffOrders", staffType, orderId],
+    queryKey: ["staffOrder", staffType, orderId],
     queryFn: () => fetchStaffOrder(staffType, orderId),
     staleTime: 1000 * 60 * 10,
     retry: false,

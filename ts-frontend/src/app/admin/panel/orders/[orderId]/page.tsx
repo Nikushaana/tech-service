@@ -371,7 +371,7 @@ export default function Page() {
       </div>
 
       {/* Address */}
-      <div>
+      <div className="flex flex-col">
         <h3>მისამართი</h3>
         <p>{order?.address?.name}</p>
         <p className="text-sm">

@@ -36,9 +36,8 @@ const sidebarLinks: Record<StaffRole, SidebarLinksWithTitle> = {
 
 const fetchStaffUnreadNotifications = async (role?: string) => {
   if (!role) return 0;
-  const { data } = await (role == "technician"
-    ? axiosTechnician
-    : axiosDelivery
+  const { data } = await (
+    role == "technician" ? axiosTechnician : axiosDelivery
   ).get(`${role}/notifications/unread`);
   return data;
 };
@@ -73,14 +72,14 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           onClick={() => toggleSideBar()}
           className="relative lg:hidden self-end "
         >
-        <div
-          className={`flex items-center justify-center text-2xl duration-300 h-[45px] aspect-square ${
-            openSideBar && "rotate-[360deg]"
-          }`}
-        >
-          {openSideBar ? <HiX /> : <HiMenu />}
-        </div>
-        {unreadNotifications > 0 && (
+          <div
+            className={`flex items-center justify-center text-2xl duration-300 h-[45px] aspect-square ${
+              openSideBar && "rotate-[360deg]"
+            }`}
+          >
+            {openSideBar ? <HiX /> : <HiMenu />}
+          </div>
+          {unreadNotifications > 0 && (
             <p className="absolute -top-2 -right-2 bg-red-600 flex items-center justify-center rounded-full px-[8px] py-[2px] text-sm text-white">
               {unreadNotifications}
             </p>
@@ -105,62 +104,64 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             ${!openSideBar && "ml-[-256px] lg:ml-0"}
           `}
             >
-              <h2 className="text-[20px] text-center font-bold tracking-wide">
-                {sidebar.title}
-              </h2>
-              {currentUser && (
-                <p className="mb-8 text-center text-gray-200">
-                  {formatPhone(
-                    currentUser?.name +
-                      " " +
-                      currentUser?.lastName +
-                      " " +
-                      currentUser?.phone
-                  )}
-                </p>
-              )}
+              <div className="sticky top-[20px]">
+                <h2 className="text-[20px] text-center font-bold tracking-wide">
+                  {sidebar.title}
+                </h2>
+                {currentUser && (
+                  <p className="mb-8 text-center text-gray-200">
+                    {formatPhone(
+                      currentUser?.name +
+                        " " +
+                        currentUser?.lastName +
+                        " " +
+                        currentUser?.phone,
+                    )}
+                  </p>
+                )}
 
-              <nav
-                className={`flex flex-col gap-2 mb-6 duration-300 w-full ${
-                  !authLoading ? "" : "ml-[-300px]"
-                }`}
-              >
-                {sidebar.links.map((link) => {
-                  const isActive = pathname.startsWith(link.href);
-                  return (
-                    <Link
-                      key={link.href}
-                      href={link.href}
-                      className={`flex items-center justify-between px-4 py-2 rounded-lg text-sm font-medium duration-200
+                <nav
+                  className={`flex flex-col gap-2 mb-6 duration-300 w-full ${
+                    !authLoading ? "" : "ml-[-300px]"
+                  }`}
+                >
+                  {sidebar.links.map((link) => {
+                    const isActive = pathname.startsWith(link.href);
+                    return (
+                      <Link
+                        key={link.href}
+                        href={link.href}
+                        className={`flex items-center justify-between px-4 py-2 rounded-lg text-sm font-medium duration-200
               ${
                 isActive
                   ? "bg-white text-myBlue"
                   : "hover:bg-myLightBlue hover:text-white"
               }
             `}
-                      onClick={() => closeSideBar()}
-                    >
-                      {link.name}{" "}
-                      {link.name == "შეტყობინებები" &&
-                        unreadNotifications > 0 && (
-                          <p className="bg-red-600 flex items-center justify-center rounded-full h-full px-[7px] text-white">
-                            {unreadNotifications}
-                          </p>
-                        )}
-                    </Link>
-                  );
-                })}
-              </nav>
+                        onClick={() => closeSideBar()}
+                      >
+                        {link.name}{" "}
+                        {link.name == "შეტყობინებები" &&
+                          unreadNotifications > 0 && (
+                            <p className="bg-red-600 flex items-center justify-center rounded-full h-full px-[7px] text-white">
+                              {unreadNotifications}
+                            </p>
+                          )}
+                      </Link>
+                    );
+                  })}
+                </nav>
 
-              <Button
-                onClick={() => toggleLogOut()}
-                className={`mt-[40px] rounded-lg font-semibold text-[#1e40af] bg-white w-full
+                <Button
+                  onClick={() => toggleLogOut()}
+                  className={`mt-[40px] rounded-lg font-semibold text-[#1e40af] bg-white w-full
         hover:bg-[#b91c1c] hover:text-white duration-300 cursor-pointer ${
           !authLoading ? "" : "ml-[-300px]"
         }`}
-              >
-                გასვლა
-              </Button>
+                >
+                  გასვლა
+                </Button>
+              </div>
             </div>
           </aside>
 
