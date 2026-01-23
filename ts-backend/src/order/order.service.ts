@@ -184,7 +184,7 @@ export class OrderService {
         // Create transaction for this order
         await this.transactionsService.createTransaction({
             amount: price,
-            reason: `Payment for creating order №${order.id}`,
+            reason: `შეკვეთა №${order.id} შექმნისთვის გადახდა`,
             type: TransactionType.DEBIT,
             provider: PaymentProvider.BOG,
             individualId: "companyName" in user ? undefined : user.id,
