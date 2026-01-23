@@ -280,35 +280,6 @@ export class OrderService {
             order.category = category;
         }
 
-        if (updateUserOrderDto.addressId) {
-            const address = await this.addressRepo.findOne({
-                where: { id: updateUserOrderDto.addressId, [relationKey]: { id: userId } },
-            });
-            if (!address) throw new NotFoundException('Address not found');
-
-            const branches = await this.branchesService.getBranches();
-            if (!branches.length) throw new BadRequestException('No branches available — cannot add order');
-
-            // Check if location is within any branch coverage
-            const isWithinCoverage = branches.some((branch) => {
-                const distance = getDistanceFromLatLonInKm(
-                    address.location.lat,
-                    address.location.lng,
-                    branch.location.lat,
-                    branch.location.lng
-                );
-                return distance <= branch.coverage_radius_km;
-            });
-
-            if (!isWithinCoverage) {
-                throw new BadRequestException(
-                    'Address is outside all branch coverage areas. Please choose a closer location.'
-                );
-            }
-
-            order.address = address;
-        }
-
         // Handle deleted media
         let imagesToDeleteArray: string[] = [];
         let videosToDeleteArray: string[] = [];
@@ -374,7 +345,7 @@ export class OrderService {
         order.images = [...existingImages, ...newImageUrls];
         order.videos = [...existingVideos, ...newVideoUrls];
 
-        const { categoryId, addressId, ...rest } = updateUserOrderDto;
+        const { categoryId, ...rest } = updateUserOrderDto;
         this.orderRepo.merge(order, rest);
         await this.orderRepo.save(order);
 
