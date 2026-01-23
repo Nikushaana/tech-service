@@ -25,6 +25,7 @@ import { PricingService } from 'src/pricing/pricing.service';
 import { TransactionsService } from 'src/transactions/transactions.service';
 import { TransactionType } from 'src/common/types/transaction-type.enum';
 import { PaymentProvider } from 'src/common/types/payment-provider.enum';
+import { PaymentService } from 'src/payment/payment.service';
 
 @Injectable()
 export class OrderService {
@@ -55,6 +56,8 @@ export class OrderService {
         private readonly pricingService: PricingService,
 
         private readonly transactionsService: TransactionsService,
+
+        private readonly paymentService: PaymentService,
     ) { }
 
     // order status changes
@@ -178,8 +181,6 @@ export class OrderService {
             service_type: createOrderDto.service_type,
         });
 
-        // 1. payment
-
         // Create transaction for this order
         await this.transactionsService.createTransaction({
             amount: price,
@@ -194,19 +195,19 @@ export class OrderService {
         const serviceTypeLabel = OrderTypeLabelsGeorgian[order.service_type] || order.service_type;
 
         // // send notification to admin
-        // await this.notificationService.sendNotification(
-        //     `შეკვეთა №${order.id}: განაცხადი "${serviceTypeLabel}"-ს შესახებ დაემატა "${("companyName" in user ? user.companyName : (user.name + " " + user.lastName))}"-ს მიერ.`,
-        //     'new_order',
-        //     'admin',
-        //     undefined,
-        //     {
-        //         order_id: order.id
-        //     },
-        // );
+        await this.notificationService.sendNotification(
+            `შეკვეთა №${order.id}: დაემატა "${serviceTypeLabel}"-ს შესახებ და მომსახურების დასაწყებად საჭიროა ანგარიშსწორებას.`,
+            'new_order',
+            'admin',
+            undefined,
+            {
+                order_id: order.id
+            },
+        );
 
         // send notification to user
         await this.notificationService.sendNotification(
-            `შეკვეთა №${order.id}: დაემატა "${serviceTypeLabel}"-ს შესახებ და ელოდება ანგარიშსწორებას.`,
+            `შეკვეთა №${order.id}: დაემატა "${serviceTypeLabel}"-ს შესახებ და მომსახურების დასაწყებად საჭიროა ანგარიშსწორებას.`,
             "new_order",
             user.role,
             userId,
@@ -214,6 +215,9 @@ export class OrderService {
                 order_id: order.id
             },
         );
+
+        // mocked payment
+        await this.paymentService.mockPayOrder(order.id);
 
         return { message: `Order created successfully`, order: instanceToPlain(order) };
     }

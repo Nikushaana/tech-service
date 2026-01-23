@@ -12,9 +12,10 @@ import { Address } from 'src/address/entities/address.entity';
 import { Category } from 'src/category/entities/category.entity';
 import { PricingModule } from 'src/pricing/pricing.module';
 import { TransactionsModule } from 'src/transactions/transactions.module';
+import { PaymentModule } from 'src/payment/payment.module';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([Order, Technician, Delivery, Address, Category]), BaseUserModule, BranchesModule, CloudinaryModule, NotificationsModule, PricingModule, TransactionsModule],
+    imports: [TypeOrmModule.forFeature([Order, Technician, Delivery, Address, Category]), BaseUserModule, BranchesModule, CloudinaryModule, NotificationsModule, PricingModule, TransactionsModule, PaymentModule],
     providers: [OrderService],
     exports: [OrderService, TypeOrmModule],
 })

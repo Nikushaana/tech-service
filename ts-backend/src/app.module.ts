@@ -20,6 +20,7 @@ import { CategoryModule } from './category/category.module';
 import { FaqModule } from './faq/faq.module';
 import { PricingModule } from './pricing/pricing.module';
 import { TransactionsModule } from './transactions/transactions.module';
+import { PaymentModule } from './payment/payment.module';
 
 @Module({
   imports: [
@@ -91,6 +92,8 @@ import { TransactionsModule } from './transactions/transactions.module';
     PricingModule,
 
     TransactionsModule,
+
+    PaymentModule,
   ],
   controllers: [AppController],
   providers: [AppService],
