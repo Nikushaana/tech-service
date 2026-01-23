@@ -191,7 +191,7 @@ export class OrderService {
             companyId: "companyName" in user ? user.id : undefined,
             orderId: order.id
         });
- 
+
         const serviceTypeLabel = OrderTypeLabelsGeorgian[order.service_type] || order.service_type;
 
         // // send notification to admin
@@ -268,8 +268,8 @@ export class OrderService {
         });
         if (!order) throw new NotFoundException('Order not found');
 
-        if (order.status !== 'pending') {
-            throw new BadRequestException('Only pending orders can be updated');
+        if (order.status !== 'pending' && order.status !== 'waiting_pre_payment') {
+            throw new BadRequestException('Only pending or waiting_pre_payment orders can be updated');
         }
 
         if (updateUserOrderDto.categoryId) {
