@@ -811,17 +811,6 @@ export class OrderService {
 
         await this.orderRepo.save(order)
 
-        // Create transaction for this order repair approve
-        const transaction = await this.transactionsService.createTransaction({
-            amount: order.payment_amount,
-            reason: `შეკვეთა №${order.id} შეკეთებისთვის გადახდა`,
-            type: TransactionType.DEBIT,
-            provider: PaymentProvider.BOG,
-            individualId: order.individual?.id ?? null,
-            companyId: order.company?.id ?? null,
-            orderId: order.id
-        });
-
         // sent notifications
         await this.notifyOrderStatusUpdate(order, [
             { role: 'admin' },
@@ -829,8 +818,21 @@ export class OrderService {
             { role: 'technician', id: order.technician?.id },
         ]);
 
-        // mocked payment
-        await this.paymentService.mockPayOrder(transaction.id);
+        if (repairDecisionDto.decision == "approve") {
+            // Create transaction for this order repair approve
+            const transaction = await this.transactionsService.createTransaction({
+                amount: order.payment_amount,
+                reason: `შეკვეთა №${order.id} შეკეთებისთვის გადახდა`,
+                type: TransactionType.DEBIT,
+                provider: PaymentProvider.BOG,
+                individualId: order.individual?.id ?? null,
+                companyId: order.company?.id ?? null,
+                orderId: order.id
+            });
+
+            // mocked payment
+            await this.paymentService.mockPayOrder(transaction.id);
+        }
 
         return {
             message: repairDecisionDto.decision === 'approve'
