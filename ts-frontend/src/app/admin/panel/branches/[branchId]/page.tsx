@@ -149,7 +149,7 @@ export default function Page() {
         id == "fix_off_site_price" ||
         id == "installation_price" ||
         id == "fix_on_site_price"
-          ? formatNumber(parseFloat(value))
+          ? formatNumber(value)
           : value,
     }));
   };

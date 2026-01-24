@@ -82,7 +82,7 @@ export default function Page() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {branches.length === 0 ? (
+              {branches?.length === 0 ? (
                 <TableRow>
                   <TableCell
                     colSpan={8}
