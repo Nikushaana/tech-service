@@ -181,8 +181,8 @@ export class OrderService {
             service_type: createOrderDto.service_type,
         });
 
-        // Create transaction for this order
-        await this.transactionsService.createTransaction({
+        // Create transaction for this order creating
+        const transaction = await this.transactionsService.createTransaction({
             amount: price,
             reason: `შეკვეთა №${order.id} შექმნისთვის გადახდა`,
             type: TransactionType.DEBIT,
@@ -194,9 +194,9 @@ export class OrderService {
 
         const serviceTypeLabel = OrderTypeLabelsGeorgian[order.service_type] || order.service_type;
 
-        // // send notification to admin
+        // send notification to admin
         await this.notificationService.sendNotification(
-            `შეკვეთა №${order.id}: დაემატა "${serviceTypeLabel}"-ს შესახებ და მომსახურების დასაწყებად საჭიროა ანგარიშსწორებას.`,
+            `შეკვეთა №${order.id}: დაემატა "${serviceTypeLabel}"-ს შესახებ და მომსახურების დასაწყებად საჭიროა გადახდა.`,
             'new_order',
             'admin',
             undefined,
@@ -207,7 +207,7 @@ export class OrderService {
 
         // send notification to user
         await this.notificationService.sendNotification(
-            `შეკვეთა №${order.id}: დაემატა "${serviceTypeLabel}"-ს შესახებ და მომსახურების დასაწყებად საჭიროა ანგარიშსწორებას.`,
+            `შეკვეთა №${order.id}: დაემატა "${serviceTypeLabel}"-ს შესახებ და მომსახურების დასაწყებად საჭიროა გადახდა.`,
             "new_order",
             user.role,
             userId,
@@ -217,7 +217,7 @@ export class OrderService {
         );
 
         // mocked payment
-        await this.paymentService.mockPayOrder(order.id);
+        await this.paymentService.mockPayOrder(transaction.id);
 
         return { message: `Order created successfully`, order: instanceToPlain(order) };
     }
@@ -800,7 +800,7 @@ export class OrderService {
             `make a repair decision`
         );
 
-        order.status = repairDecisionDto.decision == "approve" ? OrderStatus.REPAIRING_OFF_SITE : OrderStatus.REPAIR_CANCELLED;
+        order.status = repairDecisionDto.decision == "approve" ? OrderStatus.WAITING_REPAIRING_OFF_SITE_PAYMENT : OrderStatus.REPAIR_CANCELLED;
 
         if (repairDecisionDto.decision === 'cancel') {
             if (!repairDecisionDto.reason) {
@@ -811,6 +811,17 @@ export class OrderService {
 
         await this.orderRepo.save(order)
 
+        // Create transaction for this order repair approve
+        const transaction = await this.transactionsService.createTransaction({
+            amount: order.payment_amount,
+            reason: `შეკვეთა №${order.id} შეკეთებისთვის გადახდა`,
+            type: TransactionType.DEBIT,
+            provider: PaymentProvider.BOG,
+            individualId: order.individual?.id ?? null,
+            companyId: order.company?.id ?? null,
+            orderId: order.id
+        });
+
         // sent notifications
         await this.notifyOrderStatusUpdate(order, [
             { role: 'admin' },
@@ -818,9 +829,12 @@ export class OrderService {
             { role: 'technician', id: order.technician?.id },
         ]);
 
+        // mocked payment
+        await this.paymentService.mockPayOrder(transaction.id);
+
         return {
             message: repairDecisionDto.decision === 'approve'
-                ? 'Repair approved'
+                ? 'Waiting payment for repairing off site'
                 : 'Repair cancelled successfully',
             order: instanceToPlain(order),
         };

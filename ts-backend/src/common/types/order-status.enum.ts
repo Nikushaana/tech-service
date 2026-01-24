@@ -11,6 +11,7 @@ export enum OrderStatus {
   INSPECTION = 'inspection',
   WAITING_DECISION = 'waiting_decision',
   // approve
+  WAITING_REPAIRING_OFF_SITE_PAYMENT = 'waiting_repairing_off_site_payment',
   REPAIRING_OFF_SITE = 'repairing_off_site',
   FIXED_READY = 'fixed_ready',
   RETURNING_FIXED = 'returning_fixed',

@@ -13,6 +13,7 @@ export const OrderStatusLabelsGeorgian: Record<OrderStatus, string> = {
     [OrderStatus.INSPECTION]: "მიმდინარეობს დიაგნოსტიკა",
     [OrderStatus.WAITING_DECISION]: "გადაწყვეტილების მოლოდინში",
     // approve
+    [OrderStatus.WAITING_REPAIRING_OFF_SITE_PAYMENT]: "სერვისცენტრში სერვისის დასაწყებად ანგარიშსწორების მოლოდინში",
     [OrderStatus.REPAIRING_OFF_SITE]: "სერვისი მიმდინარეობს სერვისცენტრში",
     [OrderStatus.FIXED_READY]: "შეკეთებულია",
     [OrderStatus.RETURNING_FIXED]: "შეკეთებული ტექნიკა ბრუნდება",

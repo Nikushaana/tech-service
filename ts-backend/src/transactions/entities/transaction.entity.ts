@@ -1,3 +1,4 @@
+import { Transform } from 'class-transformer';
 import { PaymentProvider } from 'src/common/types/payment-provider.enum';
 import { TransactionStatus } from 'src/common/types/transaction-status.enum';
 import { TransactionType } from 'src/common/types/transaction-type.enum';
@@ -11,7 +12,13 @@ export class Transaction {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({
+    type: 'decimal',
+    precision: 10,
+    scale: 2,
+    nullable: false,
+    default: 0
+  })
   amount: number;
 
   @Column({ type: 'enum', enum: TransactionType })

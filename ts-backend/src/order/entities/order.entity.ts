@@ -42,9 +42,14 @@ export class Order {
   @Column({ type: 'text', nullable: true })
   cancel_reason?: string;
 
-  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
-  @Transform(({ value }) => value ? Number(value) : null)
-  payment_amount?: number;
+  @Column({
+    type: 'decimal',
+    precision: 10,
+    scale: 2,
+    nullable: false,
+    default: 0
+  })
+  payment_amount: number;
 
   @Column({ type: 'text', nullable: true })
   payment_reason?: string;
