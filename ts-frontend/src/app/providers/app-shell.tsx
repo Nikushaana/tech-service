@@ -71,6 +71,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         queryClient.invalidateQueries({
           queryKey: ["userUnreadNotifications"],
         });
+        queryClient.invalidateQueries({
+          queryKey: ["userTransactions"],
+        });
         if (type == "profile_updated") {
           rehydrate(router, pathname);
         }
@@ -117,6 +120,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         if (type == "new_order" || type == "order_updated") {
           queryClient.invalidateQueries({ queryKey: ["adminOrders"] });
           queryClient.invalidateQueries({ queryKey: ["adminOrder"] });
+          queryClient.invalidateQueries({
+            queryKey: ["adminTransactions"],
+          });
         }
         if (type == "new_review") {
           queryClient.invalidateQueries({ queryKey: ["adminReviews"] });

@@ -22,7 +22,10 @@ export function useOrderActions() {
             queryClient.invalidateQueries({ queryKey: ["staffOrders"] });
             queryClient.invalidateQueries({ queryKey: ["userOrder"] });
         } catch (error: any) {
-            toast.error(error?.response?.data?.message || "შეცდომა");
+            toast.error(error?.response?.data?.message || "შეცდომა", {
+                position: "bottom-right",
+                autoClose: 3000,
+            });
         } finally {
             setLoadingAction(null);
         }

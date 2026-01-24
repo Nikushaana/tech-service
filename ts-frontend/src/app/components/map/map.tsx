@@ -92,7 +92,7 @@ export default function Map({
 
       if (checkCoverageRadius) {
         // Check if click is inside any filial circle
-        if (!branches.length)
+        if (!branches?.length)
           return toast.warning("დროებით ჩვენი სერვისი მიუწვდომელია.", {
             position: "bottom-right",
             autoClose: 3000,

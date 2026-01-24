@@ -7,5 +7,5 @@ export function formatNumber(value: string) {
     .replace(/(\.\d{0,2}).*/g, "$1") // max 2 digits after dot
     .replace(/^\./, "0.");         // if starts with dot, add leading 0
 
-  return Number(formatted);
+  return formatted;
 }

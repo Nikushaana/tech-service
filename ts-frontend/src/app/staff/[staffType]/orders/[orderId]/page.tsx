@@ -63,7 +63,7 @@ export default function Page() {
 
       {/* Service Details */}
       {(order.payment_reason ||
-        order.payment_amount ||
+        Number(order.payment_amount) > 0 ||
         order.cancel_reason) && (
         <>
           <div>

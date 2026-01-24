@@ -104,17 +104,17 @@ export default function Page() {
     serviceType: Yup.string()
       .oneOf(
         typeOptions.map((o) => o.id),
-        "სერვისის ტიპი აუცილებელია"
+        "სერვისის ტიპი აუცილებელია",
       )
       .required("აირჩიე სერვისის ტიპი"),
     technicianId: Yup.number()
       .transform((value, originalValue) =>
-        originalValue === "" ? undefined : value
+        originalValue === "" ? undefined : value,
       )
       .required("ტექნიკოსი აუცილებელია"),
     deliveryId: Yup.number()
       .transform((value, originalValue) =>
-        originalValue === "" ? undefined : value
+        originalValue === "" ? undefined : value,
       )
       .when("serviceType", {
         is: "fix_off_site",
@@ -126,7 +126,7 @@ export default function Page() {
       .test(
         "status-changed",
         "აირჩიე განსხვავებული სტატუსი",
-        (value) => value !== order.status
+        (value) => value !== order.status,
       ),
   });
 
@@ -207,7 +207,7 @@ export default function Page() {
 
       {/* Service Details */}
       {(order.payment_reason ||
-        order.payment_amount ||
+        Number(order.payment_amount) > 0 ||
         order.cancel_reason) && (
         <>
           <div>
@@ -365,7 +365,7 @@ export default function Page() {
         )}
         <p>
           {formatPhone(
-            order.individual ? order.individual?.phone : order.company?.phone
+            order.individual ? order.individual?.phone : order.company?.phone,
           )}
         </p>
       </div>
@@ -429,7 +429,7 @@ export default function Page() {
           onClick={() =>
             window.open(
               `https://www.google.com/maps/dir/?api=1&destination=${order?.address?.location?.lat},${order?.address?.location?.lng}`,
-              "_blank"
+              "_blank",
             )
           }
           className="underline text-sm hover:text-myGray mt-2 self-end cursor-pointer"

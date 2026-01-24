@@ -111,3 +111,16 @@ interface LatLng {
 type ClientRole = "individual" | "company";
 type StaffRole = "technician" | "delivery";
 type OrderType = "fix_off_site" | "fix_on_site" | "installation";
+
+interface BranchValues {
+  name: string;
+  city: string;
+  street: string;
+  building_number: string;
+  description: string;
+  coverage_radius_km: string;
+  fix_off_site_price: string;
+  installation_price: string;
+  fix_on_site_price: string;
+  location: LatLng | null;
+}

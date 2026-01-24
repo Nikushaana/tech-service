@@ -14,19 +14,6 @@ import { axiosAdmin } from "@/app/lib/api/axios";
 import { fetchCities, fetchStreets } from "@/app/lib/api/locations";
 import { formatNumber } from "@/app/utils/formatNumber";
 
-interface BranchValues {
-  name: string;
-  city: string;
-  street: string;
-  building_number: string;
-  description: string;
-  coverage_radius_km: number;
-  fix_off_site_price: number;
-  installation_price: number;
-  fix_on_site_price: number;
-  location: LatLng | null;
-}
-
 const fetchAdminBranchById = async (branchId: string) => {
   const { data } = await axiosAdmin.get(`admin/branches/${branchId}`);
   return data;
@@ -63,10 +50,10 @@ export default function Page() {
     street: "",
     building_number: "",
     description: "",
-    coverage_radius_km: 0,
-    fix_off_site_price: 0,
-    installation_price: 0,
-    fix_on_site_price: 0,
+    coverage_radius_km: "",
+    fix_off_site_price: "",
+    installation_price: "",
+    fix_on_site_price: "",
     location: null as LatLng | null,
   });
 
@@ -209,17 +196,32 @@ export default function Page() {
     building_number: Yup.string().required("შენობის ნომერი აუცილებელია"),
     description: Yup.string().required("აღწერა აუცილებელია"),
     coverage_radius_km: Yup.number()
+      .transform((value, originalValue) =>
+        originalValue === "" ? undefined : Number(originalValue),
+      )
+      .typeError("დაფარვის რადიუსი უნდა იყოს რიცხვი")
       .moreThan(0, "დაფარვის რადიუსი უნდა იყოს 0-ზე მეტი")
       .required("დაფარვის რადიუსი აუცილებელია"),
-    fix_off_site_price: Yup.number().required(
-      "სერვისცენტრში შეკეთების გამოძახების ფასი აუცილებელია",
-    ),
-    installation_price: Yup.number().required(
-      "მონტაჟის გამოძახების ფასი აუცილებელია",
-    ),
-    fix_on_site_price: Yup.number().required(
-      "ადგილზე შეკეთების გამოძახების ფასი აუცილებელია",
-    ),
+    fix_off_site_price: Yup.number()
+      .transform((value, originalValue) =>
+        originalValue === "" ? undefined : Number(originalValue),
+      )
+      .typeError("ფასი უნდა იყოს რიცხვი")
+      .required("სერვისცენტრში შეკეთების გამოძახების ფასი აუცილებელია"),
+
+    installation_price: Yup.number()
+      .transform((value, originalValue) =>
+        originalValue === "" ? undefined : Number(originalValue),
+      )
+      .typeError("ფასი უნდა იყოს რიცხვი")
+      .required("მონტაჟის გამოძახების ფასი აუცილებელია"),
+
+    fix_on_site_price: Yup.number()
+      .transform((value, originalValue) =>
+        originalValue === "" ? undefined : Number(originalValue),
+      )
+      .typeError("ფასი უნდა იყოს რიცხვი")
+      .required("ადგილზე შეკეთების გამოძახების ფასი აუცილებელია"),
     location: Yup.object()
       .shape({
         lat: Yup.number().required(),
@@ -230,7 +232,13 @@ export default function Page() {
 
   const updateBranchMutation = useMutation({
     mutationFn: async (payload: BranchValues) =>
-      axiosAdmin.patch(`admin/branches/${branchId}`, payload),
+      axiosAdmin.patch(`admin/branches/${branchId}`, {
+        ...payload,
+        coverage_radius_km: parseFloat(values.coverage_radius_km),
+        fix_off_site_price: parseFloat(values.fix_off_site_price),
+        installation_price: parseFloat(values.installation_price),
+        fix_on_site_price: parseFloat(values.fix_on_site_price),
+      }),
 
     onSuccess: () => {
       toast.success("ფილიალი განახლდა", {
@@ -330,7 +338,10 @@ export default function Page() {
           isLoading={streetLoading}
           error={errors.street}
         />
-        <div className="col-span-1 sm:col-span-2 h-[200px] bg-myLightBlue rounded-[8px] overflow-hidden">
+        <div
+          className={`col-span-1 sm:col-span-2 h-[200px] bg-myLightBlue rounded-[8px] overflow-hidden
+          ${errors.location && "border-2 border-red-500"}`}
+        >
           <Map
             uiControl={true}
             id="location"
