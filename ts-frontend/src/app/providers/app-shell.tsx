@@ -65,6 +65,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     const listener = ({ type }: { type: string }) => {
       // Refetch the notification queries
       const role = currentUser.role;
+      
+      // Play sound
+      const audio = new Audio("/sounds/light-hearted-message-tone.mp3");
 
       if (role === "company" || role === "individual") {
         queryClient.invalidateQueries({ queryKey: ["userNotifications"] });
@@ -82,6 +85,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           queryClient.invalidateQueries({ queryKey: ["userOrder"] });
         }
         if (type == "profile_updated" || type == "order_updated") {
+          audio.play().catch(() => {});
           toast.success(`ახალი შეტყობინება`, {
             position: "bottom-right",
             autoClose: 3000,
@@ -102,6 +106,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           queryClient.invalidateQueries({ queryKey: ["staffOrder"] });
         }
         if (type == "profile_updated" || type == "order_updated") {
+          audio.play().catch(() => {});
           toast.success(`ახალი შეტყობინება`, {
             position: "bottom-right",
             autoClose: 3000,
@@ -128,16 +133,13 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           queryClient.invalidateQueries({ queryKey: ["adminReviews"] });
         }
         if (type == "new_user" || type == "new_order" || type == "new_review") {
+          audio.play().catch(() => {});
           toast.success(`ახალი შეტყობინება`, {
             position: "bottom-right",
             autoClose: 3000,
           });
         }
       }
-
-      // Play sound
-      const audio = new Audio("/sounds/light-hearted-message-tone.mp3");
-      audio.play().catch(() => {});
     };
 
     socket.on(channel, listener);
