@@ -35,19 +35,19 @@ export class Branch {
     @Column({ type: 'json' })
     location: Location;
 
-    @Column()
+    @Column({ type: 'decimal', precision: 10, scale: 2 })
     coverage_radius_km: number;
 
     @Exclude()
-    @Column()
+    @Column({ type: 'decimal', precision: 10, scale: 2 })
     fix_off_site_price: number;
 
     @Exclude()
-    @Column()
+    @Column({ type: 'decimal', precision: 10, scale: 2 })
     installation_price: number;
 
     @Exclude()
-    @Column()
+    @Column({ type: 'decimal', precision: 10, scale: 2 })
     fix_on_site_price: number;
 
     @CreateDateColumn()
