@@ -26,15 +26,31 @@ export function Dropdown2({
   isLoading,
 }: DropdownProps) {
   const [open, setOpen] = React.useState(false);
+  const wrapperRef = React.useRef<HTMLDivElement>(null);
+
+  // Close dropdown when clicking outside
+  React.useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        wrapperRef.current &&
+        !wrapperRef.current.contains(event.target as Node)
+      ) {
+        setOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   React.useEffect(() => {
-    if (data?.length > 0) {
+    if (data?.length > 0 && document.activeElement?.id === id) {
       setOpen(true);
-    } else setOpen(false);
-  }, [data]);
+    }
+  }, [data, id]);
 
   return (
-    <div className="w-full relative">
+    <div ref={wrapperRef} className="w-full relative">
       <label className="text-myGray text-sm">{label}</label>
       {isLoading && (
         <Loader2Icon className="absolute right-[10px] bottom-[10px] pointer-events-none animate-spin w-[15px] h-[15px]" />
@@ -45,12 +61,15 @@ export function Dropdown2({
         value={value}
         placeholder={isLoading ? "იტვირთება..." : label}
         onChange={onChange}
+        onFocus={() => {
+          if (data?.length > 0) setOpen(true);
+        }}
         className={`rounded-[8px] text-start border-2 mt-[5px] focus-visible:ring-0 shadow-none px-2 h-9 ${
           error ? "border-red-500" : "border-gray-300"
         }`}
       />
 
-      {open && (
+      {open && data?.length > 0 && (
         <div className="absolute z-20 w-full mt-1 max-h-[140px] overflow-y-scroll rounded-[8px] border-2 border-gray-300 shadow-lg bg-white">
           {data.map((item, idx) => (
             <div
