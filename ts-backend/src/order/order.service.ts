@@ -657,7 +657,7 @@ export class OrderService {
         // status guard
         this.assertStatus(
             order.status,
-            [OrderStatus.PICKUP_STARTED],
+            [OrderStatus.PICKUP_STARTED], 
             'mark as picked up'
         );
 
