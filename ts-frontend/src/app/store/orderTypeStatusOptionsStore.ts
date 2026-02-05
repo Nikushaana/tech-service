@@ -17,8 +17,8 @@ export const useOrderTypeStatusOptionsStore = create<OrderTypeStatusOptionsState
         { id: "fix_on_site", name: "შეკეთება ადგილზე" },
     ],
     statusOptions: [
-        { id: "waiting_pre_payment", name: "წინასწარი ანგარიშსწორების მოლოდინში" },
-        { id: "pending", name: "მუშავდება" },
+        { id: "pending_creation_payment", name: "წინასწარი ანგარიშსწორების მოლოდინში" },
+        { id: "processing", name: "მუშავდება" },
         { id: "assigned", name: "გადანაწილებულია" },
 
         // off site
@@ -29,7 +29,8 @@ export const useOrderTypeStatusOptionsStore = create<OrderTypeStatusOptionsState
         { id: "inspection", name: "მიმდინარეობს დიაგნოსტიკა" },
         { id: "waiting_decision", name: "გადაწყვეტილების მოლოდინში" },
         // approve
-        { id: "repairing_off_site", name: "შეკეთება მიმდინარეობს სერვისცენტრში" },
+        { id: "pending_repairing_off_site_payment", name: "სერვისცენტრში სერვისის დასაწყებად ანგარიშსწორების მოლოდინში" },
+        { id: "repairing_off_site", name: "მიმდინარეობს სერვისცენტრში" },
         { id: "fixed_ready", name: "შეკეთებულია" },
         { id: "returning_fixed", name: "შეკეთებული ტექნიკა ბრუნდება" },
         { id: "returned_fixed", name: "შეკეთებული ტექნიკა დაბრუნდა" },
@@ -46,6 +47,7 @@ export const useOrderTypeStatusOptionsStore = create<OrderTypeStatusOptionsState
         { id: "installing", name: "მიმდინარეობს მონტაჟი" },
         { id: "repairing_on_site", name: "მიმდინარეობს ადგილზე შეკეთება" },
         { id: "waiting_payment", name: "ანგარიშსწორების მოლოდინში" },
+        { id: "pending_on_site_payment", name: "მიმდინარეობს გადახდა" },
         { id: "completed_on_site_installing", name: "მონტაჟი დასრულდა" },
         { id: "completed_on_site_repairing", name: "ადგილზე შეკეთება დასრულდა" },
     ],

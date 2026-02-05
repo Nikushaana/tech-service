@@ -5,8 +5,8 @@ export const typeLabels: Record<string, string> = {
 };
 
 export const statusLabels: Record<string, string> = {
-  waiting_pre_payment: "წინასწარი ანგარიშსწორების მოლოდინში",
-  pending: "მუშავდება",
+  pending_creation_payment: "წინასწარი ანგარიშსწორების მოლოდინში",
+  processing: "მუშავდება",
   assigned: "გადანაწილებულია",
 
   // off site
@@ -17,7 +17,7 @@ export const statusLabels: Record<string, string> = {
   inspection: "მიმდინარეობს დიაგნოსტიკა",
   waiting_decision: "გადაწყვეტილების მოლოდინში",
   // approve
-  waiting_repairing_off_site_payment: "სერვისცენტრში სერვისის დასაწყებად ანგარიშსწორების მოლოდინში",
+  pending_repairing_off_site_payment: "სერვისცენტრში სერვისის დასაწყებად ანგარიშსწორების მოლოდინში",
   repairing_off_site: "სერვისი მიმდინარეობს სერვისცენტრში",
   fixed_ready: "შეკეთებულია",
   returning_fixed: "შეკეთებული ტექნიკა ბრუნდება",
@@ -35,13 +35,14 @@ export const statusLabels: Record<string, string> = {
   installing: "მიმდინარეობს მონტაჟი",
   repairing_on_site: "მიმდინარეობს ადგილზე შეკეთება",
   waiting_payment: "ანგარიშსწორების მოლოდინში",
+  pending_on_site_payment: "მიმდინარეობს გადახდა",
   completed_on_site_installing: "მონტაჟი დასრულდა",
   completed_on_site_repairing: "ადგილზე შეკეთება დასრულდა",
 };
 
 export const statusDescriptions: Record<string, string> = {
-  waiting_pre_payment: "განაცხადი მიღებულია და ანგარიშსწორებას ელოდება",
-  pending: "დამუშავებას ელოდება",
+  pending_creation_payment: "განაცხადი მიღებულია და ანგარიშსწორებას ელოდება",
+  processing: "დამუშავებას ელოდება",
   assigned: "განაცხადი გადანაწილებულია",
 
   // off site
@@ -52,7 +53,7 @@ export const statusDescriptions: Record<string, string> = {
   inspection: "მიმდინარეობს ტექნიკის დიაგნოსტიკა",
   waiting_decision: "ტექნიკა ელოდება მომხმარებლის გადაწყვეტილებას შეკეთების დასაწყებად",
   // approve
-  waiting_repairing_off_site_payment: "სერვისცენტრში სერვისის დასაწყებად ანგარიშსწორების მოლოდინში",
+  pending_repairing_off_site_payment: "სერვისცენტრში სერვისის დასაწყებად ანგარიშსწორების მოლოდინში",
   repairing_off_site: "მიმდინარეობს ტექნიკის შეკეთება სერვისცენტრში",
   fixed_ready: "შეკეთებული ტექნიკა მზად არის დასაბრუნებლად",
   returning_fixed: "შეკეთებული ტექნიკა ბრუნდება მომხმარებელთან",
@@ -70,6 +71,7 @@ export const statusDescriptions: Record<string, string> = {
   installing: "მიმდინარეობს ტექნიკის მონტაჟი",
   repairing_on_site: "მიმდინარეობს ტექნიკის შეკეთება ადგილზე",
   waiting_payment: "მომხმარებლის ანგარიშსწორების მოლოდინში",
+  pending_on_site_payment: "მიმდინარეობს გადახდა",
   completed_on_site_installing: "მონტაჟი წარმატებით დასრულდა",
   completed_on_site_repairing: "შეკეთება ადგილზე წარმატებით დასრულდა",
 };
