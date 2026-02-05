@@ -1,6 +1,6 @@
 export enum OrderStatus {
-  WAITING_PRE_PAYMENT  = 'waiting_pre_payment',
-  PENDING = 'pending',
+  PENDING_CREATION_PAYMENT  = 'pending_creation_payment',
+  PROCESSING = 'processing',
   ASSIGNED = 'assigned',
 
   // off site
@@ -11,7 +11,7 @@ export enum OrderStatus {
   INSPECTION = 'inspection',
   WAITING_DECISION = 'waiting_decision',
   // approve
-  WAITING_REPAIRING_OFF_SITE_PAYMENT = 'waiting_repairing_off_site_payment',
+  PENDING_REPAIRING_OFF_SITE_PAYMENT = 'pending_repairing_off_site_payment',
   REPAIRING_OFF_SITE = 'repairing_off_site',
   FIXED_READY = 'fixed_ready',
   RETURNING_FIXED = 'returning_fixed',
@@ -29,6 +29,7 @@ export enum OrderStatus {
   INSTALLING = 'installing',
   REPAIRING_ON_SITE = 'repairing_on_site',
   WAITING_PAYMENT = 'waiting_payment',
+  PENDING_ON_SITE_PAYMENT = 'pending_on_site_payment',
   COMPLETED_ON_SITE_INSTALLING = 'completed_on_site_installing',
   COMPLETED_ON_SITE_REPAIRING = 'completed_on_site_repairing'
 }

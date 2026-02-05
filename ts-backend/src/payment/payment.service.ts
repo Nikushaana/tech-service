@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { OrderStatus } from 'src/common/types/order-status.enum';
+import { OrderType } from 'src/common/types/order-type.enum';
 import { TransactionStatus } from 'src/common/types/transaction-status.enum';
 import { NotificationFor } from 'src/notifications/entities/notification.entity';
 import { NotificationsService } from 'src/notifications/notifications.service';
@@ -37,11 +38,17 @@ export class PaymentService {
         }
 
         // Update order status
-        if (order.status === OrderStatus.WAITING_PRE_PAYMENT) {
-            order.status = OrderStatus.PENDING;
-        } else if (order.status === OrderStatus.WAITING_REPAIRING_OFF_SITE_PAYMENT) {
+        if (order.status === OrderStatus.PENDING_CREATION_PAYMENT) {
+            order.status = OrderStatus.PROCESSING;
+        } else if (order.status === OrderStatus.PENDING_REPAIRING_OFF_SITE_PAYMENT) {
             order.status = OrderStatus.REPAIRING_OFF_SITE;
+        } else if (order.status === OrderStatus.PENDING_ON_SITE_PAYMENT) {
+            order.status =
+                order.service_type === OrderType.INSTALLATION
+                    ? OrderStatus.COMPLETED_ON_SITE_INSTALLING
+                    : OrderStatus.COMPLETED_ON_SITE_REPAIRING;
         }
+
         await this.orderRepo.save(order);
 
         // Update transaction status
@@ -52,7 +59,7 @@ export class PaymentService {
 
         // send notification to admin
         await this.notificationService.sendNotification(
-            `შეკვეთა №${order.id}: ${order.status === OrderStatus.PENDING ? "წინასწარი გადახდა შესრულდა, ახლა გრძელდება შეკვეთის დამუშავება." : "გადახდა შესრულდა, სერვისი მიმდინარეობს ადგილზე."}`,
+            `შეკვეთა №${order.id}: ${order.status === OrderStatus.PROCESSING ? "წინასწარი გადახდა შესრულდა, ახლა გრძელდება შეკვეთის დამუშავება." : "გადახდა შესრულდა, სერვისი მიმდინარეობს ადგილზე."}`,
             'order_updated',
             'admin',
             undefined,
@@ -61,7 +68,7 @@ export class PaymentService {
 
         // send notification to user
         await this.notificationService.sendNotification(
-            `შეკვეთა №${order.id}: ${order.status === OrderStatus.PENDING ? "წინასწარი გადახდა შესრულდა, ახლა გრძელდება შეკვეთის დამუშავება." : "გადახდა შესრულდა, სერვისი მიმდინარეობს ადგილზე."}`,
+            `შეკვეთა №${order.id}: ${order.status === OrderStatus.PROCESSING ? "წინასწარი გადახდა შესრულდა, ახლა გრძელდება შეკვეთის დამუშავება." : "გადახდა შესრულდა, სერვისი მიმდინარეობს ადგილზე."}`,
             'order_updated',
             user.role as NotificationFor,
             user.id,

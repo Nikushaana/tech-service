@@ -1,8 +1,8 @@
 import { OrderStatus } from "../types/order-status.enum";
 
 export const OrderStatusLabelsGeorgian: Record<OrderStatus, string> = {
-    [OrderStatus.WAITING_PRE_PAYMENT]: "წინასწარი ანგარიშსწორების მოლოდინში",
-    [OrderStatus.PENDING]: "მუშავდება",
+    [OrderStatus.PENDING_CREATION_PAYMENT]: "წინასწარი ანგარიშსწორების მოლოდინში",
+    [OrderStatus.PROCESSING]: "მუშავდება",
     [OrderStatus.ASSIGNED]: "გადანაწილებულია",
 
     // off site
@@ -13,7 +13,7 @@ export const OrderStatusLabelsGeorgian: Record<OrderStatus, string> = {
     [OrderStatus.INSPECTION]: "მიმდინარეობს დიაგნოსტიკა",
     [OrderStatus.WAITING_DECISION]: "გადაწყვეტილების მოლოდინში",
     // approve
-    [OrderStatus.WAITING_REPAIRING_OFF_SITE_PAYMENT]: "სერვისცენტრში სერვისის დასაწყებად ანგარიშსწორების მოლოდინში",
+    [OrderStatus.PENDING_REPAIRING_OFF_SITE_PAYMENT]: "სერვისცენტრში სერვისის დასაწყებად ანგარიშსწორების მოლოდინში",
     [OrderStatus.REPAIRING_OFF_SITE]: "სერვისი მიმდინარეობს სერვისცენტრში",
     [OrderStatus.FIXED_READY]: "შეკეთებულია",
     [OrderStatus.RETURNING_FIXED]: "შეკეთებული ტექნიკა ბრუნდება",
@@ -31,6 +31,7 @@ export const OrderStatusLabelsGeorgian: Record<OrderStatus, string> = {
     [OrderStatus.INSTALLING]: "მიმდინარეობს მონტაჟი",
     [OrderStatus.REPAIRING_ON_SITE]: "მიმდინარეობს ადგილზე შეკეთება",
     [OrderStatus.WAITING_PAYMENT]: "ანგარიშსწორების მოლოდინში",
+    [OrderStatus.PENDING_ON_SITE_PAYMENT]: "მიმდინარეობს გადახდა",
     [OrderStatus.COMPLETED_ON_SITE_INSTALLING]: "მონტაჟი დასრულდა",
     [OrderStatus.COMPLETED_ON_SITE_REPAIRING]: "ადგილზე შეკეთება დასრულდა",
 };

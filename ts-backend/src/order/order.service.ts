@@ -268,8 +268,8 @@ export class OrderService {
         });
         if (!order) throw new NotFoundException('Order not found');
 
-        if (order.status !== 'pending' && order.status !== 'waiting_pre_payment') {
-            throw new BadRequestException('Only pending or waiting_pre_payment orders can be updated');
+        if (order.status !== OrderStatus.PROCESSING && order.status !== OrderStatus.PENDING_CREATION_PAYMENT) {
+            throw new BadRequestException('Only processing or pending_creation_payment orders can be updated');
         }
 
         if (updateUserOrderDto.categoryId) {
@@ -800,7 +800,7 @@ export class OrderService {
             `make a repair decision`
         );
 
-        order.status = repairDecisionDto.decision == "approve" ? OrderStatus.WAITING_REPAIRING_OFF_SITE_PAYMENT : OrderStatus.REPAIR_CANCELLED;
+        order.status = repairDecisionDto.decision == "approve" ? OrderStatus.PENDING_REPAIRING_OFF_SITE_PAYMENT : OrderStatus.REPAIR_CANCELLED;
 
         if (repairDecisionDto.decision === 'cancel') {
             if (!repairDecisionDto.reason) {
@@ -1197,10 +1197,10 @@ export class OrderService {
         this.assertStatus(
             order.status,
             [OrderStatus.WAITING_PAYMENT],
-            `mark as completed on site`
+            `start payment`
         );
 
-        order.status = order.service_type == OrderType.INSTALLATION ? OrderStatus.COMPLETED_ON_SITE_INSTALLING : OrderStatus.COMPLETED_ON_SITE_REPAIRING;
+        order.status = OrderStatus.PENDING_ON_SITE_PAYMENT;
 
         await this.orderRepo.save(order)
 
@@ -1211,8 +1211,23 @@ export class OrderService {
             { role: 'technician', id: order.technician?.id }
         ]);
 
+        // Create transaction for this order repair approve
+        const transaction = await this.transactionsService.createTransaction({
+            amount: order.payment_amount,
+            reason: `შეკვეთა №${order.id} ${order.service_type === OrderType.INSTALLATION ? "ინსტალაციის" : "შეკეთების"} გადასახადი`,
+            type: TransactionType.DEBIT,
+            provider: PaymentProvider.BOG,
+            individualId: order.individual?.id ?? null,
+            companyId: order.company?.id ?? null,
+            orderId: order.id
+        });
+
+        // mocked payment
+        await this.paymentService.mockPayOrder(transaction.id);
+
+
         return {
-            message: `Completed on site successfully`,
+            message: `Waiting payment to Complete on site successfully`,
             order: instanceToPlain(order),
         };
     }
