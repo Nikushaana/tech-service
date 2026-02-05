@@ -59,7 +59,9 @@ export class PaymentService {
 
         // send notification to admin
         await this.notificationService.sendNotification(
-            `შეკვეთა №${order.id}: ${order.status === OrderStatus.PROCESSING ? "წინასწარი გადახდა შესრულდა, ახლა გრძელდება შეკვეთის დამუშავება." : "გადახდა შესრულდა, სერვისი მიმდინარეობს ადგილზე."}`,
+            `შეკვეთა №${order.id}: ${order.status === OrderStatus.PROCESSING ? "წინასწარი გადახდა შესრულდა, ახლა გრძელდება შეკვეთის დამუშავება." :
+                order.status === OrderStatus.REPAIRING_OFF_SITE ? "გადახდა შესრულდა, სერვისი მიმდინარეობს სერვისცენტრში." :
+                    "გადახდა შესრულდა, სერვისი ადგილზე დასრულდა."}`,
             'order_updated',
             'admin',
             undefined,
@@ -68,7 +70,9 @@ export class PaymentService {
 
         // send notification to user
         await this.notificationService.sendNotification(
-            `შეკვეთა №${order.id}: ${order.status === OrderStatus.PROCESSING ? "წინასწარი გადახდა შესრულდა, ახლა გრძელდება შეკვეთის დამუშავება." : "გადახდა შესრულდა, სერვისი მიმდინარეობს ადგილზე."}`,
+            `შეკვეთა №${order.id}: ${order.status === OrderStatus.PROCESSING ? "წინასწარი გადახდა შესრულდა, ახლა გრძელდება შეკვეთის დამუშავება." :
+                order.status === OrderStatus.REPAIRING_OFF_SITE ? "გადახდა შესრულდა, სერვისი მიმდინარეობს სერვისცენტრში." :
+                    "გადახდა შესრულდა, სერვისი ადგილზე დასრულდა."}`,
             'order_updated',
             user.role as NotificationFor,
             user.id,
