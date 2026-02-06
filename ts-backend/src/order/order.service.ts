@@ -815,7 +815,7 @@ export class OrderService {
         await this.notifyOrderStatusUpdate(order, [
             { role: 'admin' },
             { role: order.company?.id ? 'company' : 'individual', id: userId },
-            { role: 'technician', id: order.technician?.id },
+            // { role: 'technician', id: order.technician?.id },
         ]);
 
         if (repairDecisionDto.decision == "approve") {

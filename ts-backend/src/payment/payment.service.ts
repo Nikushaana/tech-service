@@ -79,6 +79,18 @@ export class PaymentService {
             { order_id: order.id },
         );
 
+        {
+            order.status === OrderStatus.REPAIRING_OFF_SITE &&
+                // send notification to technician
+                await this.notificationService.sendNotification(
+                    `შეკვეთა №${order.id}: გადახდა შესრულდა, სერვისი მიმდინარეობს სერვისცენტრში.`,
+                    'order_updated',
+                    "technician",
+                    order.technician?.id,
+                    { order_id: order.id },
+                );
+        }
+
         return {
             success: true,
             message: 'Payment successful',
