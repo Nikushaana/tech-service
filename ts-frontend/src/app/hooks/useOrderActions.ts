@@ -1,12 +1,12 @@
-import { useState } from "react";
 import { toast } from "react-toastify";
 import { useQueryClient } from "@tanstack/react-query";
 import { axiosCompany, axiosDelivery, axiosIndividual, axiosTechnician } from "../lib/api/axios";
+import { useOrderFlowStore } from "../store/useOrderFlowStore";
 
 export function useOrderActions() {
     const queryClient = useQueryClient();
-    const [loadingAction, setLoadingAction] = useState<string | null>(null);
-
+    const { setLoadingAction } = useOrderFlowStore();
+    
     const handle = async (
         action: string,
         request: () => Promise<any>,
@@ -26,14 +26,11 @@ export function useOrderActions() {
                 position: "bottom-right",
                 autoClose: 3000,
             });
-        } finally {
             setLoadingAction(null);
         }
     };
 
     return {
-        loadingAction,
-
         // DELIVERY
         startPickup: (id: number) =>
             handle(

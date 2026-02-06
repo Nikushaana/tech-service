@@ -13,6 +13,7 @@ import {
 } from "@/app/utils/order-type-status-translations";
 import { OrderFlowActions } from "@/app/components/order-flow-actions/order-flow-actions";
 import { axiosDelivery, axiosTechnician } from "@/app/lib/api/axios";
+import { useOrderFlowStore } from "@/app/store/useOrderFlowStore";
 
 const fetchStaffOrder = async (staffType: StaffRole, orderId: string) => {
   const api = staffType === "technician" ? axiosTechnician : axiosDelivery;
@@ -26,10 +27,12 @@ export default function Page() {
     orderId: string;
   }>();
 
+  const { setLoadingAction } = useOrderFlowStore();
+
   const router = useRouter();
 
   const {
-    data: order = {},
+    data: order,
     isLoading,
     isError,
   } = useQuery({
@@ -38,6 +41,12 @@ export default function Page() {
     staleTime: 1000 * 60 * 10,
     retry: false,
   });
+
+  useEffect(() => {
+    if (order) {
+      setLoadingAction(null);
+    }
+  }, [order, setLoadingAction]);
 
   useEffect(() => {
     if (isError) {

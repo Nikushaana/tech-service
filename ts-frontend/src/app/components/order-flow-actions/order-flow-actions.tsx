@@ -6,13 +6,13 @@ import { Loader2Icon } from "lucide-react";
 
 export function OrderFlowActions({ role, order }: any) {
   const actions = useOrderActions();
-  const { HandleOpenOrderFlowModal } = useOrderFlowStore();
+  const { loadingAction, HandleOpenOrderFlowModal } = useOrderFlowStore();
 
   const activeButton = orderActions.filter(
     (a) =>
       a.role.includes(role) &&
       a.status.includes(order.status) &&
-      (!a.serviceType || a.serviceType.includes(order.service_type))
+      (!a.serviceType || a.serviceType.includes(order.service_type)),
   );
 
   if (activeButton.length < 1) return null;
@@ -24,7 +24,11 @@ export function OrderFlowActions({ role, order }: any) {
           <Button
             key={action.key}
             className={`${action.key === "decisionCancel" && "bg-red-400 hover:bg-red-500"} cursor-pointer`}
-            disabled={actions.loadingAction === action.key}
+            disabled={
+              loadingAction === action.key ||
+              loadingAction === "decisionApprove" ||
+              loadingAction === "decisionCancel"
+            }
             onClick={() => {
               if (
                 action.key === "waitingDecision" ||
@@ -37,7 +41,7 @@ export function OrderFlowActions({ role, order }: any) {
                     | "waitingDecision"
                     | "waitingPayment"
                     | "decisionCancel",
-                  role
+                  role,
                 );
               } else if (
                 action.key === "toTechnician" ||
@@ -51,14 +55,14 @@ export function OrderFlowActions({ role, order }: any) {
                   "decisionApprove",
                   order.id,
                   { decision: "approve" },
-                  role
+                  role,
                 );
               } else {
                 actions[action.key](order.id);
               }
             }}
           >
-            {actions.loadingAction === action.key && (
+            {loadingAction === action.key && (
               <Loader2Icon className="animate-spin" />
             )}
             {action.label}

@@ -17,7 +17,7 @@ interface FormValues {
 }
 
 export default function OrderFlow() {
-  const { openOrderFlowModal, HandleCloseOrderFlowModal } = useOrderFlowStore();
+  const { loadingAction, openOrderFlowModal, HandleCloseOrderFlowModal } = useOrderFlowStore();
   const actions = useOrderActions();
 
   const [values, setValues] = useState<FormValues>({
@@ -98,8 +98,8 @@ export default function OrderFlow() {
       }
     }
   };
-
-  const isPending = actions.loadingAction === openOrderFlowModal?.actionKey;
+  
+  const isPending = loadingAction === openOrderFlowModal?.actionKey;
 
   return (
     <div

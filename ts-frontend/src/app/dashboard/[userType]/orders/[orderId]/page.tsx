@@ -13,10 +13,12 @@ import {
 } from "@/app/utils/order-type-status-translations";
 import { OrderFlowActions } from "@/app/components/order-flow-actions/order-flow-actions";
 import { axiosCompany, axiosIndividual } from "@/app/lib/api/axios";
+import { useOrderFlowStore } from "@/app/store/useOrderFlowStore";
 
 const fetchUserOrder = async (userType: ClientRole, orderId: string) => {
   const api = userType === "company" ? axiosCompany : axiosIndividual;
   const { data } = await api.get(`${userType}/orders/${orderId}`);
+
   return data;
 };
 
@@ -25,6 +27,8 @@ export default function Page() {
     userType: ClientRole;
     orderId: string;
   }>();
+
+  const { setLoadingAction } = useOrderFlowStore();
 
   const { toggleOpenUpdateOrderModal } = useUpdateOrderStore();
 
@@ -40,6 +44,12 @@ export default function Page() {
     staleTime: 1000 * 60 * 10,
     retry: false,
   });
+
+  useEffect(() => {
+    if (order) {
+      setLoadingAction(null);
+    }
+  }, [order, setLoadingAction]);
 
   useEffect(() => {
     if (isError) {
