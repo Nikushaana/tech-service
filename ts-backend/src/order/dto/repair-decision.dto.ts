@@ -7,7 +7,7 @@ export enum RepairDecision {
 
 export class RepairDecisionDto {
     @IsEnum(RepairDecision)
-    decision: RepairDecision;
+    decision!: RepairDecision;
 
     @IsOptional()
     @IsString()

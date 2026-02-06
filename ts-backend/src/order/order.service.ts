@@ -16,7 +16,7 @@ import { Delivery } from 'src/delivery/entities/delivery.entity';
 import { Technician } from 'src/technician/entities/technician.entity';
 import { BranchesService } from 'src/branches/branches.service';
 import { OrderStatus } from 'src/common/types/order-status.enum';
-import { RepairDecisionDto } from './dto/repair-decision.dto';
+import { RepairDecision, RepairDecisionDto } from './dto/repair-decision.dto';
 import { OrderType } from 'src/common/types/order-type.enum';
 import { TechnicianRequestPaymentDto } from './dto/technician-request-payment.dto';
 import { OrderTypeLabelsGeorgian } from 'src/common/labels/order-type-labels';
@@ -78,6 +78,8 @@ export class OrderService {
         order: Order,
         roles: Array<{ role: "admin" | "company" | "individual" | "delivery" | "technician"; id?: number }>
     ) {
+        if (!roles.length) return;
+        
         const label = OrderStatusLabelsGeorgian[order.status] || order.status;
 
         for (const r of roles) {
@@ -657,7 +659,7 @@ export class OrderService {
         // status guard
         this.assertStatus(
             order.status,
-            [OrderStatus.PICKUP_STARTED], 
+            [OrderStatus.PICKUP_STARTED],
             'mark as picked up'
         );
 
@@ -800,7 +802,7 @@ export class OrderService {
             `make a repair decision`
         );
 
-        order.status = repairDecisionDto.decision == "approve" ? OrderStatus.PENDING_REPAIRING_OFF_SITE_PAYMENT : OrderStatus.REPAIR_CANCELLED;
+        order.status = repairDecisionDto.decision == RepairDecision.APPROVE ? OrderStatus.PENDING_REPAIRING_OFF_SITE_PAYMENT : OrderStatus.REPAIR_CANCELLED;
 
         if (repairDecisionDto.decision === 'cancel') {
             if (!repairDecisionDto.reason) {
@@ -815,7 +817,9 @@ export class OrderService {
         await this.notifyOrderStatusUpdate(order, [
             { role: 'admin' },
             { role: order.company?.id ? 'company' : 'individual', id: userId },
-            // { role: 'technician', id: order.technician?.id },
+            ...(repairDecisionDto.decision === RepairDecision.CANCEL
+                ? [{ role: 'technician' as const, id: order.technician?.id }]
+                : []),
         ]);
 
         if (repairDecisionDto.decision == "approve") {
