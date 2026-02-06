@@ -30,7 +30,7 @@ export class PaymentService {
 
         const order = await this.orderRepo.findOne({
             where: { id: transaction?.orderId },
-            relations: ['company', 'individual'],
+            relations: ['company', 'individual', 'technician'],
         });
 
         if (!order) {
