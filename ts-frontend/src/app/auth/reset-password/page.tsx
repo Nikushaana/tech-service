@@ -42,21 +42,12 @@ export default function SendResetPasswordCode() {
           router.push("/auth/login");
           resetValues();
 
-          toast.success("პაროლი განახლდა", {
-            position: "bottom-right",
-            autoClose: 3000,
-          });
+          toast.success("პაროლი განახლდა");
         })
         .catch((error) => {
           error.response.data.message === "Invalid code"
-            ? toast.error("კოდი არასწორია", {
-                position: "bottom-right",
-                autoClose: 3000,
-              })
-            : toast.error("პაროლი ვერ განახლდა", {
-                position: "bottom-right",
-                autoClose: 3000,
-              });
+            ? toast.error("კოდი არასწორია")
+            : toast.error("პაროლი ვერ განახლდა");
         })
         .finally(() => {
           setLoading(true);
@@ -67,10 +58,7 @@ export default function SendResetPasswordCode() {
         err.inner.forEach((e: any) => {
           if (e.path) {
             setErrors(e.path, e.message);
-            toast.error(e.message, {
-              position: "bottom-right",
-              autoClose: 3000,
-            });
+            toast.error(e.message);
           }
         });
       }

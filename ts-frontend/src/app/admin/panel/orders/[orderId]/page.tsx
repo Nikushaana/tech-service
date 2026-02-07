@@ -135,10 +135,7 @@ export default function Page() {
       axiosAdmin.patch(`admin/orders/${orderId}`, payload),
 
     onSuccess: () => {
-      toast.success("შეკვეთა განახლდა", {
-        position: "bottom-right",
-        autoClose: 3000,
-      });
+      toast.success("შეკვეთა განახლდა");
 
       // refetch order data
       queryClient.invalidateQueries({
@@ -151,10 +148,7 @@ export default function Page() {
     },
 
     onError: () => {
-      toast.error("ვერ განახლდა", {
-        position: "bottom-right",
-        autoClose: 3000,
-      });
+      toast.error("ვერ განახლდა");
     },
   });
 
@@ -182,10 +176,7 @@ export default function Page() {
             ...prev,
             [e.path]: e.message,
           }));
-          toast.error(e.message, {
-            position: "bottom-right",
-            autoClose: 3000,
-          });
+          toast.error(e.message);
         });
       }
     }

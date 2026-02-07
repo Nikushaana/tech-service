@@ -59,10 +59,7 @@ export default function StaffPasswordUpdate() {
             repeatNewPassword: "",
           }));
 
-          toast.success(`პაროლი განახლდა`, {
-            position: "bottom-right",
-            autoClose: 3000,
-          });
+          toast.success(`პაროლი განახლდა`);
         })
         .catch((error) => {
           if (error.response.data.message === "Old password is incorrect") {
@@ -70,15 +67,9 @@ export default function StaffPasswordUpdate() {
               ...prev,
               oldPassword: "შეცდომა",
             }));
-            toast.error("ძველი პაროლი არასწორია", {
-              position: "bottom-right",
-              autoClose: 3000,
-            });
+            toast.error("ძველი პაროლი არასწორია");
           } else {
-            toast.error("პაროლი ვერ განახლდა", {
-              position: "bottom-right",
-              autoClose: 3000,
-            });
+            toast.error("პაროლი ვერ განახლდა");
           }
         })
         .finally(() => {
@@ -91,10 +82,7 @@ export default function StaffPasswordUpdate() {
         err.inner.forEach((e: any) => {
           if (e.path) {
             newErrors[e.path] = e.message;
-            toast.error(e.message, {
-              position: "bottom-right",
-              autoClose: 3000,
-            });
+            toast.error(e.message);
           }
         });
         setErrors(newErrors);

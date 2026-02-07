@@ -36,10 +36,7 @@ export default function Page() {
     mutationFn: (id: number) => axiosAdmin.delete(`admin/categories/${id}`),
 
     onSuccess: () => {
-      toast.success("კატეგორია წაიშალა", {
-        position: "bottom-right",
-        autoClose: 3000,
-      });
+      toast.success("კატეგორია წაიშალა");
 
       queryClient.invalidateQueries({
         queryKey: ["adminCategories"],
@@ -47,10 +44,7 @@ export default function Page() {
     },
 
     onError: () => {
-      toast.error("ვერ წაიშალა", {
-        position: "bottom-right",
-        autoClose: 3000,
-      });
+      toast.error("ვერ წაიშალა");
     },
   });
 

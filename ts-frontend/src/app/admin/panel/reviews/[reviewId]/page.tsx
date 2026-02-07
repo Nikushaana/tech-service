@@ -93,10 +93,7 @@ export default function Page() {
       axiosAdmin.patch(`admin/reviews/${reviewId}`, payload),
 
     onSuccess: () => {
-      toast.success("შეფასება განახლდა", {
-        position: "bottom-right",
-        autoClose: 3000,
-      });
+      toast.success("შეფასება განახლდა");
 
       // refetch review data
       queryClient.invalidateQueries({
@@ -114,10 +111,7 @@ export default function Page() {
     },
 
     onError: () => {
-      toast.error("ვერ განახლდა", {
-        position: "bottom-right",
-        autoClose: 3000,
-      });
+      toast.error("ვერ განახლდა");
     },
   });
 
@@ -146,10 +140,7 @@ export default function Page() {
               ...prev,
               [e.path]: e.message,
             }));
-            toast.error(e.message, {
-              position: "bottom-right",
-              autoClose: 3000,
-            });
+            toast.error(e.message);
           }
         });
       }

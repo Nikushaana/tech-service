@@ -50,24 +50,15 @@ export default function SendAdminStaffRegisterCode() {
 
           setValues("testcode", res.data.code);
 
-          toast.success("კოდი გამოიგზავნა", {
-            position: "bottom-right",
-            autoClose: 3000,
-          });
+          toast.success("კოდი გამოიგზავნა");
 
           resetErrors();
         })
         .catch((error) => {
           if (error.response.data.message === "Phone already used") {
-            toast.error("ტელეფონის ნომერი გამოყენებულია", {
-              position: "bottom-right",
-              autoClose: 3000,
-            });
+            toast.error("ტელეფონის ნომერი გამოყენებულია");
           } else {
-            toast.error("კოდი ვერ გამოიგზავნა", {
-              position: "bottom-right",
-              autoClose: 3000,
-            });
+            toast.error("კოდი ვერ გამოიგზავნა");
           }
 
           setErrors("phone", "შეცდომა");
@@ -81,10 +72,7 @@ export default function SendAdminStaffRegisterCode() {
         err.inner.forEach((e: any) => {
           if (e.path) {
             setErrors(e.path, e.message);
-            toast.error(e.message, {
-              position: "bottom-right",
-              autoClose: 3000,
-            });
+            toast.error(e.message);
           }
         });
       }

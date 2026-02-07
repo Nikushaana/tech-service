@@ -58,10 +58,7 @@ export default function CreateReview() {
       ),
 
     onSuccess: () => {
-      toast.success("შეფასება დაემატა", {
-        position: "bottom-right",
-        autoClose: 3000,
-      });
+      toast.success("შეფასება დაემატა");
 
       // refresh reviews list
       queryClient.invalidateQueries({
@@ -83,10 +80,7 @@ export default function CreateReview() {
     },
 
     onError: () => {
-      toast.error("შეფასება ვერ დაემატა", {
-        position: "bottom-right",
-        autoClose: 3000,
-      });
+      toast.error("შეფასება ვერ დაემატა");
     },
   });
 
@@ -101,10 +95,7 @@ export default function CreateReview() {
         err.inner.forEach((e: any) => {
           if (e.path) {
             newErrors[e.path] = e.message;
-            toast.error(e.message, {
-              position: "bottom-right",
-              autoClose: 3000,
-            });
+            toast.error(e.message);
           }
         });
         setErrors(newErrors);

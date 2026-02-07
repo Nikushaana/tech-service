@@ -36,10 +36,7 @@ export default function Page() {
     mutationFn: (id: number) => axiosAdmin.delete(`admin/branches/${id}`),
 
     onSuccess: () => {
-      toast.success("ფილიალი წაიშალა", {
-        position: "bottom-right",
-        autoClose: 3000,
-      });
+      toast.success("ფილიალი წაიშალა");
 
       queryClient.invalidateQueries({
         queryKey: ["adminBranches"],
@@ -47,10 +44,7 @@ export default function Page() {
     },
 
     onError: () => {
-      toast.error("ვერ წაიშალა", {
-        position: "bottom-right",
-        autoClose: 3000,
-      });
+      toast.error("ვერ წაიშალა");
     },
   });
 

@@ -84,10 +84,7 @@ export default function Page() {
       axiosAdmin.patch(`admin/faqs/${faqId}`, payload),
 
     onSuccess: () => {
-      toast.success("FAQ განახლდა", {
-        position: "bottom-right",
-        autoClose: 3000,
-      });
+      toast.success("FAQ განახლდა");
 
       // refetch faq data
       queryClient.invalidateQueries({
@@ -102,10 +99,7 @@ export default function Page() {
     },
 
     onError: () => {
-      toast.error("ვერ განახლდა", {
-        position: "bottom-right",
-        autoClose: 3000,
-      });
+      toast.error("ვერ განახლდა");
     },
   });
 
@@ -120,10 +114,7 @@ export default function Page() {
         err.inner.forEach((e: any) => {
           if (e.path) {
             newErrors[e.path] = e.message;
-            toast.error(e.message, {
-              position: "bottom-right",
-              autoClose: 3000,
-            });
+            toast.error(e.message);
           }
         });
         setErrors(newErrors);

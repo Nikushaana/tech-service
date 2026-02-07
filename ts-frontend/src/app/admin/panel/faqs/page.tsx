@@ -36,10 +36,7 @@ export default function Page() {
     mutationFn: (id: number) => axiosAdmin.delete(`admin/faqs/${id}`),
 
     onSuccess: () => {
-      toast.success("FAQ წაიშალა", {
-        position: "bottom-right",
-        autoClose: 3000,
-      });
+      toast.success("FAQ წაიშალა");
 
       queryClient.invalidateQueries({
         queryKey: ["adminFaqs"],
@@ -47,10 +44,7 @@ export default function Page() {
     },
 
     onError: () => {
-      toast.error("ვერ წაიშალა", {
-        position: "bottom-right",
-        autoClose: 3000,
-      });
+      toast.error("ვერ წაიშალა");
     },
   });
 

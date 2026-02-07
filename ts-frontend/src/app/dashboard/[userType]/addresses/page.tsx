@@ -35,10 +35,7 @@ export default function Page() {
       ),
 
     onSuccess: () => {
-      toast.success("მისამართი წაიშალა", {
-        position: "bottom-right",
-        autoClose: 3000,
-      });
+      toast.success("მისამართი წაიშალა");
 
       queryClient.invalidateQueries({
         queryKey: ["userAddresses"],
@@ -51,14 +48,10 @@ export default function Page() {
         "Address cannot be deleted because it is used in an order"
       ) {
         toast.error(
-          "მისამართი ვერ წაიშლება, რადგან გამოყენებულია ერთ-ერთ შეკვეთაში",
-          { position: "bottom-right", autoClose: 3000 }
+          "მისამართი ვერ წაიშლება, რადგან გამოყენებულია ერთ-ერთ შეკვეთაში"
         );
       } else {
-        toast.error("მისამართი ვერ წაიშალა", {
-          position: "bottom-right",
-          autoClose: 3000,
-        });
+        toast.error("მისამართი ვერ წაიშალა");
       }
     },
   });

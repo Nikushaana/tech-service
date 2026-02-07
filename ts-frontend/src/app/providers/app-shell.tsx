@@ -65,7 +65,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     const listener = ({ type }: { type: string }) => {
       // Refetch the notification queries
       const role = currentUser.role;
-      
+
       // Play sound
       const audio = new Audio("/sounds/light-hearted-message-tone.mp3");
 
@@ -86,10 +86,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         }
         if (type == "profile_updated" || type == "order_updated") {
           audio.play().catch(() => {});
-          toast.success(`ახალი შეტყობინება`, {
-            position: "bottom-right",
-            autoClose: 3000,
-          });
+          toast.success(`ახალი შეტყობინება`);
         }
       }
 
@@ -107,10 +104,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         }
         if (type == "profile_updated" || type == "order_updated") {
           audio.play().catch(() => {});
-          toast.success(`ახალი შეტყობინება`, {
-            position: "bottom-right",
-            autoClose: 3000,
-          });
+          toast.success(`ახალი შეტყობინება`);
         }
       }
 
@@ -134,10 +128,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         }
         if (type == "new_user" || type == "new_order" || type == "new_review") {
           audio.play().catch(() => {});
-          toast.success(`ახალი შეტყობინება`, {
-            position: "bottom-right",
-            autoClose: 3000,
-          });
+          toast.success(`ახალი შეტყობინება`);
         }
       }
     };
@@ -160,7 +151,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       {/* Global UI */}
       <ScrollToTop />
       <BurgerMenu />
-      <ToastContainer />
+      <ToastContainer position="bottom-right" autoClose={3000} />
 
       {/* Auth */}
       <AuthRehydrate />

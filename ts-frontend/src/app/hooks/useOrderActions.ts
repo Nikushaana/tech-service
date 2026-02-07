@@ -15,17 +15,11 @@ export function useOrderActions() {
         try {
             setLoadingAction(action);
             await request();
-            toast.success(successMsg, {
-                position: "bottom-right",
-                autoClose: 3000,
-            });
+            toast.success(successMsg);
             queryClient.invalidateQueries({ queryKey: ["staffOrders"] });
             queryClient.invalidateQueries({ queryKey: ["userOrder"] });
         } catch (error: any) {
-            toast.error(error?.response?.data?.message || "შეცდომა", {
-                position: "bottom-right",
-                autoClose: 3000,
-            });
+            toast.error(error?.response?.data?.message || "შეცდომა");
             setLoadingAction(null);
         }
     };

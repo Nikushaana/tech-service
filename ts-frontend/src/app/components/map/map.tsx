@@ -57,11 +57,7 @@ export default function Map({
         },
         (error) => {
           toast.warning(
-            "თქვენი მდებარეობის დასადგენად გთხოვთ გააქტიუროთ მდებარეობის გაზიარება.",
-            {
-              position: "bottom-right",
-              autoClose: 3000,
-            }
+            "თქვენი მდებარეობის დასადგენად გთხოვთ გააქტიუროთ მდებარეობის გაზიარება."
           );
         }
       );
@@ -93,10 +89,7 @@ export default function Map({
       if (checkCoverageRadius) {
         // Check if click is inside any filial circle
         if (!branches?.length)
-          return toast.warning("დროებით ჩვენი სერვისი მიუწვდომელია.", {
-            position: "bottom-right",
-            autoClose: 3000,
-          });
+          return toast.warning("დროებით ჩვენი სერვისი მიუწვდომელია.");
 
         const insideCircle = branches.some((f: Branch) => {
           const distance =
@@ -108,10 +101,7 @@ export default function Map({
         });
 
         if (!insideCircle) {
-          toast.warning("დასვი პინი იქ, სადაც სერვისი ხელმისაწვდომია.", {
-            position: "bottom-right",
-            autoClose: 3000,
-          });
+          toast.warning("დასვი პინი იქ, სადაც სერვისი ხელმისაწვდომია.");
           return;
         } // Ignore clicks outside circles
       }

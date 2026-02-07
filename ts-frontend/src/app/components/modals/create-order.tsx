@@ -128,10 +128,7 @@ export default function CreateOrder() {
       ),
 
     onSuccess: () => {
-      toast.success("შეკვეთა დაემატა", {
-        position: "bottom-right",
-        autoClose: 3000,
-      });
+      toast.success("შეკვეთა დაემატა");
 
       // refresh orders list
       queryClient.invalidateQueries({
@@ -166,22 +163,15 @@ export default function CreateOrder() {
         error.response.data.message ==
         "Address is outside all branch coverage areas. Please choose a closer location."
       ) {
-        toast.error("აირჩიე მისამართი რომელიც სერვისის დაფარვის ზონაშია", {
-          position: "bottom-right",
-          autoClose: 3000,
-        });
+        toast.error("აირჩიე მისამართი რომელიც სერვისის დაფარვის ზონაშია");
       } else if (
         error.response.data.message == "Inactive user cannot create orders"
       ) {
         toast.error(
-          "თქვენ ვერ დაამატებთ შეკვეთას, რადგან თქვენი პროფილი გასააქტიურებელია",
-          { position: "bottom-right", autoClose: 3000 },
+          "თქვენ ვერ დაამატებთ შეკვეთას, რადგან თქვენი პროფილი გასააქტიურებელია"
         );
       } else {
-        toast.error("შეკვეთა ვერ დაემატა", {
-          position: "bottom-right",
-          autoClose: 3000,
-        });
+        toast.error("შეკვეთა ვერ დაემატა");
       }
     },
   });
@@ -215,10 +205,7 @@ export default function CreateOrder() {
         err.inner.forEach((e: any) => {
           if (e.path) {
             newErrors[e.path] = e.message;
-            toast.error(e.message, {
-              position: "bottom-right",
-              autoClose: 3000,
-            });
+            toast.error(e.message);
           }
         });
         setErrors(newErrors);

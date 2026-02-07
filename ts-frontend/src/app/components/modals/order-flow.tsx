@@ -88,10 +88,7 @@ export default function OrderFlow() {
         err.inner.forEach((e: any) => {
           if (e.path) {
             newErrors[e.path] = e.message;
-            toast.error(e.message, {
-              position: "bottom-right",
-              autoClose: 3000,
-            });
+            toast.error(e.message);
           }
         });
         setErrors(newErrors);

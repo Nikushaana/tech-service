@@ -95,10 +95,7 @@ export default function Page() {
       axiosAdmin.patch(`admin/categories/${categoryId}`, formData),
 
     onSuccess: () => {
-      toast.success("კატეგორია განახლდა", {
-        position: "bottom-right",
-        autoClose: 3000,
-      });
+      toast.success("კატეგორია განახლდა");
 
       // refetch category data
       queryClient.invalidateQueries({
@@ -115,10 +112,7 @@ export default function Page() {
     },
 
     onError: () => {
-      toast.error("ვერ განახლდა", {
-        position: "bottom-right",
-        autoClose: 3000,
-      });
+      toast.error("ვერ განახლდა");
     },
   });
 
@@ -148,10 +142,7 @@ export default function Page() {
         err.inner.forEach((e: any) => {
           if (e.path) {
             newErrors[e.path] = e.message;
-            toast.error(e.message, {
-              position: "bottom-right",
-              autoClose: 3000,
-            });
+            toast.error(e.message);
           }
         });
         setErrors(newErrors);

@@ -103,7 +103,7 @@ export const useAuthStore = create<Store>((set, get) => ({
                 get().resetValues();
                 get().resetErrors();
 
-                toast.success("ავტორიზაცია შესრულდა", { position: "bottom-right", autoClose: 3000 });
+                toast.success("ავტორიზაცია შესრულდა");
 
                 const roleRedirects: Record<string, string> = {
                     admin: "/admin/panel/main",
@@ -121,10 +121,10 @@ export const useAuthStore = create<Store>((set, get) => ({
                 if (err.inner) {
                     err.inner.forEach((e: any) => {
                         if (e.path) setErrors(e.path, e.message);
-                        toast.error(e.message, { position: "bottom-right", autoClose: 3000 });
+                        toast.error(e.message);
                     });
                 } else {
-                    toast.error("ავტორიზაცია ვერ შესრულდა", { position: "bottom-right", autoClose: 3000 });
+                    toast.error("ავტორიზაცია ვერ შესრულდა");
                     setErrors("phone", "შეცდომა");
                     setErrors("password", "შეცდომა");
                 }

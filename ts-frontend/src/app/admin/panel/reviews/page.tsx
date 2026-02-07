@@ -39,10 +39,7 @@ export default function Page() {
     mutationFn: (id: number) => axiosAdmin.delete(`admin/reviews/${id}`),
 
     onSuccess: () => {
-      toast.success("შეფასება წაიშალა", {
-        position: "bottom-right",
-        autoClose: 3000,
-      });
+      toast.success("შეფასება წაიშალა");
 
       queryClient.invalidateQueries({
         queryKey: ["adminReviews"],
@@ -50,10 +47,7 @@ export default function Page() {
     },
 
     onError: () => {
-      toast.error("ვერ წაიშალა", {
-        position: "bottom-right",
-        autoClose: 3000,
-      });
+      toast.error("ვერ წაიშალა");
     },
   });
 

@@ -57,8 +57,7 @@ export default function AdminStaffRegister() {
           toast.success(
             `${values.role == "technician" ? "ტექნიკოსი" : "კურიერი"} ${
               res.data.user.name
-            } წარმატებით დარეგისტრირდა`,
-            { position: "bottom-right", autoClose: 3000 }
+            } წარმატებით დარეგისტრირდა`
           );
 
           // refresh staff list
@@ -69,10 +68,7 @@ export default function AdminStaffRegister() {
           resetErrors();
         })
         .catch((error) => {
-          toast.error("რეგისტრაცია ვერ მოხდა", {
-            position: "bottom-right",
-            autoClose: 3000,
-          });
+          toast.error("რეგისტრაცია ვერ მოხდა");
 
           Object.keys(payload).forEach((key) => {
             setErrors(key, "შეცდომა");
@@ -87,10 +83,7 @@ export default function AdminStaffRegister() {
         err.inner.forEach((e: any) => {
           if (e.path) {
             setErrors(e.path, e.message);
-            toast.error(e.message, {
-              position: "bottom-right",
-              autoClose: 3000,
-            });
+            toast.error(e.message);
           }
 
           if (e.path === "phone") {

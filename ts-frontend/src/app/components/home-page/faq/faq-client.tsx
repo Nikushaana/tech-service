@@ -57,10 +57,7 @@ export default function FaqClient({ faqs }: { faqs: Faq[] }) {
               router.push(path);
             } else {
               router.push("/auth/login");
-              toast.warning("ასარჩევად გაიარე ავტორიზაცია", {
-                position: "bottom-right",
-                autoClose: 3000,
-              });
+              toast.warning("ასარჩევად გაიარე ავტორიზაცია");
             }
           }}
           className="flex h-[45px] px-[20px] sm:px-[30px] self-center cursor-pointer"

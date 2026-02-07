@@ -43,10 +43,7 @@ export default function Page() {
       axiosAdmin.post("admin/faq", payload),
 
     onSuccess: () => {
-      toast.success("FAQ დაემატა", {
-        position: "bottom-right",
-        autoClose: 3000,
-      });
+      toast.success("FAQ დაემატა");
 
       setValues({ question: "", answer: "" });
       setErrors({ question: "", answer: "" });
@@ -58,10 +55,7 @@ export default function Page() {
     },
 
     onError: () => {
-      toast.error("ვერ დაემატა", {
-        position: "bottom-right",
-        autoClose: 3000,
-      });
+      toast.error("ვერ დაემატა");
     },
   });
 
@@ -76,10 +70,7 @@ export default function Page() {
         err.inner.forEach((e: any) => {
           if (e.path) {
             newErrors[e.path] = e.message;
-            toast.error(e.message, {
-              position: "bottom-right",
-              autoClose: 3000,
-            });
+            toast.error(e.message);
           }
         });
         setErrors(newErrors);

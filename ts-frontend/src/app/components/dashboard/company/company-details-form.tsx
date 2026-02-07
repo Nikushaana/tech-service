@@ -119,10 +119,7 @@ export default function CompanyDetailsForm() {
       axiosCompany
         .patch(`company`, formData)
         .then((res) => {
-          toast.success(`ინფორმაცია განახლდა`, {
-            position: "bottom-right",
-            autoClose: 3000,
-          });
+          toast.success(`ინფორმაცია განახლდა`);
           rehydrate(router, pathname);
           setValues((prev) => ({
             ...prev,
@@ -130,10 +127,7 @@ export default function CompanyDetailsForm() {
           }));
         })
         .catch((error) => {
-          toast.error("ინფორმაცია ვერ განახლდა", {
-            position: "bottom-right",
-            autoClose: 3000,
-          });
+          toast.error("ინფორმაცია ვერ განახლდა");
         })
         .finally(() => {
           setLoading(false);
@@ -145,10 +139,7 @@ export default function CompanyDetailsForm() {
         err.inner.forEach((e: any) => {
           if (e.path) {
             newErrors[e.path] = e.message;
-            toast.error(e.message, {
-              position: "bottom-right",
-              autoClose: 3000,
-            });
+            toast.error(e.message);
           }
         });
         setErrors(newErrors);

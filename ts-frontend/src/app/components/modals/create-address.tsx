@@ -161,10 +161,7 @@ export default function CreateAddress() {
       ),
 
     onSuccess: () => {
-      toast.success("მისამართი დაემატა", {
-        position: "bottom-right",
-        autoClose: 3000,
-      });
+      toast.success("მისამართი დაემატა");
 
       // refresh addresses list
       queryClient.invalidateQueries({
@@ -207,10 +204,7 @@ export default function CreateAddress() {
     },
 
     onError: () => {
-      toast.error("მისამართი ვერ დაემატა", {
-        position: "bottom-right",
-        autoClose: 3000,
-      });
+      toast.error("მისამართი ვერ დაემატა");
     },
   });
 
@@ -225,10 +219,7 @@ export default function CreateAddress() {
         err.inner.forEach((e: any) => {
           if (e.path) {
             newErrors[e.path] = e.message;
-            toast.error(e.message, {
-              position: "bottom-right",
-              autoClose: 3000,
-            });
+            toast.error(e.message);
           }
         });
         setErrors(newErrors);

@@ -59,10 +59,7 @@ export default function IndividualPhoneUpdate() {
         })
         .then((res) => {
           setSentChangeNumberCode(res.data.code);
-          toast.success(`კოდი გამოიგზავნა`, {
-            position: "bottom-right",
-            autoClose: 3000,
-          });
+          toast.success(`კოდი გამოიგზავნა`);
         })
         .catch((error) => {
           setErrors((prev) => ({
@@ -71,15 +68,9 @@ export default function IndividualPhoneUpdate() {
           }));
 
           if (error.response.data.message === "Phone already used") {
-            toast.error("ტელეფონის ნომერი გამოყენებულია", {
-              position: "bottom-right",
-              autoClose: 3000,
-            });
+            toast.error("ტელეფონის ნომერი გამოყენებულია");
           } else {
-            toast.error("კოდი ვერ გამოიგზავნა", {
-              position: "bottom-right",
-              autoClose: 3000,
-            });
+            toast.error("კოდი ვერ გამოიგზავნა");
           }
         })
         .finally(() => {
@@ -92,10 +83,7 @@ export default function IndividualPhoneUpdate() {
         err.inner.forEach((e: any) => {
           if (e.path) {
             newErrors[e.path] = e.message;
-            toast.error(e.message, {
-              position: "bottom-right",
-              autoClose: 3000,
-            });
+            toast.error(e.message);
           }
         });
         setErrors(newErrors);
@@ -129,10 +117,7 @@ export default function IndividualPhoneUpdate() {
             ...prev,
             code: "",
           }));
-          toast.success(`ტელეფონის ნომერი განახლდა`, {
-            position: "bottom-right",
-            autoClose: 3000,
-          });
+          toast.success(`ტელეფონის ნომერი განახლდა`);
         })
         .catch((error) => {
           setErrors((prev) => ({
@@ -140,10 +125,7 @@ export default function IndividualPhoneUpdate() {
             code: "შეცდომა",
           }));
 
-          toast.error("ტელეფონის ნომერი ვერ განახლდა", {
-            position: "bottom-right",
-            autoClose: 3000,
-          });
+          toast.error("ტელეფონის ნომერი ვერ განახლდა");
         })
         .finally(() => {
           setLoading(false);
@@ -155,10 +137,7 @@ export default function IndividualPhoneUpdate() {
         err.inner.forEach((e: any) => {
           if (e.path) {
             newErrors[e.path] = e.message;
-            toast.error(e.message, {
-              position: "bottom-right",
-              autoClose: 3000,
-            });
+            toast.error(e.message);
           }
         });
         setErrors(newErrors);

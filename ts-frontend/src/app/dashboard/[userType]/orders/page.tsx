@@ -57,8 +57,7 @@ export default function Page() {
               toggleOpenCreateOrderModal(userType);
             } else {
               toast.error(
-                "თქვენ ვერ დაამატებთ შეკვეთას, რადგან თქვენი პროფილი გასააქტიურებელია",
-                { position: "bottom-right", autoClose: 3000 }
+                "თქვენ ვერ დაამატებთ შეკვეთას, რადგან თქვენი პროფილი გასააქტიურებელია"
               );
             }
           }}

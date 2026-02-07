@@ -38,18 +38,12 @@ export default function VerifyRegisterCode() {
         .then((res) => {
           router.push("/auth/register");
 
-          toast.success("ტელეფონის ნომერი დადასტურდა", {
-            position: "bottom-right",
-            autoClose: 3000,
-          });
+          toast.success("ტელეფონის ნომერი დადასტურდა");
 
           resetErrors();
         })
         .catch((error) => {
-          toast.error("ტელეფონის ნომერი ვერ დადასტურდა", {
-            position: "bottom-right",
-            autoClose: 3000,
-          });
+          toast.error("ტელეფონის ნომერი ვერ დადასტურდა");
 
           setErrors("code", "შეცდომა");
         })
@@ -62,10 +56,7 @@ export default function VerifyRegisterCode() {
         err.inner.forEach((e: any) => {
           if (e.path) {
             setErrors(e.path, e.message);
-            toast.error(e.message, {
-              position: "bottom-right",
-              autoClose: 3000,
-            });
+            toast.error(e.message);
           }
           if (e.path === "phone") {
             router.push("/auth/send-register-code");

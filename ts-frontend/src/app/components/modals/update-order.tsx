@@ -148,10 +148,7 @@ export default function UpdateOrder() {
       ),
 
     onSuccess: () => {
-      toast.success("სერვისი განახლდა", {
-        position: "bottom-right",
-        autoClose: 3000,
-      });
+      toast.success("სერვისი განახლდა");
 
       // refresh orders list
       queryClient.invalidateQueries({
@@ -187,14 +184,10 @@ export default function UpdateOrder() {
     onError: (error: any) => {
       if (error.response.data.message == "Inactive user cannot update orders") {
         toast.error(
-          "თქვენ ვერ განაახლებთ სერვისს, რადგან თქვენი პროფილი გასააქტიურებელია",
-          { position: "bottom-right", autoClose: 3000 },
+          "თქვენ ვერ განაახლებთ სერვისს, რადგან თქვენი პროფილი გასააქტიურებელია"
         );
       } else {
-        toast.error("სერვისი ვერ განახლდა", {
-          position: "bottom-right",
-          autoClose: 3000,
-        });
+        toast.error("სერვისი ვერ განახლდა");
       }
     },
   });
@@ -243,10 +236,7 @@ export default function UpdateOrder() {
         err.inner.forEach((e: any) => {
           if (e.path) {
             newErrors[e.path] = e.message;
-            toast.error(e.message, {
-              position: "bottom-right",
-              autoClose: 3000,
-            });
+            toast.error(e.message);
           }
         });
         setErrors(newErrors);

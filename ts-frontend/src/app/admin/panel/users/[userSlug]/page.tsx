@@ -164,10 +164,7 @@ export default function Page() {
       axiosAdmin.patch(`admin/${userType}/${userId}`, formData),
 
     onSuccess: () => {
-      toast.success("ინფორმაცია განახლდა", {
-        position: "bottom-right",
-        autoClose: 3000,
-      });
+      toast.success("ინფორმაცია განახლდა");
 
       // refetch user data
       queryClient.invalidateQueries({
@@ -198,10 +195,7 @@ export default function Page() {
     },
 
     onError: () => {
-      toast.error("ვერ განახლდა", {
-        position: "bottom-right",
-        autoClose: 3000,
-      });
+      toast.error("ვერ განახლდა");
     },
   });
 
@@ -249,10 +243,7 @@ export default function Page() {
         err.inner.forEach((e: any) => {
           if (e.path) {
             newErrors[e.path] = e.message;
-            toast.error(e.message, {
-              position: "bottom-right",
-              autoClose: 3000,
-            });
+            toast.error(e.message);
           }
         });
         setErrors(newErrors);
