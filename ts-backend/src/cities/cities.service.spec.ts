@@ -1,15 +1,15 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { GoogleApisService } from './google-apis.service';
+import { CitiesService } from './cities.service';
 
-describe('GoogleApisService', () => {
-  let service: GoogleApisService;
+describe('CitiesService', () => {
+  let service: CitiesService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [GoogleApisService],
+      providers: [CitiesService],
     }).compile();
 
-    service = module.get<GoogleApisService>(GoogleApisService);
+    service = module.get<CitiesService>(CitiesService);
   });
 
   it('should be defined', () => {

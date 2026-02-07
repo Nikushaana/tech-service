@@ -9,7 +9,6 @@ import { CompanyClientModule } from './company-client/company-client.module';
 import { FrontModule } from './front/front.module';
 import { IndividualClientModule } from './individual-client/individual-client.module';
 import { TechnicianModule } from './technician/technician.module';
-import { GoogleApisModule } from './google-apis/google-apis.module';
 import { DeliveryModule } from './delivery/delivery.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { ReviewsModule } from './reviews/reviews.module';
@@ -21,6 +20,8 @@ import { FaqModule } from './faq/faq.module';
 import { PricingModule } from './pricing/pricing.module';
 import { TransactionsModule } from './transactions/transactions.module';
 import { PaymentModule } from './payment/payment.module';
+import { CitiesModule } from './cities/cities.module';
+import { StreetsModule } from './streets/streets.module';
 
 @Module({
   imports: [
@@ -71,8 +72,6 @@ import { PaymentModule } from './payment/payment.module';
 
     TechnicianModule,
 
-    GoogleApisModule,
-
     DeliveryModule,
 
     NotificationsModule,
@@ -94,6 +93,10 @@ import { PaymentModule } from './payment/payment.module';
     TransactionsModule,
 
     PaymentModule,
+
+    CitiesModule,
+
+    StreetsModule
   ],
   controllers: [AppController],
   providers: [AppService],

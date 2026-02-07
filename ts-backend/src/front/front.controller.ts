@@ -1,10 +1,12 @@
 import { Controller, Get, Query } from '@nestjs/common';
-import { UserFilterDto } from 'src/common/services/base-user/dto/user-filter.dto';
 import { BranchesService } from 'src/branches/branches.service';
 import { FaqService } from 'src/faq/faq.service';
 import { CategoryService } from 'src/category/category.service';
 import { ReviewsService } from 'src/reviews/reviews.service';
-import { TechnicianService } from 'src/technician/technician.service';
+import { GetCitiesDto } from 'src/cities/dto/get-cities.dto';
+import { CitiesService } from 'src/cities/cities.service';
+import { StreetsService } from 'src/streets/streets.service';
+import { GetStreetsDto } from 'src/streets/dto/get-streets.dto';
 
 @Controller('front')
 export class FrontController {
@@ -17,7 +19,9 @@ export class FrontController {
 
         private readonly reviewsService: ReviewsService,
 
-        private readonly technicianService: TechnicianService,
+        private readonly citiesService: CitiesService,
+
+        private readonly streetsService: StreetsService,
     ) { }
 
     @Get('categories')
@@ -39,5 +43,15 @@ export class FrontController {
     @Get('branches')
     async getFrontBranches() {
         return this.branchesService.getFrontBranches();
+    }
+
+    @Get('cities')
+    async getCities(@Query() query: GetCitiesDto) {
+        return this.citiesService.getCities(query.city);
+    }
+
+    @Get('streets')
+    async getStreets(@Query() query: GetStreetsDto) {
+        return this.streetsService.getStreets(query.city, query.street);
     }
 }
