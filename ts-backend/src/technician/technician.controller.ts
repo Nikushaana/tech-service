@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Patch, Post, Req, UploadedFiles, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseIntPipe, Patch, Post, Query, Req, UploadedFiles, UseGuards, UseInterceptors } from '@nestjs/common';
 import { TechnicianService } from './technician.service';
 import { RolesGuard } from 'src/common/guards/roles.guard';
 import { TokenValidationGuard } from 'src/auth/guards/token-validation.guard';
@@ -11,6 +11,7 @@ import { MultipleImagesUpload } from 'src/common/interceptors/multiple-images-up
 import { OrderService } from 'src/order/order.service';
 import { NotificationsService } from 'src/notifications/notifications.service';
 import { TechnicianRequestPaymentDto } from 'src/order/dto/technician-request-payment.dto';
+import { GetNotificationsDto } from 'src/notifications/dto/get-notifications.dto';
 
 @Controller('technician')
 export class TechnicianController {
@@ -135,8 +136,8 @@ export class TechnicianController {
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('technician')
     @Get('notifications')
-    async getNotifications(@Req() req: RequestInfo) {
-        return this.notificationsService.getNotifications("technician", req.user.id);
+    async getNotifications(@Req() req: RequestInfo, @Query() query: GetNotificationsDto) {
+        return this.notificationsService.getNotifications(query, "technician", req.user.id);
     }
 
     @UseGuards(TokenValidationGuard, RolesGuard)

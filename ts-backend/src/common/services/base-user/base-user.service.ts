@@ -18,6 +18,7 @@ import { Delivery } from "src/delivery/entities/delivery.entity";
 import { Admin } from "src/admin/entities/admin.entity";
 import { UpdateAdminIndividualTechnicianDeliveryDto } from "src/admin/dto/update-adm-ind-tech-del.dto";
 import { NotificationsService } from "src/notifications/notifications.service";
+import { NotificationType } from "src/notifications/entities/notification.entity";
 
 interface WithIdAndPassword {
     id: number;
@@ -224,7 +225,7 @@ export class BaseUserService {
 
             await this.notificationService.sendNotification(
                 `${updateUserDto.status ? "გააქტიურდა" : "დაიბლოკა"} ${roleInGeo + " " + (user.companyName || (user.name + " " + user.lastName))}-ს პროფილი.`,
-                'profile_updated',
+                NotificationType.PROFILE_UPDATED,
                 'admin',
                 undefined,
                 {
@@ -236,7 +237,7 @@ export class BaseUserService {
             // send notification to user if status changes
             await this.notificationService.sendNotification(
                 `${updateUserDto.status ? "თქვენი პროფილი გააქტიურებულია" : "თქვენი პროფილი დაიბლოკა"}.`,
-                "profile_updated",
+                NotificationType.PROFILE_UPDATED,
                 user.role,
                 userId,
             );

@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Req, UploadedFiles, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, Req, UploadedFiles, UseGuards, UseInterceptors } from '@nestjs/common';
 import { CompanyClientService } from './company-client.service';
 import { TokenValidationGuard } from 'src/auth/guards/token-validation.guard';
 import { RolesGuard } from 'src/common/guards/roles.guard';
@@ -18,6 +18,7 @@ import { RepairDecisionDto } from 'src/order/dto/repair-decision.dto';
 import { CalculatePriceDto } from 'src/pricing/dto/calculate-price.dto';
 import { PricingService } from 'src/pricing/pricing.service';
 import { TransactionsService } from 'src/transactions/transactions.service';
+import { GetNotificationsDto } from 'src/notifications/dto/get-notifications.dto';
 
 @Controller('company')
 export class CompanyClientController {
@@ -207,8 +208,8 @@ export class CompanyClientController {
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('company')
     @Get('notifications')
-    async getNotifications(@Req() req: RequestInfo) {
-        return this.notificationsService.getNotifications("company", req.user.id);
+    async getNotifications(@Req() req: RequestInfo, @Query() query: GetNotificationsDto) {
+        return this.notificationsService.getNotifications(query, "company", req.user.id);
     }
 
     @UseGuards(TokenValidationGuard, RolesGuard)

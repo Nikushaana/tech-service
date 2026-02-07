@@ -21,6 +21,7 @@ import { Delivery } from 'src/delivery/entities/delivery.entity';
 import { DeliveryToken } from 'src/delivery-token/entities/delivery-token.entity';
 import { RegisterIndAdmTechDelDto } from './dto/register-ind-adm-tech-del.dto';
 import { NotificationsService } from 'src/notifications/notifications.service';
+import { NotificationType } from 'src/notifications/entities/notification.entity';
 
 @Injectable()
 export class AuthService {
@@ -142,7 +143,7 @@ export class AuthService {
 
         await this.notificationService.sendNotification(
             `დარეგისტრირდა ${roleInGeo + " " + (user.companyName || (user.name + " " + user.lastName))}`,
-            'new_user',
+            NotificationType.NEW_USER,
             'admin',
             undefined,
             {
@@ -154,7 +155,7 @@ export class AuthService {
         // send notification to user
         await this.notificationService.sendNotification(
             `გამარჯობა ${user.companyName || (user.name + " " + user.lastName)}, თქვენ წარმატებით დარეგისტრირდით.`,
-            "new_user",
+            NotificationType.NEW_USER,
             user.role,
             user.id,
         ); 

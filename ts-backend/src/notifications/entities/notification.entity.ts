@@ -6,7 +6,13 @@ import {
     UpdateDateColumn,
 } from 'typeorm';
 
-export type NotificationType = 'new_user' | 'new_order' | 'new_review' | 'profile_updated' | 'order_updated';
+export enum NotificationType {
+    NEW_USER = 'new_user',
+    NEW_ORDER = 'new_order',
+    NEW_REVIEW = 'new_review',
+    PROFILE_UPDATED = 'profile_updated',
+    ORDER_UPDATED = 'order_updated',
+}
 export type NotificationFor = 'admin' | 'individual' | 'company' | 'delivery' | 'technician';
 
 @Entity('notifications')
@@ -17,7 +23,7 @@ export class Notification {
     @Column()
     message: string;
 
-    @Column({ type: 'enum', enum: ['new_user', 'new_order', 'new_review', 'profile_updated', 'order_updated'] })
+    @Column({ type: 'enum', enum: NotificationType })
     type: NotificationType;
 
     @Column({ default: false })

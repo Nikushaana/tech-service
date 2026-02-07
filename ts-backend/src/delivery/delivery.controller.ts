@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Patch, Post, Req, UploadedFiles, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseIntPipe, Patch, Post, Query, Req, UploadedFiles, UseGuards, UseInterceptors } from '@nestjs/common';
 import { DeliveryService } from './delivery.service';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { MultipleImagesUpload } from 'src/common/interceptors/multiple-images-upload.factory';
@@ -10,6 +10,7 @@ import { RolesGuard } from 'src/common/guards/roles.guard';
 import type { RequestInfo } from 'src/common/types/request-info';
 import { OrderService } from 'src/order/order.service';
 import { NotificationsService } from 'src/notifications/notifications.service';
+import { GetNotificationsDto } from 'src/notifications/dto/get-notifications.dto';
 
 @Controller('delivery')
 export class DeliveryController {
@@ -127,8 +128,8 @@ export class DeliveryController {
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('delivery')
     @Get('notifications')
-    async getNotifications(@Req() req: RequestInfo) {
-        return this.notificationsService.getNotifications("delivery", req.user.id);
+    async getNotifications(@Req() req: RequestInfo, @Query() query: GetNotificationsDto) {
+        return this.notificationsService.getNotifications(query, "delivery", req.user.id);
     }
 
     @UseGuards(TokenValidationGuard, RolesGuard)

@@ -26,6 +26,7 @@ import { TransactionsService } from 'src/transactions/transactions.service';
 import { TransactionType } from 'src/common/types/transaction-type.enum';
 import { PaymentProvider } from 'src/common/types/payment-provider.enum';
 import { PaymentService } from 'src/payment/payment.service';
+import { NotificationType } from 'src/notifications/entities/notification.entity';
 
 @Injectable()
 export class OrderService {
@@ -85,7 +86,7 @@ export class OrderService {
         for (const r of roles) {
             await this.notificationService.sendNotification(
                 `შეკვეთა №${order.id}: ${label}.`,
-                'order_updated',
+                NotificationType.ORDER_UPDATED,
                 r.role,
                 r.id,
                 { order_id: order.id }
@@ -103,7 +104,7 @@ export class OrderService {
         for (const r of roles) {
             await this.notificationService.sendNotification(
                 `შეკვეთა №${order.id}: ახალი სერვისის ტიპი - ${label}.`,
-                'order_updated',
+                NotificationType.ORDER_UPDATED,
                 r.role,
                 r.id,
                 { order_id: order.id }
@@ -199,7 +200,7 @@ export class OrderService {
         // send notification to admin
         await this.notificationService.sendNotification(
             `შეკვეთა №${order.id}: დაემატა "${serviceTypeLabel}"-ს შესახებ და მომსახურების დასაწყებად საჭიროა გადახდა.`,
-            'new_order',
+            NotificationType.NEW_ORDER,
             'admin',
             undefined,
             {
@@ -210,7 +211,7 @@ export class OrderService {
         // send notification to user
         await this.notificationService.sendNotification(
             `შეკვეთა №${order.id}: დაემატა "${serviceTypeLabel}"-ს შესახებ და მომსახურების დასაწყებად საჭიროა გადახდა.`,
-            "new_order",
+            NotificationType.NEW_ORDER,
             user.role,
             userId,
             {
@@ -414,7 +415,7 @@ export class OrderService {
                     `შეკვეთა №${order.id}: ${oldTechnician?.id
                         ? `დაენიშნა ახალი ტექნიკოსი — ${technician.name} ${technician.lastName}, ${oldTechnician?.name} ${oldTechnician?.lastName}-ს ნაცვლად`
                         : `დაენიშნა ტექნიკოსი ${technician.name + " " + technician.lastName}`}`,
-                    'order_updated',
+                    NotificationType.ORDER_UPDATED,
                     'admin',
                     undefined,
                     {
@@ -426,7 +427,7 @@ export class OrderService {
                         // send notification to old technician
                         await this.notificationService.sendNotification(
                             `შეკვეთა №${order.id}: აღარ არის შენს სახელზე.`,
-                            'order_updated',
+                            NotificationType.ORDER_UPDATED,
                             'technician',
                             oldTechnician?.id,
                         );
@@ -434,7 +435,7 @@ export class OrderService {
                 // send notification to new technician
                 await this.notificationService.sendNotification(
                     `შენ გაქვს ახალი შეკვეთა — №${order.id}.`,
-                    'order_updated',
+                    NotificationType.ORDER_UPDATED,
                     'technician',
                     technician.id,
                     {
@@ -446,7 +447,7 @@ export class OrderService {
                     `შეკვეთა №${order.id}: ${oldTechnician?.id
                         ? `დაენიშნა ახალი ტექნიკოსი — ${technician.name} ${technician.lastName}, ${oldTechnician?.name} ${oldTechnician?.lastName}-ს ნაცვლად`
                         : `დაენიშნა ტექნიკოსი ${technician.name + " " + technician.lastName}`}`,
-                    'order_updated',
+                    NotificationType.ORDER_UPDATED,
                     `${order.company?.id ? "company" : "individual"}`,
                     order.company?.id || order.individual?.id,
                     {
@@ -470,7 +471,7 @@ export class OrderService {
                     `შეკვეთა №${order.id}: ${oldDelivery?.id
                         ? `დაენიშნა ახალი კურიერი — ${delivery.name} ${delivery.lastName}, ${oldDelivery.name} ${oldDelivery.lastName}-ს ნაცვლად`
                         : `დაენიშნა კურიერი ${delivery.name + " " + delivery.lastName}`}`,
-                    'order_updated',
+                    NotificationType.ORDER_UPDATED,
                     'admin',
                     undefined,
                     {
@@ -482,7 +483,7 @@ export class OrderService {
                         // send notification to old delivery
                         await this.notificationService.sendNotification(
                             `შეკვეთა №${order.id}: აღარ არის შენს სახელზე.`,
-                            'order_updated',
+                            NotificationType.ORDER_UPDATED,
                             'delivery',
                             oldDelivery?.id,
                         );
@@ -490,7 +491,7 @@ export class OrderService {
                 // send notification to new delivery
                 await this.notificationService.sendNotification(
                     `შენ გაქვს ახალი შეკვეთა — №${order.id}.`,
-                    'order_updated',
+                    NotificationType.ORDER_UPDATED,
                     'delivery',
                     delivery.id,
                     {
@@ -502,7 +503,7 @@ export class OrderService {
                     `შეკვეთა №${order.id}: ${oldDelivery?.id
                         ? `დაენიშნა ახალი კურიერი — ${delivery.name} ${delivery.lastName}, ${oldDelivery.name} ${oldDelivery.lastName}-ს ნაცვლად`
                         : `დაენიშნა კურიერი ${delivery.name + " " + delivery.lastName}`}.`,
-                    'order_updated',
+                    NotificationType.ORDER_UPDATED,
                     `${order.company?.id ? "company" : "individual"}`,
                     order.company?.id || order.individual?.id,
                     {

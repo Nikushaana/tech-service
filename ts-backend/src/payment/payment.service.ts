@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { OrderStatus } from 'src/common/types/order-status.enum';
 import { OrderType } from 'src/common/types/order-type.enum';
 import { TransactionStatus } from 'src/common/types/transaction-status.enum';
-import { NotificationFor } from 'src/notifications/entities/notification.entity';
+import { NotificationFor, NotificationType } from 'src/notifications/entities/notification.entity';
 import { NotificationsService } from 'src/notifications/notifications.service';
 import { Order } from 'src/order/entities/order.entity';
 import { Transaction } from 'src/transactions/entities/transaction.entity';
@@ -62,7 +62,7 @@ export class PaymentService {
             `შეკვეთა №${order.id}: ${order.status === OrderStatus.PROCESSING ? "წინასწარი გადახდა შესრულდა, ახლა გრძელდება შეკვეთის დამუშავება." :
                 order.status === OrderStatus.REPAIRING_OFF_SITE ? "გადახდა შესრულდა, სერვისი მიმდინარეობს სერვისცენტრში." :
                     "გადახდა შესრულდა, სერვისი ადგილზე დასრულდა."}`,
-            'order_updated',
+            NotificationType.ORDER_UPDATED,
             'admin',
             undefined,
             { order_id: order.id },
@@ -73,7 +73,7 @@ export class PaymentService {
             `შეკვეთა №${order.id}: ${order.status === OrderStatus.PROCESSING ? "წინასწარი გადახდა შესრულდა, ახლა გრძელდება შეკვეთის დამუშავება." :
                 order.status === OrderStatus.REPAIRING_OFF_SITE ? "გადახდა შესრულდა, სერვისი მიმდინარეობს სერვისცენტრში." :
                     "გადახდა შესრულდა, სერვისი ადგილზე დასრულდა."}`,
-            'order_updated',
+            NotificationType.ORDER_UPDATED,
             user.role as NotificationFor,
             user.id,
             { order_id: order.id },
@@ -84,7 +84,7 @@ export class PaymentService {
                 // send notification to technician
                 await this.notificationService.sendNotification(
                     `შეკვეთა №${order.id}: გადახდა შესრულდა, სერვისი მიმდინარეობს სერვისცენტრში.`,
-                    'order_updated',
+                    NotificationType.ORDER_UPDATED,
                     "technician",
                     order.technician?.id,
                     { order_id: order.id },

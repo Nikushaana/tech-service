@@ -28,6 +28,7 @@ import { TechnicianService } from 'src/technician/technician.service';
 import { DeliveryService } from 'src/delivery/delivery.service';
 import { BaseUserService } from 'src/common/services/base-user/base-user.service';
 import { TransactionsService } from 'src/transactions/transactions.service';
+import { GetNotificationsDto } from 'src/notifications/dto/get-notifications.dto';
 
 @Controller('admin')
 export class AdminController {
@@ -346,8 +347,8 @@ export class AdminController {
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('admin')
     @Get('notifications')
-    async getNotifications() {
-        return this.notificationsService.getNotifications("admin");
+    async getNotifications(@Query() query: GetNotificationsDto) {
+        return this.notificationsService.getNotifications(query, "admin");
     }
 
     @UseGuards(TokenValidationGuard, RolesGuard)

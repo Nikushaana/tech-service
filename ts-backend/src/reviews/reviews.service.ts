@@ -7,6 +7,7 @@ import { instanceToPlain } from 'class-transformer';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { NotificationsService } from 'src/notifications/notifications.service';
 import { UpdateReviewDto } from './dto/update-review.dto';
+import { NotificationType } from 'src/notifications/entities/notification.entity';
 
 @Injectable()
 export class ReviewsService {
@@ -38,7 +39,7 @@ export class ReviewsService {
         // send notification to admin
         await this.notificationService.sendNotification(
             `დაემატა შეფასება ${("companyName" in user ? user.companyName : (user.name + " " + user.lastName))}-ს მიერ`,
-            'new_review',
+            NotificationType.NEW_REVIEW,
             'admin',
             undefined,
             {
@@ -48,7 +49,7 @@ export class ReviewsService {
         // send notification to user
         await this.notificationService.sendNotification(
             `თქვენი შეფასება დაემატა.`,
-            "new_review",
+            NotificationType.NEW_REVIEW,
             user.role,
             userId,
         );

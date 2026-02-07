@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Notification, NotificationFor, NotificationType } from './entities/notification.entity';
 import { NotificationsGateway } from './notifications.gateway';
+import { GetNotificationsDto } from './dto/get-notifications.dto';
 
 @Injectable()
 export class NotificationsService {
@@ -35,15 +36,30 @@ export class NotificationsService {
         return true
     }
 
-    async getNotifications(role: 'admin' | 'individual' | 'company' | 'technician' | 'delivery', userId?: number) {
-        const notifications = await this.notificationRepo.find({
-            where: { for: role, forId: userId },
+    async getNotifications(dto: GetNotificationsDto, role: 'admin' | 'individual' | 'company' | 'technician' | 'delivery', userId?: number) {
+        const { type, page = 1, limit = 20 } = dto;
+
+        const where: any = { for: role };
+
+        if (userId) where.forId = userId;
+        if (type) where.type = type;
+
+        const [notifications, total] = await this.notificationRepo.findAndCount({
+            where,
             order: {
                 created_at: 'DESC',
             },
+            skip: (page - 1) * limit,
+            take: limit,
         });
 
-        return notifications;
+        return {
+            data: notifications,
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit),
+        };
     }
 
     async readNotification(
