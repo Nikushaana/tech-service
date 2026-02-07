@@ -3,7 +3,7 @@ import { GooglePlacesService } from 'src/common/services/google-places/google-pl
 
 @Injectable()
 export class CitiesService {
-  constructor(private readonly googlePlaces: GooglePlacesService) { }
+  constructor(private readonly googlePlaces: GooglePlacesService) {}
 
   async getCities(city: string) {
     // Call the shared autocomplete method
