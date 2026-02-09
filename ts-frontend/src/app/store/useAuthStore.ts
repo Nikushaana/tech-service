@@ -175,6 +175,8 @@ export const useAuthStore = create<Store>((set, get) => ({
     rehydrate: async (router?: any, pathname?: any) => {
         set({ authLoading: true });
 
+        const search = typeof window !== "undefined" ? window.location.search : "";
+
         const tokenMap: Record<string, { token: string | null; axios: any }> = {
             individual: { token: localStorage.getItem("individualToken"), axios: axiosIndividual },
             company: { token: localStorage.getItem("companyToken"), axios: axiosCompany },
@@ -250,13 +252,13 @@ export const useAuthStore = create<Store>((set, get) => ({
                     if ((activeRole == "company" || activeRole == "individual") && pathname.startsWith("/dashboard")) {
                         const section = pathname.split("/")[3] || "profile";
                         const subsection = pathname.split("/")[4] ? `/${pathname.split("/")[4]}` : "";
-                        router.push(`/dashboard/${activeRole}/${section}/${subsection}`)
+                        router.push(`/dashboard/${activeRole}/${section}/${subsection}${search}`)
                     }
 
                     if ((activeRole == "technician" || activeRole == "delivery") && pathname.startsWith("/staff")) {
                         const section = pathname.split("/")[3] || "orders";
                         const subsection = pathname.split("/")[4] ? `/${pathname.split("/")[4]}` : "";
-                        router.push(`/staff/${activeRole}/${section}/${subsection}`)
+                        router.push(`/staff/${activeRole}/${section}/${subsection}${search}`)
                     }
 
                     if ((activeRole !== "technician" && activeRole !== "delivery") && pathname.startsWith("/staff/")) {

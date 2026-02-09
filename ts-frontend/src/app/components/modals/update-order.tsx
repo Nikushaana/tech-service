@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import * as Yup from "yup";
 import { toast } from "react-toastify";
 import PanelFormInput from "../inputs/panel-form-input";
@@ -11,11 +11,7 @@ import OrderVideosSelector from "../inputs/order-videos-selector";
 import { useUpdateOrderStore } from "@/app/store/useUpdateOrderStore";
 import { Button } from "@/components/ui/button";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { MdAddLocationAlt } from "react-icons/md";
-import { useAddressesStore } from "@/app/store/useAddressesStore";
-import { useOrderTypeStatusOptionsStore } from "@/app/store/orderTypeStatusOptionsStore";
 import { fetchFrontCategories } from "@/app/lib/api/frontCategories";
-import { fetchUserAddresses } from "@/app/lib/api/userAddresses";
 import { axiosCompany, axiosIndividual } from "@/app/lib/api/axios";
 
 interface UpdateOrderValues {
@@ -36,21 +32,12 @@ export default function UpdateOrder() {
     toggleOpenUpdateOrderModal,
     modalType,
   } = useUpdateOrderStore();
-  const { toggleOpenCreateAddressModal } = useAddressesStore();
-  const { typeOptions } = useOrderTypeStatusOptionsStore();
 
   const queryClient = useQueryClient();
 
   const { data: categories } = useQuery({
     queryKey: ["frontCategories"],
     queryFn: fetchFrontCategories,
-    enabled: openUpdateOrderModal,
-    staleTime: 1000 * 60 * 10,
-  });
-
-  const { data: addresses = [] } = useQuery({
-    queryKey: ["userAddresses", modalType],
-    queryFn: () => fetchUserAddresses(modalType),
     enabled: openUpdateOrderModal,
     staleTime: 1000 * 60 * 10,
   });

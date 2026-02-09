@@ -40,6 +40,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     queryKey: ["adminUnreadNotifications"],
     queryFn: () => fetchAdminUnreadNotifications(),
     staleTime: 1000 * 60 * 10,
+    retry: false
   });
 
   return (
