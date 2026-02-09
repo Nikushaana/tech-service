@@ -630,6 +630,8 @@ export class OrderService {
             where: { technician: { id: technicianId } },
             order: { created_at: 'DESC' },
             relations: ['individual', 'company', 'delivery'],
+            skip: (page - 1) * limit,
+            take: limit,
         });
 
         return {
