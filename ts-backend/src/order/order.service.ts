@@ -27,6 +27,7 @@ import { TransactionType } from 'src/common/types/transaction-type.enum';
 import { PaymentProvider } from 'src/common/types/payment-provider.enum';
 import { PaymentService } from 'src/payment/payment.service';
 import { NotificationType } from 'src/notifications/entities/notification.entity';
+import { GetOrdersDto } from './dto/get-orders.dto';
 
 @Injectable()
 export class OrderService {
@@ -80,7 +81,7 @@ export class OrderService {
         roles: Array<{ role: "admin" | "company" | "individual" | "delivery" | "technician"; id?: number }>
     ) {
         if (!roles.length) return;
-        
+
         const label = OrderStatusLabelsGeorgian[order.status] || order.status;
 
         for (const r of roles) {
@@ -359,13 +360,23 @@ export class OrderService {
     }
 
     // admin
-    async getAdminOrders() {
-        const orders = await this.orderRepo.find({
+    async getAdminOrders(dto: GetOrdersDto) {
+        const { page = 1, limit = 10 } = dto;
+
+        const [orders, total] = await this.orderRepo.findAndCount({
             order: { created_at: 'DESC' },
             relations: ['individual', 'company', 'technician', 'delivery'],
+            skip: (page - 1) * limit,
+            take: limit,
         });
 
-        return instanceToPlain(orders);
+        return {
+            data: instanceToPlain(orders),
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit),
+        };
     }
 
     async findAdminOneOrderEntity(id: number) {
@@ -545,7 +556,7 @@ export class OrderService {
     }
 
     async getOrderStats() {
-        const orders = await this.getAdminOrders();
+        const orders = await this.orderRepo.find();
 
         const ordersByMonth = orders.reduce((acc, order) => {
             const date = new Date(order.created_at);

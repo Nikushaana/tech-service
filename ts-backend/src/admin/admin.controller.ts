@@ -29,6 +29,7 @@ import { DeliveryService } from 'src/delivery/delivery.service';
 import { BaseUserService } from 'src/common/services/base-user/base-user.service';
 import { TransactionsService } from 'src/transactions/transactions.service';
 import { GetNotificationsDto } from 'src/notifications/dto/get-notifications.dto';
+import { GetOrdersDto } from 'src/order/dto/get-orders.dto';
 
 @Controller('admin')
 export class AdminController {
@@ -165,8 +166,8 @@ export class AdminController {
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('admin')
     @Get('orders')
-    async getAdminOrders() {
-        return this.orderService.getAdminOrders();
+    async getAdminOrders(@Query() query: GetOrdersDto) {
+        return this.orderService.getAdminOrders(query);
     }
 
     @UseGuards(TokenValidationGuard, RolesGuard)
