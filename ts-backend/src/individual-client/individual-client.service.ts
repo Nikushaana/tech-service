@@ -17,6 +17,7 @@ import { AddressService } from 'src/address/address.service';
 import { OrderService } from 'src/order/order.service';
 import { UpdateAdminIndividualTechnicianDeliveryDto } from 'src/admin/dto/update-adm-ind-tech-del.dto';
 import { RepairDecisionDto } from 'src/order/dto/repair-decision.dto';
+import { GetOrdersDto } from 'src/order/dto/get-orders.dto';
 
 @Injectable()
 export class IndividualClientService {
@@ -80,8 +81,8 @@ export class IndividualClientService {
         return this.orderService.createOrder(individualId, this.individualClientRepo, createOrderDto, images, videos);
     }
 
-    async getOrders(individualId: number) {
-        return this.orderService.getOrders(individualId, this.individualClientRepo);
+    async getOrders(dto: GetOrdersDto, individualId: number) {
+        return this.orderService.getOrders(dto, individualId, this.individualClientRepo);
     }
 
     async getOneOrder(individualId: number, id: number) {

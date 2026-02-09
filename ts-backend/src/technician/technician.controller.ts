@@ -12,6 +12,7 @@ import { OrderService } from 'src/order/order.service';
 import { NotificationsService } from 'src/notifications/notifications.service';
 import { TechnicianRequestPaymentDto } from 'src/order/dto/technician-request-payment.dto';
 import { GetNotificationsDto } from 'src/notifications/dto/get-notifications.dto';
+import { GetOrdersDto } from 'src/order/dto/get-orders.dto';
 
 @Controller('technician')
 export class TechnicianController {
@@ -64,8 +65,8 @@ export class TechnicianController {
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('technician')
     @Get('orders')
-    async getTechnicianOrders(@Req() req: RequestInfo) {
-        return this.orderService.getTechnicianOrders(req.user.id);
+    async getTechnicianOrders(@Query() query: GetOrdersDto, @Req() req: RequestInfo) {
+        return this.orderService.getTechnicianOrders(query, req.user.id);
     }
 
     @UseGuards(TokenValidationGuard, RolesGuard)

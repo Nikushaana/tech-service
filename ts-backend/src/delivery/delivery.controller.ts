@@ -11,6 +11,7 @@ import type { RequestInfo } from 'src/common/types/request-info';
 import { OrderService } from 'src/order/order.service';
 import { NotificationsService } from 'src/notifications/notifications.service';
 import { GetNotificationsDto } from 'src/notifications/dto/get-notifications.dto';
+import { GetOrdersDto } from 'src/order/dto/get-orders.dto';
 
 @Controller('delivery')
 export class DeliveryController {
@@ -63,8 +64,8 @@ export class DeliveryController {
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('delivery')
     @Get('orders')
-    async getDeliveryOrders(@Req() req: RequestInfo) {
-        return this.orderService.getDeliveryOrders(req.user.id);
+    async getDeliveryOrders(@Query() query: GetOrdersDto, @Req() req: RequestInfo) {
+        return this.orderService.getDeliveryOrders(query, req.user.id);
     }
 
     @UseGuards(TokenValidationGuard, RolesGuard)

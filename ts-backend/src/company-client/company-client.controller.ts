@@ -19,6 +19,7 @@ import { CalculatePriceDto } from 'src/pricing/dto/calculate-price.dto';
 import { PricingService } from 'src/pricing/pricing.service';
 import { TransactionsService } from 'src/transactions/transactions.service';
 import { GetNotificationsDto } from 'src/notifications/dto/get-notifications.dto';
+import { GetOrdersDto } from 'src/order/dto/get-orders.dto';
 
 @Controller('company')
 export class CompanyClientController {
@@ -90,8 +91,8 @@ export class CompanyClientController {
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('company')
     @Get('orders')
-    async getOrders(@Req() req: RequestInfo) {
-        return this.companyClientService.getOrders(req.user.id);
+    async getOrders(@Query() query: GetOrdersDto, @Req() req: RequestInfo) {
+        return this.companyClientService.getOrders(query, req.user.id);
     }
 
     @UseGuards(TokenValidationGuard, RolesGuard)

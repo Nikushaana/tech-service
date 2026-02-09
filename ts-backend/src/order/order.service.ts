@@ -226,17 +226,27 @@ export class OrderService {
         return { message: `Order created successfully`, order: instanceToPlain(order) };
     }
 
-    async getOrders(userId: number, repo: any) {
+    async getOrders(dto: GetOrdersDto, userId: number, repo: any) {
+        const { page = 1, limit = 10 } = dto;
+
         const user = await this.baseUserService.getUser(userId, repo);
 
         const relationKey = "companyName" in user ? "company" : "individual";
 
-        const orders = await this.orderRepo.find({
+        const [orders, total] = await this.orderRepo.findAndCount({
             where: { [relationKey]: { id: userId } },
             order: { created_at: 'DESC' },
+            skip: (page - 1) * limit,
+            take: limit,
         });
 
-        return orders;
+        return {
+            data: instanceToPlain(orders),
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit),
+        };
     }
 
     async getOneOrderEntity(userId: number, id: number, repo: any) {
@@ -576,14 +586,24 @@ export class OrderService {
     }
 
     // delivery
-    async getDeliveryOrders(deliveryId: number) {
-        const orders = await this.orderRepo.find({
+    async getDeliveryOrders(dto: GetOrdersDto, deliveryId: number) {
+        const { page = 1, limit = 10 } = dto;
+
+        const [orders, total] = await this.orderRepo.findAndCount({
             where: { delivery: { id: deliveryId } },
             order: { created_at: 'DESC' },
             relations: ['individual', 'company', 'technician'],
+            skip: (page - 1) * limit,
+            take: limit,
         });
 
-        return instanceToPlain(orders);
+        return {
+            data: instanceToPlain(orders),
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit),
+        };
     }
 
     async findDeliveryOneOrderEntity(deliveryId: number, id: number) {
@@ -603,14 +623,22 @@ export class OrderService {
     }
 
     // technician
-    async getTechnicianOrders(technicianId: number) {
-        const orders = await this.orderRepo.find({
+    async getTechnicianOrders(dto: GetOrdersDto, technicianId: number) {
+        const { page = 1, limit = 10 } = dto;
+
+        const [orders, total] = await this.orderRepo.findAndCount({
             where: { technician: { id: technicianId } },
             order: { created_at: 'DESC' },
             relations: ['individual', 'company', 'delivery'],
         });
 
-        return instanceToPlain(orders);
+        return {
+            data: instanceToPlain(orders),
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit),
+        };
     }
 
     async findTechnicianOneOrderEntity(technicianId: number, id: number) {
