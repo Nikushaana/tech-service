@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import dayjs from "dayjs";
 import { Loader2Icon } from "lucide-react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { BsEye } from "react-icons/bs";
 import {
   Table,
@@ -15,34 +15,46 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useQuery } from "@tanstack/react-query";
-import { statusLabels, typeLabels } from "@/app/utils/order-type-status-translations";
+import {
+  statusLabels,
+  typeLabels,
+} from "@/app/utils/order-type-status-translations";
 import { axiosDelivery, axiosTechnician } from "@/app/lib/api/axios";
+import Pagination from "@/app/components/pagination/pagination";
 
-const fetchStaffOrders = async (staffType: StaffRole) => {
+const fetchStaffOrders = async (page: number, staffType: StaffRole) => {
   const api = staffType === "technician" ? axiosTechnician : axiosDelivery;
-  const { data } = await api.get(`${staffType}/orders`);
+  const { data } = await api.get(`${staffType}/orders?page=${page}`);
   return data;
 };
 
 export default function Page() {
   const { staffType } = useParams<{ staffType: StaffRole }>();
 
-  const { data: orders = [], isLoading } = useQuery({
-    queryKey: ["staffOrders"],
-    queryFn: () => fetchStaffOrders(staffType),
+  const searchParams = useSearchParams();
+  const page = Number(searchParams.get("page")) || 1;
+
+  const { data: orders, isFetching } = useQuery({
+    queryKey: ["staffOrders", page],
+    queryFn: () => fetchStaffOrders(page, staffType),
     staleTime: 1000 * 60 * 10,
+    placeholderData: (previous) => previous,
   });
 
-  if (isLoading)
-    return (
-      <div className="flex justify-center w-full mt-10">
-        <Loader2Icon className="animate-spin size-6 text-gray-600" />
-      </div>
-    );
-
   return (
-    <div className="w-full bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6">
-      <h2 className="text-xl font-semibold mb-4">ჩემი სერვისები</h2>
+    <div className="w-full bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6 space-y-2">
+      <h2 className="text-xl font-semibold mb-2">ჩემი სერვისები</h2>
+
+      <div className="flex justify-end">
+        <Pagination totalPages={orders?.totalPages} currentPage={page} />
+      </div>
+
+      {isFetching && (
+        <div className="flex justify-center w-full mt-10">
+          <Loader2Icon className="animate-spin size-6 text-gray-600" />
+        </div>
+      )}
+
       <div className="overflow-x-auto w-full">
         <Table className="min-w-[900px] table-auto">
           <TableHeader>
@@ -59,7 +71,7 @@ export default function Page() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {orders.length === 0 ? (
+            {orders?.total === 0 ? (
               <TableRow>
                 <TableCell
                   colSpan={8}
@@ -69,10 +81,12 @@ export default function Page() {
                 </TableCell>
               </TableRow>
             ) : (
-              orders.map((order: Order) => (
+              orders?.data?.map((order: Order) => (
                 <TableRow key={order.id} className="hover:bg-gray-50">
                   <TableCell>{order.id}</TableCell>
-                  <TableCell>{typeLabels[order.service_type] || order.service_type}</TableCell>
+                  <TableCell>
+                    {typeLabels[order.service_type] || order.service_type}
+                  </TableCell>
                   <TableCell>{order.category.name}</TableCell>
                   <TableCell>{order.brand}</TableCell>
                   <TableCell>{order.model}</TableCell>
@@ -101,6 +115,10 @@ export default function Page() {
             )}
           </TableBody>
         </Table>
+      </div>
+
+      <div className="flex justify-end">
+        <Pagination totalPages={orders?.totalPages} currentPage={page} />
       </div>
     </div>
   );

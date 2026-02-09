@@ -19,29 +19,39 @@ import {
   typeLabels,
 } from "@/app/utils/order-type-status-translations";
 import { axiosAdmin } from "@/app/lib/api/axios";
+import { useSearchParams } from "next/navigation";
+import Pagination from "@/app/components/pagination/pagination";
 
-const fetchAdminOrders = async () => {
-  const { data } = await axiosAdmin.get("admin/orders");
+const fetchAdminOrders = async (page: number) => {
+  const { data } = await axiosAdmin.get(`admin/orders?page=${page}`);
   return data;
 };
 
 export default function Page() {
-  const { data: orders = [], isLoading } = useQuery({
-    queryKey: ["adminOrders"],
-    queryFn: fetchAdminOrders,
+  const searchParams = useSearchParams();
+  const page = Number(searchParams.get("page")) || 1;
+
+  const { data: orders, isFetching } = useQuery({
+    queryKey: ["adminOrders", page],
+    queryFn: () => fetchAdminOrders(page),
     staleTime: 1000 * 60 * 10,
+    placeholderData: (previous) => previous,
   });
 
-  if (isLoading)
-    return (
-      <div className="flex justify-center w-full mt-10">
-        <Loader2Icon className="animate-spin size-6 text-gray-600" />
-      </div>
-    );
-
   return (
-    <div className="w-full bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6">
-      <h2 className="text-xl font-semibold mb-4">მომხმარებლების სერვისები</h2>
+    <div className="w-full bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6 space-y-2">
+      <h2 className="text-xl font-semibold mb-2">მომხმარებლების სერვისები</h2>
+
+      <div className="flex justify-end">
+        <Pagination totalPages={orders?.totalPages} currentPage={page} />
+      </div>
+
+      {isFetching && (
+        <div className="flex justify-center w-full mt-10">
+          <Loader2Icon className="animate-spin size-6 text-gray-600" />
+        </div>
+      )}
+
       <div className="overflow-x-auto w-full">
         <Table className="min-w-[900px] table-auto">
           <TableHeader>
@@ -58,7 +68,7 @@ export default function Page() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {orders.length === 0 ? (
+            {orders?.total === 0 ? (
               <TableRow>
                 <TableCell
                   colSpan={8}
@@ -68,7 +78,7 @@ export default function Page() {
                 </TableCell>
               </TableRow>
             ) : (
-              orders.map((order: Order) => (
+              orders?.data?.map((order: Order) => (
                 <TableRow key={order.id} className="hover:bg-gray-50">
                   <TableCell>{order.id}</TableCell>
                   <TableCell>
@@ -102,6 +112,10 @@ export default function Page() {
             )}
           </TableBody>
         </Table>
+      </div>
+
+      <div className="flex justify-end">
+        <Pagination totalPages={orders?.totalPages} currentPage={page} />
       </div>
     </div>
   );

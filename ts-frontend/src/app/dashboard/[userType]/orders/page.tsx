@@ -5,7 +5,7 @@ import { useAuthStore } from "@/app/store/useAuthStore";
 import { useOrdersStore } from "@/app/store/useOrdersStore";
 import dayjs from "dayjs";
 import { Loader2Icon } from "lucide-react";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { BsEye } from "react-icons/bs";
 import { toast } from "react-toastify";
 import Link from "next/link";
@@ -18,12 +18,16 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useQuery } from "@tanstack/react-query";
-import { statusLabels, typeLabels } from "@/app/utils/order-type-status-translations";
+import {
+  statusLabels,
+  typeLabels,
+} from "@/app/utils/order-type-status-translations";
 import { axiosCompany, axiosIndividual } from "@/app/lib/api/axios";
+import Pagination from "@/app/components/pagination/pagination";
 
-const fetchUserOrders = async (userType: ClientRole) => {
+const fetchUserOrders = async (page: number, userType: ClientRole) => {
   const api = userType === "company" ? axiosCompany : axiosIndividual;
-  const { data } = await api.get(`${userType}/orders`);
+  const { data } = await api.get(`${userType}/orders?page=${page}`);
   return data;
 };
 
@@ -32,21 +36,18 @@ export default function Page() {
     userType: ClientRole;
   }>();
 
-  const { data: orders = [], isLoading } = useQuery({
-    queryKey: ["userOrders", userType],
-    queryFn: () => fetchUserOrders(userType),
+  const searchParams = useSearchParams();
+  const page = Number(searchParams.get("page")) || 1;
+
+  const { data: orders, isFetching } = useQuery({
+    queryKey: ["userOrders", userType, page],
+    queryFn: () => fetchUserOrders(page, userType),
     staleTime: 1000 * 60 * 10,
+    placeholderData: (previous) => previous,
   });
 
   const { currentUser } = useAuthStore();
-  const { toggleOpenCreateOrderModal, modalType } = useOrdersStore();
-
-  if (isLoading)
-    return (
-      <div className="flex justify-center w-full mt-10">
-        <Loader2Icon className="animate-spin size-6 text-gray-600" />
-      </div>
-    );
+  const { toggleOpenCreateOrderModal } = useOrdersStore();
 
   return (
     <div className={`w-full flex flex-col gap-y-2`}>
@@ -57,7 +58,7 @@ export default function Page() {
               toggleOpenCreateOrderModal(userType);
             } else {
               toast.error(
-                "თქვენ ვერ დაამატებთ შეკვეთას, რადგან თქვენი პროფილი გასააქტიურებელია"
+                "თქვენ ვერ დაამატებთ შეკვეთას, რადგან თქვენი პროფილი გასააქტიურებელია",
               );
             }
           }}
@@ -67,8 +68,19 @@ export default function Page() {
         </Button>
       </div>
 
-      <div className="w-full bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6">
-        <h2 className="text-xl font-semibold mb-4">ჩემი სერვისები</h2>
+      <div className="w-full bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6 space-y-2">
+        <h2 className="text-xl font-semibold mb-2">ჩემი სერვისები</h2>
+
+        <div className="flex justify-end">
+          <Pagination totalPages={orders?.totalPages} currentPage={page} />
+        </div>
+
+        {isFetching && (
+          <div className="flex justify-center w-full mt-10">
+            <Loader2Icon className="animate-spin size-6 text-gray-600" />
+          </div>
+        )}
+
         <div className="overflow-x-auto w-full">
           <Table className="min-w-[900px] table-auto">
             <TableHeader>
@@ -89,7 +101,7 @@ export default function Page() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {orders.length === 0 ? (
+              {orders?.total === 0 ? (
                 <TableRow>
                   <TableCell
                     colSpan={8}
@@ -99,10 +111,12 @@ export default function Page() {
                   </TableCell>
                 </TableRow>
               ) : (
-                orders.map((order: Order) => (
+                orders?.data?.map((order: Order) => (
                   <TableRow key={order.id} className="hover:bg-gray-50">
                     <TableCell>{order.id}</TableCell>
-                    <TableCell>{typeLabels[order.service_type] || order.service_type}</TableCell>
+                    <TableCell>
+                      {typeLabels[order.service_type] || order.service_type}
+                    </TableCell>
                     <TableCell>{order.category.name}</TableCell>
                     <TableCell>{order.brand}</TableCell>
                     <TableCell>{order.model}</TableCell>
@@ -131,6 +145,10 @@ export default function Page() {
               )}
             </TableBody>
           </Table>
+        </div>
+
+        <div className="flex justify-end">
+          <Pagination totalPages={orders?.totalPages} currentPage={page} />
         </div>
       </div>
     </div>
