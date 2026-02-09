@@ -145,7 +145,7 @@ export default function Page() {
               )}
             </TableBody>
           </Table>
-        </div>
+        </div> 
 
         <div className="flex justify-end">
           <Pagination totalPages={orders?.totalPages} currentPage={page} />
