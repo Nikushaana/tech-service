@@ -16,7 +16,7 @@ type SidebarLinksWithTitle = {
 
 const sidebarLinks: Record<ClientRole, SidebarLinksWithTitle> = {
   individual: {
-    title: "ჩემი გვერდი",
+    title: "ჩემი გვერდი", 
     links: [
       { name: "ჩემი სერვისები", href: "/dashboard/individual/orders" },
       { name: "მისამართები", href: "/dashboard/individual/addresses" },
