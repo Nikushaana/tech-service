@@ -37,7 +37,7 @@ export class NotificationsService {
     }
 
     async getNotifications(dto: GetNotificationsDto, role: 'admin' | 'individual' | 'company' | 'technician' | 'delivery', userId?: number) {
-        const { type, page = 1, limit = 20 } = dto;
+        const { type, page = 1, limit = 10 } = dto;
 
         const where: any = { for: role };
 
