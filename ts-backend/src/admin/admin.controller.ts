@@ -31,6 +31,8 @@ import { TransactionsService } from 'src/transactions/transactions.service';
 import { GetNotificationsDto } from 'src/notifications/dto/get-notifications.dto';
 import { GetOrdersDto } from 'src/order/dto/get-orders.dto';
 import { GetReviewsDto } from 'src/reviews/dto/get-reviews.dto';
+import { GetTransactionsDto } from 'src/transactions/dto/get-transactions.dto';
+import { GetCategoriesDto } from 'src/category/dto/get-categories.dto';
 
 @Controller('admin')
 export class AdminController {
@@ -196,8 +198,8 @@ export class AdminController {
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('admin')
     @Get('categories')
-    async getCategories() {
-        return this.categoryService.getCategories();
+    async getCategories(@Query() query: GetCategoriesDto) {
+        return this.categoryService.getCategories(query);
     }
 
     @UseGuards(TokenValidationGuard, RolesGuard)
@@ -371,7 +373,7 @@ export class AdminController {
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('admin')
     @Get('transactions')
-    async getTransactions() {
-        return this.transactionsService.getTransactions();
+    async getTransactions(@Query() query: GetTransactionsDto) {
+        return this.transactionsService.getTransactions(query);
     }
 }

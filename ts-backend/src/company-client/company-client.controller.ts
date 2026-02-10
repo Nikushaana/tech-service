@@ -22,6 +22,7 @@ import { GetNotificationsDto } from 'src/notifications/dto/get-notifications.dto
 import { GetOrdersDto } from 'src/order/dto/get-orders.dto';
 import { GetAddressesDto } from 'src/address/dto/get-addresses.dto';
 import { GetReviewsDto } from 'src/reviews/dto/get-reviews.dto';
+import { GetTransactionsDto } from 'src/transactions/dto/get-transactions.dto';
 
 @Controller('company')
 export class CompanyClientController {
@@ -233,7 +234,7 @@ export class CompanyClientController {
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('company')
     @Get('transactions')
-    async getUserTransactions(@Req() req: RequestInfo) {
-        return this.transactionsService.getUserTransactions("company", req.user.id);
+    async getUserTransactions(@Query() query: GetTransactionsDto, @Req() req: RequestInfo) {
+        return this.transactionsService.getUserTransactions(query, "company", req.user.id);
     }
 }

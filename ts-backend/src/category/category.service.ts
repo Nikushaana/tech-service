@@ -5,6 +5,7 @@ import { Category } from './entities/category.entity';
 import { Repository } from 'typeorm';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { CloudinaryService } from 'src/common/cloudinary/cloudinary.service';
+import { GetCategoriesDto } from './dto/get-categories.dto';
 
 @Injectable()
 export class CategoryService {
@@ -29,12 +30,22 @@ export class CategoryService {
         return { message: 'Category created successfully', category };
     }
 
-    async getCategories() {
-        const categories = await this.categoryRepo.find({
+    async getCategories(dto: GetCategoriesDto) {
+        const { page = 1, limit = 10 } = dto;
+
+        const [categories, total] = await this.categoryRepo.findAndCount({
             order: { created_at: 'DESC' },
+            skip: (page - 1) * limit,
+            take: limit,
         });
 
-        return categories;
+        return {
+            data: categories,
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit),
+        };
     }
 
     async getOneCategory(id: number) {
@@ -124,13 +135,13 @@ export class CategoryService {
     }
 
     // front
-    async getActiveCategories(page: number, limit: number | undefined) {
-        const skip = limit ? (page - 1) * limit : undefined;
+    async getActiveCategories(dto: GetCategoriesDto) {
+        const { page = 1, limit } = dto;
 
         const [categories, total] = await this.categoryRepo.findAndCount({
             where: { status: true },
             order: { created_at: 'DESC' },
-            skip,
+            skip: limit ? (page - 1) * limit : undefined,
             take: limit,
         });
 

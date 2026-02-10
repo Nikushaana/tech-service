@@ -7,6 +7,7 @@ import { GetCitiesDto } from 'src/cities/dto/get-cities.dto';
 import { CitiesService } from 'src/cities/cities.service';
 import { StreetsService } from 'src/streets/streets.service';
 import { GetStreetsDto } from 'src/streets/dto/get-streets.dto';
+import { GetCategoriesDto } from 'src/category/dto/get-categories.dto';
 
 @Controller('front')
 export class FrontController {
@@ -25,9 +26,8 @@ export class FrontController {
     ) { }
 
     @Get('categories')
-    async getCategories(@Query('page') page: number = 1,
-        @Query('limit') limit?: string,) {
-        return this.categoryService.getActiveCategories(page, limit !== undefined ? Number(limit) : undefined);
+    async getCategories(@Query() query: GetCategoriesDto) {
+        return this.categoryService.getActiveCategories(query);
     }
 
     @Get('faqs')
