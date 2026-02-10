@@ -1,7 +1,11 @@
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 
 export default function Pagination({ totalPages, currentPage }: any) {
+  const searchParams = useSearchParams();
+
   if (totalPages < 2) return;
+
   return (
     <div className="inline-flex gap-1">
       {Array.from({ length: totalPages }).map((_, i) => {
@@ -13,10 +17,13 @@ export default function Pagination({ totalPages, currentPage }: any) {
           page === totalPages ||
           Math.abs(page - currentPage) <= 1
         ) {
+          const params = new URLSearchParams(searchParams.toString());
+          params.set("page", page.toString());
+
           return (
             <Link
               key={page}
-              href={`?page=${page}`}
+              href={`?${params.toString()}`}
               className={`w-8 h-10 flex items-center justify-center font-bold text-sm rounded-lg cursor-pointer border-2 ${
                 currentPage === page && "border-myLightBlue"
               }`}

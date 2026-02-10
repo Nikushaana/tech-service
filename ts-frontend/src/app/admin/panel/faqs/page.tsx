@@ -1,5 +1,6 @@
 "use client";
 
+import Pagination from "@/app/components/pagination/pagination";
 import { axiosAdmin } from "@/app/lib/api/axios";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,22 +14,26 @@ import {
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Loader2Icon } from "lucide-react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { AiOutlineDelete } from "react-icons/ai";
 import { BsEye } from "react-icons/bs";
 import { toast } from "react-toastify";
 
-const fetchAdminFaqs = async () => {
-  const { data } = await axiosAdmin.get("admin/faqs");
+const fetchAdminFaqs = async (page: number) => {
+  const { data } = await axiosAdmin.get(`admin/faqs?page=${page}`);
   return data;
 };
 
 export default function Page() {
+  const searchParams = useSearchParams();
+  const page = Number(searchParams.get("page")) || 1;
   const queryClient = useQueryClient();
 
-  const { data: faqs, isLoading } = useQuery({
-    queryKey: ["adminFaqs"],
-    queryFn: fetchAdminFaqs,
+  const { data: faqs, isFetching } = useQuery({
+    queryKey: ["adminFaqs", page],
+    queryFn: () => fetchAdminFaqs(page),
     staleTime: 1000 * 60 * 10,
+    placeholderData: (previous) => previous,
   });
 
   // delete faq
@@ -52,20 +57,26 @@ export default function Page() {
     deleteFaqMutation.mutate(id);
   };
 
-  if (isLoading)
-    return (
-      <div className="flex justify-center w-full mt-10">
-        <Loader2Icon className="animate-spin size-6 text-gray-600" />
-      </div>
-    );
-
   return (
     <div className="flex flex-col items-center gap-y-2 w-full">
       <Link href={"/admin/panel/faqs/add"} className="w-auto self-end">
-        <Button className="h-[45px] w-full px-6 text-white cursor-pointer">დამატება</Button>
+        <Button className="h-[45px] w-full px-6 text-white cursor-pointer">
+          დამატება
+        </Button>
       </Link>
-      <div className="w-full bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6">
-        <h2 className="text-xl font-semibold mb-4">FAQs</h2>
+      <div className="w-full bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6 space-y-2">
+        <h2 className="text-xl font-semibold mb-2">FAQs</h2>
+
+        <div className="flex justify-end">
+          <Pagination totalPages={faqs?.totalPages} currentPage={page} />
+        </div>
+
+        {isFetching && (
+          <div className="flex justify-center w-full mt-10">
+            <Loader2Icon className="animate-spin size-6 text-gray-600" />
+          </div>
+        )}
+
         <div className="overflow-x-auto w-full">
           <Table className="min-w-[900px] table-auto">
             <TableHeader>
@@ -79,7 +90,7 @@ export default function Page() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {faqs.length === 0 ? (
+              {faqs?.total === 0 ? (
                 <TableRow>
                   <TableCell
                     colSpan={8}
@@ -89,7 +100,7 @@ export default function Page() {
                   </TableCell>
                 </TableRow>
               ) : (
-                faqs.map((faq: Faq) => (
+                faqs?.data?.map((faq: Faq) => (
                   <TableRow key={faq.id} className="hover:bg-gray-50">
                     <TableCell>{faq.id}</TableCell>
                     <TableCell>{faq.order}</TableCell>
@@ -137,6 +148,10 @@ export default function Page() {
               )}
             </TableBody>
           </Table>
+        </div>
+
+        <div className="flex justify-end">
+          <Pagination totalPages={faqs?.totalPages} currentPage={page} />
         </div>
       </div>
     </div>

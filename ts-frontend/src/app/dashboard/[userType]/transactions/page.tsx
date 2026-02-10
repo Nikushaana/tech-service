@@ -40,8 +40,8 @@ export default function Page() {
 
   return (
     <div className={`w-full flex flex-col gap-y-2`}>
-      <div className="w-full bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6">
-        <h2 className="text-xl font-semibold mb-4">ტრანზაქციები</h2>
+      <div className="w-full bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6 space-y-2">
+        <h2 className="text-xl font-semibold mb-2">ტრანზაქციები</h2>
 
         <div className="flex justify-end">
           <Pagination

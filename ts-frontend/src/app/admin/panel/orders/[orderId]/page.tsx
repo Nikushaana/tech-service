@@ -237,7 +237,7 @@ export default function Page() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-[10px]">
         <Dropdown
-          data={employees?.deliveries}
+          data={employees?.deliveries?.data}
           id="deliveryId"
           value={values.deliveryId}
           label="კურიერი"
@@ -247,7 +247,7 @@ export default function Page() {
           error={errors.deliveryId}
         />
         <Dropdown
-          data={employees?.technicians}
+          data={employees?.technicians?.data}
           id="technicianId"
           value={values.technicianId}
           label="ტექნიკოსი"

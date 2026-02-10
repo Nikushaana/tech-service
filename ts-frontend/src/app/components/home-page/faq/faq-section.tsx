@@ -1,4 +1,3 @@
-import React from "react";
 import FaqClient from "./faq-client";
 
 export default async function FaqSection() {
