@@ -4,34 +4,46 @@ import Map from "@/app/components/map/map";
 import { Button } from "@/components/ui/button";
 import { useAddressesStore } from "@/app/store/useAddressesStore";
 import { Loader2Icon } from "lucide-react";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { AiOutlineDelete } from "react-icons/ai";
-import { PiMapPinFill } from "react-icons/pi";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { fetchUserAddresses } from "@/app/lib/api/userAddresses";
 import { axiosCompany, axiosIndividual } from "@/app/lib/api/axios";
+import Pagination from "@/app/components/pagination/pagination";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 export default function Page() {
   const { userType } = useParams<{
     userType: "company" | "individual";
   }>();
 
+  const searchParams = useSearchParams();
+  const page = Number(searchParams.get("page")) || 1;
+
   const queryClient = useQueryClient();
 
   const { toggleOpenCreateAddressModal } = useAddressesStore();
 
-  const { data: addresses = [], isLoading } = useQuery({
-    queryKey: ["userAddresses", userType],
-    queryFn: () => fetchUserAddresses(userType),
+  const { data: addresses, isFetching } = useQuery({
+    queryKey: ["userAddresses", userType, page],
+    queryFn: () => fetchUserAddresses(page, userType),
     staleTime: 1000 * 60 * 10,
+    placeholderData: (previous) => previous,
   });
 
   // delete address
   const deleteAddressMutation = useMutation({
     mutationFn: (id: number) =>
       (userType === "company" ? axiosCompany : axiosIndividual).delete(
-        `${userType}/addresses/${id}`
+        `${userType}/addresses/${id}`,
       ),
 
     onSuccess: () => {
@@ -48,7 +60,7 @@ export default function Page() {
         "Address cannot be deleted because it is used in an order"
       ) {
         toast.error(
-          "მისამართი ვერ წაიშლება, რადგან გამოყენებულია ერთ-ერთ შეკვეთაში"
+          "მისამართი ვერ წაიშლება, რადგან გამოყენებულია ერთ-ერთ შეკვეთაში",
         );
       } else {
         toast.error("მისამართი ვერ წაიშალა");
@@ -59,13 +71,6 @@ export default function Page() {
   const handleDeleteAddress = (id: number) => {
     deleteAddressMutation.mutate(id);
   };
-
-  if (isLoading)
-    return (
-      <div className="flex justify-center w-full mt-10">
-        <Loader2Icon className="animate-spin size-6 text-gray-600" />
-      </div>
-    );
 
   return (
     <div className={`w-full flex flex-col gap-y-2`}>
@@ -78,85 +83,99 @@ export default function Page() {
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-[20px] w-full items-stretch">
-        {addresses.map((address: Address) => (
-          <div
-            key={address.id}
-            className="bg-white border border-gray-200 shadow-sm hover:shadow-lg transition-transform duration-200 h-full w-full transform hover:-translate-y-1 rounded-xl p-[14px] flex flex-col gap-1"
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-[10px]">
-                <div className="w-[45px] aspect-square rounded-full bg-gray-100 text-myLightBlue text-[24px] flex items-center justify-center">
-                  <PiMapPinFill />
-                </div>
-                <h2 className="text-[20px]">{address.name}</h2>
-              </div>
-              <Button
-                onClick={() => handleDeleteAddress(address.id)}
-                disabled={
-                  deleteAddressMutation.isPending &&
-                  deleteAddressMutation.variables === address.id
-                }
-                className="bg-[red] hover:bg-[#b91c1c] text-[20px] cursor-pointer"
-              >
-                {deleteAddressMutation.isPending &&
-                deleteAddressMutation.variables === address.id ? (
-                  <Loader2Icon className="animate-spin" />
-                ) : (
-                  <AiOutlineDelete />
-                )}
-              </Button>
-            </div>
+      <div className="w-full bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6 space-y-2">
+        <h2 className="text-xl font-semibold mb-2">მისამართები</h2>
 
-            <p className="text-sm">
-              ქალაქი:{" "}
-              <span className="text-base font-semibold">{address.city}</span>
-            </p>
-            <p className="text-sm">
-              ქუჩა:{" "}
-              <span className="text-base font-semibold">{address.street}</span>
-            </p>
-            <p className="text-sm">
-              შენობის ნომერი:{" "}
-              <span className="text-base font-semibold">
-                {address.building_number}
-              </span>
-            </p>
-            {address.building_entrance && (
-              <p className="text-sm">
-                სადარბაზოს ნომერი:{" "}
-                <span className="text-base font-semibold">
-                  {address.building_entrance}
-                </span>
-              </p>
-            )}
-            {address.building_floor && (
-              <p className="text-sm">
-                სართული:{" "}
-                <span className="text-base font-semibold">
-                  {address.building_floor}
-                </span>
-              </p>
-            )}
-            {address.apartment_number && (
-              <p className="text-sm">
-                ბინის ნომერი:{" "}
-                <span className="text-base font-semibold">
-                  {address.apartment_number}
-                </span>
-              </p>
-            )}
-            <p className="flex-1 p-[5px] bg-gray-100 rounded-[8px]">
-              {address.description}
-            </p>
-            <div className="h-[100px] bg-myLightBlue rounded-[8px] overflow-hidden">
-              <Map
-                centerCoordinates={address.location}
-                markerCoordinates={address.location}
-              />
-            </div>
+        <div className="flex justify-end">
+          <Pagination totalPages={addresses?.totalPages} currentPage={page} />
+        </div>
+
+        {isFetching && (
+          <div className="flex justify-center w-full mt-10">
+            <Loader2Icon className="animate-spin size-6 text-gray-600" />
           </div>
-        ))}
+        )}
+
+        <div className="overflow-x-auto w-full">
+          <Table className="min-w-[900px] table-auto">
+            <TableHeader>
+              <TableRow>
+                <TableHead className="font-semibold">ID</TableHead>
+                <TableHead className="font-semibold">მდებარეობა</TableHead>
+                <TableHead className="font-semibold">
+                  მისამართის სახელი
+                </TableHead>
+                <TableHead className="font-semibold">ქალაქი</TableHead>
+                <TableHead className="font-semibold">ქუჩა</TableHead>
+                <TableHead className="font-semibold">შენობის ნომერი</TableHead>
+                <TableHead className="font-semibold">
+                  სადარბაზოს ნომერი
+                </TableHead>
+                <TableHead className="font-semibold">სართული</TableHead>
+                <TableHead className="font-semibold">ბინის ნომერი</TableHead>
+                <TableHead className="font-semibold">აღწერა</TableHead>
+                <TableHead className="text-right"></TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {addresses?.total === 0 ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={8}
+                    className="text-center py-6 text-gray-500"
+                  >
+                    ინფორმაცია არ მოიძებნა
+                  </TableCell>
+                </TableRow>
+              ) : (
+                addresses?.data?.map((address: any) => (
+                  <TableRow key={address.id} className="hover:bg-gray-50">
+                    <TableCell>{address.id}</TableCell>
+                    <TableCell>
+                      <div className="h-[80px] aspect-video bg-myLightBlue rounded-[8px] overflow-hidden">
+                        <Map
+                          centerCoordinates={address.location}
+                          markerCoordinates={address.location}
+                        />
+                      </div>
+                    </TableCell>
+                    <TableCell>{address.name}</TableCell>
+                    <TableCell>{address.city}</TableCell>
+                    <TableCell>{address.street}</TableCell>
+                    <TableCell>{address.building_number}</TableCell>
+                    <TableCell>{address.building_entrance || "---"}</TableCell>
+                    <TableCell>{address.building_floor || "---"}</TableCell>
+                    <TableCell>{address.apartment_number || "---"}</TableCell>
+                    <TableCell>{address.description}</TableCell>
+                    <TableCell className="text-right">
+                      <Button
+                        variant="secondary"
+                        size="icon"
+                        className="bg-[red] hover:bg-[#b91c1c] cursor-pointer"
+                        onClick={() => handleDeleteAddress(address.id)}
+                        disabled={
+                          deleteAddressMutation.isPending &&
+                          deleteAddressMutation.variables === address.id
+                        }
+                      >
+                        {deleteAddressMutation.isPending &&
+                        deleteAddressMutation.variables === address.id ? (
+                          <Loader2Icon className="animate-spin" />
+                        ) : (
+                          <AiOutlineDelete />
+                        )}
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
+
+        <div className="flex justify-end">
+          <Pagination totalPages={addresses?.totalPages} currentPage={page} />
+        </div>
       </div>
     </div>
   );

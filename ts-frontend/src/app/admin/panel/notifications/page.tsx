@@ -23,7 +23,7 @@ const fetchAdminNotifications = async (page: number) => {
   return data;
 };
 
-export default function UsersClient() {
+export default function Page() {
   const searchParams = useSearchParams();
   const page = Number(searchParams.get("page")) || 1;
   const queryClient = useQueryClient();

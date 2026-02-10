@@ -1,6 +1,7 @@
 "use client";
 
 import StarRating from "@/app/components/inputs/star-rating";
+import Pagination from "@/app/components/pagination/pagination";
 import { axiosAdmin } from "@/app/lib/api/axios";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,23 +16,27 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import { Loader2Icon } from "lucide-react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { AiOutlineDelete } from "react-icons/ai";
 import { BsEye } from "react-icons/bs";
 import { IoPersonSharp } from "react-icons/io5";
 import { toast } from "react-toastify";
 
-const fetchAdminReviews = async () => {
-  const { data } = await axiosAdmin.get("admin/reviews");
+const fetchAdminReviews = async (page: number) => {
+  const { data } = await axiosAdmin.get(`admin/reviews?page=${page}`);
   return data;
 };
 
 export default function Page() {
+  const searchParams = useSearchParams();
+  const page = Number(searchParams.get("page")) || 1;
   const queryClient = useQueryClient();
 
-  const { data: reviews, isLoading } = useQuery({
-    queryKey: ["adminReviews"],
-    queryFn: fetchAdminReviews,
+  const { data: reviews, isFetching } = useQuery({
+    queryKey: ["adminReviews", page],
+    queryFn: () => fetchAdminReviews(page),
     staleTime: 1000 * 60 * 10,
+    placeholderData: (previous) => previous,
   });
 
   // delete review
@@ -55,16 +60,20 @@ export default function Page() {
     deleteReviewMutation.mutate(id);
   };
 
-  if (isLoading)
-    return (
-      <div className="flex justify-center w-full mt-10">
-        <Loader2Icon className="animate-spin size-6 text-gray-600" />
-      </div>
-    );
-
   return (
-    <div className="w-full bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6">
-      <h2 className="text-xl font-semibold mb-4">შეფასებები</h2>
+    <div className="w-full bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6 space-y-2">
+      <h2 className="text-xl font-semibold mb-2">შეფასებები</h2>
+
+      <div className="flex justify-end">
+        <Pagination totalPages={reviews?.totalPages} currentPage={page} />
+      </div>
+
+      {isFetching && (
+        <div className="flex justify-center w-full mt-10">
+          <Loader2Icon className="animate-spin size-6 text-gray-600" />
+        </div>
+      )}
+
       <div className="overflow-x-auto w-full">
         <Table className="min-w-[900px] table-auto">
           <TableHeader>
@@ -80,7 +89,7 @@ export default function Page() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {reviews.length === 0 ? (
+            {reviews?.total === 0 ? (
               <TableRow>
                 <TableCell
                   colSpan={8}
@@ -90,7 +99,7 @@ export default function Page() {
                 </TableCell>
               </TableRow>
             ) : (
-              reviews.map((review: Review) => (
+              reviews?.data?.map((review: Review) => (
                 <TableRow key={review.id} className="hover:bg-gray-50">
                   <TableCell className="font-medium">{review.id}</TableCell>
                   <TableCell>
@@ -174,6 +183,10 @@ export default function Page() {
             )}
           </TableBody>
         </Table>
+      </div>
+
+      <div className="flex justify-end">
+        <Pagination totalPages={reviews?.totalPages} currentPage={page} />
       </div>
     </div>
   );

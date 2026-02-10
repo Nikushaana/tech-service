@@ -5,13 +5,22 @@ import { Button } from "@/components/ui/button";
 import { useReviewsStore } from "@/app/store/useReviewsStore";
 import dayjs from "dayjs";
 import { Loader2Icon } from "lucide-react";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { axiosCompany, axiosIndividual } from "@/app/lib/api/axios";
+import Pagination from "@/app/components/pagination/pagination";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
-const fetchUserReviews = async (userType: ClientRole) => {
+const fetchUserReviews = async (page: number, userType: ClientRole) => {
   const api = userType === "company" ? axiosCompany : axiosIndividual;
-  const { data } = await api.get(`${userType}/reviews`);
+  const { data } = await api.get(`${userType}/reviews?page=${page}`);
   return data;
 };
 
@@ -20,20 +29,17 @@ export default function Page() {
     userType: ClientRole;
   }>();
 
+  const searchParams = useSearchParams();
+  const page = Number(searchParams.get("page")) || 1;
+
   const { toggleOpenCreateReviewModal } = useReviewsStore();
 
-  const { data: reviews = [], isLoading } = useQuery({
-    queryKey: ["userReviews", userType],
-    queryFn: () => fetchUserReviews(userType),
+  const { data: reviews, isFetching } = useQuery({
+    queryKey: ["userReviews", userType, page],
+    queryFn: () => fetchUserReviews(page, userType),
     staleTime: 1000 * 60 * 10,
+    placeholderData: (previous) => previous,
   });
-
-  if (isLoading)
-    return (
-      <div className="flex justify-center w-full mt-10">
-        <Loader2Icon className="animate-spin size-6 text-gray-600" />
-      </div>
-    );
 
   return (
     <div className={`w-full flex flex-col gap-y-2`}>
@@ -47,24 +53,64 @@ export default function Page() {
           დატოვე შეფასება
         </Button>
       </div>
-      {reviews.length > 0 && (
-        <div className="flex flex-col gap-5 w-full">
-          {reviews.map((review: any) => (
-            <div
-              key={review.id}
-              className="bg-white border border-gray-200 shadow-sm hover:shadow-lg transition-transform duration-200 transform hover:-translate-y-1 rounded-xl p-[14px] flex flex-col gap-[10px]"
-            >
-              <p className="font-semibold">{review.review}</p>
-              <div className="flex flex-col sm:flex-row gap-5 items-center justify-between">
-                <StarRating value={review.stars || 5} />
-                <p className="text-sm">
-                  დაემატა: {dayjs(review.created_at).format("DD.MM.YYYY HH:mm")}
-                </p>
-              </div>
-            </div>
-          ))}
+      <div className="w-full bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6 space-y-2">
+        <h2 className="text-xl font-semibold mb-2">შეაფასე Tech Service</h2>
+        <div className="flex justify-end">
+          <Pagination totalPages={reviews?.totalPages} currentPage={page} />
         </div>
-      )}
+
+        {isFetching && (
+          <div className="flex justify-center w-full mt-10">
+            <Loader2Icon className="animate-spin size-6 text-gray-600" />
+          </div>
+        )}
+
+        <div className="overflow-x-auto w-full">
+          <Table className="min-w-[900px] table-auto">
+            <TableHeader>
+              <TableRow>
+                <TableHead className="font-semibold">ID</TableHead>
+                <TableHead className="font-semibold">ვარსკვლავი</TableHead>
+                <TableHead className="font-semibold">შეფასება</TableHead>
+                <TableHead className="text-right font-semibold">
+                  განაცხადის თარიღი
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {reviews?.total === 0 ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={8}
+                    className="text-center py-6 text-gray-500"
+                  >
+                    ინფორმაცია არ მოიძებნა
+                  </TableCell>
+                </TableRow>
+              ) : (
+                reviews?.data?.map((review: Review) => (
+                  <TableRow key={review.id} className="hover:bg-gray-50">
+                    <TableCell className="font-medium">{review.id}</TableCell>
+                    <TableCell>
+                      <StarRating value={review.stars || 5} />
+                    </TableCell>
+                    <TableCell className="max-w-[200px] truncate">
+                      {review.review}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {dayjs(review.created_at).format("DD.MM.YYYY HH:mm")}
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
+
+        <div className="flex justify-end">
+          <Pagination totalPages={reviews?.totalPages} currentPage={page} />
+        </div>
+      </div>
     </div>
   );
 }
