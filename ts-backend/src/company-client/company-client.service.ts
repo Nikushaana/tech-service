@@ -18,6 +18,8 @@ import { OrderService } from 'src/order/order.service';
 import { UpdateAdminCompanyDto } from 'src/admin/dto/update-admin-company.dto';
 import { RepairDecisionDto } from 'src/order/dto/repair-decision.dto';
 import { GetOrdersDto } from 'src/order/dto/get-orders.dto';
+import { GetAddressesDto } from 'src/address/dto/get-addresses.dto';
+import { GetReviewsDto } from 'src/reviews/dto/get-reviews.dto';
 
 @Injectable()
 export class CompanyClientService {
@@ -119,8 +121,8 @@ export class CompanyClientService {
         return this.addressService.createAddress(companyId, this.companyClientRepo, createAddressDto);
     }
 
-    async getAddresses(companyId: number) {
-        return this.addressService.getAddresses(companyId, this.companyClientRepo);
+    async getAddresses(dto: GetAddressesDto, companyId: number) {
+        return this.addressService.getAddresses(dto, companyId, this.companyClientRepo);
     }
 
     async getUserOneAddress(companyId: number, id: number) {
@@ -136,7 +138,7 @@ export class CompanyClientService {
         return this.reviewsService.createReview(companyId, this.companyClientRepo, createReviewDto);
     }
 
-    async getReviews(companyId: number) {
-        return this.reviewsService.getReviews(companyId, this.companyClientRepo);
+    async getReviews(dto: GetReviewsDto, companyId: number) {
+        return this.reviewsService.getReviews(dto, companyId, this.companyClientRepo);
     }
 }

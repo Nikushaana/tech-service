@@ -20,6 +20,8 @@ import { CalculatePriceDto } from 'src/pricing/dto/calculate-price.dto';
 import { TransactionsService } from 'src/transactions/transactions.service';
 import { GetNotificationsDto } from 'src/notifications/dto/get-notifications.dto';
 import { GetOrdersDto } from 'src/order/dto/get-orders.dto';
+import { GetAddressesDto } from 'src/address/dto/get-addresses.dto';
+import { GetReviewsDto } from 'src/reviews/dto/get-reviews.dto';
 
 @Controller('individual')
 export class IndividualClientController {
@@ -172,8 +174,8 @@ export class IndividualClientController {
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('individual')
     @Get('addresses')
-    async getAddresses(@Req() req: RequestInfo) {
-        return this.individualClientService.getAddresses(req.user.id);
+    async getAddresses(@Query() query: GetAddressesDto, @Req() req: RequestInfo) {
+        return this.individualClientService.getAddresses(query, req.user.id);
     }
 
     @UseGuards(TokenValidationGuard, RolesGuard)
@@ -201,8 +203,8 @@ export class IndividualClientController {
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('individual')
     @Get('reviews')
-    async getIndividualReviews(@Req() req: RequestInfo) {
-        return this.individualClientService.getIndividualReviews(req.user.id);
+    async getIndividualReviews(@Query() query: GetReviewsDto, @Req() req: RequestInfo) {
+        return this.individualClientService.getIndividualReviews(query, req.user.id);
     }
 
     // notifications

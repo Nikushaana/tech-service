@@ -8,6 +8,7 @@ import { Branch } from 'src/branches/entities/branches.entity';
 import { getDistanceFromLatLonInKm } from 'src/common/utils/geo.utils';
 import { BaseUserService } from 'src/common/services/base-user/base-user.service';
 import { Order } from 'src/order/entities/order.entity';
+import { GetAddressesDto } from './dto/get-addresses.dto';
 
 @Injectable()
 export class AddressService {
@@ -73,17 +74,27 @@ export class AddressService {
         return { message: `Address created successfully`, address: instanceToPlain(address) };
     }
 
-    async getAddresses(userId: number, repo: any) {
+    async getAddresses(dto: GetAddressesDto, userId: number, repo: any) {
+        const { page = 1, limit = 10 } = dto;
+
         const user = await this.baseUserService.getUser(userId, repo);
 
         const relationKey = "companyName" in user ? "company" : "individual";
 
-        const addresses = await this.addressRepo.find({
+        const [addresses, total] = await this.addressRepo.findAndCount({
             where: { [relationKey]: { id: userId } },
             order: { created_at: 'DESC' },
+            skip: (page - 1) * limit,
+            take: limit,
         });
 
-        return instanceToPlain(addresses);
+        return {
+            data: instanceToPlain(addresses),
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit),
+        };
     }
 
     async getUserOneAddress(userId: number, id: number, repo: any) {

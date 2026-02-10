@@ -18,6 +18,8 @@ import { OrderService } from 'src/order/order.service';
 import { UpdateAdminIndividualTechnicianDeliveryDto } from 'src/admin/dto/update-adm-ind-tech-del.dto';
 import { RepairDecisionDto } from 'src/order/dto/repair-decision.dto';
 import { GetOrdersDto } from 'src/order/dto/get-orders.dto';
+import { GetAddressesDto } from 'src/address/dto/get-addresses.dto';
+import { GetReviewsDto } from 'src/reviews/dto/get-reviews.dto';
 
 @Injectable()
 export class IndividualClientService {
@@ -119,8 +121,8 @@ export class IndividualClientService {
         return this.addressService.createAddress(individualId, this.individualClientRepo, createAddressDto);
     }
 
-    async getAddresses(individualId: number) {
-        return this.addressService.getAddresses(individualId, this.individualClientRepo);
+    async getAddresses(dto: GetAddressesDto, individualId: number) {
+        return this.addressService.getAddresses(dto, individualId, this.individualClientRepo);
     }
 
     async getUserOneAddress(individualId: number, id: number) {
@@ -136,7 +138,7 @@ export class IndividualClientService {
         return this.reviewsService.createReview(individualId, this.individualClientRepo, createReviewDto);
     }
 
-    async getIndividualReviews(individualId: number) {
-        return this.reviewsService.getReviews(individualId, this.individualClientRepo);
+    async getIndividualReviews(dto: GetReviewsDto, individualId: number) {
+        return this.reviewsService.getReviews(dto, individualId, this.individualClientRepo);
     }
 }

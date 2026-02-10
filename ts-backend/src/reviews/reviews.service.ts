@@ -8,6 +8,7 @@ import { CreateReviewDto } from './dto/create-review.dto';
 import { NotificationsService } from 'src/notifications/notifications.service';
 import { UpdateReviewDto } from './dto/update-review.dto';
 import { NotificationType } from 'src/notifications/entities/notification.entity';
+import { GetReviewsDto } from './dto/get-reviews.dto';
 
 @Injectable()
 export class ReviewsService {
@@ -57,26 +58,47 @@ export class ReviewsService {
         return { message: `Review created successfully`, review: instanceToPlain(review) };
     }
 
-    async getReviews(userId: number, repo: any) {
+    async getReviews(dto: GetReviewsDto, userId: number, repo: any) {
+        const { page = 1, limit = 10 } = dto;
+
         const user = await this.baseUserService.getUser(userId, repo);
 
         const relationKey = "companyName" in user ? "company" : "individual";
 
-        const reviews = await this.reviewRepo.find({
+        const [reviews, total] = await this.reviewRepo.findAndCount({
             where: { [relationKey]: { id: userId } },
             order: { created_at: 'DESC' },
+            skip: (page - 1) * limit,
+            take: limit,
         });
 
-        return reviews;
+        return {
+            data: reviews,
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit),
+        };
     }
 
     // admin
-    async getAdminReviews() {
-        const reviews = await this.reviewRepo.find({
-            order: { created_at: 'DESC' }, relations: ['individual', 'company'],
+    async getAdminReviews(dto: GetReviewsDto) {
+        const { page = 1, limit = 10 } = dto;
+
+        const [reviews, total] = await this.reviewRepo.findAndCount({
+            order: { created_at: 'DESC' },
+            relations: ['individual', 'company'],
+            skip: (page - 1) * limit,
+            take: limit,
         });
 
-        return reviews;
+        return {
+            data: reviews,
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit),
+        };
     }
 
     async getAdminOneReviewEntity(id: number) {

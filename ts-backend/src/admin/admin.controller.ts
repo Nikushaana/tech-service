@@ -30,6 +30,7 @@ import { BaseUserService } from 'src/common/services/base-user/base-user.service
 import { TransactionsService } from 'src/transactions/transactions.service';
 import { GetNotificationsDto } from 'src/notifications/dto/get-notifications.dto';
 import { GetOrdersDto } from 'src/order/dto/get-orders.dto';
+import { GetReviewsDto } from 'src/reviews/dto/get-reviews.dto';
 
 @Controller('admin')
 export class AdminController {
@@ -261,8 +262,8 @@ export class AdminController {
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('admin')
     @Get('reviews')
-    async getAdminReviews() {
-        return this.reviewsService.getAdminReviews();
+    async getAdminReviews(@Query() query: GetReviewsDto) {
+        return this.reviewsService.getAdminReviews(query);
     }
 
     @UseGuards(TokenValidationGuard, RolesGuard)

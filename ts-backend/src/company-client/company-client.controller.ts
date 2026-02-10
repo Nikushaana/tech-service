@@ -20,6 +20,8 @@ import { PricingService } from 'src/pricing/pricing.service';
 import { TransactionsService } from 'src/transactions/transactions.service';
 import { GetNotificationsDto } from 'src/notifications/dto/get-notifications.dto';
 import { GetOrdersDto } from 'src/order/dto/get-orders.dto';
+import { GetAddressesDto } from 'src/address/dto/get-addresses.dto';
+import { GetReviewsDto } from 'src/reviews/dto/get-reviews.dto';
 
 @Controller('company')
 export class CompanyClientController {
@@ -172,8 +174,8 @@ export class CompanyClientController {
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('company')
     @Get('addresses')
-    async getAddresses(@Req() req: RequestInfo) {
-        return this.companyClientService.getAddresses(req.user.id);
+    async getAddresses(@Query() query: GetAddressesDto, @Req() req: RequestInfo) {
+        return this.companyClientService.getAddresses(query, req.user.id);
     }
 
     @UseGuards(TokenValidationGuard, RolesGuard)
@@ -201,8 +203,8 @@ export class CompanyClientController {
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('company')
     @Get('reviews')
-    async getReviews(@Req() req: RequestInfo) {
-        return this.companyClientService.getReviews(req.user.id);
+    async getReviews(@Query() query: GetReviewsDto, @Req() req: RequestInfo) {
+        return this.companyClientService.getReviews(query, req.user.id);
     }
 
     // notifications
