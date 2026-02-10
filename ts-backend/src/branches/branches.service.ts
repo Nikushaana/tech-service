@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import { Branch } from './entities/branches.entity';
 import { UpdateBranchDto } from './dto/update-branch.dto';
 import { instanceToPlain } from 'class-transformer';
+import { GetBranchesDto } from './dto/get-branches.dto';
 
 @Injectable()
 export class BranchesService {
@@ -26,8 +27,21 @@ export class BranchesService {
         return { message: 'Branch created successfully', branch };
     }
 
-    async getBranches() {
-        return this.branchRepo.find();
+    async getBranches(dto: GetBranchesDto) {
+        const { page = 1, limit = 10 } = dto;
+
+        const [branches, total] = await this.branchRepo.findAndCount({
+            skip: (page - 1) * limit,
+            take: limit,
+        });
+
+        return {
+            data: branches,
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit),
+        };
     }
 
     async getFrontBranches() {

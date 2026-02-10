@@ -4,6 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Faq } from './entities/faq.entity';
 import { Repository } from 'typeorm';
 import { UpdateFaqDto } from './dto/update-category.dto';
+import { GetFaqsDto } from './dto/get-faqs.dto';
 
 @Injectable()
 export class FaqService {
@@ -23,12 +24,22 @@ export class FaqService {
         return { message: `Faq created successfully`, faq };
     }
 
-    async getFaqs() {
-        const faqs = await this.faqRepo.find({
+    async getFaqs(dto: GetFaqsDto) {
+        const { page = 1, limit = 10 } = dto;
+
+        const [faqs, total] = await this.faqRepo.findAndCount({
             order: { order: 'ASC' },
+            skip: (page - 1) * limit,
+            take: limit,
         });
 
-        return faqs;
+        return {
+            data: faqs,
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit),
+        };
     }
 
     async getOneFaq(id: number) {
@@ -70,13 +81,23 @@ export class FaqService {
         };
     }
 
-    //front
-    async getActiveFaqs() {
-        const faqs = await this.faqRepo.find({
+    // front
+    async getActiveFaqs(dto: GetFaqsDto) {
+        const { page = 1, limit } = dto;
+
+        const [faqs, total] = await this.faqRepo.findAndCount({
             where: { status: true },
             order: { order: 'ASC' },
+            skip: limit ? (page - 1) * limit : undefined,
+            take: limit,
         });
 
-        return faqs;
+        return {
+            data: faqs,
+            total,
+            page,
+            limit,
+            totalPages: limit ? Math.ceil(total / limit) : 1,
+        };
     }
 }

@@ -33,6 +33,8 @@ import { GetOrdersDto } from 'src/order/dto/get-orders.dto';
 import { GetReviewsDto } from 'src/reviews/dto/get-reviews.dto';
 import { GetTransactionsDto } from 'src/transactions/dto/get-transactions.dto';
 import { GetCategoriesDto } from 'src/category/dto/get-categories.dto';
+import { GetFaqsDto } from 'src/faq/dto/get-faqs.dto';
+import { GetBranchesDto } from 'src/branches/dto/get-branches.dto';
 
 @Controller('admin')
 export class AdminController {
@@ -235,8 +237,8 @@ export class AdminController {
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('admin')
     @Get('faqs')
-    async getFaqs() {
-        return this.faqService.getFaqs();
+    async getFaqs(@Query() query: GetFaqsDto) {
+        return this.faqService.getFaqs(query);
     }
 
     @UseGuards(TokenValidationGuard, RolesGuard)
@@ -300,8 +302,8 @@ export class AdminController {
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('admin')
     @Get('branches')
-    async getBranches() {
-        return this.branchesService.getBranches();
+    async getBranches(@Query() query: GetBranchesDto) {
+        return this.branchesService.getBranches(query);
     }
 
     @UseGuards(TokenValidationGuard, RolesGuard)

@@ -8,6 +8,7 @@ import { CitiesService } from 'src/cities/cities.service';
 import { StreetsService } from 'src/streets/streets.service';
 import { GetStreetsDto } from 'src/streets/dto/get-streets.dto';
 import { GetCategoriesDto } from 'src/category/dto/get-categories.dto';
+import { GetFaqsDto } from 'src/faq/dto/get-faqs.dto';
 
 @Controller('front')
 export class FrontController {
@@ -31,8 +32,8 @@ export class FrontController {
     }
 
     @Get('faqs')
-    async getActiveFaqs() {
-        return this.faqService.getActiveFaqs();
+    async getActiveFaqs(@Query() query: GetFaqsDto) {
+        return this.faqService.getActiveFaqs(query);
     }
 
     @Get('reviews')
