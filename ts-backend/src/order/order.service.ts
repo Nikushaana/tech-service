@@ -129,11 +129,11 @@ export class OrderService {
         const address = await this.addressRepo.findOne({ where: { id: createOrderDto.addressId, [relationKey]: { id: userId } } });
         if (!address) throw new NotFoundException('Address not found');
 
-        const branches = await this.branchesService.getBranches();
-        if (!branches.length) throw new BadRequestException('No branches available — cannot add order');
+        const branches = await this.branchesService.getBranches({ page: 1 });
+        if (!branches.total) throw new BadRequestException('No branches available — cannot add order');
 
         // Check if location is within any branch coverage
-        const isWithinCoverage = branches.some((branch) => {
+        const isWithinCoverage = branches?.data?.some((branch) => {
             const distance = getDistanceFromLatLonInKm(
                 address.location.lat,
                 address.location.lng,

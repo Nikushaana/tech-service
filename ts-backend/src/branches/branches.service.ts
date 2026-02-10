@@ -28,10 +28,10 @@ export class BranchesService {
     }
 
     async getBranches(dto: GetBranchesDto) {
-        const { page = 1, limit = 10 } = dto;
+        const { page = 1, limit } = dto;
 
         const [branches, total] = await this.branchRepo.findAndCount({
-            skip: (page - 1) * limit,
+            skip: limit ? (page - 1) * limit : undefined,
             take: limit,
         });
 
@@ -40,7 +40,7 @@ export class BranchesService {
             total,
             page,
             limit,
-            totalPages: Math.ceil(total / limit),
+            totalPages: limit ? Math.ceil(total / limit) : 1,
         };
     }
 
