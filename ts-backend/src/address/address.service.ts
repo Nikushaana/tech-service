@@ -75,7 +75,7 @@ export class AddressService {
     }
 
     async getAddresses(dto: GetAddressesDto, userId: number, repo: any) {
-        const { page = 1, limit = 10 } = dto;
+        const { page = 1, limit } = dto;
 
         const user = await this.baseUserService.getUser(userId, repo);
 
@@ -84,7 +84,7 @@ export class AddressService {
         const [addresses, total] = await this.addressRepo.findAndCount({
             where: { [relationKey]: { id: userId } },
             order: { created_at: 'DESC' },
-            skip: (page - 1) * limit,
+            skip: limit ? (page - 1) * limit : undefined,
             take: limit,
         });
 
@@ -93,7 +93,7 @@ export class AddressService {
             total,
             page,
             limit,
-            totalPages: Math.ceil(total / limit),
+            totalPages: limit ? Math.ceil(total / limit) : 1,
         };
     }
 
