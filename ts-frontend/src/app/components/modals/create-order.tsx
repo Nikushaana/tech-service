@@ -45,7 +45,7 @@ export default function CreateOrder() {
     staleTime: 1000 * 60 * 10,
   });
 
-  const { data: addresses = [] } = useQuery({
+  const { data: addresses } = useQuery({
     queryKey: ["userAddresses", modalType],
     queryFn: () => fetchUserAddresses(modalType),
     enabled: openCreateOrderModal,
@@ -296,7 +296,7 @@ export default function CreateOrder() {
               />
               <div
                 onClick={() => {
-                  addresses.length <= 0 &&
+                  addresses?.total <= 0 &&
                     modalType &&
                     toggleOpenCreateAddressModal(modalType);
                 }}
@@ -304,11 +304,11 @@ export default function CreateOrder() {
               >
                 <div
                   className={`flex-1 ${
-                    addresses.length <= 0 && "pointer-events-none"
+                    addresses?.total <= 0 && "pointer-events-none"
                   }`}
                 >
                   <Dropdown
-                    data={addresses}
+                    data={addresses?.data}
                     id="addressId"
                     value={values.addressId}
                     label="მისამართი"
@@ -320,7 +320,7 @@ export default function CreateOrder() {
                 </div>
                 <Button
                   onClick={() => {
-                    addresses.length > 0 &&
+                    addresses?.total > 0 &&
                       modalType &&
                       toggleOpenCreateAddressModal(modalType);
                   }}

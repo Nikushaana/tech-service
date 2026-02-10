@@ -34,7 +34,7 @@ export default function Page() {
 
   const { data: addresses, isFetching } = useQuery({
     queryKey: ["userAddresses", userType, page],
-    queryFn: () => fetchUserAddresses(page, userType),
+    queryFn: () => fetchUserAddresses(userType, page),
     staleTime: 1000 * 60 * 10,
     placeholderData: (previous) => previous,
   });
