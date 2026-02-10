@@ -82,22 +82,12 @@ export class FaqService {
     }
 
     // front
-    async getActiveFaqs(dto: GetFaqsDto) {
-        const { page = 1, limit } = dto;
-
-        const [faqs, total] = await this.faqRepo.findAndCount({
+    async getActiveFaqs() {
+        const faqs = await this.faqRepo.find({
             where: { status: true },
             order: { order: 'ASC' },
-            skip: limit ? (page - 1) * limit : undefined,
-            take: limit,
         });
 
-        return {
-            data: faqs,
-            total,
-            page,
-            limit,
-            totalPages: limit ? Math.ceil(total / limit) : 1,
-        };
+        return faqs;
     }
 }
