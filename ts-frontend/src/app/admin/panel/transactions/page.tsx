@@ -14,30 +14,43 @@ import {
 import { axiosAdmin } from "@/app/lib/api/axios";
 import { providerLabels } from "@/app/utils/providerLabels";
 import { transactionTypeLabels } from "@/app/utils/transactionTypeLabels";
+import { useSearchParams } from "next/navigation";
+import Pagination from "@/app/components/pagination/pagination";
 
-const fetchAdminTransactions = async () => {
-  const { data } = await axiosAdmin.get(`admin/transactions`);
+const fetchAdminTransactions = async (page: number) => {
+  const { data } = await axiosAdmin.get(`admin/transactions?page=${page}`);
   return data;
 };
 
 export default function Page() {
-  const { data: transactions = [], isLoading } = useQuery({
-    queryKey: ["adminTransactions"],
-    queryFn: fetchAdminTransactions,
-    staleTime: 1000 * 60 * 10,
-  });
+  const searchParams = useSearchParams();
+  const page = Number(searchParams.get("page")) || 1;
 
-  if (isLoading)
-    return (
-      <div className="flex justify-center w-full mt-10">
-        <Loader2Icon className="animate-spin size-6 text-gray-600" />
-      </div>
-    );
+  const { data: transactions, isFetching } = useQuery({
+    queryKey: ["adminTransactions", page],
+    queryFn: () => fetchAdminTransactions(page),
+    staleTime: 1000 * 60 * 10,
+    placeholderData: (previous) => previous,
+  });
 
   return (
     <div className={`w-full flex flex-col gap-y-2`}>
       <div className="w-full bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6">
         <h2 className="text-xl font-semibold mb-4">ტრანზაქციები</h2>
+
+        <div className="flex justify-end">
+          <Pagination
+            totalPages={transactions?.totalPages}
+            currentPage={page}
+          />
+        </div>
+
+        {isFetching && (
+          <div className="flex justify-center w-full mt-10">
+            <Loader2Icon className="animate-spin size-6 text-gray-600" />
+          </div>
+        )}
+
         <div className="overflow-x-auto w-full">
           <Table className="min-w-[900px] table-auto">
             <TableHeader>
@@ -56,7 +69,7 @@ export default function Page() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {transactions?.length === 0 ? (
+              {transactions?.total === 0 ? (
                 <TableRow>
                   <TableCell
                     colSpan={8}
@@ -66,7 +79,7 @@ export default function Page() {
                   </TableCell>
                 </TableRow>
               ) : (
-                transactions?.map((transaction: any) => (
+                transactions?.data?.map((transaction: any) => (
                   <TableRow key={transaction.id} className="hover:bg-gray-50">
                     <TableCell>{transaction.id}</TableCell>
                     <TableCell>{transaction.amount} ₾</TableCell>
@@ -88,6 +101,13 @@ export default function Page() {
               )}
             </TableBody>
           </Table>
+        </div>
+
+        <div className="flex justify-end">
+          <Pagination
+            totalPages={transactions?.totalPages}
+            currentPage={page}
+          />
         </div>
       </div>
     </div>
