@@ -86,7 +86,7 @@ export class AddressService {
             order: { created_at: 'DESC' },
             skip: limit ? (page - 1) * limit : undefined,
             take: limit,
-        });
+        }); 
 
         return {
             data: instanceToPlain(addresses),
