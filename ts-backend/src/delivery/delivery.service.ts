@@ -8,8 +8,8 @@ import { ChangePasswordDto } from 'src/common/services/base-user/dto/change-pass
 import { instanceToPlain } from 'class-transformer';
 import { UpdateDeliveryDto } from './dto/update-delivery.dto';
 import { ChangeNumberDto, PhoneDto } from 'src/verification-code/dto/verification-code.dto';
-import { UserFilterDto } from 'src/common/services/base-user/dto/user-filter.dto';
 import { UpdateAdminIndividualTechnicianDeliveryDto } from 'src/admin/dto/update-adm-ind-tech-del.dto';
+import { GetUsersDto } from 'src/common/services/base-user/dto/get-users.dto';
 
 @Injectable()
 export class DeliveryService {
@@ -23,8 +23,8 @@ export class DeliveryService {
     ) { }
 
     // delivery
-    async getDeliveries(userFilterDto: UserFilterDto) {
-        const findDeliveries = await this.baseUserService.getUsers(this.deliveryRepo, userFilterDto);
+    async getDeliveries(dto: GetUsersDto) {
+        const findDeliveries = await this.baseUserService.getUsers(this.deliveryRepo, dto);
 
         return instanceToPlain(findDeliveries);
     }

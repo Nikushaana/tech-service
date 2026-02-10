@@ -7,7 +7,6 @@ import { ChangePasswordDto } from "./dto/change-password.dto";
 import { ChangeNumberDto } from "src/verification-code/dto/verification-code.dto";
 import { instanceToPlain } from "class-transformer";
 import * as bcrypt from 'bcrypt';
-import { UserFilterDto } from "./dto/user-filter.dto";
 import { UpdateCompanyDto } from "src/company-client/dto/update-company.dto";
 import { UpdateIndividualDto } from "src/individual-client/dto/update-individual.dto";
 import { CloudinaryService } from "src/common/cloudinary/cloudinary.service";
@@ -19,6 +18,7 @@ import { Admin } from "src/admin/entities/admin.entity";
 import { UpdateAdminIndividualTechnicianDeliveryDto } from "src/admin/dto/update-adm-ind-tech-del.dto";
 import { NotificationsService } from "src/notifications/notifications.service";
 import { NotificationType } from "src/notifications/entities/notification.entity";
+import { GetUsersDto } from "./dto/get-users.dto";
 
 interface WithIdAndPassword {
     id: number;
@@ -114,13 +114,23 @@ export class BaseUserService {
     }
 
     // registered user services
-    async getUsers(repo: any, userFilterDto?: UserFilterDto) {
-        const findUsers = await repo.find({
-            where: userFilterDto,
+    async getUsers(repo: any, dto: GetUsersDto) {
+        const { page = 1, limit, status } = dto;
+
+        const [users, total] = await repo.findAndCount({
+            where: status,
             order: { created_at: 'DESC' },
+            skip: limit ? (page - 1) * limit : undefined,
+            take: limit,
         });
 
-        return findUsers;
+        return {
+            data: users,
+            total,
+            page,
+            limit,
+            totalPages: limit ? Math.ceil(total / limit) : 1,
+        };
     }
 
     async getUser(userId: number, repo: any, userAgent?: string) {
@@ -251,8 +261,8 @@ export class BaseUserService {
 
     // statistics
     async getUserRegistrationStats() {
-        const individuals = await this.getUsers(this.individualClientRepo);
-        const companies = await this.getUsers(this.companyClientRepo);
+        const { data: individuals } = await this.getUsers(this.individualClientRepo, {});
+        const { data: companies } = await this.getUsers(this.companyClientRepo, {});
 
         const groupByMonth = (users: { created_at: Date }[]) =>
             users.reduce((acc, user) => {
@@ -280,8 +290,8 @@ export class BaseUserService {
     }
 
     async getUsedDevicesStats() {
-        const individuals = await this.getUsers(this.individualClientRepo);
-        const companies = await this.getUsers(this.companyClientRepo);
+        const { data: individuals } = await this.getUsers(this.individualClientRepo, {});
+        const { data: companies } = await this.getUsers(this.companyClientRepo, {});
 
         const allUsers = [...individuals, ...companies];
 

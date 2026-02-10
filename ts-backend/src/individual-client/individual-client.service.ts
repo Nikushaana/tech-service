@@ -20,6 +20,7 @@ import { RepairDecisionDto } from 'src/order/dto/repair-decision.dto';
 import { GetOrdersDto } from 'src/order/dto/get-orders.dto';
 import { GetAddressesDto } from 'src/address/dto/get-addresses.dto';
 import { GetReviewsDto } from 'src/reviews/dto/get-reviews.dto';
+import { GetUsersDto } from 'src/common/services/base-user/dto/get-users.dto';
 
 @Injectable()
 export class IndividualClientService {
@@ -39,8 +40,8 @@ export class IndividualClientService {
     ) { }
 
     // individual
-    async getIndividuals() {
-        const findIndividuals = await this.baseUserService.getUsers(this.individualClientRepo);
+    async getIndividuals(dto: GetUsersDto) {
+        const findIndividuals = await this.baseUserService.getUsers(this.individualClientRepo, dto);
 
         return instanceToPlain(findIndividuals);
     }

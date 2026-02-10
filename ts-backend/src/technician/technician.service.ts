@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Technician } from './entities/technician.entity';
 import { Repository } from 'typeorm';
@@ -8,10 +8,8 @@ import { instanceToPlain } from 'class-transformer';
 import { UpdateTechnicianDto } from './dto/update-technician.dto';
 import { ChangePasswordDto } from 'src/common/services/base-user/dto/change-password.dto';
 import { ChangeNumberDto, PhoneDto } from 'src/verification-code/dto/verification-code.dto';
-import { UserFilterDto } from 'src/common/services/base-user/dto/user-filter.dto';
 import { UpdateAdminIndividualTechnicianDeliveryDto } from 'src/admin/dto/update-adm-ind-tech-del.dto';
-import * as bcrypt from 'bcrypt';
-import { CloudinaryService } from 'src/common/cloudinary/cloudinary.service';
+import { GetUsersDto } from 'src/common/services/base-user/dto/get-users.dto';
 
 @Injectable()
 export class TechnicianService {
@@ -22,14 +20,12 @@ export class TechnicianService {
         private readonly baseUserService: BaseUserService,
 
         private readonly verificationCodeService: VerificationCodeService,
-
-        private readonly cloudinaryService: CloudinaryService,
     ) { }
 
     // technician
 
-    async getTechnicians(userFilterDto: UserFilterDto) {
-        const findTechnicians = await this.baseUserService.getUsers(this.technicianRepo, userFilterDto);
+    async getTechnicians(dto: GetUsersDto) {
+        const findTechnicians = await this.baseUserService.getUsers(this.technicianRepo, dto);
 
         return instanceToPlain(findTechnicians);
     }

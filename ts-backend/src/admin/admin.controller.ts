@@ -4,7 +4,6 @@ import { TokenValidationGuard } from 'src/auth/guards/token-validation.guard';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { RolesGuard } from 'src/common/guards/roles.guard';
 import { UpdateAdminCompanyDto } from './dto/update-admin-company.dto';
-import { UserFilterDto } from 'src/common/services/base-user/dto/user-filter.dto';
 import { UpdateAdminOrderDto } from 'src/order/dto/update-admin-order.dto';
 import { CreateCategoryDto } from 'src/category/dto/create-category.dto';
 import { UpdateCategoryDto } from 'src/category/dto/update-category.dto';
@@ -35,6 +34,7 @@ import { GetTransactionsDto } from 'src/transactions/dto/get-transactions.dto';
 import { GetCategoriesDto } from 'src/category/dto/get-categories.dto';
 import { GetFaqsDto } from 'src/faq/dto/get-faqs.dto';
 import { GetBranchesDto } from 'src/branches/dto/get-branches.dto';
+import { GetUsersDto } from 'src/common/services/base-user/dto/get-users.dto';
 
 @Controller('admin')
 export class AdminController {
@@ -78,8 +78,8 @@ export class AdminController {
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('admin')
     @Get('individuals')
-    async getIndividuals() {
-        return this.individualClientService.getIndividuals();
+    async getIndividuals(@Query() query: GetUsersDto) {
+        return this.individualClientService.getIndividuals(query);
     }
 
     @UseGuards(TokenValidationGuard, RolesGuard)
@@ -101,8 +101,8 @@ export class AdminController {
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('admin')
     @Get('companies')
-    async getCompanies() {
-        return this.companyClientService.getCompanies();
+    async getCompanies(@Query() query: GetUsersDto) {
+        return this.companyClientService.getCompanies(query);
     }
 
     @UseGuards(TokenValidationGuard, RolesGuard)
@@ -124,8 +124,8 @@ export class AdminController {
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('admin')
     @Get('technicians')
-    async getTechnicians(@Query() userFilterDto: UserFilterDto) {
-        return this.technicianService.getTechnicians(userFilterDto);
+    async getTechnicians(@Query() query: GetUsersDto) {
+        return this.technicianService.getTechnicians(query);
     }
 
     @UseGuards(TokenValidationGuard, RolesGuard)
@@ -148,8 +148,8 @@ export class AdminController {
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('admin')
     @Get('deliveries')
-    async getDeliveries(@Query() userFilterDto: UserFilterDto) {
-        return this.deliveryService.getDeliveries(userFilterDto);
+    async getDeliveries(@Query() query: GetUsersDto) {
+        return this.deliveryService.getDeliveries(query);
     }
 
     @UseGuards(TokenValidationGuard, RolesGuard)
