@@ -118,7 +118,7 @@ export class BaseUserService {
         const { page = 1, limit, status } = dto;
 
         const [users, total] = await repo.findAndCount({
-            where: status,
+            where: status ? { status } : undefined,
             order: { created_at: 'DESC' },
             skip: limit ? (page - 1) * limit : undefined,
             take: limit,
