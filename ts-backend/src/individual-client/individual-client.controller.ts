@@ -232,7 +232,7 @@ export class IndividualClientController {
 
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('individual')
-    @Patch('notifications/read-all')
+    @Post('notifications/read-all')
     async readAllNotifications(@Req() req: RequestInfo) {
         return this.notificationsService.readAllNotifications("individual", req.user.id);
     }

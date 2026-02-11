@@ -149,7 +149,7 @@ export class DeliveryController {
 
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('delivery')
-    @Patch('notifications/read-all')
+    @Post('notifications/read-all')
     async readAllNotifications(@Req() req: RequestInfo) {
         return this.notificationsService.readAllNotifications("delivery", req.user.id);
     }
