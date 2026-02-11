@@ -156,7 +156,7 @@ export class TechnicianController {
     }
 
     @UseGuards(TokenValidationGuard, RolesGuard)
-    @Roles('technician')
+    @Roles('technician') 
     @Post('notifications/read-all') 
     async readAllNotifications(@Req() req: RequestInfo) {
         return this.notificationsService.readAllNotifications("technician", req.user.id);
