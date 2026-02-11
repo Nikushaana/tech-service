@@ -176,7 +176,8 @@ export default function Page() {
                           (readNotificationMutation.isPending &&
                             readNotificationMutation.variables ===
                               notification.id) ||
-                          readAllNotificationsMutation.isPending
+                          (!notification.read &&
+                            readAllNotificationsMutation.isPending)
                         }
                         className={`${
                           !notification.read
@@ -187,7 +188,8 @@ export default function Page() {
                         {(readNotificationMutation.isPending &&
                           readNotificationMutation.variables ===
                             notification.id) ||
-                        readAllNotificationsMutation.isPending ? (
+                        (!notification.read &&
+                          readAllNotificationsMutation.isPending) ? (
                           <Loader2Icon className="animate-spin size-4" />
                         ) : (
                           <BsEye className="size-4" />
