@@ -45,7 +45,6 @@ export default function Page() {
     queryKey: ["staffUnreadNotifications", staffType],
     queryFn: () => fetchStaffUnreadNotifications(staffType),
     staleTime: 1000 * 60 * 10,
-    enabled: !staffType,
     retry: false,
   });
 
