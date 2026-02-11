@@ -373,7 +373,7 @@ export class AdminController {
     
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('admin')
-    @Get('notifications/read-all')
+    @Patch('notifications/read-all')
     async readAllNotifications() {
         return this.notificationsService.readAllNotifications("admin");
     }

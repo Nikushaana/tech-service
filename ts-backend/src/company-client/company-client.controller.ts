@@ -232,7 +232,7 @@ export class CompanyClientController {
 
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('company')
-    @Get('notifications/read-all')
+    @Patch('notifications/read-all')
     async readAllNotifications(@Req() req: RequestInfo) {
         return this.notificationsService.readAllNotifications("company", req.user.id);
     }

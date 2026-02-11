@@ -157,7 +157,7 @@ export class TechnicianController {
 
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('technician')
-    @Get('notifications/read-all')
+    @Patch('notifications/read-all')
     async readAllNotifications(@Req() req: RequestInfo) {
         return this.notificationsService.readAllNotifications("technician", req.user.id);
     }
