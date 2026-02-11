@@ -8,7 +8,6 @@ import { useBurgerMenuStore } from "@/app/store/burgerMenuStore";
 import { Button } from "@/components/ui/button";
 import { formatPhone } from "@/app/utils/formatPhone";
 import { useQuery } from "@tanstack/react-query";
-import { axiosDelivery, axiosTechnician } from "@/app/lib/api/axios";
 import { fetchStaffUnreadNotifications } from "@/app/lib/api/staffUnreadNotifications";
 
 type SidebarLinksWithTitle = {
@@ -51,6 +50,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     queryKey: ["staffUnreadNotifications", role],
     queryFn: () => fetchStaffUnreadNotifications(role),
     staleTime: 1000 * 60 * 10,
+    enabled: !role,
     retry: false
   });
 

@@ -1,7 +1,6 @@
 "use client";
 
 import { fetchAdminUnreadNotifications } from "@/app/lib/api/adminUnreadNotifications";
-import { axiosAdmin } from "@/app/lib/api/axios";
 import { useBurgerMenuStore } from "@/app/store/burgerMenuStore";
 import { useAuthStore } from "@/app/store/useAuthStore";
 import { formatPhone } from "@/app/utils/formatPhone";

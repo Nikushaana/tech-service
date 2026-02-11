@@ -47,6 +47,7 @@ export default function Page() {
     queryKey: ["userUnreadNotifications", userType],
     queryFn: () => fetchUserUnreadNotifications(userType),
     staleTime: 1000 * 60 * 10,
+    enabled: !userType,
     retry: false,
   });
 
