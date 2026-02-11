@@ -370,6 +370,13 @@ export class AdminController {
     async getUnreadNotificationsCount() {
         return this.notificationsService.getUnreadNotificationsCount("admin");
     }
+    
+    @UseGuards(TokenValidationGuard, RolesGuard)
+    @Roles('admin')
+    @Get('notifications/read-all')
+    async readAllNotifications() {
+        return this.notificationsService.readAllNotifications("admin");
+    }
 
     // transactions
     @UseGuards(TokenValidationGuard, RolesGuard)

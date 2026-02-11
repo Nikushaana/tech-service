@@ -230,6 +230,13 @@ export class IndividualClientController {
         return this.notificationsService.getUnreadNotificationsCount("individual", req.user.id);
     }
 
+    @UseGuards(TokenValidationGuard, RolesGuard)
+    @Roles('individual')
+    @Get('notifications/read-all')
+    async readAllNotifications(@Req() req: RequestInfo) {
+        return this.notificationsService.readAllNotifications("individual", req.user.id);
+    }
+
     // transactions
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('individual')

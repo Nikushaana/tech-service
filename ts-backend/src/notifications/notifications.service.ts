@@ -90,4 +90,15 @@ export class NotificationsService {
 
         return notifications.length;
     }
+
+    async readAllNotifications(role: 'admin' | 'individual' | 'company' | 'technician' | 'delivery', userId?: number) {
+        await this.notificationRepo.update(
+            { for: role, forId: userId, read: false },
+            { read: true }
+        );
+
+        return {
+            message: 'All Notification read successfully',
+        };
+    }
 }

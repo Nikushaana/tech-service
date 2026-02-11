@@ -83,49 +83,49 @@ export class TechnicianController {
     async inspection(@Req() req: RequestInfo, @Param('id', ParseIntPipe) id: number) {
         return this.orderService.inspection(req.user.id, id);
     }
-    
+
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('technician')
     @Patch('orders/:id/waiting-decision')
     async waitingDecision(@Req() req: RequestInfo, @Param('id', ParseIntPipe) id: number, @Body() technicianRequestPaymentDto: TechnicianRequestPaymentDto) {
         return this.orderService.waitingDecision(req.user.id, id, technicianRequestPaymentDto);
     }
-    
+
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('technician')
     @Patch('orders/:id/broken-ready')
     async brokenReady(@Req() req: RequestInfo, @Param('id', ParseIntPipe) id: number) {
         return this.orderService.brokenReady(req.user.id, id);
     }
-    
+
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('technician')
     @Patch('orders/:id/fixed-ready')
     async fixedReady(@Req() req: RequestInfo, @Param('id', ParseIntPipe) id: number) {
         return this.orderService.fixedReady(req.user.id, id);
     }
-    
+
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('technician')
     @Patch('orders/:id/technician-coming')
     async technicianComing(@Req() req: RequestInfo, @Param('id', ParseIntPipe) id: number) {
         return this.orderService.technicianComing(req.user.id, id);
     }
-    
+
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('technician')
     @Patch('orders/:id/repairing-on-site')
     async repairingOnSite(@Req() req: RequestInfo, @Param('id', ParseIntPipe) id: number) {
         return this.orderService.repairingOnSite(req.user.id, id);
     }
-   
+
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('technician')
     @Patch('orders/:id/installing')
     async installing(@Req() req: RequestInfo, @Param('id', ParseIntPipe) id: number) {
         return this.orderService.installing(req.user.id, id);
     }
-    
+
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('technician')
     @Patch('orders/:id/waiting-payment')
@@ -153,5 +153,12 @@ export class TechnicianController {
     @Get('notifications/unread')
     async getUnreadNotificationsCount(@Req() req: RequestInfo) {
         return this.notificationsService.getUnreadNotificationsCount("technician", req.user.id);
+    }
+
+    @UseGuards(TokenValidationGuard, RolesGuard)
+    @Roles('technician')
+    @Get('notifications/read-all')
+    async readAllNotifications(@Req() req: RequestInfo) {
+        return this.notificationsService.readAllNotifications("technician", req.user.id);
     }
 }

@@ -229,6 +229,13 @@ export class CompanyClientController {
     async getUnreadNotificationsCount(@Req() req: RequestInfo) {
         return this.notificationsService.getUnreadNotificationsCount("company", req.user.id);
     }
+
+    @UseGuards(TokenValidationGuard, RolesGuard)
+    @Roles('company')
+    @Get('notifications/read-all')
+    async readAllNotifications(@Req() req: RequestInfo) {
+        return this.notificationsService.readAllNotifications("company", req.user.id);
+    }
     
     // transactions
     @UseGuards(TokenValidationGuard, RolesGuard)
