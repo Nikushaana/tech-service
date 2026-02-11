@@ -121,9 +121,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                         {link.name}{" "}
                         {link.name == "შეტყობინებები" &&
                           unreadNotifications > 0 && (
-                            <p className="bg-red-600 flex items-center justify-center rounded-full h-full px-[7px] text-white">
-                              {unreadNotifications}
-                            </p>
+                            <p className="bg-red-600 flex items-center justify-center rounded-full h-[10px] aspect-square"></p>
                           )}
                       </Link>
                     );

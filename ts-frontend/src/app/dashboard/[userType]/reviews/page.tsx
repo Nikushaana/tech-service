@@ -17,6 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import LinearLoader from "@/app/components/linearLoader";
 
 const fetchUserReviews = async (page: number, userType: ClientRole) => {
   const api = userType === "company" ? axiosCompany : axiosIndividual;
@@ -59,11 +60,7 @@ export default function Page() {
           <Pagination totalPages={reviews?.totalPages} currentPage={page} />
         </div>
 
-        {isFetching && (
-          <div className="flex justify-center w-full mt-10">
-            <Loader2Icon className="animate-spin size-6 text-gray-600" />
-          </div>
-        )}
+        <LinearLoader isLoading={isFetching} />
 
         <div className="overflow-x-auto w-full">
           <Table className="min-w-[900px] table-auto">
@@ -78,10 +75,19 @@ export default function Page() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {reviews?.total === 0 ? (
+              {!reviews ? (
                 <TableRow>
                   <TableCell
-                    colSpan={8}
+                    colSpan={4}
+                    className="text-center py-6 text-gray-500"
+                  >
+                    ინფორმაცია იძებნება...
+                  </TableCell>
+                </TableRow>
+              ) : reviews?.total === 0 ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={4}
                     className="text-center py-6 text-gray-500"
                   >
                     ინფორმაცია არ მოიძებნა

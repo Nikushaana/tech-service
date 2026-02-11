@@ -24,6 +24,7 @@ import {
 } from "@/app/utils/order-type-status-translations";
 import { axiosCompany, axiosIndividual } from "@/app/lib/api/axios";
 import Pagination from "@/app/components/pagination/pagination";
+import LinearLoader from "@/app/components/linearLoader";
 
 const fetchUserOrders = async (page: number, userType: ClientRole) => {
   const api = userType === "company" ? axiosCompany : axiosIndividual;
@@ -48,6 +49,8 @@ export default function Page() {
 
   const { currentUser } = useAuthStore();
   const { toggleOpenCreateOrderModal } = useOrdersStore();
+
+  console.log(orders);
 
   return (
     <div className={`w-full flex flex-col gap-y-2`}>
@@ -75,11 +78,7 @@ export default function Page() {
           <Pagination totalPages={orders?.totalPages} currentPage={page} />
         </div>
 
-        {isFetching && (
-          <div className="flex justify-center w-full mt-10">
-            <Loader2Icon className="animate-spin size-6 text-gray-600" />
-          </div>
-        )}
+        <LinearLoader isLoading={isFetching} />
 
         <div className="overflow-x-auto w-full">
           <Table className="min-w-[900px] table-auto">
@@ -101,10 +100,19 @@ export default function Page() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {orders?.total === 0 ? (
+              {!orders ? (
                 <TableRow>
                   <TableCell
-                    colSpan={8}
+                    colSpan={9}
+                    className="text-center py-6 text-gray-500"
+                  >
+                    ინფორმაცია იძებნება...
+                  </TableCell>
+                </TableRow>
+              ) : orders?.total === 0 ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={9}
                     className="text-center py-6 text-gray-500"
                   >
                     ინფორმაცია არ მოიძებნა
@@ -145,7 +153,7 @@ export default function Page() {
               )}
             </TableBody>
           </Table>
-        </div> 
+        </div>
 
         <div className="flex justify-end">
           <Pagination totalPages={orders?.totalPages} currentPage={page} />

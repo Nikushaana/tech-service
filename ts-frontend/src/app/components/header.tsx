@@ -95,9 +95,7 @@ export default function Header() {
               )}
             </div>
             {unreadNotifications > 0 && (
-              <p className="absolute -top-2 -right-2 bg-red-600 flex items-center justify-center rounded-full px-[8px] py-[2px] text-sm text-white">
-                {unreadNotifications}
-              </p>
+              <p className="absolute top-1 right-1 bg-red-600 flex items-center justify-center rounded-full h-[10px] aspect-square"></p>
             )}
           </Link>
 

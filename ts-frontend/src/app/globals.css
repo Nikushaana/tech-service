@@ -80,6 +80,17 @@ h6 {
 
   --color-myGray: #111827;
   --color-myLightGray: #374151;
+
+  --animate-linear-loading: linear-loading 1s linear infinite;
+
+  @keyframes linear-loading {
+    0% {
+      transform: translateX(0%);
+    }
+    100% {
+      transform: translateX(290%);
+    }
+  }
 }
 
 @theme inline {

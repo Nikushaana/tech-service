@@ -16,6 +16,7 @@ import { providerLabels } from "@/app/utils/providerLabels";
 import { transactionTypeLabels } from "@/app/utils/transactionTypeLabels";
 import { useSearchParams } from "next/navigation";
 import Pagination from "@/app/components/pagination/pagination";
+import LinearLoader from "@/app/components/linearLoader";
 
 const fetchAdminTransactions = async (page: number) => {
   const { data } = await axiosAdmin.get(`admin/transactions?page=${page}`);
@@ -45,11 +46,7 @@ export default function Page() {
           />
         </div>
 
-        {isFetching && (
-          <div className="flex justify-center w-full mt-10">
-            <Loader2Icon className="animate-spin size-6 text-gray-600" />
-          </div>
-        )}
+        <LinearLoader isLoading={isFetching} />
 
         <div className="overflow-x-auto w-full">
           <Table className="min-w-[900px] table-auto">
@@ -69,10 +66,19 @@ export default function Page() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {transactions?.total === 0 ? (
+              {!transactions ? (
                 <TableRow>
                   <TableCell
-                    colSpan={8}
+                    colSpan={7}
+                    className="text-center py-6 text-gray-500"
+                  >
+                    ინფორმაცია იძებნება...
+                  </TableCell>
+                </TableRow>
+              ) : transactions?.total === 0 ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={7}
                     className="text-center py-6 text-gray-500"
                   >
                     ინფორმაცია არ მოიძებნა

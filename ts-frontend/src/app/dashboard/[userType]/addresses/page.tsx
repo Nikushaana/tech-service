@@ -19,6 +19,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import LinearLoader from "@/app/components/linearLoader";
 
 export default function Page() {
   const { userType } = useParams<{
@@ -90,11 +91,7 @@ export default function Page() {
           <Pagination totalPages={addresses?.totalPages} currentPage={page} />
         </div>
 
-        {isFetching && (
-          <div className="flex justify-center w-full mt-10">
-            <Loader2Icon className="animate-spin size-6 text-gray-600" />
-          </div>
-        )}
+        <LinearLoader isLoading={isFetching} />
 
         <div className="overflow-x-auto w-full">
           <Table className="min-w-[900px] table-auto">
@@ -118,10 +115,19 @@ export default function Page() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {addresses?.total === 0 ? (
+              {!addresses ? (
                 <TableRow>
                   <TableCell
-                    colSpan={8}
+                    colSpan={11}
+                    className="text-center py-6 text-gray-500"
+                  >
+                    ინფორმაცია იძებნება...
+                  </TableCell>
+                </TableRow>
+              ) : addresses?.total === 0 ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={11}
                     className="text-center py-6 text-gray-500"
                   >
                     ინფორმაცია არ მოიძებნა

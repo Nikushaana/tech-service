@@ -1,5 +1,6 @@
 "use client";
 
+import LinearLoader from "@/app/components/linearLoader";
 import Pagination from "@/app/components/pagination/pagination";
 import { axiosAdmin } from "@/app/lib/api/axios";
 import { Button } from "@/components/ui/button";
@@ -71,11 +72,7 @@ export default function Page() {
           <Pagination totalPages={categories?.totalPages} currentPage={page} />
         </div>
 
-        {isFetching && (
-          <div className="flex justify-center w-full mt-10">
-            <Loader2Icon className="animate-spin size-6 text-gray-600" />
-          </div>
-        )}
+        <LinearLoader isLoading={isFetching} />
 
         <div className="overflow-x-auto w-full">
           <Table className="min-w-[900px] table-auto">
@@ -89,10 +86,19 @@ export default function Page() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {categories?.total === 0 ? (
+              {!categories ? (
                 <TableRow>
                   <TableCell
-                    colSpan={8}
+                    colSpan={5}
+                    className="text-center py-6 text-gray-500"
+                  >
+                    ინფორმაცია იძებნება...
+                  </TableCell>
+                </TableRow>
+              ) : categories?.total === 0 ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={5}
                     className="text-center py-6 text-gray-500"
                   >
                     ინფორმაცია არ მოიძებნა

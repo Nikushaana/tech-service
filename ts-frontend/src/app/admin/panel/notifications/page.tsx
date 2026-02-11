@@ -17,6 +17,9 @@ import dayjs from "dayjs";
 import { axiosAdmin } from "@/app/lib/api/axios";
 import { useSearchParams } from "next/navigation";
 import Pagination from "@/app/components/pagination/pagination";
+import LinearLoader from "@/app/components/linearLoader";
+import { toast } from "react-toastify";
+import { fetchAdminUnreadNotifications } from "@/app/lib/api/adminUnreadNotifications";
 
 const fetchAdminNotifications = async (page: number) => {
   const { data } = await axiosAdmin.get(`admin/notifications?page=${page}`);
@@ -33,6 +36,13 @@ export default function Page() {
     queryFn: () => fetchAdminNotifications(page),
     staleTime: 1000 * 60 * 10,
     placeholderData: (previous) => previous,
+  });
+
+  const { data: unreadNotifications } = useQuery({
+    queryKey: ["adminUnreadNotifications"],
+    queryFn: () => fetchAdminUnreadNotifications(),
+    staleTime: 1000 * 60 * 10,
+    retry: false,
   });
 
   const getNotificationLink = (notification: any) => {
@@ -72,9 +82,22 @@ export default function Page() {
     },
   });
 
-  const handleReadNotification = (id: number) => {
-    readNotificationMutation.mutate(id);
-  };
+  const readAllNotificationsMutation = useMutation({
+    mutationFn: () => axiosAdmin.patch(`admin/notifications/read-all`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["adminNotifications"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["adminUnreadNotifications"],
+      });
+
+      toast.success("ყველა შეტყობინება მოინიშნა როგორც ნანახი");
+    },
+    onError: () => {
+      toast.error("ყველა შეტყობინება ვერ მოინიშნა როგორც ნანახი");
+    },
+  });
 
   return (
     <div className="w-full bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6 space-y-2">
@@ -84,11 +107,7 @@ export default function Page() {
         <Pagination totalPages={notifications?.totalPages} currentPage={page} />
       </div>
 
-      {isFetching && (
-        <div className="flex justify-center w-full mt-10">
-          <Loader2Icon className="animate-spin size-6 text-gray-600" />
-        </div>
-      )}
+      <LinearLoader isLoading={isFetching} />
 
       <div className="overflow-x-auto w-full">
         <Table className="min-w-[900px] table-auto">
@@ -97,14 +116,39 @@ export default function Page() {
               <TableHead className="font-semibold">ID</TableHead>
               <TableHead className="font-semibold">შეტყობინება</TableHead>
               <TableHead className="font-semibold">თარიღი</TableHead>
-              <TableHead className="text-right"></TableHead>
+              <TableHead className="text-right py-2">
+                {unreadNotifications > 0 && (
+                  <Button
+                    onClick={() => readAllNotificationsMutation.mutate()}
+                    variant="secondary"
+                    size="icon"
+                    disabled={readAllNotificationsMutation.isPending}
+                    className={`text-white bg-myLightBlue hover:bg-myBlue cursor-pointer duration-100`}
+                  >
+                    {readAllNotificationsMutation.isPending ? (
+                      <Loader2Icon className="animate-spin size-4" />
+                    ) : (
+                      <BsEye className="size-4" />
+                    )}
+                  </Button>
+                )}
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {notifications?.total === 0 ? (
+            {!notifications ? (
               <TableRow>
                 <TableCell
-                  colSpan={8}
+                  colSpan={4}
+                  className="text-center py-6 text-gray-500"
+                >
+                  ინფორმაცია იძებნება...
+                </TableCell>
+              </TableRow>
+            ) : notifications?.total === 0 ? (
+              <TableRow>
+                <TableCell
+                  colSpan={4}
                   className="text-center py-6 text-gray-500"
                 >
                   ინფორმაცია არ მოიძებნა
@@ -123,13 +167,15 @@ export default function Page() {
                       <Button
                         onClick={() => {
                           if (!notification.read)
-                            handleReadNotification(notification.id);
+                            readNotificationMutation.mutate(notification.id);
                         }}
                         variant="secondary"
                         size="icon"
                         disabled={
-                          readNotificationMutation.isPending &&
-                          readNotificationMutation.variables === notification.id
+                          (readNotificationMutation.isPending &&
+                            readNotificationMutation.variables ===
+                              notification.id) ||
+                          readAllNotificationsMutation.isPending
                         }
                         className={`${
                           !notification.read
@@ -137,9 +183,10 @@ export default function Page() {
                             : "hover:bg-gray-100"
                         } cursor-pointer duration-100`}
                       >
-                        {readNotificationMutation.isPending &&
-                        readNotificationMutation.variables ===
-                          notification.id ? (
+                        {(readNotificationMutation.isPending &&
+                          readNotificationMutation.variables ===
+                            notification.id) ||
+                        readAllNotificationsMutation.isPending ? (
                           <Loader2Icon className="animate-spin size-4" />
                         ) : (
                           <BsEye className="size-4" />

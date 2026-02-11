@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { formatPhone } from "@/app/utils/formatPhone";
 import { useQuery } from "@tanstack/react-query";
 import { axiosDelivery, axiosTechnician } from "@/app/lib/api/axios";
+import { fetchStaffUnreadNotifications } from "@/app/lib/api/staffUnreadNotifications";
 
 type SidebarLinksWithTitle = {
   title?: string;
@@ -32,14 +33,6 @@ const sidebarLinks: Record<StaffRole, SidebarLinksWithTitle> = {
       { name: "შეტყობინებები", href: "/staff/delivery/notifications" },
     ],
   },
-};
-
-const fetchStaffUnreadNotifications = async (role?: string) => {
-  if (!role) return 0;
-  const { data } = await (
-    role == "technician" ? axiosTechnician : axiosDelivery
-  ).get(`${role}/notifications/unread`);
-  return data;
 };
 
 export default function Layout({ children }: { children: React.ReactNode }) {
@@ -81,9 +74,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             {openSideBar ? <HiX /> : <HiMenu />}
           </div>
           {unreadNotifications > 0 && (
-            <p className="absolute -top-2 -right-2 bg-red-600 flex items-center justify-center rounded-full px-[8px] py-[2px] text-sm text-white">
-              {unreadNotifications}
-            </p>
+            <p className="absolute top-0 right-0 bg-red-600 flex items-center justify-center rounded-full h-[10px] aspect-square"></p>
           )}
         </div>
 
@@ -144,9 +135,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                         {link.name}{" "}
                         {link.name == "შეტყობინებები" &&
                           unreadNotifications > 0 && (
-                            <p className="bg-red-600 flex items-center justify-center rounded-full h-full px-[7px] text-white">
-                              {unreadNotifications}
-                            </p>
+                            <p className="bg-red-600 flex items-center justify-center rounded-full h-[10px] aspect-square"></p>
                           )}
                       </Link>
                     );

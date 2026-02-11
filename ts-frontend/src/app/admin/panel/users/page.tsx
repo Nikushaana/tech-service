@@ -1,6 +1,7 @@
 "use client";
 
 import { Dropdown } from "@/app/components/inputs/drop-down";
+import LinearLoader from "@/app/components/linearLoader";
 import Pagination from "@/app/components/pagination/pagination";
 import { axiosAdmin } from "@/app/lib/api/axios";
 import { formatPhone } from "@/app/utils/formatPhone";
@@ -79,11 +80,7 @@ export default function Page() {
         <Pagination totalPages={users?.totalPages} currentPage={page} />
       </div>
 
-      {isFetching && (
-        <div className="flex justify-center w-full mt-10">
-          <Loader2Icon className="animate-spin size-6 text-gray-600" />
-        </div>
-      )}
+      <LinearLoader isLoading={isFetching} />
 
       <div className="overflow-x-auto w-full">
         <Table className="min-w-[900px] table-auto">
@@ -119,7 +116,16 @@ export default function Page() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {users?.total === 0 ? (
+            {!users ? (
+              <TableRow>
+                <TableCell
+                  colSpan={8}
+                  className="text-center py-6 text-gray-500"
+                >
+                  ინფორმაცია იძებნება...
+                </TableCell>
+              </TableRow>
+            ) : users?.total === 0 ? (
               <TableRow>
                 <TableCell
                   colSpan={8}
