@@ -93,7 +93,9 @@ export class NotificationsService {
 
     async readAllNotifications(role: 'admin' | 'individual' | 'company' | 'technician' | 'delivery', userId?: number) {
         const where: any = { for: role, read: false };
-        if (userId) where.forId = userId;
+        if (userId) {
+            where.forId = userId;
+        }
 
         await this.notificationRepo.update(where, { read: true });
 
