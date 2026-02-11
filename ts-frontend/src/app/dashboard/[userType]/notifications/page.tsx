@@ -87,7 +87,7 @@ export default function Page() {
 
   const readAllNotificationsMutation = useMutation({
     mutationFn: () =>
-      (userType === "company" ? axiosCompany : axiosIndividual).patch(
+      (userType === "company" ? axiosCompany : axiosIndividual).post(
         `${userType}/notifications/read-all`,
       ),
     onSuccess: () => {

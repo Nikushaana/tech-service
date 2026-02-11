@@ -83,7 +83,7 @@ export default function Page() {
   });
 
   const readAllNotificationsMutation = useMutation({
-    mutationFn: () => axiosAdmin.patch(`admin/notifications/read-all`),
+    mutationFn: () => axiosAdmin.post(`admin/notifications/read-all`),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["adminNotifications"],

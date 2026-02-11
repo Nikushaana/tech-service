@@ -82,7 +82,7 @@ export default function Page() {
 
   const readAllNotificationsMutation = useMutation({
     mutationFn: () =>
-      (staffType === "technician" ? axiosTechnician : axiosDelivery).patch(
+      (staffType === "technician" ? axiosTechnician : axiosDelivery).post(
         `${staffType}/notifications/read-all`,
       ),
     onSuccess: () => {
