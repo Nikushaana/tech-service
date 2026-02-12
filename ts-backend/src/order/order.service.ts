@@ -401,7 +401,10 @@ export class OrderService {
                         .orWhere('company.phone ILIKE :search')
                         .orWhere('company.companyAgentName ILIKE :search')
                         .orWhere('company.companyAgentLastName ILIKE :search')
-                        .orWhere('company.companyName ILIKE :search');
+                        .orWhere('company.companyName ILIKE :search')
+                        .orWhere('category.name ILIKE :search')
+                        .orWhere('brand ILIKE :search')
+                        .orWhere('model ILIKE :search');
                 }),
                 { search: `${search}%` },
             );
