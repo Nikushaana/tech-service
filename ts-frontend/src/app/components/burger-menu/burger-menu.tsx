@@ -4,9 +4,7 @@ import { useBurgerMenuStore } from "@/app/store/burgerMenuStore";
 import { useMenuStore } from "@/app/store/useMenuStore";
 import { scrollToSection } from "@/app/utils/scroll";
 import { usePathname, useRouter } from "next/navigation";
-import React, { useEffect } from "react";
 import { useAuthStore } from "@/app/store/useAuthStore";
-import { toast } from "react-toastify";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
@@ -29,8 +27,8 @@ export default function BurgerMenu() {
         closeBurgerMenu();
       }}
       className={`${
-        isOpen ? "bg-[#000000a7] " : "pointer-events-none"
-      } duration-300 inset-0 fixed z-50 w-[100vw] h-[100vh] overflow-hidden shadow-2xl shadow-[black]`}
+        isOpen ? "bg-[#000000a7] shadow-2xl shadow-[black]" : "pointer-events-none"
+      } duration-300 inset-0 fixed z-50 w-[100vw] h-[100vh] overflow-hidden`}
     >
       <div
         onClick={(e) => e.stopPropagation()}
