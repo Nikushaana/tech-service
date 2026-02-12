@@ -1,5 +1,7 @@
 import { Type } from 'class-transformer';
-import { IsOptional, IsInt, Min } from 'class-validator';
+import { IsOptional, IsInt, Min, IsEnum, IsString } from 'class-validator';
+import { OrderStatus } from 'src/common/types/order-status.enum';
+import { OrderType } from 'src/common/types/order-type.enum';
 
 export class GetOrdersDto {
   @IsOptional()
@@ -13,4 +15,16 @@ export class GetOrdersDto {
   @IsInt()
   @Min(1)
   limit?: number;
+
+  @IsOptional()
+  @IsEnum(OrderType)
+  service_type?: OrderType;
+
+  @IsOptional()
+  @IsEnum(OrderStatus)
+  status?: OrderStatus;
+
+  @IsOptional()
+  @IsString()
+  search?: string;
 }

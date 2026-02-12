@@ -4,7 +4,7 @@ import { BaseUserService } from 'src/common/services/base-user/base-user.service
 import { getDistanceFromLatLonInKm } from 'src/common/utils/geo.utils';
 import { instanceToPlain } from 'class-transformer';
 import { Category } from 'src/category/entities/category.entity';
-import { Repository } from 'typeorm';
+import { Brackets, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Address } from 'src/address/entities/address.entity';
 import { Order } from './entities/order.entity';
@@ -371,16 +371,44 @@ export class OrderService {
 
     // admin
     async getAdminOrders(dto: GetOrdersDto) {
-        const { page = 1, limit = 10 } = dto;
+        const { page = 1, limit = 10, service_type, status, search } = dto;
 
-        const [orders, total] = await this.orderRepo.findAndCount({
-            order: { created_at: 'DESC' },
-            relations: ['individual', 'company', 'technician', 'delivery'],
-            skip: (page - 1) * limit,
-            take: limit,
-        });
+        const qb = this.orderRepo
+            .createQueryBuilder('order')
+            .leftJoinAndSelect('order.individual', 'individual')
+            .leftJoinAndSelect('order.company', 'company')
+            .leftJoinAndSelect('order.technician', 'technician')
+            .leftJoinAndSelect('order.delivery', 'delivery')
+            .orderBy('order.created_at', 'DESC')
+            .skip((page - 1) * limit)
+            .take(limit);
 
-        return {
+        if (service_type) {
+            qb.andWhere('order.service_type = :service_type', { service_type });
+        }
+
+        if (status) {
+            qb.andWhere('order.status = :status', { status });
+        }
+
+        if (search) {
+            qb.andWhere(
+                new Brackets((qb) => {
+                    qb.where('individual.phone ILIKE :search')
+                        .orWhere('individual.name ILIKE :search')
+                        .orWhere('individual.lastName ILIKE :search')
+                        .orWhere('company.phone ILIKE :search')
+                        .orWhere('company.companyAgentName ILIKE :search')
+                        .orWhere('company.companyAgentLastName ILIKE :search')
+                        .orWhere('company.companyName ILIKE :search');
+                }),
+                { search: `${search}%` },
+            );
+        }
+
+        const [orders, total] = await qb.getManyAndCount();
+
+        return {  
             data: instanceToPlain(orders),
             total,
             page,
