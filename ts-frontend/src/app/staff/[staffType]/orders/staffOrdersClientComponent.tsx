@@ -2,9 +2,8 @@
 
 import { Button } from "@/components/ui/button";
 import dayjs from "dayjs";
-import { Loader2Icon } from "lucide-react";
 import Link from "next/link";
-import { useParams, useSearchParams } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { BsEye } from "react-icons/bs";
 import {
   Table,
@@ -22,30 +21,142 @@ import {
 import { axiosDelivery, axiosTechnician } from "@/app/lib/api/axios";
 import Pagination from "@/app/components/pagination/pagination";
 import LinearLoader from "@/app/components/linearLoader";
+import PanelFormInput from "@/app/components/inputs/panel-form-input";
+import { Dropdown } from "@/app/components/inputs/drop-down";
+import DateRangePicker from "@/app/components/inputs/date-range-picker";
+import { useEffect, useState } from "react";
+import { useOrderTypeStatusOptionsStore } from "@/app/store/orderTypeStatusOptionsStore";
 
-const fetchStaffOrders = async (page: number, staffType: StaffRole) => {
+const fetchStaffOrders = async (
+  staffType: StaffRole,
+  page: number,
+  service_type: string,
+  search: string,
+  from: string,
+  to: string,
+) => {
+  const params = new URLSearchParams();
+
+  if (page) params.set("page", page.toString());
+  if (service_type) params.set("service_type", service_type);
+  if (search) params.set("search", search);
+  if (from) params.set("from", from);
+  if (to) params.set("to", to);
+
   const api = staffType === "technician" ? axiosTechnician : axiosDelivery;
-  const { data } = await api.get(`${staffType}/orders?page=${page}`);
+  const { data } = await api.get(`${staffType}/orders?${params.toString()}`);
   return data;
 };
 
 export default function StaffOrdersClientComponent() {
   const { staffType } = useParams<{ staffType: StaffRole }>();
 
+  const router = useRouter();
   const searchParams = useSearchParams();
   const page = Number(searchParams.get("page")) || 1;
+  const service_type = searchParams.get("service_type") || "";
+  const search = searchParams.get("search") || "";
+  const from = searchParams.get("from") || "";
+  const to = searchParams.get("to") || "";
+
+  const [searchInput, setSearchInput] = useState(search);
+
+  const { typeOptions } = useOrderTypeStatusOptionsStore();
+
+  // search delay
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      const params = new URLSearchParams(searchParams.toString());
+      if (searchInput.trim()) {
+        params.set("search", searchInput.trim());
+      } else {
+        params.delete("search");
+      }
+      params.set("page", "1");
+      router.push(`?${params.toString()}`, { scroll: false });
+    }, 500);
+
+    return () => clearTimeout(handler);
+  }, [searchInput]);
 
   const { data: orders, isFetching } = useQuery({
-    queryKey: ["staffOrders", page],
-    queryFn: () => fetchStaffOrders(page, staffType),
+    queryKey: ["staffOrders", page, service_type, search, from, to],
+    queryFn: () =>
+      fetchStaffOrders(staffType, page, service_type, search, from, to),
     staleTime: 1000 * 60 * 10,
     placeholderData: (previous) => previous,
   });
+
+  // change filter values
+  const handleChange = (e: {
+    target: {
+      id: string;
+      value: { from: string | null; to: string | null } | string;
+    };
+  }) => {
+    const { id, value } = e.target;
+
+    const params = new URLSearchParams(searchParams.toString());
+
+    if (id === "date_range" && typeof value !== "string") {
+      if (value.from) params.set("from", value.from);
+      else params.delete("from");
+
+      if (value.to) params.set("to", value.to);
+      else params.delete("to");
+    } else if (typeof value === "string") {
+      params.set(id, value);
+    }
+
+    params.set("page", "1");
+
+    router.push(`?${params.toString()}`, { scroll: false });
+  };
+
+  // Clear all filters
+  const clearFilters = () => {
+    const params = new URLSearchParams();
+    params.set("page", "1");
+    setSearchInput("");
+    router.push(`?${params.toString()}`, { scroll: false });
+  };
 
   return (
     <div className="w-full bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6 space-y-2">
       <h2 className="text-xl font-semibold mb-2">ჩემი სერვისები</h2>
 
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 mb-4 gap-[20px] items-end">
+        <PanelFormInput
+          id="search"
+          value={searchInput}
+          label="ფილტრი"
+          onChange={(e) => setSearchInput(e.target.value)}
+        />
+        <Dropdown
+          data={typeOptions}
+          id="service_type"
+          value={service_type}
+          label="ტიპი"
+          valueKey="id"
+          labelKey="name"
+          onChange={handleChange}
+        />
+        <DateRangePicker
+          id="date_range"
+          value={{
+            from: from ? new Date(from) : undefined,
+            to: to ? new Date(to) : undefined,
+          }}
+          label="თარიღი"
+          onChange={handleChange}
+        />
+        <Button
+          onClick={clearFilters}
+          className="cursor-pointer rounded-lg sm:col-span-2 md:col-span-1"
+        >
+          გასუფთავება
+        </Button>
+      </div>
       <div className="flex justify-end">
         <Pagination totalPages={orders?.totalPages} currentPage={page} />
       </div>
@@ -69,15 +180,15 @@ export default function StaffOrdersClientComponent() {
           </TableHeader>
           <TableBody>
             {!orders ? (
-                <TableRow>
-                  <TableCell
-                    colSpan={9}
-                    className="text-center py-6 text-gray-500"
-                  >
-                    ინფორმაცია იძებნება...
-                  </TableCell>
-                </TableRow>
-              ) : orders?.total === 0 ? (
+              <TableRow>
+                <TableCell
+                  colSpan={9}
+                  className="text-center py-6 text-gray-500"
+                >
+                  ინფორმაცია იძებნება...
+                </TableCell>
+              </TableRow>
+            ) : orders?.total === 0 ? (
               <TableRow>
                 <TableCell
                   colSpan={9}
