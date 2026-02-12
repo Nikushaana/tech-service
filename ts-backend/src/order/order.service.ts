@@ -654,7 +654,7 @@ export class OrderService {
             .leftJoinAndSelect('order.company', 'company')
             .leftJoinAndSelect('order.technician', 'technician')
             .leftJoinAndSelect('order.category', 'category')
-            .where(`order.delivery = :userId`, { deliveryId })
+            .where(`order.delivery = :deliveryId`, { deliveryId })
             .orderBy('order.created_at', 'DESC')
             .skip((page - 1) * limit)
             .take(limit);
@@ -724,7 +724,7 @@ export class OrderService {
             .leftJoinAndSelect('order.company', 'company')
             .leftJoinAndSelect('order.delivery', 'delivery')
             .leftJoinAndSelect('order.category', 'category')
-            .where(`order.technician = :userId`, { technicianId })
+            .where(`order.technician = :technicianId`, { technicianId })
             .orderBy('order.created_at', 'DESC')
             .skip((page - 1) * limit)
             .take(limit);
