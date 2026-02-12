@@ -379,6 +379,7 @@ export class OrderService {
             .leftJoinAndSelect('order.company', 'company')
             .leftJoinAndSelect('order.technician', 'technician')
             .leftJoinAndSelect('order.delivery', 'delivery')
+            .leftJoinAndSelect('order.category', 'category')
             .orderBy('order.created_at', 'DESC')
             .skip((page - 1) * limit)
             .take(limit);
