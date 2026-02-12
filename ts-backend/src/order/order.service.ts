@@ -227,18 +227,55 @@ export class OrderService {
     }
 
     async getOrders(dto: GetOrdersDto, userId: number, repo: any) {
-        const { page = 1, limit = 10 } = dto;
+        const { page = 1, limit = 10, service_type, status, search, from, to } = dto;
 
         const user = await this.baseUserService.getUser(userId, repo);
 
         const relationKey = "companyName" in user ? "company" : "individual";
 
-        const [orders, total] = await this.orderRepo.findAndCount({
-            where: { [relationKey]: { id: userId } },
-            order: { created_at: 'DESC' },
-            skip: (page - 1) * limit,
-            take: limit,
-        });
+        const qb = this.orderRepo
+            .createQueryBuilder('order')
+            .leftJoinAndSelect('order.individual', 'individual')
+            .leftJoinAndSelect('order.company', 'company')
+            .leftJoinAndSelect('order.technician', 'technician')
+            .leftJoinAndSelect('order.delivery', 'delivery')
+            .leftJoinAndSelect('order.category', 'category')
+            .where(`order.${relationKey} = :userId`, { userId })
+            .orderBy('order.created_at', 'DESC')
+            .skip((page - 1) * limit)
+            .take(limit);
+
+        // Apply optional filters
+        if (service_type) qb.andWhere('order.service_type = :service_type', { service_type });
+        if (status) qb.andWhere('order.status = :status', { status });
+
+        if (search) {
+            qb.andWhere(
+                new Brackets((qb) => {
+                    qb.where('individual.phone ILIKE :search')
+                        .orWhere('individual.name ILIKE :search')
+                        .orWhere('individual.lastName ILIKE :search')
+                        .orWhere('company.phone ILIKE :search')
+                        .orWhere('company.companyAgentName ILIKE :search')
+                        .orWhere('company.companyAgentLastName ILIKE :search')
+                        .orWhere('company.companyName ILIKE :search')
+                        .orWhere('category.name ILIKE :search')
+                        .orWhere('brand ILIKE :search')
+                        .orWhere('model ILIKE :search');
+                }),
+                { search: `${search}%` },
+            );
+        }
+
+        if (from && to) {
+            qb.andWhere('order.created_at BETWEEN :from AND :to', { from, to });
+        } else if (from) {
+            qb.andWhere('order.created_at >= :from', { from });
+        } else if (to) {
+            qb.andWhere('order.created_at <= :to', { to });
+        }
+
+        const [orders, total] = await qb.getManyAndCount();
 
         return {
             data: instanceToPlain(orders),
