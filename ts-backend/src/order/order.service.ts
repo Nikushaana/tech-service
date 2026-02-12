@@ -371,7 +371,7 @@ export class OrderService {
 
     // admin
     async getAdminOrders(dto: GetOrdersDto) {
-        const { page = 1, limit = 10, service_type, status, search } = dto;
+        const { page = 1, limit = 10, service_type, status, search, from, to } = dto;
 
         const qb = this.orderRepo
             .createQueryBuilder('order')
@@ -384,13 +384,8 @@ export class OrderService {
             .skip((page - 1) * limit)
             .take(limit);
 
-        if (service_type) {
-            qb.andWhere('order.service_type = :service_type', { service_type });
-        }
-
-        if (status) {
-            qb.andWhere('order.status = :status', { status });
-        }
+        if (service_type) qb.andWhere('order.service_type = :service_type', { service_type });
+        if (status) qb.andWhere('order.status = :status', { status });
 
         if (search) {
             qb.andWhere(
@@ -410,9 +405,17 @@ export class OrderService {
             );
         }
 
+        if (from && to) {
+            qb.andWhere('order.created_at BETWEEN :from AND :to', { from, to });
+        } else if (from) {
+            qb.andWhere('order.created_at >= :from', { from });
+        } else if (to) {
+            qb.andWhere('order.created_at <= :to', { to });
+        }
+
         const [orders, total] = await qb.getManyAndCount();
 
-        return {  
+        return {
             data: instanceToPlain(orders),
             total,
             page,

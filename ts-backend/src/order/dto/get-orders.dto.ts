@@ -1,5 +1,5 @@
 import { Type } from 'class-transformer';
-import { IsOptional, IsInt, Min, IsEnum, IsString } from 'class-validator';
+import { IsOptional, IsInt, Min, IsEnum, IsString, IsDateString } from 'class-validator';
 import { OrderStatus } from 'src/common/types/order-status.enum';
 import { OrderType } from 'src/common/types/order-type.enum';
 
@@ -27,4 +27,12 @@ export class GetOrdersDto {
   @IsOptional()
   @IsString()
   search?: string;
+
+  @IsOptional()
+  @IsDateString()
+  from?: string;
+
+  @IsOptional()
+  @IsDateString()
+  to?: string;
 }
