@@ -50,6 +50,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     queryKey: ["staffUnreadNotifications", role],
     queryFn: () => fetchStaffUnreadNotifications(role),
     staleTime: 1000 * 60 * 10,
+    enabled: !!role,
     retry: false
   });
 
