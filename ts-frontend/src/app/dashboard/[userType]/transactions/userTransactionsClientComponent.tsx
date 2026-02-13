@@ -2,7 +2,7 @@
 
 import dayjs from "dayjs";
 import { Loader2Icon } from "lucide-react";
-import { useParams, useSearchParams } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import {
   Table,
@@ -17,32 +17,137 @@ import { providerLabels } from "@/app/utils/providerLabels";
 import { transactionTypeLabels } from "@/app/utils/transactionTypeLabels";
 import Pagination from "@/app/components/pagination/pagination";
 import LinearLoader from "@/app/components/linearLoader";
+import { Button } from "@/components/ui/button";
+import { Dropdown } from "@/app/components/inputs/drop-down";
+import PanelFormInput from "@/app/components/inputs/panel-form-input";
+import { useEffect, useState } from "react";
 
-const fetchUserTransactions = async (page: number, userType: ClientRole) => {
+const fetchUserTransactions = async (
+  userType: ClientRole,
+  page: number,
+  type: string,
+  status: string,
+  search: string,
+) => {
+  const params = new URLSearchParams();
+
+  if (page) params.set("page", page.toString());
+  if (type) params.set("type", type);
+  if (status) params.set("status", status);
+  if (search) params.set("search", search);
+
   const api = userType === "company" ? axiosCompany : axiosIndividual;
-  const { data } = await api.get(`${userType}/transactions?page=${page}`);
+  const { data } = await api.get(
+    `${userType}/transactions?${params.toString()}`,
+  );
   return data;
 };
+
+const transactionType = [
+  { id: 1, name: "ჩამოჭრა", nameEng: "debit" },
+  { id: 2, name: "ჩარიცხვა", nameEng: "credit" },
+];
+
+const transactionStatus = [
+  { id: 1, name: "pending" },
+  { id: 2, name: "paid" },
+  { id: 3, name: "failed" },
+  { id: 4, name: "refunded" },
+];
 
 export default function UserTransactionsClientComponent() {
   const { userType } = useParams<{
     userType: ClientRole;
   }>();
 
+  const router = useRouter();
   const searchParams = useSearchParams();
   const page = Number(searchParams.get("page")) || 1;
+  const type = searchParams.get("type") || "";
+  const status = searchParams.get("status") || "";
+  const search = searchParams.get("search") || "";
+
+  const [searchInput, setSearchInput] = useState(search);
+
+  // search delay
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      const params = new URLSearchParams(searchParams.toString());
+      if (searchInput.trim()) {
+        params.set("search", searchInput.trim());
+      } else {
+        params.delete("search");
+      }
+      params.set("page", "1");
+      router.push(`?${params.toString()}`, { scroll: false });
+    }, 500);
+
+    return () => clearTimeout(handler);
+  }, [searchInput]);
 
   const { data: transactions, isFetching } = useQuery({
-    queryKey: ["userTransactions", userType, page],
-    queryFn: () => fetchUserTransactions(page, userType),
+    queryKey: ["userTransactions", page, userType, type, status, search],
+    queryFn: () => fetchUserTransactions(userType, page, type, status, search),
     staleTime: 1000 * 60 * 10,
     placeholderData: (previous) => previous,
   });
+
+  const handleChange = (e: { target: { id: string; value: string } }) => {
+    const { id, value } = e.target;
+
+    const params = new URLSearchParams(searchParams.toString());
+
+    params.set(id, value);
+
+    if (id === "type") {
+      params.set("page", "1");
+    }
+
+    router.push(`?${params.toString()}`, { scroll: false });
+  };
+
+  // Clear all filters
+  const clearFilters = () => {
+    const params = new URLSearchParams();
+    params.set("page", "1");
+    setSearchInput("");
+    router.push(`?${params.toString()}`, { scroll: false });
+  };
 
   return (
     <div className={`w-full flex flex-col gap-y-2`}>
       <div className="w-full bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6 space-y-2">
         <h2 className="text-xl font-semibold mb-2">ტრანზაქციები</h2>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 mb-4 gap-[20px] items-end">
+          <PanelFormInput
+            id="search"
+            value={searchInput}
+            label="ფილტრი"
+            onChange={(e) => setSearchInput(e.target.value)}
+          />
+          <Dropdown
+            data={transactionStatus}
+            id="status"
+            value={status}
+            label="სტატუსი"
+            valueKey="name"
+            labelKey="name"
+            onChange={handleChange}
+          />
+          <Dropdown
+            data={transactionType}
+            id="type"
+            value={type}
+            label="ტიპი"
+            valueKey="nameEng"
+            labelKey="name"
+            onChange={handleChange}
+          />
+          <Button onClick={clearFilters} className="cursor-pointer rounded-lg">
+            გასუფთავება
+          </Button>
+        </div>
 
         <div className="flex justify-end">
           <Pagination
