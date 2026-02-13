@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { OrderStatus } from 'src/common/types/order-status.enum';
 import { OrderType } from 'src/common/types/order-type.enum';
@@ -24,12 +24,12 @@ export class PaymentService {
     async mockPayOrder(transactionId?: number) {
         const transaction = await this.transactionRepo.findOne({ where: { id: transactionId }, relations: ['order'] });
 
-        if (!transaction) {
-            throw new NotFoundException('Transaction not found');
+        if (!transaction?.order) {
+            throw new BadRequestException('Transaction has no linked order');
         }
 
         const order = await this.orderRepo.findOne({
-            where: { id: transaction?.order.id },
+            where: { id: transaction.order.id },
             relations: ['company', 'individual', 'technician'],
         });
 

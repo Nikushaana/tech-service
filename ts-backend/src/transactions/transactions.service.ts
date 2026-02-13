@@ -14,7 +14,15 @@ export class TransactionsService {
     ) { }
 
     async createTransaction(dto: CreateTransactionDto) {
-        const transaction = this.transactionRepo.create(dto);
+        const transaction = this.transactionRepo.create({
+            amount: dto.amount,
+            type: dto.type,
+            reason: dto.reason,
+            provider: dto.provider,
+            individual: dto.individualId ? { id: dto.individualId } as any : undefined,
+            company: dto.companyId ? { id: dto.companyId } as any : undefined,
+            order: dto.orderId ? { id: dto.orderId } as any : undefined,
+        });
 
         return await this.transactionRepo.save(transaction);
     }
