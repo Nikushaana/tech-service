@@ -250,7 +250,7 @@ export class OrderService {
                         .orWhere('brand ILIKE :search')
                         .orWhere('model ILIKE :search');
                 }),
-                { search: `${search}%` },
+                { search: `%${search}%` },
             );
         }
 
@@ -425,7 +425,7 @@ export class OrderService {
                         .orWhere('brand ILIKE :search')
                         .orWhere('model ILIKE :search');
                 }),
-                { search: `${search}%` },
+                { search: `%${search}%` },
             );
         }
 
@@ -675,7 +675,7 @@ export class OrderService {
                         .orWhere('brand ILIKE :search')
                         .orWhere('model ILIKE :search');
                 }),
-                { search: `${search}%` },
+                { search: `%${search}%` },
             );
         }
 
@@ -745,7 +745,7 @@ export class OrderService {
                         .orWhere('brand ILIKE :search')
                         .orWhere('model ILIKE :search');
                 }),
-                { search: `${search}%` },
+                { search: `%${search}%` },
             );
         }
 

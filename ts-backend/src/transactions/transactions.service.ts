@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Brackets, Repository } from 'typeorm';
 import { Transaction } from './entities/transaction.entity';
 import { instanceToPlain } from 'class-transformer';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
@@ -20,14 +20,35 @@ export class TransactionsService {
     }
 
     async getUserTransactions(dto: GetTransactionsDto, role: 'individual' | 'company', userId: number) {
-        const { page = 1, limit = 10 } = dto;
+        const { page = 1, limit = 10, type, status, search } = dto;
 
-        const [transactions, total] = await this.transactionRepo.findAndCount({
-            where: { [role]: { id: userId } },
-            order: { created_at: 'DESC' },
-            skip: (page - 1) * limit,
-            take: limit,
-        });
+        const qb = this.transactionRepo
+            .createQueryBuilder('transaction')
+            .leftJoinAndSelect('transaction.order', 'order')
+            .where(`transaction.${role} = :userId`, { userId })
+            .orderBy('transaction.created_at', 'DESC')
+            .skip((page - 1) * limit)
+            .take(limit);
+
+        if (type) {
+            qb.andWhere('transaction.type = :type', { type });
+        }
+
+        if (status) {
+            qb.andWhere('transaction.status = :status', { status });
+        }
+
+        if (search?.trim()) {
+            qb.andWhere(
+                new Brackets((qb) => {
+                    qb.orWhere('transaction.reason ILIKE :search')
+                        .orWhere('"order".id::text ILIKE :search');
+                }),
+                { search: `%${search}%` }
+            );
+        }
+
+        const [transactions, total] = await qb.getManyAndCount();
 
         return {
             data: instanceToPlain(transactions),
@@ -39,13 +60,43 @@ export class TransactionsService {
     }
 
     async getTransactions(dto: GetTransactionsDto) {
-        const { page = 1, limit = 10 } = dto;
+        const { page = 1, limit = 10, type, status, search } = dto;
 
-        const [transactions, total] = await this.transactionRepo.findAndCount({
-            order: { created_at: 'DESC' },
-            skip: (page - 1) * limit,
-            take: limit,
-        });
+        const qb = this.transactionRepo
+            .createQueryBuilder('transaction')
+            .leftJoinAndSelect('transaction.company', 'company')
+            .leftJoinAndSelect('transaction.individual', 'individual')
+            .leftJoinAndSelect('transaction.order', 'order')
+            .orderBy('transaction.created_at', 'DESC')
+            .skip((page - 1) * limit)
+            .take(limit);
+
+        if (type) {
+            qb.andWhere('transaction.type = :type', { type });
+        }
+
+        if (status) {
+            qb.andWhere('transaction.status = :status', { status });
+        }
+
+        if (search?.trim()) {
+            qb.andWhere(
+                new Brackets((qb) => {
+                    qb.orWhere('transaction.reason ILIKE :search')
+                        .orWhere('company.companyName ILIKE :search')
+                        .orWhere('company.companyAgentName ILIKE :search')
+                        .orWhere('company.companyAgentLastName ILIKE :search')
+                        .orWhere('company.companyIdentificationCode ILIKE :search')
+                        .orWhere('individual.phone ILIKE :search')
+                        .orWhere('individual.name ILIKE :search')
+                        .orWhere('individual.lastName ILIKE :search')
+                        .orWhere('"order".id::text ILIKE :search');
+                }),
+                { search: `%${search}%` }
+            );
+        }
+
+        const [transactions, total] = await qb.getManyAndCount();
 
         return {
             data: instanceToPlain(transactions),

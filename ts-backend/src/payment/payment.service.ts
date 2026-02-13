@@ -22,14 +22,14 @@ export class PaymentService {
     ) { }
 
     async mockPayOrder(transactionId?: number) {
-        const transaction = await this.transactionRepo.findOne({ where: { id: transactionId } });
+        const transaction = await this.transactionRepo.findOne({ where: { id: transactionId }, relations: ['order'] });
 
         if (!transaction) {
             throw new NotFoundException('Transaction not found');
         }
 
         const order = await this.orderRepo.findOne({
-            where: { id: transaction?.orderId },
+            where: { id: transaction?.order.id },
             relations: ['company', 'individual', 'technician'],
         });
 

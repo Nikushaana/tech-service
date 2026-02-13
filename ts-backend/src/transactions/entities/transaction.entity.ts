@@ -36,15 +36,6 @@ export class Transaction {
   @CreateDateColumn()
   created_at: Date;
 
-  @Column({ nullable: true })
-  individualId?: number;
-
-  @Column({ nullable: true })
-  companyId?: number;
-
-  @Column({ nullable: true })
-  orderId?: number;
-
   @ManyToOne(() => IndividualClient, (individual) => individual.transactions, { nullable: true })
   individual: IndividualClient;
 

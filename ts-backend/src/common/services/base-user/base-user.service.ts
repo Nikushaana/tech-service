@@ -140,7 +140,7 @@ export class BaseUserService {
                         qb.orWhere(`user.${field} ILIKE :search`);
                     });
                 }),
-                { search: `${search}%` },
+                { search: `%${search}%` },
             );
         }
 
