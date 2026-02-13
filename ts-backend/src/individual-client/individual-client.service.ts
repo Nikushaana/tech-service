@@ -41,7 +41,11 @@ export class IndividualClientService {
 
     // individual
     async getIndividuals(dto: GetUsersDto) {
-        const findIndividuals = await this.baseUserService.getUsers(this.individualClientRepo, dto);
+        const findIndividuals = await this.baseUserService.getUsers(this.individualClientRepo, dto, [
+            'phone',
+            'name',
+            'lastName'
+        ]);
 
         return instanceToPlain(findIndividuals);
     }

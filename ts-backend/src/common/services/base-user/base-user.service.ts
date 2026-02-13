@@ -2,7 +2,7 @@ import { BadRequestException, ConflictException, Injectable, NotFoundException }
 import { InjectRepository } from "@nestjs/typeorm";
 import { VerificationCode } from "src/verification-code/entities/verification-code.entity";
 import { VerificationCodeService } from "src/verification-code/verification-code.service";
-import { Repository } from "typeorm";
+import { Brackets, Repository } from "typeorm";
 import { ChangePasswordDto } from "./dto/change-password.dto";
 import { ChangeNumberDto } from "src/verification-code/dto/verification-code.dto";
 import { instanceToPlain } from "class-transformer";
@@ -114,15 +114,37 @@ export class BaseUserService {
     }
 
     // registered user services
-    async getUsers(repo: any, dto: GetUsersDto) {
-        const { page = 1, limit, status } = dto;
+    async getUsers(repo: any, dto: GetUsersDto, searchFields: (
+        | 'phone'
+        | 'name'
+        | 'lastName'
+        | 'companyAgentName'
+        | 'companyAgentLastName'
+        | 'companyName'
+        | 'companyIdentificationCode'
+    )[]) {
+        const { page = 1, limit, status, search } = dto;
 
-        const [users, total] = await repo.findAndCount({
-            where: status ? { status } : undefined,
-            order: { created_at: 'DESC' },
-            skip: limit ? (page - 1) * limit : undefined,
-            take: limit,
-        });
+        const qb = repo
+            .createQueryBuilder('user')
+            .orderBy('user.created_at', 'DESC')
+            .skip(limit ? (page - 1) * limit : undefined,)
+            .take(limit);
+
+        if (status !== undefined) qb.andWhere('user.status = :status', { status });
+
+        if (search?.trim()) {
+            qb.andWhere(
+                new Brackets((qb) => {
+                    searchFields.forEach(field => {
+                        qb.orWhere(`user.${field} ILIKE :search`);
+                    });
+                }),
+                { search: `${search}%` },
+            );
+        }
+
+        const [users, total] = await qb.getManyAndCount();
 
         return {
             data: users,
@@ -261,8 +283,8 @@ export class BaseUserService {
 
     // statistics
     async getUserRegistrationStats() {
-        const { data: individuals } = await this.getUsers(this.individualClientRepo, {});
-        const { data: companies } = await this.getUsers(this.companyClientRepo, {});
+        const { data: individuals } = await this.getUsers(this.individualClientRepo, {}, []);
+        const { data: companies } = await this.getUsers(this.companyClientRepo, {}, []);
 
         const groupByMonth = (users: { created_at: Date }[]) =>
             users.reduce((acc, user) => {
@@ -290,8 +312,8 @@ export class BaseUserService {
     }
 
     async getUsedDevicesStats() {
-        const { data: individuals } = await this.getUsers(this.individualClientRepo, {});
-        const { data: companies } = await this.getUsers(this.companyClientRepo, {});
+        const { data: individuals } = await this.getUsers(this.individualClientRepo, {}, []);
+        const { data: companies } = await this.getUsers(this.companyClientRepo, {}, []);
 
         const allUsers = [...individuals, ...companies];
 

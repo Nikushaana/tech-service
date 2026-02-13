@@ -25,7 +25,11 @@ export class TechnicianService {
     // technician
 
     async getTechnicians(dto: GetUsersDto) {
-        const findTechnicians = await this.baseUserService.getUsers(this.technicianRepo, dto);
+        const findTechnicians = await this.baseUserService.getUsers(this.technicianRepo, dto, [
+            'phone',
+            'name',
+            'lastName'
+        ]);
 
         return instanceToPlain(findTechnicians);
     }

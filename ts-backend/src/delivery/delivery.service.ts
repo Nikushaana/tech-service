@@ -24,7 +24,11 @@ export class DeliveryService {
 
     // delivery
     async getDeliveries(dto: GetUsersDto) {
-        const findDeliveries = await this.baseUserService.getUsers(this.deliveryRepo, dto);
+        const findDeliveries = await this.baseUserService.getUsers(this.deliveryRepo, dto, [
+            'phone',
+            'name',
+            'lastName'
+        ]);
 
         return instanceToPlain(findDeliveries);
     }

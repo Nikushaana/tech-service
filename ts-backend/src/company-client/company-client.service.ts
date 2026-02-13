@@ -41,7 +41,13 @@ export class CompanyClientService {
 
     // company
     async getCompanies(dto: GetUsersDto) {
-        const findCompanies = await this.baseUserService.getUsers(this.companyClientRepo, dto);
+        const findCompanies = await this.baseUserService.getUsers(this.companyClientRepo, dto, [
+            'phone',
+            'companyAgentName',
+            'companyAgentLastName',
+            'companyName',
+            'companyIdentificationCode'
+        ]);
 
         return instanceToPlain(findCompanies);
     }
@@ -95,24 +101,24 @@ export class CompanyClientService {
     async updateOneOrder(companyId: number, id: number, updateUserOrderDto: UpdateUserOrderDto, images: Express.Multer.File[] = [], videos: Express.Multer.File[] = []) {
         return this.orderService.updateOneOrder(companyId, id, this.companyClientRepo, updateUserOrderDto, images, videos);
     }
-    
+
     // order flow
     async toTechnician(companyId: number, id: number) {
         return this.orderService.toTechnician(companyId, id, this.companyClientRepo);
     }
-    
+
     async decideRepair(companyId: number, id: number, repairDecisionDto: RepairDecisionDto) {
         return this.orderService.decideRepair(companyId, id, this.companyClientRepo, repairDecisionDto);
     }
-    
+
     async cancelled(companyId: number, id: number) {
         return this.orderService.cancelled(companyId, id, this.companyClientRepo);
     }
-    
+
     async completed(companyId: number, id: number) {
         return this.orderService.completed(companyId, id, this.companyClientRepo);
     }
-    
+
     async completedOnSite(companyId: number, id: number) {
         return this.orderService.completedOnSite(companyId, id, this.companyClientRepo);
     }
