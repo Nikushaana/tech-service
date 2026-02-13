@@ -152,7 +152,7 @@ export default function StaffOrdersClientComponent() {
         />
         <Button
           onClick={clearFilters}
-          className="cursor-pointer rounded-lg sm:col-span-2 md:col-span-1"
+          className="cursor-pointer rounded-lg"
         >
           გასუფთავება
         </Button>

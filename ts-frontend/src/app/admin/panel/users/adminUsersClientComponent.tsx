@@ -1,6 +1,7 @@
 "use client";
 
 import { Dropdown } from "@/app/components/inputs/drop-down";
+import PanelFormInput from "@/app/components/inputs/panel-form-input";
 import LinearLoader from "@/app/components/linearLoader";
 import Pagination from "@/app/components/pagination/pagination";
 import { axiosAdmin } from "@/app/lib/api/axios";
@@ -18,12 +19,24 @@ import { useQuery } from "@tanstack/react-query";
 import { Loader2Icon } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import { BsEye } from "react-icons/bs";
 import { IoPersonSharp } from "react-icons/io5";
 
-const fetchAdminUsers = async (page: number, type: string) => {
+const fetchAdminUsers = async (
+  type: string,
+  page: number,
+  status: string,
+  search: string,
+) => {
+  const params = new URLSearchParams();
+
+  if (page) params.set("page", page.toString());
+  if (status) params.set("status", status);
+  if (search) params.set("search", search);
+
   const { data } = await axiosAdmin.get(
-    `admin/${type == "ფიზიკური პირი" ? "individuals" : "companies"}?page=${page}`,
+    `admin/${type == "ფიზიკური პირი" ? "individuals" : "companies"}?${params.toString()}`,
   );
   return data;
 };
@@ -33,15 +46,40 @@ const userType = [
   { id: 2, name: "იურიდიული პირი" },
 ];
 
+const userStatus = [
+  { id: 1, name: "აქტიური", status: true },
+  { id: 2, name: "დაბლოკილი", status: false },
+];
+
 export default function AdminUsersClientComponent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const page = Number(searchParams.get("page")) || 1;
   const type = searchParams.get("type") || "ფიზიკური პირი";
+  const status = searchParams.get("status") || "";
+  const search = searchParams.get("search") || "";
+
+  const [searchInput, setSearchInput] = useState(search);
+
+  // search delay
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      const params = new URLSearchParams(searchParams.toString());
+      if (searchInput.trim()) {
+        params.set("search", searchInput.trim());
+      } else {
+        params.delete("search");
+      }
+      params.set("page", "1");
+      router.push(`?${params.toString()}`, { scroll: false });
+    }, 500);
+
+    return () => clearTimeout(handler);
+  }, [searchInput]);
 
   const { data: users, isFetching } = useQuery({
-    queryKey: ["adminUsers", page, type],
-    queryFn: () => fetchAdminUsers(page, type),
+    queryKey: ["adminUsers", type, page, status, search],
+    queryFn: () => fetchAdminUsers(type, page, status, search),
     staleTime: 1000 * 60 * 10,
     placeholderData: (previous) => previous,
   });
@@ -60,11 +98,19 @@ export default function AdminUsersClientComponent() {
     router.push(`?${params.toString()}`, { scroll: false });
   };
 
+  // Clear all filters
+  const clearFilters = () => {
+    const params = new URLSearchParams();
+    params.set("page", "1");
+    setSearchInput("");
+    router.push(`?${params.toString()}`, { scroll: false });
+  };
+
   return (
     <div className="w-full bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6 space-y-2">
       <h2 className="text-xl font-semibold mb-2">მომხმარებლები</h2>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 mb-4 gap-[20px] items-end">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 mb-4 gap-[20px] items-end">
         <Dropdown
           data={userType}
           id="type"
@@ -74,6 +120,27 @@ export default function AdminUsersClientComponent() {
           labelKey="name"
           onChange={handleChange}
         />
+        <PanelFormInput
+          id="search"
+          value={searchInput}
+          label="ფილტრი"
+          onChange={(e) => setSearchInput(e.target.value)}
+        />
+        <Dropdown
+          data={userStatus}
+          id="status"
+          value={status}
+          label="სტატუსი"
+          valueKey="status"
+          labelKey="name"
+          onChange={handleChange}
+        />
+        <Button
+          onClick={clearFilters}
+          className="cursor-pointer rounded-lg sm:col-span-2 md:col-span-1"
+        >
+          გასუფთავება
+        </Button>
       </div>
 
       <div className="flex justify-end">
