@@ -20,6 +20,7 @@ export default function AdminStaffRegister() {
     errors,
     setErrors,
     resetErrors,
+    resetValues,
     loading,
     setLoading,
   } = useRegisterStore();
@@ -76,6 +77,7 @@ export default function AdminStaffRegister() {
         })
         .finally(() => {
           setLoading(false);
+          resetValues()
         });
     } catch (err: any) {
       // Yup validation errors
