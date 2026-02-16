@@ -41,6 +41,15 @@ export class Notification {
     @Column({ type: 'int', nullable: true })
     forId?: number;
 
-    @Column({ type: 'json', nullable: true })
-    data?: Record<string, any>;
+    @Column({ type: 'int', nullable: true })
+    user_id?: number;
+
+    @Column({ type: 'enum', enum: ['admin', 'individual', 'company', 'delivery', 'technician'], nullable: true })
+    user_role?: NotificationFor;
+
+    @Column({ type: 'int', nullable: true })
+    order_id?: number;
+
+    @Column({ type: 'int', nullable: true })
+    review_id?: number;
 }

@@ -39,7 +39,7 @@ export class ReviewsService {
 
         // send notification to admin
         await this.notificationService.sendNotification(
-            `დაემატა შეფასება ${("companyName" in user ? user.companyName : (user.name + " " + user.lastName))}-ს მიერ`,
+            `დაემატა შეფასება №${review.id} ${("companyName" in user ? user.companyName : (user.name + " " + user.lastName))}-ს მიერ`,
             NotificationType.NEW_REVIEW,
             'admin',
             undefined,
@@ -49,7 +49,7 @@ export class ReviewsService {
         );
         // send notification to user
         await this.notificationService.sendNotification(
-            `თქვენი შეფასება დაემატა.`,
+            `შეფასება №${review.id} დაემატა.`,
             NotificationType.NEW_REVIEW,
             user.role,
             userId,

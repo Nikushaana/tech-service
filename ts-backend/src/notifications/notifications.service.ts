@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Brackets, Repository } from 'typeorm';
 import { Notification, NotificationFor, NotificationType } from './entities/notification.entity';
 import { NotificationsGateway } from './notifications.gateway';
 import { GetNotificationsDto } from './dto/get-notifications.dto';
@@ -18,14 +18,19 @@ export class NotificationsService {
         type: NotificationType,
         forRole: NotificationFor,
         forId: number | undefined,
-        data?: Record<string, any>,
+        relations?: {
+            user_id?: number;
+            user_role?: NotificationFor;
+            order_id?: number;
+            review_id?: number;
+        }
     ) {
         const notification = this.notificationRepo.create({
             message,
             type,
             for: forRole,
             forId,
-            data,
+            ...relations,
         });
 
         this.notificationRepo.save(notification);
@@ -37,21 +42,41 @@ export class NotificationsService {
     }
 
     async getNotifications(dto: GetNotificationsDto, role: 'admin' | 'individual' | 'company' | 'technician' | 'delivery', userId?: number) {
-        const { type, page = 1, limit = 10 } = dto;
+        const { page = 1, limit = 10, type, search, from, to } = dto;
 
-        const where: any = { for: role };
+        const qb = this.notificationRepo
+            .createQueryBuilder('notification')
+            .where('notification.for = :role', { role })
+            .orderBy('notification.created_at', 'DESC')
+            .skip((page - 1) * limit)
+            .take(limit);
 
-        if (userId) where.forId = userId;
-        if (type) where.type = type;
+        if (userId) {
+            qb.andWhere('notification.forId = :userId', { userId });
+        }
 
-        const [notifications, total] = await this.notificationRepo.findAndCount({
-            where,
-            order: {
-                created_at: 'DESC',
-            },
-            skip: (page - 1) * limit,
-            take: limit,
-        });
+        if (type) {
+            qb.andWhere('notification.type = :type', { type });
+        }
+
+        if (search) {
+            qb.andWhere(
+                new Brackets((qb) => {
+                    qb.where('notification.message ILIKE :search');
+                }),
+                { search: `%${search}%` },
+            );
+        }
+
+        if (from && to) {
+            qb.andWhere('notification.created_at BETWEEN :from AND :to', { from, to });
+        } else if (from) {
+            qb.andWhere('notification.created_at >= :from', { from });
+        } else if (to) {
+            qb.andWhere('notification.created_at <= :to', { to });
+        }
+
+        const [notifications, total] = await qb.getManyAndCount();
 
         return {
             data: notifications,

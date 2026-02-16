@@ -142,7 +142,7 @@ export class AuthService {
                                 : "მომხმარებელი";
 
         await this.notificationService.sendNotification(
-            `დარეგისტრირდა ${roleInGeo + " " + (user.companyName || (user.name + " " + user.lastName))}`,
+            `დარეგისტრირდა ${roleInGeo + ` №${user.id} ` + (user.companyName || (user.name + " " + user.lastName))}`,
             NotificationType.NEW_USER,
             'admin',
             undefined,

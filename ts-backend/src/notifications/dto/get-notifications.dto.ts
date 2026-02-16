@@ -1,12 +1,8 @@
 import { Type } from 'class-transformer';
-import { IsEnum, IsOptional, IsInt, Min } from 'class-validator';
+import { IsEnum, IsOptional, IsInt, Min, IsDateString, IsString } from 'class-validator';
 import { NotificationType } from '../entities/notification.entity';
 
 export class GetNotificationsDto {
-  @IsOptional()
-  @IsEnum(NotificationType)
-  type?: NotificationType;
-
   @IsOptional()
   @Type(() => Number)
   @IsInt()
@@ -18,4 +14,20 @@ export class GetNotificationsDto {
   @IsInt()
   @Min(1)
   limit?: number;
+
+  @IsOptional()
+  @IsEnum(NotificationType)
+  type?: NotificationType;
+
+  @IsOptional()
+  @IsString()
+  search?: string;
+
+  @IsOptional()
+  @IsDateString()
+  from?: string;
+
+  @IsOptional()
+  @IsDateString()
+  to?: string;
 }

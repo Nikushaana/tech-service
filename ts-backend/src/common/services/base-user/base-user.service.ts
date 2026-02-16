@@ -256,7 +256,7 @@ export class BaseUserService {
                                     : "მომხმარებელი";
 
             await this.notificationService.sendNotification(
-                `${updateUserDto.status ? "გააქტიურდა" : "დაიბლოკა"} ${roleInGeo + " " + (user.companyName || (user.name + " " + user.lastName))}-ს პროფილი.`,
+                `${updateUserDto.status ? "გააქტიურდა" : "დაიბლოკა"} ${roleInGeo + ` №${user.id} ` + (user.companyName || (user.name + " " + user.lastName))}-ს პროფილი.`,
                 NotificationType.PROFILE_UPDATED,
                 'admin',
                 undefined,
