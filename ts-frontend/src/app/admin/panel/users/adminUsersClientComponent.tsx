@@ -91,9 +91,7 @@ export default function AdminUsersClientComponent() {
 
     params.set(id, value);
 
-    if (id === "type") {
-      params.set("page", "1");
-    }
+    params.set("page", "1");
 
     router.push(`?${params.toString()}`, { scroll: false });
   };
