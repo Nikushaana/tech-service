@@ -231,50 +231,64 @@ export class AuthService {
     }
 
     async refreshAccessToken(refreshToken: string, res: Response) {
-        if (!refreshToken) throw new UnauthorizedException('No refresh token provided');
+        if (!refreshToken) {
+            throw new UnauthorizedException('No refresh token provided');
+        }
 
-        // Find role table dynamically
         const repoMap = [
-            { repo: this.adminTokenRepo, role: 'admin' },
-            { repo: this.technicianTokenRepo, role: 'technician' },
-            { repo: this.deliveryTokenRepo, role: 'delivery' },
-            { repo: this.individualClientTokenRepo, role: 'individual' },
-            { repo: this.companyClientTokenRepo, role: 'company' },
+            { repo: this.adminTokenRepo, role: 'admin', relation: 'admin' },
+            { repo: this.technicianTokenRepo, role: 'technician', relation: 'technician' },
+            { repo: this.deliveryTokenRepo, role: 'delivery', relation: 'delivery' },
+            { repo: this.individualClientTokenRepo, role: 'individual', relation: 'individualClient' },
+            { repo: this.companyClientTokenRepo, role: 'company', relation: 'companyClient' },
         ];
 
         let tokenEntry: any = null;
-        let role: any = null;
+        let role: string | null = null;
+        let relationKey: string | null = null;
 
         for (const item of repoMap) {
-            tokenEntry = await item.repo.findOne({ where: { token: refreshToken } });
+            const found = await item.repo.findOne({
+                where: { token: refreshToken },
+                relations: [item.relation], // 👈 მხოლოდ შესაბამისი relation
+            });
 
-            if (tokenEntry) {
+            if (found) {
+                tokenEntry = found;
                 role = item.role;
+                relationKey = item.relation;
                 break;
             }
         }
 
-        if (!tokenEntry || !role) {
+        if (!tokenEntry || !role || !relationKey) {
             throw new UnauthorizedException('Refresh token invalid');
         }
 
-        const tokenEntityKey = ['admin', 'technician', 'delivery'].includes(role)
-            ? role
-            : role === 'individual'
-                ? 'individualClient'
-                : 'companyClient';
+        const userEntity = tokenEntry[relationKey];
+
+        if (!userEntity) {
+            throw new UnauthorizedException('Invalid token structure');
+        }
 
         const payload = {
-            id: tokenEntry[tokenEntityKey(role)].id,
+            id: userEntity.id,
             role,
         };
-        const newAccessToken = this.jwtService.sign(payload, { expiresIn: '15m' });
 
-        res.cookie('accessToken', newAccessToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', maxAge: 15 * 60 * 1000 });
+        const newAccessToken = this.jwtService.sign(payload, {
+            expiresIn: '15m',
+        });
+
+        res.cookie('accessToken', newAccessToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            maxAge: 15 * 60 * 1000,
+        });
 
         return { message: 'Access token refreshed' };
     }
-
 
     async logout(userId: number, role: 'admin' | 'individual_client' | 'company_client' | 'technician' | 'delivery', res: Response) {
         const tokenRepoMap: Record<string, any> = {

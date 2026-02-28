@@ -42,7 +42,7 @@ export class AuthController {
         return this.authService.login(loginUserDto, "individualOrCompany", res);
     }
 
-    @Post('refresh')
+    @Post('refresh-token')
     async RefreshToken(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
         const refreshToken = req.cookies['refreshToken'];
         return this.authService.refreshAccessToken(refreshToken, res);
