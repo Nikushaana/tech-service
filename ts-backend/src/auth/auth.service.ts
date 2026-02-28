@@ -22,6 +22,7 @@ import { DeliveryToken } from 'src/delivery-token/entities/delivery-token.entity
 import { RegisterIndAdmTechDelDto } from './dto/register-ind-adm-tech-del.dto';
 import { NotificationsService } from 'src/notifications/notifications.service';
 import { NotificationType } from 'src/notifications/entities/notification.entity';
+import { Response } from 'express';
 
 @Injectable()
 export class AuthService {
@@ -65,10 +66,6 @@ export class AuthService {
 
         private readonly notificationService: NotificationsService,
     ) { }
-
-    signToken(payload: any): string {
-        return this.jwtService.sign(payload);
-    }
 
     // send and verify sent code
     async sendRegisterCode(phoneDto: PhoneDto) {
@@ -158,7 +155,7 @@ export class AuthService {
             NotificationType.NEW_USER,
             user.role,
             user.id,
-        ); 
+        );
 
         return {
             message: `${role} registered successfully`,
@@ -166,7 +163,7 @@ export class AuthService {
         };
     }
 
-    async login(loginUserDto: LoginUserDto, role: 'individualOrCompany' | 'technician' | 'delivery' | 'admin') {
+    async login(loginUserDto: LoginUserDto, role: 'individualOrCompany' | 'technician' | 'delivery' | 'admin', res: Response) {
         const userRepoMap: any = {
             individual: this.individualClientRepo,
             company: this.companyClientRepo,
@@ -175,7 +172,7 @@ export class AuthService {
             admin: this.adminRepo,
         };
 
-        const tokenRepoMap: any = {
+        const tokenRepoMap: Record<string, any> = {
             individual: this.individualClientTokenRepo,
             company: this.companyClientTokenRepo,
             technician: this.technicianTokenRepo,
@@ -207,51 +204,111 @@ export class AuthService {
 
         // 3. Generate token
         const payload = { id: user.id, role: actualRole };
-        const token = this.signToken(payload);
+        const accessToken = this.jwtService.sign(payload, { expiresIn: '15m' });
+        const refreshToken = this.jwtService.sign(payload, { expiresIn: '7d' });
 
         // 4. Save or update token dynamically
         const tokenRepo = tokenRepoMap[actualRole];
-        const tokenEntityKey = actualRole === 'technician' || actualRole === 'admin' || actualRole === 'delivery'
-            ? actualRole
-            : `${actualRole}Client`;
+        const tokenEntityKey = ['technician', 'admin', 'delivery'].includes(actualRole) ? actualRole : `${actualRole}Client`;
 
         let tokenEntity = await tokenRepo.findOne({
             where: { [tokenEntityKey]: { id: user.id } },
         });
 
-        if (tokenEntity) tokenEntity.token = token;
-        else tokenEntity = tokenRepo.create({ [tokenEntityKey]: user, token });
+        if (tokenEntity) tokenEntity.token = refreshToken;
+        else tokenEntity = tokenRepo.create({ [tokenEntityKey]: user, token: refreshToken });
 
         await tokenRepo.save(tokenEntity);
 
+        // ===== Set cookies =====
+        res.cookie('accessToken', accessToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', maxAge: 15 * 60 * 1000 });
+        res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', maxAge: 7 * 24 * 60 * 60 * 1000 });
+
         return {
             message: `${actualRole} logged in successfully`,
-            token,
             user: instanceToPlain(user),
         };
     }
 
-    async logout(authHeader: string, role: 'individual' | 'company' | 'technician' | 'delivery' | 'admin') {
-        if (!authHeader) {
-            throw new UnauthorizedException('Authorization header missing');
+    async refreshAccessToken(refreshToken: string, res: Response) {
+        if (!refreshToken) throw new UnauthorizedException('No refresh token provided');
+
+        // Find role table dynamically
+        const repoMap = [
+            { repo: this.adminTokenRepo, role: 'admin' },
+            { repo: this.technicianTokenRepo, role: 'technician' },
+            { repo: this.deliveryTokenRepo, role: 'delivery' },
+            { repo: this.individualClientTokenRepo, role: 'individual' },
+            { repo: this.companyClientTokenRepo, role: 'company' },
+        ];
+
+        let tokenEntry: any = null;
+        let role: any = null;
+
+        for (const item of repoMap) {
+            tokenEntry = await item.repo.findOne({ where: { token: refreshToken } });
+
+            if (tokenEntry) {
+                role = item.role;
+                break;
+            }
         }
 
-        const token = authHeader.split(' ')[1];
-        if (!token) {
-            throw new UnauthorizedException('Token not found');
+        if (!tokenEntry || !role) {
+            throw new UnauthorizedException('Refresh token invalid');
         }
 
-        const result =
-            role === 'individual'
-                ? await this.individualClientTokenRepo.delete({ token })
-                : role === 'company' ? await this.companyClientTokenRepo.delete({ token })
-                    : role === 'technician' ? await this.technicianTokenRepo.delete({ token })
-                        : role === 'delivery' ? await this.deliveryTokenRepo.delete({ token })
-                            : await this.adminTokenRepo.delete({ token });
+        const tokenEntityKey = ['admin', 'technician', 'delivery'].includes(role)
+            ? role
+            : role === 'individual'
+                ? 'individualClient'
+                : 'companyClient';
+
+        const payload = {
+            id: tokenEntry[tokenEntityKey(role)].id,
+            role,
+        };
+        const newAccessToken = this.jwtService.sign(payload, { expiresIn: '15m' });
+
+        res.cookie('accessToken', newAccessToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', maxAge: 15 * 60 * 1000 });
+
+        return { message: 'Access token refreshed' };
+    }
+
+
+    async logout(userId: number, role: 'admin' | 'individual_client' | 'company_client' | 'technician' | 'delivery', res: Response) {
+        const tokenRepoMap: Record<string, any> = {
+            individual: this.individualClientTokenRepo,
+            company: this.companyClientTokenRepo,
+            technician: this.technicianTokenRepo,
+            delivery: this.deliveryTokenRepo,
+            admin: this.adminTokenRepo,
+        };
+
+        const tokenRepo = tokenRepoMap[role];
+        if (!tokenRepo) throw new NotFoundException('Role token repository not found');
+
+        // Determine the key in token table
+        const tokenEntityKeyMap: Record<string, string> = {
+            admin: 'admin',
+            technician: 'technician',
+            delivery: 'delivery',
+            individual: 'individualClient',
+            company: 'companyClient',
+        };
+
+        const tokenEntityKey = tokenEntityKeyMap[role];
+
+        // Delete refresh token from DB
+        const result = await tokenRepo.delete({ [tokenEntityKey]: { id: userId } });
 
         if (result.affected === 0) {
-            throw new NotFoundException('Token not found in database');
+            throw new NotFoundException('Refresh token not found in database');
         }
+
+        // Clear cookies
+        res.clearCookie('accessToken');
+        res.clearCookie('refreshToken');
 
         return { message: `${role} logged out successfully` };
     }

@@ -31,6 +31,7 @@ export class BranchesService {
         const { page = 1, limit } = dto;
 
         const [branches, total] = await this.branchRepo.findAndCount({
+            order: { created_at: 'DESC' },
             skip: limit ? (page - 1) * limit : undefined,
             take: limit,
         });
@@ -64,6 +65,9 @@ export class BranchesService {
         updateBranchDto: UpdateBranchDto
     ) {
         const branch = await this.getOneBranch(id)
+
+        const existing = await this.branchRepo.findOne({ where: { name: updateBranchDto.name } });
+        if (existing) throw new BadRequestException('Branch already exists');
 
         // Merge updates
         this.branchRepo.merge(branch, {

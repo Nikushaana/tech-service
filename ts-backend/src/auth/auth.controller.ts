@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Headers, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { PhoneDto, ResetPasswordDto, VerifyCodeDto } from 'src/verification-code/dto/verification-code.dto';
 import { LoginUserDto } from './dto/login-user.dto';
@@ -7,6 +7,8 @@ import { TokenValidationGuard } from './guards/token-validation.guard';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { RegisterCompanyDto } from './dto/register-company.dto';
 import { RegisterIndAdmTechDelDto } from './dto/register-ind-adm-tech-del.dto';
+import type { Response, Request } from 'express';
+import type { RequestInfo } from 'src/common/types/request-info';
 
 @Controller('auth')
 export class AuthController {
@@ -36,8 +38,21 @@ export class AuthController {
 
     // login individual or company
     @Post('login-client')
-    async IndividualOrCompanyLogin(@Body() loginUserDto: LoginUserDto) {
-        return this.authService.login(loginUserDto, "individualOrCompany");
+    async IndividualOrCompanyLogin(@Body() loginUserDto: LoginUserDto, @Res({ passthrough: true }) res: Response) {
+        return this.authService.login(loginUserDto, "individualOrCompany", res);
+    }
+
+    @Post('refresh')
+    async RefreshToken(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
+        const refreshToken = req.cookies['refreshToken'];
+        return this.authService.refreshAccessToken(refreshToken, res);
+    }
+
+    @UseGuards(TokenValidationGuard, RolesGuard)
+    @Roles('admin', 'technician', 'delivery', 'individual', 'company')
+    @Post('logout')
+    async logout(@Req() req: RequestInfo, @Res({ passthrough: true }) res: Response) {
+        return this.authService.logout(req.user.id, req.user.role, res);
     }
 }
 
@@ -53,15 +68,8 @@ export class AdminAuthController {
     }
 
     @Post('login')
-    async AdminLogin(@Body() loginUserDto: LoginUserDto) {
-        return this.authService.login(loginUserDto, "admin");
-    }
-
-    @UseGuards(TokenValidationGuard, RolesGuard)
-    @Roles('admin')
-    @Delete('logout')
-    async AdminLogout(@Headers('authorization') authHeader: string) {
-        return this.authService.logout(authHeader, 'admin');
+    async AdminLogin(@Body() loginUserDto: LoginUserDto, @Res({ passthrough: true }) res: Response) {
+        return this.authService.login(loginUserDto, "admin", res);
     }
 }
 
@@ -75,13 +83,6 @@ export class IndividualAuthController {
     ) {
         return this.authService.register(registerIndAdmTechDelDto, "individual");
     }
-
-    @UseGuards(TokenValidationGuard, RolesGuard)
-    @Roles('individual')
-    @Delete('logout')
-    async IndividualLogout(@Headers('authorization') authHeader: string) {
-        return this.authService.logout(authHeader, 'individual');
-    }
 }
 
 @Controller('auth/company')
@@ -93,13 +94,6 @@ export class CompanyAuthController {
         @Body() registerCompanyDto: RegisterCompanyDto,
     ) {
         return this.authService.register(registerCompanyDto, "company");
-    }
-
-    @UseGuards(TokenValidationGuard, RolesGuard)
-    @Roles('company')
-    @Delete('logout')
-    async CompanyLogout(@Headers('authorization') authHeader: string) {
-        return this.authService.logout(authHeader, 'company');
     }
 }
 
@@ -131,15 +125,8 @@ export class TechnicianAuthController {
     }
 
     @Post('login')
-    async TechnicianLogin(@Body() loginUserDto: LoginUserDto) {
-        return this.authService.login(loginUserDto, "technician");
-    }
-
-    @UseGuards(TokenValidationGuard, RolesGuard)
-    @Roles('technician')
-    @Delete('logout')
-    async TechnicianLogout(@Headers('authorization') authHeader: string) {
-        return this.authService.logout(authHeader, 'technician');
+    async TechnicianLogin(@Body() loginUserDto: LoginUserDto, @Res({ passthrough: true }) res: Response) {
+        return this.authService.login(loginUserDto, "technician", res);
     }
 }
 
@@ -171,14 +158,7 @@ export class DeliveryAuthController {
     }
 
     @Post('login')
-    async DeliveryLogin(@Body() loginUserDto: LoginUserDto) {
-        return this.authService.login(loginUserDto, "delivery");
-    }
-
-    @UseGuards(TokenValidationGuard, RolesGuard)
-    @Roles('delivery')
-    @Delete('logout')
-    async DeliveryLogout(@Headers('authorization') authHeader: string) {
-        return this.authService.logout(authHeader, 'delivery');
+    async DeliveryLogin(@Body() loginUserDto: LoginUserDto, @Res({ passthrough: true }) res: Response) {
+        return this.authService.login(loginUserDto, "delivery", res);
     }
 }
