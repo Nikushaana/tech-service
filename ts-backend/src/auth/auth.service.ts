@@ -23,12 +23,11 @@ import { RegisterIndAdmTechDelDto } from './dto/register-ind-adm-tech-del.dto';
 import { NotificationsService } from 'src/notifications/notifications.service';
 import { NotificationType } from 'src/notifications/entities/notification.entity';
 import { Response } from 'express';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
     constructor(
-        private jwtService: JwtService,
-
         @InjectRepository(Admin)
         private adminRepo: Repository<Admin>,
 
@@ -65,7 +64,13 @@ export class AuthService {
         private readonly verificationCodeService: VerificationCodeService,
 
         private readonly notificationService: NotificationsService,
+
+        private readonly jwtService: JwtService,
+
+        private readonly configService: ConfigService,
     ) { }
+
+    private readonly isProd = process.env.NODE_ENV === 'production';
 
     // send and verify sent code
     async sendRegisterCode(phoneDto: PhoneDto) {
@@ -214,11 +219,11 @@ export class AuthService {
         };
 
         const accessToken = this.jwtService.sign(payload, {
-            expiresIn: '15m',
+            expiresIn: this.configService.get<string>('JWT_EXPIRES_ACCESS') || '15m',
         });
 
         const refreshToken = this.jwtService.sign(payload, {
-            expiresIn: '7d',
+            expiresIn: this.configService.get<string>('JWT_EXPIRES_REFRESH') || '7d',
         });
 
         // ===== 4. SAVE REFRESH TOKEN =====
@@ -246,16 +251,18 @@ export class AuthService {
         // ===== 5. SET COOKIES =====
         res.cookie('accessToken', accessToken, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
+            secure: this.isProd,
+            sameSite: this.isProd ? 'none' : 'lax',
             maxAge: 15 * 60 * 1000,
+            path: '/',
         });
 
         res.cookie('refreshToken', refreshToken, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
+            secure: this.isProd,
+            sameSite: this.isProd ? 'none' : 'lax',
             maxAge: 7 * 24 * 60 * 60 * 1000,
+            path: '/',
         });
 
         return {
@@ -302,14 +309,15 @@ export class AuthService {
 
         const newAccessToken = this.jwtService.sign(
             { id: payload.id, role: payload.role },
-            { expiresIn: '15m' },
+            { expiresIn: this.configService.get<string>('JWT_EXPIRES_ACCESS') || '15m' },
         );
 
         res.cookie('accessToken', newAccessToken, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
+            secure: this.isProd,
+            sameSite: this.isProd ? 'none' : 'lax',
             maxAge: 15 * 60 * 1000,
+            path: '/',
         });
 
         return { message: 'Access token refreshed' };
