@@ -315,6 +315,24 @@ export class AuthService {
         return { message: 'Access token refreshed' };
     }
 
+    async getMe(user: { id: number; role: string }) {
+        const repoMap = {
+            admin: this.adminRepo,
+            company: this.companyClientRepo,
+            individual: this.individualClientRepo,
+            technician: this.technicianRepo,
+            delivery: this.deliveryRepo,
+        };
+
+        const repo = repoMap[user.role];
+        if (!repo) throw new UnauthorizedException('Unknown role');
+
+        const findUser = await repo.findOne({ where: { id: user.id } });
+        if (!findUser) throw new UnauthorizedException('User not found');
+
+        return instanceToPlain(findUser);
+    }
+
     async logout(refreshToken: string, res: Response) {
         if (!refreshToken) {
             res.clearCookie('accessToken');

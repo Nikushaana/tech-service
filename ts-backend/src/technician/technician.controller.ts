@@ -27,13 +27,6 @@ export class TechnicianController {
     // technician
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('technician')
-    @Get('')
-    async getTechnician(@Req() req: RequestInfo) {
-        return this.technicianService.getTechnician(req.user.id);
-    }
-
-    @UseGuards(TokenValidationGuard, RolesGuard)
-    @Roles('technician')
     @Patch('')
     @UseInterceptors(MultipleImagesUpload('images', 1))
     async updateTechnician(@Req() req: RequestInfo, @Body() updateTechnicianDto: UpdateTechnicianDto, @UploadedFiles() images: Express.Multer.File[]) {

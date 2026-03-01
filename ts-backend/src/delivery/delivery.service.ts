@@ -43,12 +43,6 @@ export class DeliveryService {
         return this.baseUserService.updateUser(deliveryId, this.deliveryRepo, updateAdminIndividualTechnicianDeliveryDto, images, "admin");
     }
 
-    async getDelivery(deliveryId: number) {
-        const findDelivery = await this.baseUserService.getUser(deliveryId, this.deliveryRepo);
-
-        return instanceToPlain(findDelivery);
-    }
-
     async updateDelivery(deliveryId: number, updateDeliveryDto: UpdateDeliveryDto, images: Express.Multer.File[] = []) {
         return this.baseUserService.updateUser(deliveryId, this.deliveryRepo, updateDeliveryDto, images);
     }

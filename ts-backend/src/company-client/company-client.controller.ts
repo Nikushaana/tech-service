@@ -39,15 +39,6 @@ export class CompanyClientController {
     // company
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('company')
-    @Get('')
-    async getCompany(@Req() req: RequestInfo) {
-        const userAgent = req.headers['user-agent'] || 'Not Found';
-
-        return this.companyClientService.getCompany(req.user.id, userAgent);
-    }
-
-    @UseGuards(TokenValidationGuard, RolesGuard)
-    @Roles('company')
     @Patch('')
     @UseInterceptors(MultipleImagesUpload('images', 1))
     async updateCompany(@Req() req: RequestInfo, @Body() updateCompanyDto: UpdateCompanyDto, @UploadedFiles() images: Express.Multer.File[]) {

@@ -37,14 +37,6 @@ export class IndividualClientController {
     ) { }
 
     // individual
-    @UseGuards(TokenValidationGuard, RolesGuard)
-    @Roles('individual')
-    @Get('')
-    async getIndividual(@Req() req: RequestInfo) {
-        const userAgent = req.headers['user-agent'] || 'Not Found';
-
-        return this.individualClientService.getIndividual(req.user.id, userAgent);
-    }
 
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('individual')

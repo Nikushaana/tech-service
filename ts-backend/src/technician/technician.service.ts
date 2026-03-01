@@ -44,12 +44,6 @@ export class TechnicianService {
         return this.baseUserService.updateUser(technicianId, this.technicianRepo, updateAdminIndividualTechnicianDeliveryDto, images, "admin");
     }
 
-    async getTechnician(technicianId: number) {
-        const findTechnician = await this.baseUserService.getUser(technicianId, this.technicianRepo);
-
-        return instanceToPlain(findTechnician);
-    }
-
     async updateTechnician(technicianId: number, updateTechnicianDto: UpdateTechnicianDto, images: Express.Multer.File[] = []) {
         return this.baseUserService.updateUser(technicianId, this.technicianRepo, updateTechnicianDto, images);
     }

@@ -1,8 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AdminController } from './admin.controller';
 import { AdminService } from './admin.service';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { Admin } from './entities/admin.entity';
 import { BaseUserModule } from 'src/common/services/base-user/base-user.module';
 import { TokensModule } from 'src/common/tokens/token.module';
 import { CloudinaryModule } from 'src/common/cloudinary/cloudinary.module';
@@ -20,7 +18,7 @@ import { TechnicianModule } from 'src/technician/technician.module';
 import { TransactionsModule } from 'src/transactions/transactions.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Admin]), BaseUserModule, TokensModule, CloudinaryModule, NotificationsModule, ReviewsModule, BranchesModule, AddressModule, OrderModule, FaqModule, CategoryModule, IndividualClientModule, CompanyClientModule, DeliveryModule, TechnicianModule, TransactionsModule],
+  imports: [BaseUserModule, TokensModule, CloudinaryModule, NotificationsModule, ReviewsModule, BranchesModule, AddressModule, OrderModule, FaqModule, CategoryModule, IndividualClientModule, CompanyClientModule, DeliveryModule, TechnicianModule, TransactionsModule],
   controllers: [AdminController],
   providers: [AdminService]
 })

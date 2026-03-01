@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { PhoneDto, ResetPasswordDto, VerifyCodeDto } from 'src/verification-code/dto/verification-code.dto';
 import { LoginUserDto } from './dto/login-user.dto';
@@ -8,6 +8,7 @@ import { Roles } from 'src/common/decorators/roles.decorator';
 import { RegisterCompanyDto } from './dto/register-company.dto';
 import { RegisterIndAdmTechDelDto } from './dto/register-ind-adm-tech-del.dto';
 import type { Response, Request } from 'express';
+import type { RequestInfo } from 'src/common/types/request-info';
 
 @Controller('auth')
 export class AuthController {
@@ -50,6 +51,12 @@ export class AuthController {
     ) {
         const refreshToken = req.cookies['refreshToken'];
         return this.authService.refreshAccessToken(refreshToken, res);
+    }
+
+    @UseGuards(TokenValidationGuard)
+    @Get('current-user')
+    async getAdmin(@Req() req: RequestInfo) {
+        return this.authService.getMe(req.user);
     }
 
     @Post('logout')

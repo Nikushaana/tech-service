@@ -24,12 +24,6 @@ export class DeliveryController {
     ) { }
 
     // delivery
-    @UseGuards(TokenValidationGuard, RolesGuard)
-    @Roles('delivery')
-    @Get('')
-    async getDelivery(@Req() req: RequestInfo) {
-        return this.deliveryService.getDelivery(req.user.id);
-    }
 
     @UseGuards(TokenValidationGuard, RolesGuard)
     @Roles('delivery')

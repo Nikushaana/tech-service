@@ -1,5 +1,4 @@
 import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, Req, UploadedFiles, UseGuards, UseInterceptors } from '@nestjs/common';
-import { AdminService } from './admin.service';
 import { TokenValidationGuard } from 'src/auth/guards/token-validation.guard';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { RolesGuard } from 'src/common/guards/roles.guard';
@@ -9,7 +8,6 @@ import { CreateCategoryDto } from 'src/category/dto/create-category.dto';
 import { UpdateCategoryDto } from 'src/category/dto/update-category.dto';
 import { CreateFaqDto } from 'src/faq/dto/create-faq.dto';
 import { UpdateFaqDto } from 'src/faq/dto/update-category.dto';
-import type { RequestInfo } from 'src/common/types/request-info';
 import { MultipleImagesUpload } from 'src/common/interceptors/multiple-images-upload.factory';
 import { UpdateReviewDto } from 'src/reviews/dto/update-review.dto';
 import { CreateBranchDto } from 'src/branches/dto/create-branch.dto';
@@ -39,8 +37,6 @@ import { GetUsersDto } from 'src/common/services/base-user/dto/get-users.dto';
 @Controller('admin')
 export class AdminController {
     constructor(
-        private readonly adminService: AdminService,
-
         private readonly notificationsService: NotificationsService,
 
         private readonly reviewsService: ReviewsService,
@@ -65,14 +61,6 @@ export class AdminController {
 
         private readonly transactionsService: TransactionsService,
     ) { }
-
-    // admin info
-    @UseGuards(TokenValidationGuard, RolesGuard)
-    @Roles('admin')
-    @Get('')
-    async getAdmin(@Req() req: RequestInfo) {
-        return this.adminService.getAdmin(req.user.id);
-    }
 
     // individuals
     @UseGuards(TokenValidationGuard, RolesGuard)

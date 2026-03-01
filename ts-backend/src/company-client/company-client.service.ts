@@ -62,12 +62,6 @@ export class CompanyClientService {
         return this.baseUserService.updateUser(companyId, this.companyClientRepo, updateAdminCompanyDto, images, "admin");
     }
 
-    async getCompany(companyId: number, userAgent?: string) {
-        const findCompany = await this.baseUserService.getUser(companyId, this.companyClientRepo, userAgent);
-
-        return instanceToPlain(findCompany);
-    }
-
     async updateCompany(companyId: number, updateCompanyDto: UpdateCompanyDto, images: Express.Multer.File[] = []) {
         return this.baseUserService.updateUser(companyId, this.companyClientRepo, updateCompanyDto, images);
     }

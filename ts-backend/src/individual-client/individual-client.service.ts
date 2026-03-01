@@ -60,12 +60,6 @@ export class IndividualClientService {
         return this.baseUserService.updateUser(individualId, this.individualClientRepo, updateAdminIndividualTechnicianDeliveryDto, images, "admin");
     }
 
-    async getIndividual(individualId: number, userAgent?: string) {
-        const findIndividual = await this.baseUserService.getUser(individualId, this.individualClientRepo, userAgent);
-
-        return instanceToPlain(findIndividual);
-    }
-
     async updateIndividual(individualId: number, updateIndividualDto: UpdateIndividualDto, images: Express.Multer.File[] = []) {
         return this.baseUserService.updateUser(individualId, this.individualClientRepo, updateIndividualDto, images);
     }
