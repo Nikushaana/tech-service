@@ -163,8 +163,11 @@ export class AuthService {
         };
     }
 
-    async login(loginUserDto: LoginUserDto, role: 'individualOrCompany' | 'technician' | 'delivery' | 'admin', res: Response) {
-        const userRepoMap: any = {
+    async login(loginUserDto: LoginUserDto, res: Response) {
+        const { phone, password } = loginUserDto;
+
+        // ===== USER REPOSITORIES =====
+        const userRepoMap = {
             individual: this.individualClientRepo,
             company: this.companyClientRepo,
             technician: this.technicianRepo,
@@ -180,52 +183,83 @@ export class AuthService {
             admin: this.adminTokenRepo,
         };
 
-        // 1. Determine which repo to use
         let user: any = null;
-        let actualRole: 'individual' | 'company' | 'technician' | 'delivery' | 'admin' = null as any;
+        let actualRole: keyof typeof userRepoMap | null = null;
 
-        if (role === 'admin' || role === 'technician' || role === 'delivery') {
-            actualRole = role;
-            user = await userRepoMap[role].findOne({ where: { phone: loginUserDto.phone } });
-        } else if (role === 'individualOrCompany') {
-            user = await userRepoMap.individual.findOne({ where: { phone: loginUserDto.phone } });
-            if (user) actualRole = 'individual';
-            else {
-                user = await userRepoMap.company.findOne({ where: { phone: loginUserDto.phone } });
-                if (user) actualRole = 'company';
+        // ===== 1. FIND USER IN ALL TABLES =====
+        for (const role of Object.keys(userRepoMap)) {
+            const foundUser = await userRepoMap[role].findOne({
+                where: { phone },
+            });
+
+            if (foundUser) {
+                user = foundUser;
+                actualRole = role as any;
+                break;
             }
         }
 
-        if (!user || !actualRole) throw new UnauthorizedException('Invalid credentials');
+        if (!user || !actualRole)
+            throw new UnauthorizedException('Invalid credentials');
 
-        // 2. Check password
-        const isMatch = await bcrypt.compare(loginUserDto.password, user.password);
-        if (!isMatch) throw new UnauthorizedException('Invalid credentials');
+        // ===== 2. CHECK PASSWORD =====
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch)
+            throw new UnauthorizedException('Invalid credentials');
 
-        // 3. Generate token
-        const payload = { id: user.id, role: actualRole };
-        const accessToken = this.jwtService.sign(payload, { expiresIn: '15m' });
-        const refreshToken = this.jwtService.sign(payload, { expiresIn: '7d' });
+        // ===== 3. CREATE TOKENS =====
+        const payload = {
+            id: user.id,
+            role: actualRole,
+        };
 
-        // 4. Save or update token dynamically
-        const tokenRepo = tokenRepoMap[actualRole];
-        const tokenEntityKey = ['technician', 'admin', 'delivery'].includes(actualRole) ? actualRole : `${actualRole}Client`;
-
-        let tokenEntity = await tokenRepo.findOne({
-            where: { [tokenEntityKey]: { id: user.id } },
+        const accessToken = this.jwtService.sign(payload, {
+            expiresIn: '15m',
         });
 
-        if (tokenEntity) tokenEntity.token = refreshToken;
-        else tokenEntity = tokenRepo.create({ [tokenEntityKey]: user, token: refreshToken });
+        const refreshToken = this.jwtService.sign(payload, {
+            expiresIn: '7d',
+        });
+
+        // ===== 4. SAVE REFRESH TOKEN =====
+        const tokenRepo = tokenRepoMap[actualRole];
+        const relationKey =
+            ['technician', 'admin', 'delivery'].includes(actualRole)
+                ? actualRole
+                : `${actualRole}Client`;
+
+        let tokenEntity = await tokenRepo.findOne({
+            where: { [relationKey]: { id: user.id } },
+        });
+
+        if (tokenEntity) {
+            tokenEntity.token = refreshToken;
+        } else {
+            tokenEntity = tokenRepo.create({
+                [relationKey]: user,
+                token: refreshToken,
+            });
+        }
 
         await tokenRepo.save(tokenEntity);
 
-        // ===== Set cookies =====
-        res.cookie('accessToken', accessToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', maxAge: 15 * 60 * 1000 });
-        res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', maxAge: 7 * 24 * 60 * 60 * 1000 });
+        // ===== 5. SET COOKIES =====
+        res.cookie('accessToken', accessToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            maxAge: 15 * 60 * 1000,
+        });
+
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+        });
 
         return {
-            message: `${actualRole} logged in successfully`,
+            message: 'Logged in successfully',
             user: instanceToPlain(user),
         };
     }
@@ -235,50 +269,41 @@ export class AuthService {
             throw new UnauthorizedException('No refresh token provided');
         }
 
-        const repoMap = [
-            { repo: this.adminTokenRepo, role: 'admin', relation: 'admin' },
-            { repo: this.technicianTokenRepo, role: 'technician', relation: 'technician' },
-            { repo: this.deliveryTokenRepo, role: 'delivery', relation: 'delivery' },
-            { repo: this.individualClientTokenRepo, role: 'individual', relation: 'individualClient' },
-            { repo: this.companyClientTokenRepo, role: 'company', relation: 'companyClient' },
-        ];
+        let payload: any;
 
-        let tokenEntry: any = null;
-        let role: string | null = null;
-        let relationKey: string | null = null;
-
-        for (const item of repoMap) {
-            const found = await item.repo.findOne({
-                where: { token: refreshToken },
-                relations: [item.relation], // 👈 მხოლოდ შესაბამისი relation
-            });
-
-            if (found) {
-                tokenEntry = found;
-                role = item.role;
-                relationKey = item.relation;
-                break;
-            }
+        try {
+            payload = this.jwtService.verify(refreshToken);
+        } catch {
+            throw new UnauthorizedException('Invalid refresh token');
         }
 
-        if (!tokenEntry || !role || !relationKey) {
-            throw new UnauthorizedException('Refresh token invalid');
-        }
-
-        const userEntity = tokenEntry[relationKey];
-
-        if (!userEntity) {
-            throw new UnauthorizedException('Invalid token structure');
-        }
-
-        const payload = {
-            id: userEntity.id,
-            role,
+        const tokenRepoMap = {
+            admin: this.adminTokenRepo,
+            technician: this.technicianTokenRepo,
+            delivery: this.deliveryTokenRepo,
+            individual: this.individualClientTokenRepo,
+            company: this.companyClientTokenRepo,
         };
 
-        const newAccessToken = this.jwtService.sign(payload, {
-            expiresIn: '15m',
+        const tokenRepo = tokenRepoMap[payload.role];
+
+        if (!tokenRepo) {
+            throw new UnauthorizedException('Invalid role');
+        }
+
+        // Check token exists in DB
+        const tokenEntry = await tokenRepo.findOne({
+            where: { token: refreshToken },
         });
+
+        if (!tokenEntry) {
+            throw new UnauthorizedException('Refresh token not found');
+        }
+
+        const newAccessToken = this.jwtService.sign(
+            { id: payload.id, role: payload.role },
+            { expiresIn: '15m' },
+        );
 
         res.cookie('accessToken', newAccessToken, {
             httpOnly: true,
@@ -290,41 +315,41 @@ export class AuthService {
         return { message: 'Access token refreshed' };
     }
 
-    async logout(userId: number, role: 'admin' | 'individual_client' | 'company_client' | 'technician' | 'delivery', res: Response) {
-        const tokenRepoMap: Record<string, any> = {
-            individual: this.individualClientTokenRepo,
-            company: this.companyClientTokenRepo,
-            technician: this.technicianTokenRepo,
-            delivery: this.deliveryTokenRepo,
-            admin: this.adminTokenRepo,
-        };
-
-        const tokenRepo = tokenRepoMap[role];
-        if (!tokenRepo) throw new NotFoundException('Role token repository not found');
-
-        // Determine the key in token table
-        const tokenEntityKeyMap: Record<string, string> = {
-            admin: 'admin',
-            technician: 'technician',
-            delivery: 'delivery',
-            individual: 'individualClient',
-            company: 'companyClient',
-        };
-
-        const tokenEntityKey = tokenEntityKeyMap[role];
-
-        // Delete refresh token from DB
-        const result = await tokenRepo.delete({ [tokenEntityKey]: { id: userId } });
-
-        if (result.affected === 0) {
-            throw new NotFoundException('Refresh token not found in database');
+    async logout(refreshToken: string, res: Response) {
+        if (!refreshToken) {
+            res.clearCookie('accessToken');
+            res.clearCookie('refreshToken');
+            return { message: 'Logged out' };
         }
 
-        // Clear cookies
+        let payload: any;
+
+        try {
+            payload = this.jwtService.verify(refreshToken);
+        } catch {
+            res.clearCookie('accessToken');
+            res.clearCookie('refreshToken');
+            return { message: 'Logged out' };
+        }
+
+        const tokenRepoMap = {
+            admin: this.adminTokenRepo,
+            technician: this.technicianTokenRepo,
+            delivery: this.deliveryTokenRepo,
+            individual: this.individualClientTokenRepo,
+            company: this.companyClientTokenRepo,
+        };
+
+        const tokenRepo = tokenRepoMap[payload.role];
+
+        if (tokenRepo) {
+            await tokenRepo.delete({ token: refreshToken });
+        }
+
         res.clearCookie('accessToken');
         res.clearCookie('refreshToken');
 
-        return { message: `${role} logged out successfully` };
+        return { message: 'Logged out successfully' };
     }
 
     async sendResetPasswordCode(phoneDto: PhoneDto) {

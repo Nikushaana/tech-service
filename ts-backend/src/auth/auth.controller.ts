@@ -8,7 +8,6 @@ import { Roles } from 'src/common/decorators/roles.decorator';
 import { RegisterCompanyDto } from './dto/register-company.dto';
 import { RegisterIndAdmTechDelDto } from './dto/register-ind-adm-tech-del.dto';
 import type { Response, Request } from 'express';
-import type { RequestInfo } from 'src/common/types/request-info';
 
 @Controller('auth')
 export class AuthController {
@@ -36,23 +35,30 @@ export class AuthController {
         return this.authService.resetPassword(resetPasswordDto);
     }
 
-    // login individual or company
-    @Post('login-client')
-    async IndividualOrCompanyLogin(@Body() loginUserDto: LoginUserDto, @Res({ passthrough: true }) res: Response) {
-        return this.authService.login(loginUserDto, "individualOrCompany", res);
+    @Post('login')
+    async login(
+        @Body() loginUserDto: LoginUserDto,
+        @Res({ passthrough: true }) res: Response,
+    ) {
+        return this.authService.login(loginUserDto, res);
     }
 
     @Post('refresh-token')
-    async RefreshToken(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
+    async refreshToken(
+        @Req() req: Request,
+        @Res({ passthrough: true }) res: Response,
+    ) {
         const refreshToken = req.cookies['refreshToken'];
         return this.authService.refreshAccessToken(refreshToken, res);
     }
 
-    @UseGuards(TokenValidationGuard, RolesGuard)
-    @Roles('admin', 'technician', 'delivery', 'individual', 'company')
     @Post('logout')
-    async logout(@Req() req: RequestInfo, @Res({ passthrough: true }) res: Response) {
-        return this.authService.logout(req.user.id, req.user.role, res);
+    async logout(
+        @Req() req: Request,
+        @Res({ passthrough: true }) res: Response,
+    ) {
+        const refreshToken = req.cookies['refreshToken'];
+        return this.authService.logout(refreshToken, res);
     }
 }
 
@@ -65,11 +71,6 @@ export class AdminAuthController {
         @Body() registerIndAdmTechDelDto: RegisterIndAdmTechDelDto,
     ) {
         return this.authService.register(registerIndAdmTechDelDto, "admin");
-    }
-
-    @Post('login')
-    async AdminLogin(@Body() loginUserDto: LoginUserDto, @Res({ passthrough: true }) res: Response) {
-        return this.authService.login(loginUserDto, "admin", res);
     }
 }
 
@@ -123,11 +124,6 @@ export class TechnicianAuthController {
     ) {
         return this.authService.register(registerIndAdmTechDelDto, "technician");
     }
-
-    @Post('login')
-    async TechnicianLogin(@Body() loginUserDto: LoginUserDto, @Res({ passthrough: true }) res: Response) {
-        return this.authService.login(loginUserDto, "technician", res);
-    }
 }
 
 @Controller('auth/delivery')
@@ -155,10 +151,5 @@ export class DeliveryAuthController {
         @Body() registerIndAdmTechDelDto: RegisterIndAdmTechDelDto,
     ) {
         return this.authService.register(registerIndAdmTechDelDto, "delivery");
-    }
-
-    @Post('login')
-    async DeliveryLogin(@Body() loginUserDto: LoginUserDto, @Res({ passthrough: true }) res: Response) {
-        return this.authService.login(loginUserDto, "delivery", res);
     }
 }
