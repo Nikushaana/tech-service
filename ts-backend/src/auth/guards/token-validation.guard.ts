@@ -2,55 +2,33 @@ import { ExecutionContext, Injectable, UnauthorizedException } from "@nestjs/com
 import { AuthGuard } from "@nestjs/passport";
 
 @Injectable()
-export class TokenValidationGuard extends AuthGuard('jwt') {
-    async canActivate(context: ExecutionContext): Promise<boolean> {
-        const result = (await super.canActivate(context)) as boolean;
+export class TokenValidationGuard extends AuthGuard("jwt") {
+    // keep canActivate as is
+    canActivate(context: ExecutionContext) {
+        return super.canActivate(context);
+    }
+
+    // override handleRequest to customize error messages
+    handleRequest(err: any, user: any, info: any, context: ExecutionContext) {
         const request = context.switchToHttp().getRequest();
         const token = request.cookies?.accessToken;
-        const user = request.user;
 
+        // 1️⃣ No token at all
         if (!token) {
             throw new UnauthorizedException("Token missing");
         }
 
-        if (!user) throw new UnauthorizedException('User not authenticated');
+        // 2️⃣ Expired token
+        if (info?.name === "TokenExpiredError") {
+            throw new UnauthorizedException("Token expired");
+        }
 
-        return result;
+        // 3️⃣ Invalid token or signature
+        if (err || !user) {
+            throw new UnauthorizedException("Invalid token");
+        }
+
+        // ✅ token is valid
+        return user;
     }
 }
-
-
-// import { ExecutionContext, Injectable, UnauthorizedException } from "@nestjs/common";
-// import { AuthGuard } from "@nestjs/passport";
-// import { JwtService } from "@nestjs/jwt";
-
-// @Injectable()
-// export class TokenValidationGuard extends AuthGuard('jwt') {
-//     constructor(private readonly jwtService: JwtService) {
-//         super();
-//     }
-
-//     async canActivate(context: ExecutionContext): Promise<boolean> {
-//         const request = context.switchToHttp().getRequest();
-//         const token = request.cookies?.accessToken;
-
-//         // --- 1. No token ---
-//         if (!token) {
-//             throw new UnauthorizedException("Token missing");
-//         }
-
-//         try {
-//             // --- 2. Token exists, verify manually ---
-//             const payload = this.jwtService.verify(token, { secret: process.env.JWT_SECRET });
-//             request.user = payload;
-//             return true;
-//         } catch (err: any) {
-//             // --- 3. Token expired ---
-//             if (err.name === "TokenExpiredError") {
-//                 throw new UnauthorizedException("Token expired");
-//             }
-//             // --- Invalid token ---
-//             throw new UnauthorizedException("Invalid token");
-//         }
-//     }
-// }
