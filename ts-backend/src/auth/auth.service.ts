@@ -343,8 +343,19 @@ export class AuthService {
 
     async logout(refreshToken: string, res: Response) {
         if (!refreshToken) {
-            res.clearCookie('accessToken');
-            res.clearCookie('refreshToken');
+            res.clearCookie("accessToken", {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production",
+                sameSite: "lax",
+                path: "/",
+            });
+
+            res.clearCookie("refreshToken", {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production",
+                sameSite: "lax",
+                path: "/",
+            });
             return { message: 'Logged out' };
         }
 
@@ -353,8 +364,19 @@ export class AuthService {
         try {
             payload = this.jwtService.verify(refreshToken);
         } catch {
-            res.clearCookie('accessToken');
-            res.clearCookie('refreshToken');
+            res.clearCookie("accessToken", {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production",
+                sameSite: "lax",
+                path: "/",
+            });
+
+            res.clearCookie("refreshToken", {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production",
+                sameSite: "lax",
+                path: "/",
+            });
             return { message: 'Logged out' };
         }
 
@@ -372,8 +394,19 @@ export class AuthService {
             await tokenRepo.delete({ token: refreshToken });
         }
 
-        res.clearCookie('accessToken');
-        res.clearCookie('refreshToken');
+        res.clearCookie("accessToken", {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
+            path: "/",
+        });
+
+        res.clearCookie("refreshToken", {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
+            path: "/",
+        });
 
         return { message: 'Logged out successfully' };
     }
