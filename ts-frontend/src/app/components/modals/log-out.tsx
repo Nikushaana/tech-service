@@ -20,9 +20,7 @@ export default function LogOut() {
     },
 
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["currentUser"],
-      });
+      queryClient.setQueryData(["currentUser"], null);
       toast.success("წარმატებით გამოხვედით სისტემიდან");
 
       toggleLogOut();
@@ -66,7 +64,7 @@ export default function LogOut() {
             className="h-[45px] px-6 bg-red-600 hover:bg-[#b91c1c] text-white cursor-pointer"
           >
             {logoutMutation.isPending && (
-              <Loader2Icon className="animate-spin size-4" />
+              <Loader2Icon className="animate-spin" />
             )}
             კი
           </Button>

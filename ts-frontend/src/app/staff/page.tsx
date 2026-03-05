@@ -23,8 +23,6 @@ export default function Page() {
           className="h-[60px] object-contain cursor-pointer self-center"
         />
 
-        <p>თანამშრომლის პანელი</p>
-
         <FormInput
           id="phone"
           value={values.phone}

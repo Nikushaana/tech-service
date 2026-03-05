@@ -189,7 +189,6 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         else if (pathname.startsWith("/staff/")) router.push("/staff");
         else if (pathname.startsWith("/dashboard")) router.push("/auth/login");
         api.post("/auth/logout");
-        toast.error("არასწორი პანელი");
         queryClient.setQueryData(["currentUser"], null);
       }
     }
