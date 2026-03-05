@@ -72,6 +72,15 @@ export class AuthService {
 
     private readonly isProd = process.env.NODE_ENV === 'production';
 
+    private getCookieOptions() {
+        return {
+            httpOnly: true,
+            secure: this.isProd,
+            sameSite: this.isProd ? 'none' : 'lax',
+            path: '/',
+        } as const;
+    }
+
     // send and verify sent code
     async sendRegisterCode(phoneDto: PhoneDto) {
         return this.verificationCodeService.sendCode(phoneDto, 'register');
@@ -250,19 +259,13 @@ export class AuthService {
 
         // ===== 5. SET COOKIES =====
         res.cookie('accessToken', accessToken, {
-            httpOnly: true,
-            secure: this.isProd,
-            sameSite: this.isProd ? 'none' : 'lax',
+            ...this.getCookieOptions(),
             maxAge: 15 * 60 * 1000,
-            path: '/',
         });
 
         res.cookie('refreshToken', refreshToken, {
-            httpOnly: true,
-            secure: this.isProd,
-            sameSite: this.isProd ? 'none' : 'lax',
+            ...this.getCookieOptions(),
             maxAge: 7 * 24 * 60 * 60 * 1000,
-            path: '/',
         });
 
         return {
@@ -313,11 +316,8 @@ export class AuthService {
         );
 
         res.cookie('accessToken', newAccessToken, {
-            httpOnly: true,
-            secure: this.isProd,
-            sameSite: this.isProd ? 'none' : 'lax',
+            ...this.getCookieOptions(),
             maxAge: 15 * 60 * 1000,
-            path: '/',
         });
 
         return { message: 'Access token refreshed' };
@@ -343,19 +343,9 @@ export class AuthService {
 
     async logout(refreshToken: string, res: Response) {
         if (!refreshToken) {
-            res.clearCookie("accessToken", {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === "production",
-                sameSite: "lax",
-                path: "/",
-            });
+            res.clearCookie("accessToken", this.getCookieOptions());
 
-            res.clearCookie("refreshToken", {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === "production",
-                sameSite: "lax",
-                path: "/",
-            });
+            res.clearCookie("refreshToken", this.getCookieOptions());
             return { message: 'Logged out' };
         }
 
@@ -364,19 +354,9 @@ export class AuthService {
         try {
             payload = this.jwtService.verify(refreshToken);
         } catch {
-            res.clearCookie("accessToken", {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === "production",
-                sameSite: "lax",
-                path: "/",
-            });
+            res.clearCookie("accessToken", this.getCookieOptions());
 
-            res.clearCookie("refreshToken", {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === "production",
-                sameSite: "lax",
-                path: "/",
-            });
+            res.clearCookie("refreshToken", this.getCookieOptions());
             return { message: 'Logged out' };
         }
 
@@ -394,19 +374,9 @@ export class AuthService {
             await tokenRepo.delete({ token: refreshToken });
         }
 
-        res.clearCookie("accessToken", {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "lax",
-            path: "/",
-        });
+        res.clearCookie("accessToken", this.getCookieOptions());
 
-        res.clearCookie("refreshToken", {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "lax",
-            path: "/",
-        });
+        res.clearCookie("refreshToken", this.getCookieOptions());
 
         return { message: 'Logged out successfully' };
     }
