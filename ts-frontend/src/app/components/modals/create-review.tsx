@@ -9,7 +9,7 @@ import { useReviewsStore } from "@/app/store/useReviewsStore";
 import StarRating from "../inputs/star-rating";
 import { Button } from "@/components/ui/button";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { axiosCompany, axiosIndividual } from "@/app/lib/api/axios";
+import { api } from "@/app/lib/api/axios";
 
 interface CreateReviewValues {
   review: string;
@@ -52,10 +52,7 @@ export default function CreateReview() {
   // add review
   const addReviewMutation = useMutation({
     mutationFn: (payload: { review: string; stars: number }) =>
-      (modalType === "company" ? axiosCompany : axiosIndividual).post(
-        `${modalType}/create-review`,
-        payload
-      ),
+      api.post(`${modalType}/create-review`, payload),
 
     onSuccess: () => {
       toast.success("შეფასება დაემატა");

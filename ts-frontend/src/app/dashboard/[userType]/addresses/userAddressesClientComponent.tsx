@@ -9,7 +9,7 @@ import { AiOutlineDelete } from "react-icons/ai";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { fetchUserAddresses } from "@/app/lib/api/userAddresses";
-import { axiosCompany, axiosIndividual } from "@/app/lib/api/axios";
+import { api } from "@/app/lib/api/axios";
 import Pagination from "@/app/components/pagination/pagination";
 import {
   Table,
@@ -43,7 +43,7 @@ export default function UserAddressesClientComponent() {
   // delete address
   const deleteAddressMutation = useMutation({
     mutationFn: (id: number) =>
-      (userType === "company" ? axiosCompany : axiosIndividual).delete(
+      api.delete(
         `${userType}/addresses/${id}`,
       ),
 

@@ -1,16 +1,16 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { IoIosArrowDown } from "react-icons/io";
-import { useAuthStore } from "@/app/store/useAuthStore";
 import { toast } from "react-toastify";
 import { Button } from "@/components/ui/button";
+import { useCurrentUser } from "@/app/hooks/useCurrentUser";
 
 export default function FaqClient({ faqs }: { faqs: Faq[] }) {
   const router = useRouter();
   const [activeFaq, setActiveFaq] = useState<number | null>();
-  const { currentUser } = useAuthStore();
+  const { data: currentUser } = useCurrentUser();
 
   return (
     <div className="flex flex-col gap-y-[40px]">

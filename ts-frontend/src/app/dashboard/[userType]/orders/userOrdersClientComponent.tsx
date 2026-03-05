@@ -1,7 +1,6 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { useAuthStore } from "@/app/store/useAuthStore";
 import { useOrdersStore } from "@/app/store/useOrdersStore";
 import dayjs from "dayjs";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
@@ -21,7 +20,7 @@ import {
   statusLabels,
   typeLabels,
 } from "@/app/utils/order-type-status-translations";
-import { axiosCompany, axiosIndividual } from "@/app/lib/api/axios";
+import { api } from "@/app/lib/api/axios";
 import Pagination from "@/app/components/pagination/pagination";
 import LinearLoader from "@/app/components/linearLoader";
 import PanelFormInput from "@/app/components/inputs/panel-form-input";
@@ -29,6 +28,7 @@ import { Dropdown } from "@/app/components/inputs/drop-down";
 import DateRangePicker from "@/app/components/inputs/date-range-picker";
 import { useEffect, useState } from "react";
 import { useOrderTypeStatusOptionsStore } from "@/app/store/orderTypeStatusOptionsStore";
+import { useCurrentUser } from "@/app/hooks/useCurrentUser";
 
 const fetchUserOrders = async (
   userType: ClientRole,
@@ -46,7 +46,6 @@ const fetchUserOrders = async (
   if (from) params.set("from", from);
   if (to) params.set("to", to);
 
-  const api = userType === "company" ? axiosCompany : axiosIndividual;
   const { data } = await api.get(`${userType}/orders?${params.toString()}`);
   return data;
 };
@@ -86,12 +85,13 @@ export default function UserOrdersClientComponent() {
 
   const { data: orders, isFetching } = useQuery({
     queryKey: ["userOrders", userType, page, service_type, search, from, to],
-    queryFn: () => fetchUserOrders(userType, page, service_type, search, from, to),
+    queryFn: () =>
+      fetchUserOrders(userType, page, service_type, search, from, to),
     staleTime: 1000 * 60 * 10,
     placeholderData: (previous) => previous,
   });
 
-  const { currentUser } = useAuthStore();
+  const { data: currentUser } = useCurrentUser();
   const { toggleOpenCreateOrderModal } = useOrdersStore();
 
   // change filter values
@@ -175,10 +175,7 @@ export default function UserOrdersClientComponent() {
             label="თარიღი"
             onChange={handleChange}
           />
-          <Button
-            onClick={clearFilters}
-            className="cursor-pointer rounded-lg"
-          >
+          <Button onClick={clearFilters} className="cursor-pointer rounded-lg">
             გასუფთავება
           </Button>
         </div>

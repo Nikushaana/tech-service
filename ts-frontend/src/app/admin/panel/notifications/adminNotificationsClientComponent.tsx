@@ -14,7 +14,7 @@ import { Loader2Icon } from "lucide-react";
 import Link from "next/link";
 import { BsEye } from "react-icons/bs";
 import dayjs from "dayjs";
-import { axiosAdmin } from "@/app/lib/api/axios";
+import { api } from "@/app/lib/api/axios";
 import { useRouter, useSearchParams } from "next/navigation";
 import Pagination from "@/app/components/pagination/pagination";
 import LinearLoader from "@/app/components/linearLoader";
@@ -40,18 +40,18 @@ const fetchAdminNotifications = async (
   if (from) params.set("from", from);
   if (to) params.set("to", to);
 
-  const { data } = await axiosAdmin.get(
+  const { data } = await api.get(
     `admin/notifications?${params.toString()}`,
   );
   return data;
 };
 
 const notificationTypes = [
-  { id: 1, name: "ახალი მომხმარებლები", nameEng: "new_user" },
-  { id: 2, name: "ახალი შეკვეთები", nameEng: "new_order" },
-  { id: 3, name: "ახალი შეფასებები", nameEng: "new_review" },
-  { id: 4, name: "შეკვეთების ცვლილებები", nameEng: "order_updated" },
-  { id: 5, name: "პროფილების ცვლილებები", nameEng: "profile_updated" },
+  { id: 1, name: "შექმნილი შეკვეთები", nameEng: "new_order" },
+  { id: 2, name: "შეკვეთები", nameEng: "order_updated" },
+  { id: 3, name: "შეფასებები", nameEng: "new_review" },
+  { id: 4, name: "რეგისტრაციები", nameEng: "new_user" },
+  { id: 5, name: "პროფილები", nameEng: "profile_updated" },
 ];
 
 export default function AdminNotificationsClientComponent() {
@@ -121,7 +121,7 @@ export default function AdminNotificationsClientComponent() {
 
   // read notification
   const readNotificationMutation = useMutation({
-    mutationFn: (id: number) => axiosAdmin.patch(`admin/notifications/${id}`),
+    mutationFn: (id: number) => api.patch(`admin/notifications/${id}`),
 
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -134,7 +134,7 @@ export default function AdminNotificationsClientComponent() {
   });
 
   const readAllNotificationsMutation = useMutation({
-    mutationFn: () => axiosAdmin.post(`admin/notifications/read-all`),
+    mutationFn: () => api.post(`admin/notifications/read-all`),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["adminNotifications"],

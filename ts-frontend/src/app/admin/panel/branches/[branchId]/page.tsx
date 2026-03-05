@@ -10,12 +10,12 @@ import Map from "@/app/components/map/map";
 import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { axiosAdmin } from "@/app/lib/api/axios";
 import { fetchCities, fetchStreets } from "@/app/lib/api/locations";
 import { formatNumber } from "@/app/utils/formatNumber";
+import { api } from "@/app/lib/api/axios";
 
 const fetchAdminBranchById = async (branchId: string) => {
-  const { data } = await axiosAdmin.get(`admin/branches/${branchId}`);
+  const { data } = await api.get(`admin/branches/${branchId}`);
   return data;
 };
 
@@ -232,7 +232,7 @@ export default function Page() {
 
   const updateBranchMutation = useMutation({
     mutationFn: async (payload: BranchValues) =>
-      axiosAdmin.patch(`admin/branches/${branchId}`, {
+      api.patch(`admin/branches/${branchId}`, {
         ...payload,
         coverage_radius_km: parseFloat(values.coverage_radius_km),
         fix_off_site_price: parseFloat(values.fix_off_site_price),

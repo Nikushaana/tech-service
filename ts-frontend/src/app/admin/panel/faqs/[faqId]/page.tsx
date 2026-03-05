@@ -9,10 +9,10 @@ import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { axiosAdmin } from "@/app/lib/api/axios";
+import { api } from "@/app/lib/api/axios";
 
 const fetchAdminFaqById = async (faqId: string) => {
-  const { data } = await axiosAdmin.get(`admin/faqs/${faqId}`);
+  const { data } = await api.get(`admin/faqs/${faqId}`);
   return data;
 };
 
@@ -81,7 +81,7 @@ export default function Page() {
 
   const updateFaqMutation = useMutation({
     mutationFn: async (payload: any) =>
-      axiosAdmin.patch(`admin/faqs/${faqId}`, payload),
+      api.patch(`admin/faqs/${faqId}`, payload),
 
     onSuccess: () => {
       toast.success("FAQ განახლდა");

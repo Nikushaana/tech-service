@@ -5,12 +5,12 @@ import { useMenuStore } from "../store/useMenuStore";
 import { scrollToSection } from "../utils/scroll";
 import { useBurgerMenuStore } from "../store/burgerMenuStore";
 import { usePathname, useRouter } from "next/navigation";
-import { useAuthStore } from "../store/useAuthStore";
 import { IoPersonSharp } from "react-icons/io5";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { fetchUserUnreadNotifications } from "../lib/api/userUnreadNotifications";
+import { useCurrentUser } from "../hooks/useCurrentUser";
 
 export default function Header() {
   const menu = useMenuStore((state) => state.menu);
@@ -18,7 +18,7 @@ export default function Header() {
   const pathname = usePathname();
   const router = useRouter();
 
-  const { currentUser } = useAuthStore();
+  const { data: currentUser } = useCurrentUser();
 
   const role = currentUser?.role as ClientRole;
 

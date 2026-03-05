@@ -2,7 +2,7 @@ import { useState } from "react";
 import { toast } from "react-toastify";
 import { passwordChangeSchema } from "@/app/utils/validation";
 import UserPasswordUpdate from "../shared components/user-password-update";
-import { axiosIndividual } from "@/app/lib/api/axios";
+import { api } from "@/app/lib/api/axios";
 
 export default function IndividualPasswordUpdate() {
   const [values, setValues] = useState({
@@ -38,7 +38,7 @@ export default function IndividualPasswordUpdate() {
 
       await passwordChangeSchema.validate(values, { abortEarly: false });
 
-      axiosIndividual
+      api
         .patch(`individual/change-password`, {
           oldPassword: values.oldPassword,
           newPassword: values.newPassword,

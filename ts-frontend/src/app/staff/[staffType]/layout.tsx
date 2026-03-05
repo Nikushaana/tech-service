@@ -3,12 +3,13 @@
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { HiMenu, HiX } from "react-icons/hi";
-import { useAuthStore } from "@/app/store/useAuthStore";
 import { useBurgerMenuStore } from "@/app/store/burgerMenuStore";
 import { Button } from "@/components/ui/button";
 import { formatPhone } from "@/app/utils/formatPhone";
 import { useQuery } from "@tanstack/react-query";
 import { fetchStaffUnreadNotifications } from "@/app/lib/api/staffUnreadNotifications";
+import { useCurrentUser } from "@/app/hooks/useCurrentUser";
+import { useLogOutStore } from "@/app/store/useLogOutStore";
 
 type SidebarLinksWithTitle = {
   title?: string;
@@ -36,7 +37,8 @@ const sidebarLinks: Record<StaffRole, SidebarLinksWithTitle> = {
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const { currentUser, authLoading, toggleLogOut } = useAuthStore();
+  const { toggleLogOut } = useLogOutStore();
+  const { data: currentUser, isLoading: authLoading } = useCurrentUser();
   const { openSideBar, toggleSideBar, closeSideBar } = useBurgerMenuStore();
 
   const role = currentUser?.role as StaffRole;

@@ -1,14 +1,13 @@
 "use client";
 
-import React from "react";
 import { useRouter } from "next/navigation";
-import { useAuthStore } from "@/app/store/useAuthStore";
 import { toast } from "react-toastify";
 import { Button } from "@/components/ui/button";
+import { useCurrentUser } from "@/app/hooks/useCurrentUser";
 
 export default function WhyChooseSection() {
   const router = useRouter();
-  const { currentUser } = useAuthStore();
+  const { data: currentUser } = useCurrentUser();
   
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 items-stretch gap-[30px] sm:gap-[50px]">

@@ -1,15 +1,15 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useAuthStore } from "@/app/store/useAuthStore";
 import { toast } from "react-toastify";
 import * as Yup from "yup";
 import UserDetailsForm from "../shared components/user-details-form";
 import { Loader2Icon } from "lucide-react";
 import ImageSelector from "../../inputs/image-selector";
-import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { axiosCompany } from "@/app/lib/api/axios";
+import { api } from "@/app/lib/api/axios";
+import { useQueryClient } from "@tanstack/react-query";
+import { useCurrentUser } from "@/app/hooks/useCurrentUser";
 
 interface CompanyValues {
   companyName: string;
@@ -22,10 +22,9 @@ interface CompanyValues {
 }
 
 export default function CompanyDetailsForm() {
-  const router = useRouter();
-  const pathname = usePathname();
-  const { currentUser } = useAuthStore();
-  const rehydrate = useAuthStore((state) => state.rehydrate);
+  const { data: currentUser } = useCurrentUser();
+
+  const queryClient = useQueryClient();
 
   const [values, setValues] = useState<CompanyValues>({
     companyName: "",
@@ -69,13 +68,13 @@ export default function CompanyDetailsForm() {
   const updateCompanySchema = Yup.object().shape({
     companyName: Yup.string().required("კომპანიის სახელი აუცილებელია"),
     companyIdentificationCode: Yup.string().required(
-      "კომპანიის საიდენტიფიკაციო კოდი აუცილებელია"
+      "კომპანიის საიდენტიფიკაციო კოდი აუცილებელია",
     ),
     companyAgentName: Yup.string().required(
-      "კომპანიის წარმომადგენლის სახელი აუცილებელია"
+      "კომპანიის წარმომადგენლის სახელი აუცილებელია",
     ),
     companyAgentLastName: Yup.string().required(
-      "კომპანიის წარმომადგენლის გვარი აუცილებელია"
+      "კომპანიის წარმომადგენლის გვარი აუცილებელია",
     ),
     newImages: Yup.array()
       .max(1, "შეგიძლიათ ატვირთოთ მაქსიმუმ 1 სურათი")
@@ -113,14 +112,16 @@ export default function CompanyDetailsForm() {
       formData.append("companyAgentLastName", values.companyAgentLastName);
       formData.append(
         "companyIdentificationCode",
-        values.companyIdentificationCode
+        values.companyIdentificationCode,
       );
 
-      axiosCompany
+      api
         .patch(`company`, formData)
         .then((res) => {
           toast.success(`ინფორმაცია განახლდა`);
-          rehydrate(router, pathname);
+          queryClient.invalidateQueries({
+            queryKey: ["currentUser"],
+          });
           setValues((prev) => ({
             ...prev,
             newImages: [],

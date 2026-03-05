@@ -18,7 +18,7 @@ import {
   statusLabels,
   typeLabels,
 } from "@/app/utils/order-type-status-translations";
-import { axiosDelivery, axiosTechnician } from "@/app/lib/api/axios";
+import { api } from "@/app/lib/api/axios";
 import Pagination from "@/app/components/pagination/pagination";
 import LinearLoader from "@/app/components/linearLoader";
 import PanelFormInput from "@/app/components/inputs/panel-form-input";
@@ -43,7 +43,6 @@ const fetchStaffOrders = async (
   if (from) params.set("from", from);
   if (to) params.set("to", to);
 
-  const api = staffType === "technician" ? axiosTechnician : axiosDelivery;
   const { data } = await api.get(`${staffType}/orders?${params.toString()}`);
   return data;
 };

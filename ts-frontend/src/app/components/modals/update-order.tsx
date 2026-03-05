@@ -12,7 +12,7 @@ import { useUpdateOrderStore } from "@/app/store/useUpdateOrderStore";
 import { Button } from "@/components/ui/button";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchFrontCategories } from "@/app/lib/api/frontCategories";
-import { axiosCompany, axiosIndividual } from "@/app/lib/api/axios";
+import { api } from "@/app/lib/api/axios";
 
 interface UpdateOrderValues {
   categoryId: string;
@@ -129,7 +129,7 @@ export default function UpdateOrder() {
 
   const updateOrderMutation = useMutation({
     mutationFn: (payload: FormData) =>
-      (modalType === "company" ? axiosCompany : axiosIndividual).patch(
+      api.patch(
         `${modalType}/orders/${currentOrder.id}`,
         payload,
       ),

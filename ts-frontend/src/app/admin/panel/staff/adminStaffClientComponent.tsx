@@ -4,7 +4,7 @@ import { Dropdown } from "@/app/components/inputs/drop-down";
 import PanelFormInput from "@/app/components/inputs/panel-form-input";
 import LinearLoader from "@/app/components/linearLoader";
 import Pagination from "@/app/components/pagination/pagination";
-import { axiosAdmin } from "@/app/lib/api/axios";
+import { api } from "@/app/lib/api/axios";
 import { useRegisterStore } from "@/app/store/registerStore";
 import { formatPhone } from "@/app/utils/formatPhone";
 import { Button } from "@/components/ui/button";
@@ -36,7 +36,7 @@ const fetchAdminStaff = async (
   if (status) params.set("status", status);
   if (search) params.set("search", search);
 
-  const { data } = await axiosAdmin.get(
+  const { data } = await api.get(
     `admin/${type == "ტექნიკოსი" ? "technicians" : "deliveries"}?${params.toString()}`,
   );
   return data;
@@ -60,9 +60,10 @@ export default function AdminStaffClientComponent() {
   const status = searchParams.get("status") || "";
   const search = searchParams.get("search") || "";
 
-  const { setValues } = useRegisterStore();
+  const { values, setValues, resetValues } = useRegisterStore();
 
   useEffect(() => {
+    if (values) resetValues();
     setValues("role", type === "კურიერი" ? "delivery" : "technician");
   }, [type, setValues]);
 

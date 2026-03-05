@@ -1,13 +1,10 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useAuthStore } from "./store/useAuthStore";
 import { Button } from "@/components/ui/button";
 
 export default function NotFound() {
   const router = useRouter();
-
-  const setCurrentUser = useAuthStore((state) => state.setCurrentUser);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen px-4">
@@ -22,7 +19,6 @@ export default function NotFound() {
         className="cursor-pointer mt-6"
         onClick={() => {
           router.push("/");
-          setCurrentUser(null);
         }}
       >
         მთავარი გვერდი

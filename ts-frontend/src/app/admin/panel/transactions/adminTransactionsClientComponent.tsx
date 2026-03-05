@@ -11,7 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { axiosAdmin } from "@/app/lib/api/axios";
+import { api } from "@/app/lib/api/axios";
 import { providerLabels } from "@/app/utils/providerLabels";
 import { transactionTypeLabels } from "@/app/utils/transactionTypeLabels";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -35,7 +35,7 @@ const fetchAdminTransactions = async (
   if (status) params.set("status", status);
   if (search) params.set("search", search);
 
-  const { data } = await axiosAdmin.get(
+  const { data } = await api.get(
     `admin/transactions?${params.toString()}`,
   );
   return data;

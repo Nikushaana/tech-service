@@ -1,6 +1,6 @@
-import { axiosFront } from "./axios";
+import { api } from "./axios";
 
 export async function fetchFrontCategories() {
-  const { data } = await axiosFront.get("front/categories");
+  const { data } = await api.get("front/categories");
   return data;
 }

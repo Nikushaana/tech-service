@@ -10,7 +10,7 @@ import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { axiosAdmin } from "@/app/lib/api/axios";
+import { api } from "@/app/lib/api/axios";
 
 interface CategoryValues {
   name: string;
@@ -21,7 +21,7 @@ interface CategoryValues {
 }
 
 const fetchAdminCategoryById = async (categoryId: string) => {
-  const { data } = await axiosAdmin.get(`admin/categories/${categoryId}`);
+  const { data } = await api.get(`admin/categories/${categoryId}`);
   return data;
 };
 
@@ -92,7 +92,7 @@ export default function Page() {
 
   const updateCategoryMutation = useMutation({
     mutationFn: async (formData: FormData) =>
-      axiosAdmin.patch(`admin/categories/${categoryId}`, formData),
+      api.patch(`admin/categories/${categoryId}`, formData),
 
     onSuccess: () => {
       toast.success("კატეგორია განახლდა");

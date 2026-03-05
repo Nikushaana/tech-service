@@ -10,10 +10,8 @@ import { Dropdown2 } from "@/app/components/inputs/drop-down-2";
 import Map from "@/app/components/map/map";
 import { Loader2Icon } from "lucide-react";
 import { fetchCities, fetchStreets } from "@/app/lib/api/locations";
-import { axiosAdmin } from "@/app/lib/api/axios";
 import { formatNumber } from "@/app/utils/formatNumber";
-
-
+import { api } from "@/app/lib/api/axios";
 
 export default function Page() {
   const queryClient = useQueryClient();
@@ -182,7 +180,7 @@ export default function Page() {
   //add branch
   const addBranchMutation = useMutation({
     mutationFn: (payload: BranchValues) =>
-      axiosAdmin.post("admin/create-branch", {
+      api.post("admin/create-branch", {
         ...payload,
         coverage_radius_km: parseFloat(values.coverage_radius_km),
         fix_off_site_price: parseFloat(values.fix_off_site_price),

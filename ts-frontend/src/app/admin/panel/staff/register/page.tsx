@@ -9,7 +9,7 @@ import FormInput from "@/app/components/inputs/form-input";
 import { Loader2Icon } from "lucide-react";
 import { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { axiosAdmin } from "@/app/lib/api/axios";
+import { api } from "@/app/lib/api/axios";
 
 export default function AdminStaffRegister() {
   const router = useRouter();
@@ -45,7 +45,7 @@ export default function AdminStaffRegister() {
         lastName: values.lastName,
       };
 
-      axiosAdmin
+      api
         .post(
           `auth/${
             values.role == "technician" ? "technician" : "delivery"

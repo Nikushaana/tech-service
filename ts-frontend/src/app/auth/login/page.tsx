@@ -1,18 +1,14 @@
 "use client";
 
-import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { useAuthStore } from "@/app/store/useAuthStore";
 import FormInput from "@/app/components/inputs/form-input";
 import { Loader2Icon } from "lucide-react";
 import Link from "next/link";
 import { formatPhone } from "@/app/utils/formatPhone";
+import { useLogin } from "@/app/hooks/useLogin";
 
 export default function Login() {
-  const router = useRouter();
-  const pathname = usePathname();
-
-  const { values, setValues, errors, formLoading, login } = useAuthStore();
+  const { values, setValues, errors, loginMutation, handleLogin } = useLogin();
 
   return (
     <div className="w-full flex flex-col gap-y-5 relative">
@@ -21,16 +17,23 @@ export default function Login() {
       </h1>
       <FormInput
         id="phone"
-        value={values.phone || ""}
-        onChange={(e) => setValues("phone", formatPhone(e.target.value))}
+        value={values.phone}
+        onChange={(e) =>
+          setValues((prev) => ({
+            ...prev,
+            phone: formatPhone(e.target.value),
+          }))
+        }
         label="ტელეფონის ნომერი"
         type="tel"
         error={errors.phone}
       />
       <FormInput
         id="password"
-        value={values.password || ""}
-        onChange={(e) => setValues("password", e.target.value)}
+        value={values.password}
+        onChange={(e) =>
+          setValues((prev) => ({ ...prev, password: e.target.value }))
+        }
         label="პაროლი"
         type="password"
         error={errors.password}
@@ -41,11 +44,12 @@ export default function Login() {
       </Link>
 
       <Button
-        onClick={() => login("individualOrCompany", router, pathname)}
-        disabled={formLoading}
+        onClick={handleLogin}
+        disabled={loginMutation.isPending}
         className="h-11 cursor-pointer"
       >
-        {formLoading && <Loader2Icon className="animate-spin" />}შესვლა
+        {loginMutation.isPending && <Loader2Icon className="animate-spin" />}
+        შესვლა
       </Button>
 
       {/* Footer link */}

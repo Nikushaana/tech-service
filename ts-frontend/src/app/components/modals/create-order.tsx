@@ -16,8 +16,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useOrderTypeStatusOptionsStore } from "@/app/store/orderTypeStatusOptionsStore";
 import { fetchFrontCategories } from "@/app/lib/api/frontCategories";
 import { fetchUserAddresses } from "@/app/lib/api/userAddresses";
-import { axiosCompany, axiosIndividual } from "@/app/lib/api/axios";
 import { fetchUserCalculatePrice } from "@/app/lib/api/userCalculatePrice";
+import { api } from "@/app/lib/api/axios";
 
 interface CreateOrderValues {
   serviceType: OrderType | "";
@@ -122,7 +122,7 @@ export default function CreateOrder() {
   // add order
   const addOrderMutation = useMutation({
     mutationFn: (payload: FormData) =>
-      (modalType === "company" ? axiosCompany : axiosIndividual).post(
+      api.post(
         `${modalType}/create-order`,
         payload,
       ),

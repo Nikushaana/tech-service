@@ -2,12 +2,13 @@
 
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { useAuthStore } from "../store/useAuthStore";
 import { FaChevronRight } from "react-icons/fa6";
 import { useBurgerMenuStore } from "../store/burgerMenuStore";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { fetchUserUnreadNotifications } from "../lib/api/userUnreadNotifications";
+import { useCurrentUser } from "../hooks/useCurrentUser";
+import { useLogOutStore } from "../store/useLogOutStore";
 
 type SidebarLinksWithTitle = {
   title?: string;
@@ -41,7 +42,8 @@ const sidebarLinks: Record<ClientRole, SidebarLinksWithTitle> = {
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const { currentUser, authLoading, toggleLogOut } = useAuthStore();
+  const { toggleLogOut } = useLogOutStore();
+  const { data: currentUser, isLoading: authLoading } = useCurrentUser();
   const { openSideBar, toggleSideBar, closeSideBar } = useBurgerMenuStore();
 
   const role = currentUser?.role as ClientRole;

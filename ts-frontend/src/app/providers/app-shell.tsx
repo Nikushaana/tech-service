@@ -5,7 +5,6 @@ import BurgerMenu from "../components/burger-menu/burger-menu";
 import Footer from "../components/footer";
 import Header from "../components/header";
 import ScrollToTop from "../components/scroll-to-top";
-import AuthRehydrate from "../components/auth-rehydrate";
 import LogOut from "../components/modals/log-out";
 import CreateAddress from "../components/modals/create-address";
 import CreateOrder from "../components/modals/create-order";
@@ -15,25 +14,29 @@ import { useEffect } from "react";
 import { useAddressesStore } from "../store/useAddressesStore";
 import { useOrdersStore } from "../store/useOrdersStore";
 import { useReviewsStore } from "../store/useReviewsStore";
-import { useAuthStore } from "../store/useAuthStore";
 import { useUpdateOrderStore } from "../store/useUpdateOrderStore";
 import { useBurgerMenuStore } from "../store/burgerMenuStore";
 import OrderFlow from "../components/modals/order-flow";
 import { useOrderFlowStore } from "../store/useOrderFlowStore";
 import { useQueryClient } from "@tanstack/react-query";
 import { socket } from "@/lib/socket";
+import { useCurrentUser } from "../hooks/useCurrentUser";
+import { useLogOutStore } from "../store/useLogOutStore";
 import { usePathname, useRouter } from "next/navigation";
+import { api } from "../lib/api/axios";
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
-  const router = useRouter();
   const pathname = usePathname();
+  const router = useRouter();
+
+  const { data: currentUser, isFetched } = useCurrentUser();
 
   const queryClient = useQueryClient();
 
   const { openCreateAddressModal } = useAddressesStore();
   const { openCreateOrderModal } = useOrdersStore();
   const { openCreateReviewModal } = useReviewsStore();
-  const { openLogOut, currentUser, rehydrate } = useAuthStore();
+  const { openLogOut } = useLogOutStore();
   const { openUpdateOrderModal } = useUpdateOrderStore();
   const { openAdminSideBar, isOpen, openSideBar } = useBurgerMenuStore();
   const { openOrderFlowModal } = useOrderFlowStore();
@@ -78,7 +81,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           queryKey: ["userTransactions"],
         });
         if (type == "profile_updated") {
-          rehydrate(router, pathname);
+          queryClient.invalidateQueries({
+            queryKey: ["currentUser"],
+          });
         }
         if (type == "order_updated") {
           queryClient.invalidateQueries({ queryKey: ["userOrders"] });
@@ -96,7 +101,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           queryKey: ["staffUnreadNotifications"],
         });
         if (type == "profile_updated") {
-          rehydrate(router, pathname);
+          queryClient.invalidateQueries({
+            queryKey: ["currentUser"],
+          });
         }
         if (type == "order_updated") {
           queryClient.invalidateQueries({ queryKey: ["staffOrders"] });
@@ -138,7 +145,55 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     return () => {
       socket.off(channel, listener);
     };
-  }, [currentUser?.role, currentUser?.id]);
+  }, [currentUser]);
+
+  useEffect(() => {
+    // If still isFetched, do nothing
+    if (!isFetched) return;
+
+    // No user or missing role
+    if (!currentUser?.role) {
+      if (pathname.startsWith("/admin/")) router.push("/admin");
+      else if (pathname.startsWith("/staff/")) router.push("/staff");
+      else if (pathname.startsWith("/dashboard")) router.push("/auth/login");
+      return;
+    }
+
+    if (currentUser?.role) {
+      if (pathname === "/admin" && currentUser?.role === "admin")
+        router.push("/admin/panel/main");
+      else if (
+        pathname === "/staff" &&
+        ["delivery", "technician"].includes(currentUser?.role)
+      )
+        router.push(`/staff/${currentUser?.role}/orders`);
+      else if (
+        pathname.startsWith("/auth") &&
+        ["company", "individual"].includes(currentUser?.role)
+      )
+        router.push(`/dashboard/${currentUser?.role}/profile`);
+
+      let invalid = false;
+
+      if (pathname.startsWith("/staff")) {
+        invalid = !["delivery", "technician"].includes(currentUser.role);
+      } else if (pathname.startsWith("/admin")) {
+        invalid = currentUser.role !== "admin";
+      } else {
+        // any other page
+        invalid = !["individual", "company"].includes(currentUser.role);
+      }
+
+      if (invalid) {
+        if (pathname.startsWith("/admin/")) router.push("/admin");
+        else if (pathname.startsWith("/staff/")) router.push("/staff");
+        else if (pathname.startsWith("/dashboard")) router.push("/auth/login");
+        api.post("/auth/logout");
+        toast.error("არასწორი პანელი");
+        queryClient.setQueryData(["currentUser"], null);
+      }
+    }
+  }, [currentUser, isFetched, pathname, router]);
 
   return (
     <>
@@ -152,9 +207,6 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       <ScrollToTop />
       <BurgerMenu />
       <ToastContainer position="bottom-right" autoClose={3000} />
-
-      {/* Auth */}
-      <AuthRehydrate />
 
       {/* Modals */}
       <LogOut />

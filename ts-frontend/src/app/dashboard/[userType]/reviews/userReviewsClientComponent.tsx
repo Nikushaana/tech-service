@@ -4,10 +4,9 @@ import StarRating from "@/app/components/inputs/star-rating";
 import { Button } from "@/components/ui/button";
 import { useReviewsStore } from "@/app/store/useReviewsStore";
 import dayjs from "dayjs";
-import { Loader2Icon } from "lucide-react";
 import { useParams, useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { axiosCompany, axiosIndividual } from "@/app/lib/api/axios";
+import { api } from "@/app/lib/api/axios";
 import Pagination from "@/app/components/pagination/pagination";
 import {
   Table,
@@ -20,7 +19,6 @@ import {
 import LinearLoader from "@/app/components/linearLoader";
 
 const fetchUserReviews = async (page: number, userType: ClientRole) => {
-  const api = userType === "company" ? axiosCompany : axiosIndividual;
   const { data } = await api.get(`${userType}/reviews?page=${page}`);
   return data;
 };

@@ -1,15 +1,16 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useAuthStore } from "@/app/store/useAuthStore";
 import { toast } from "react-toastify";
 import * as Yup from "yup";
 import { Loader2Icon } from "lucide-react";
-import { useParams, usePathname, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import ImageSelector from "../inputs/image-selector";
 import PanelFormInput from "../inputs/panel-form-input";
 import { Button } from "@/components/ui/button";
-import { axiosDelivery, axiosTechnician } from "@/app/lib/api/axios";
+import { api } from "@/app/lib/api/axios";
+import { useQueryClient } from "@tanstack/react-query";
+import { useCurrentUser } from "@/app/hooks/useCurrentUser";
 
 interface StaffValues {
   name: string;
@@ -20,11 +21,10 @@ interface StaffValues {
 }
 
 export default function StaffDetailsForm() {
-  const router = useRouter();
-  const pathname = usePathname();
   const { staffType } = useParams<{ staffType: StaffRole }>();
-  const { currentUser } = useAuthStore();
-  const rehydrate = useAuthStore((state) => state.rehydrate);
+  const { data: currentUser } = useCurrentUser();
+
+  const queryClient = useQueryClient();
 
   const [values, setValues] = useState<StaffValues>({
     name: "",
@@ -67,8 +67,6 @@ export default function StaffDetailsForm() {
       .of(Yup.mixed().required()),
   });
 
-  const api = staffType === "technician" ? axiosTechnician : axiosDelivery;
-
   const handleUpdateStaff = async () => {
     setLoading(true);
     try {
@@ -100,7 +98,9 @@ export default function StaffDetailsForm() {
         .patch(`${staffType}`, formData)
         .then((res) => {
           toast.success(`ინფორმაცია განახლდა`);
-          rehydrate(router, pathname);
+          queryClient.invalidateQueries({
+            queryKey: ["currentUser"],
+          });
           setValues((prev) => ({
             ...prev,
             newImages: [],

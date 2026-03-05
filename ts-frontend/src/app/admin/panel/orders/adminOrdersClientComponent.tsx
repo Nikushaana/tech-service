@@ -17,7 +17,7 @@ import {
   statusLabels,
   typeLabels,
 } from "@/app/utils/order-type-status-translations";
-import { axiosAdmin } from "@/app/lib/api/axios";
+import { api } from "@/app/lib/api/axios";
 import { useRouter, useSearchParams } from "next/navigation";
 import Pagination from "@/app/components/pagination/pagination";
 import LinearLoader from "@/app/components/linearLoader";
@@ -44,7 +44,7 @@ const fetchAdminOrders = async (
   if (from) params.set("from", from);
   if (to) params.set("to", to);
 
-  const { data } = await axiosAdmin.get(`admin/orders?${params.toString()}`);
+  const { data } = await api.get(`admin/orders?${params.toString()}`);
   return data;
 };
 

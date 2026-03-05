@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 import { Loader2Icon } from "lucide-react";
 import PanelFormInput from "../inputs/panel-form-input";
 import { Button } from "@/components/ui/button";
-import { axiosDelivery, axiosTechnician } from "@/app/lib/api/axios";
+import { api } from "@/app/lib/api/axios";
 
 export default function StaffPasswordUpdate() {
   const { staffType } = useParams<{ staffType: StaffRole }>();
@@ -30,8 +30,6 @@ export default function StaffPasswordUpdate() {
   };
 
   // change password
-
-  const api = staffType === "technician" ? axiosTechnician : axiosDelivery;
 
   const handleChangeStaffPassword = async () => {
     setLoading(true);

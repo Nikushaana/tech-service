@@ -8,7 +8,7 @@ import { toast } from "react-toastify";
 import { verifyCodePasswordResetSchema } from "@/app/utils/validation";
 import { Loader2Icon } from "lucide-react";
 import Link from "next/link";
-import { axiosFront } from "@/app/lib/api/axios";
+import { api } from "@/app/lib/api/axios";
 
 export default function SendResetPasswordCode() {
   const router = useRouter();
@@ -32,7 +32,7 @@ export default function SendResetPasswordCode() {
         abortEarly: false,
       });
 
-      axiosFront
+      api
         .post(`auth/reset-password`, {
           phone: values.phone && values.phone.replace(/\s+/g, ""),
           code: values.code,

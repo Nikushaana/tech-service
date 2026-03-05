@@ -4,12 +4,12 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/autoplay";
-import { useAuthStore } from "@/app/store/useAuthStore";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import StarRating from "../../inputs/star-rating";
 import { IoPersonSharp } from "react-icons/io5";
 import { Button } from "@/components/ui/button";
+import { useCurrentUser } from "@/app/hooks/useCurrentUser";
 
 export default function UsersCommentsClient({
   reviews,
@@ -17,7 +17,7 @@ export default function UsersCommentsClient({
   reviews: Review[];
 }) {
   const router = useRouter();
-  const { currentUser } = useAuthStore();
+  const { data: currentUser } = useCurrentUser();
 
   return (
     <div className="flex flex-col items-center gap-y-[40px] w-full">

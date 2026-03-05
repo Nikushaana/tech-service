@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/table";
 import { BsEye } from "react-icons/bs";
 import Link from "next/link";
-import { axiosCompany, axiosIndividual } from "@/app/lib/api/axios";
+import { api } from "@/app/lib/api/axios";
 import Pagination from "@/app/components/pagination/pagination";
 import LinearLoader from "@/app/components/linearLoader";
 import { fetchUserUnreadNotifications } from "@/app/lib/api/userUnreadNotifications";
@@ -41,7 +41,6 @@ const fetchUserNotifications = async (
   if (from) params.set("from", from);
   if (to) params.set("to", to);
 
-  const api = userType === "company" ? axiosCompany : axiosIndividual;
   const { data } = await api.get(
     `${userType}/notifications?${params.toString()}`,
   );
@@ -86,7 +85,7 @@ export default function UserNotificationsClientComponent() {
 
     return () => clearTimeout(handler);
   }, [searchInput]);
-  
+
   const queryClient = useQueryClient();
 
   const { data: notifications, isFetching } = useQuery({
@@ -125,10 +124,7 @@ export default function UserNotificationsClientComponent() {
 
   // read notification
   const readNotificationMutation = useMutation({
-    mutationFn: (id: number) =>
-      (userType === "company" ? axiosCompany : axiosIndividual).patch(
-        `${userType}/notifications/${id}`,
-      ),
+    mutationFn: (id: number) => api.patch(`${userType}/notifications/${id}`),
 
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -141,10 +137,7 @@ export default function UserNotificationsClientComponent() {
   });
 
   const readAllNotificationsMutation = useMutation({
-    mutationFn: () =>
-      (userType === "company" ? axiosCompany : axiosIndividual).post(
-        `${userType}/notifications/read-all`,
-      ),
+    mutationFn: () => api.post(`${userType}/notifications/read-all`),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["userNotifications", userType],

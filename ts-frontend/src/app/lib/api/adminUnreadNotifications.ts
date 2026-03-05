@@ -1,6 +1,6 @@
-import { axiosAdmin } from "./axios";
+import { api } from "./axios";
 
 export async function fetchAdminUnreadNotifications() {
-  const { data } = await axiosAdmin.get(`admin/notifications/unread`);
+  const { data } = await api.get(`admin/notifications/unread`);
   return data;
 };

@@ -9,7 +9,7 @@ import { toast } from "react-toastify";
 import { verifyCodeSchema } from "@/app/utils/validation";
 import { Loader2Icon } from "lucide-react";
 import Link from "next/link";
-import { axiosFront } from "@/app/lib/api/axios";
+import { api } from "@/app/lib/api/axios";
 
 export default function VerifyRegisterCode() {
   const router = useRouter();
@@ -30,7 +30,7 @@ export default function VerifyRegisterCode() {
       resetErrors();
       await verifyCodeSchema.validate(values, { abortEarly: false });
 
-      axiosFront
+      api
         .post(`auth/verify-register-code`, {
           phone: values.phone && values.phone.replace(/\s+/g, ""),
           code: values.code,

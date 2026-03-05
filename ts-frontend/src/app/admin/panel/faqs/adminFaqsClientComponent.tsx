@@ -2,7 +2,7 @@
 
 import LinearLoader from "@/app/components/linearLoader";
 import Pagination from "@/app/components/pagination/pagination";
-import { axiosAdmin } from "@/app/lib/api/axios";
+import { api } from "@/app/lib/api/axios";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -21,7 +21,7 @@ import { BsEye } from "react-icons/bs";
 import { toast } from "react-toastify";
 
 const fetchAdminFaqs = async (page: number) => {
-  const { data } = await axiosAdmin.get(`admin/faqs?page=${page}`);
+  const { data } = await api.get(`admin/faqs?page=${page}`);
   return data;
 };
 
@@ -39,7 +39,7 @@ export default function AdminFaqsClientComponent() {
 
   // delete faq
   const deleteFaqMutation = useMutation({
-    mutationFn: (id: number) => axiosAdmin.delete(`admin/faqs/${id}`),
+    mutationFn: (id: number) => api.delete(`admin/faqs/${id}`),
 
     onSuccess: () => {
       toast.success("FAQ წაიშალა");

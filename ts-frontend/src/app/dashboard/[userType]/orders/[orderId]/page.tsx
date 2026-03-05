@@ -12,11 +12,10 @@ import {
   typeLabels,
 } from "@/app/utils/order-type-status-translations";
 import { OrderFlowActions } from "@/app/components/order-flow-actions/order-flow-actions";
-import { axiosCompany, axiosIndividual } from "@/app/lib/api/axios";
+import { api } from "@/app/lib/api/axios";
 import { useOrderFlowStore } from "@/app/store/useOrderFlowStore";
 
 const fetchUserOrder = async (userType: ClientRole, orderId: string) => {
-  const api = userType === "company" ? axiosCompany : axiosIndividual;
   const { data } = await api.get(`${userType}/orders/${orderId}`);
 
   return data;

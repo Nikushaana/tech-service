@@ -1,11 +1,17 @@
 import * as Yup from "yup";
 
+
 export const phoneSchema = Yup.string()
     .matches(
         /^5\d{2} \d{3} \d{3}$/,
         "ნომერი უნდა დაიწყოს 5-ით და იყოს ფორმატში: 5** *** ***"
     )
     .required("ტელეფონის ნომერი აუცილებელია")
+
+export const loginSchema = Yup.object().shape({
+    phone: phoneSchema,
+    password: Yup.string().required("პაროლი აუცილებელია"),
+});
 
 export const sendCodeSchema = Yup.object().shape({
     phone: Yup.string()

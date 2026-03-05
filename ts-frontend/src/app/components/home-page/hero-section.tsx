@@ -1,15 +1,14 @@
 "use client";
 
-import React from "react";
 import { useRouter } from "next/navigation";
-import { useAuthStore } from "@/app/store/useAuthStore";
 import { toast } from "react-toastify";
 import { Button } from "@/components/ui/button";
+import { useCurrentUser } from "@/app/hooks/useCurrentUser";
 
 export default function HeroSection() {
   const router = useRouter();
 
-  const { currentUser } = useAuthStore();
+  const { data: currentUser } = useCurrentUser();
 
   return (
     <div className="relative flex justify-center w-full">

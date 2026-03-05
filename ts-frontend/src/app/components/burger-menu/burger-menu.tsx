@@ -4,14 +4,14 @@ import { useBurgerMenuStore } from "@/app/store/burgerMenuStore";
 import { useMenuStore } from "@/app/store/useMenuStore";
 import { scrollToSection } from "@/app/utils/scroll";
 import { usePathname, useRouter } from "next/navigation";
-import { useAuthStore } from "@/app/store/useAuthStore";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { useCurrentUser } from "@/app/hooks/useCurrentUser";
 
 export default function BurgerMenu() {
   const menu = useMenuStore((state) => state.menu);
   const { isOpen, closeBurgerMenu } = useBurgerMenuStore();
-  const { currentUser } = useAuthStore();
+  const { data: currentUser } = useCurrentUser();
   const pathname = usePathname();
   const router = useRouter();
 

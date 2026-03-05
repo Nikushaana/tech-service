@@ -10,7 +10,7 @@ import FormInput from "@/app/components/inputs/form-input";
 import { Loader2Icon } from "lucide-react";
 import Link from "next/link";
 import { Checkbox } from "@/components/ui/checkbox";
-import { axiosFront } from "@/app/lib/api/axios";
+import { api } from "@/app/lib/api/axios";
 
 export default function Register() {
   const router = useRouter();
@@ -62,16 +62,15 @@ export default function Register() {
           ? "auth/individual/register"
           : "auth/company/register";
 
-      axiosFront
+      api
         .post(url, payload)
         .then((res) => {
           router.push("/auth/login");
-          resetValues();
 
           toast.success(
             `${
               res.data.user.name ? `ფიზიკური პირი` : `იურიდიული პირი`
-            } წარმატებით დარეგისტრირდა`
+            } წარმატებით დარეგისტრირდა`,
           );
 
           resetErrors();
@@ -85,6 +84,7 @@ export default function Register() {
         })
         .finally(() => {
           setLoading(false);
+          resetValues();
         });
     } catch (err: any) {
       // Yup validation errors

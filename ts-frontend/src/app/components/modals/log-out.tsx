@@ -1,12 +1,38 @@
 "use client";
 
-import { useAuthStore } from "@/app/store/useAuthStore";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { toast } from "react-toastify";
+import { api } from "@/app/lib/api/axios";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useLogOutStore } from "@/app/store/useLogOutStore";
+import { Loader2Icon } from "lucide-react";
 
 export default function LogOut() {
   const router = useRouter();
-  const { openLogOut, toggleLogOut, logout } = useAuthStore();
+  const { openLogOut, toggleLogOut } = useLogOutStore();
+
+  const queryClient = useQueryClient();
+
+  const logoutMutation = useMutation({
+    mutationFn: async () => {
+      await api.post("/auth/logout");
+    },
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["currentUser"],
+      });
+      toast.success("წარმატებით გამოხვედით სისტემიდან");
+
+      toggleLogOut();
+      router.push("/");
+    },
+
+    onError: () => {
+      toast.error("გასვლა ვერ შესრულდა");
+    },
+  });
 
   return (
     <div
@@ -35,11 +61,13 @@ export default function LogOut() {
             არა
           </Button>
           <Button
-            onClick={() => {
-              logout(router), toggleLogOut();
-            }}
+            onClick={() => logoutMutation.mutate()}
+            disabled={logoutMutation.isPending}
             className="h-[45px] px-6 bg-red-600 hover:bg-[#b91c1c] text-white cursor-pointer"
           >
+            {logoutMutation.isPending && (
+              <Loader2Icon className="animate-spin size-4" />
+            )}
             კი
           </Button>
         </div>

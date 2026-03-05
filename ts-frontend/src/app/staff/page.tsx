@@ -1,21 +1,15 @@
 "use client";
 
-import { usePathname, useRouter } from "next/navigation";
-import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Loader2Icon } from "lucide-react";
 import FormInput from "../components/inputs/form-input";
-import { useAuthStore } from "../store/useAuthStore";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { formatPhone } from "../utils/formatPhone";
+import { useLogin } from "../hooks/useLogin";
 
 export default function Page() {
   const router = useRouter();
-  const pathname = usePathname();
-
-  const { values, setValues, errors, formLoading, login } = useAuthStore();
-
-  const [role, setRole] = useState("technician");
+  const { values, setValues, errors, loginMutation, handleLogin } = useLogin();
 
   return (
     <div className="flex flex-col gap-y-5 items-center justify-center h-screen px-4">
@@ -29,52 +23,39 @@ export default function Page() {
           className="h-[60px] object-contain cursor-pointer self-center"
         />
 
-        <div className="flex gap-6 items-center">
-          <label className="flex items-center gap-2 cursor-pointer">
-            <Checkbox
-              checked={role === "technician"}
-              onCheckedChange={() => setRole("technician")}
-            />
-            <p>ტექნიკოსი</p>
-          </label>
-          <label className="flex items-center gap-2 cursor-pointer">
-            <Checkbox
-              checked={role === "delivery"}
-              onCheckedChange={() => setRole("delivery")}
-            />
-            <p>კურიერი</p>
-          </label>
-        </div>
+        <p>თანამშრომლის პანელი</p>
 
         <FormInput
           id="phone"
-          value={values.phone || ""}
-          onChange={(e) => setValues("phone", formatPhone(e.target.value))}
+          value={values.phone}
+          onChange={(e) =>
+            setValues((prev) => ({
+              ...prev,
+              phone: formatPhone(e.target.value),
+            }))
+          }
           label="ტელეფონის ნომერი"
           type="tel"
           error={errors.phone}
         />
         <FormInput
           id="password"
-          value={values.password || ""}
-          onChange={(e) => setValues("password", e.target.value)}
+          value={values.password}
+          onChange={(e) =>
+            setValues((prev) => ({ ...prev, password: e.target.value }))
+          }
           label="პაროლი"
           type="password"
           error={errors.password}
         />
 
         <Button
-          onClick={() => {
-            login(
-              role == "technician" ? "technician" : "delivery",
-              router,
-              pathname
-            );
-          }}
-          disabled={formLoading}
+          onClick={handleLogin}
+          disabled={loginMutation.isPending}
           className="h-11 cursor-pointer"
         >
-          {formLoading && <Loader2Icon className="animate-spin" />}შესვლა
+          {loginMutation.isPending && <Loader2Icon className="animate-spin" />}
+          შესვლა
         </Button>
       </div>
     </div>

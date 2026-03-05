@@ -9,7 +9,7 @@ import { sendCodeSchema } from "@/app/utils/validation";
 import { Loader2Icon } from "lucide-react";
 import { useEffect } from "react";
 import { formatPhone } from "@/app/utils/formatPhone";
-import { axiosAdmin } from "@/app/lib/api/axios";
+import { api } from "@/app/lib/api/axios";
 
 export default function SendAdminStaffRegisterCode() {
   const router = useRouter();
@@ -36,7 +36,7 @@ export default function SendAdminStaffRegisterCode() {
       resetErrors();
       await sendCodeSchema.validate(values, { abortEarly: false });
 
-      axiosAdmin
+      api
         .post(
           `auth/${
             values.role == "technician" ? "technician" : "delivery"

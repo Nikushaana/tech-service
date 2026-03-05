@@ -7,7 +7,7 @@ import { useState } from "react";
 import * as Yup from "yup";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Loader2Icon } from "lucide-react";
-import { axiosAdmin } from "@/app/lib/api/axios";
+import { api } from "@/app/lib/api/axios";
 
 export default function Page() {
   const queryClient = useQueryClient();
@@ -37,7 +37,7 @@ export default function Page() {
   //add category
   const addCategoryMutation = useMutation({
     mutationFn: (payload: { name: string }) =>
-      axiosAdmin.post("admin/category", payload),
+      api.post("admin/category", payload),
 
     onSuccess: () => {
       toast.success("კატეგორია დაემატა");

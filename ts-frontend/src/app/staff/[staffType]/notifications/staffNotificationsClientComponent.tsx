@@ -15,7 +15,7 @@ import Link from "next/link";
 import { BsEye } from "react-icons/bs";
 import dayjs from "dayjs";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import { axiosDelivery, axiosTechnician } from "@/app/lib/api/axios";
+import { api } from "@/app/lib/api/axios";
 import Pagination from "@/app/components/pagination/pagination";
 import LinearLoader from "@/app/components/linearLoader";
 import { toast } from "react-toastify";
@@ -41,7 +41,6 @@ const fetchStaffNotifications = async (
   if (from) params.set("from", from);
   if (to) params.set("to", to);
 
-  const api = staffType === "technician" ? axiosTechnician : axiosDelivery;
   const { data } = await api.get(
     `${staffType}/notifications?${params.toString()}`,
   );
@@ -119,7 +118,7 @@ export default function StaffNotificationsClientComponent() {
   // read notification
   const readNotificationMutation = useMutation({
     mutationFn: (id: number) =>
-      (staffType === "technician" ? axiosTechnician : axiosDelivery).patch(
+      (staffType === "technician" ? api : api).patch(
         `${staffType}/notifications/${id}`,
       ),
 
@@ -135,7 +134,7 @@ export default function StaffNotificationsClientComponent() {
 
   const readAllNotificationsMutation = useMutation({
     mutationFn: () =>
-      (staffType === "technician" ? axiosTechnician : axiosDelivery).post(
+      (staffType === "technician" ? api : api).post(
         `${staffType}/notifications/read-all`,
       ),
     onSuccess: () => {

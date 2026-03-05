@@ -11,7 +11,7 @@ import { useParams, useRouter } from "next/navigation";
 import { Switch } from "@/components/ui/switch";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { formatPhone } from "@/app/utils/formatPhone";
-import { axiosAdmin } from "@/app/lib/api/axios";
+import { api } from "@/app/lib/api/axios";
 
 interface TechnicianValues {
   name: string;
@@ -28,7 +28,7 @@ const fetchAdminStaffMemberById = async (
   staffMemberType: string,
   staffMemberId: string
 ) => {
-  const { data } = await axiosAdmin.get(
+  const { data } = await api.get(
     `admin/${staffMemberType}/${staffMemberId}`
   );
   return data;
@@ -129,7 +129,7 @@ export default function Page() {
   const updateStaffMemberMutation = useMutation({
     mutationFn: async (formData: FormData) =>
       // technicians
-      axiosAdmin.patch(`admin/${staffMemberType}/${staffMemberId}`, formData),
+      api.patch(`admin/${staffMemberType}/${staffMemberId}`, formData),
 
     onSuccess: () => {
       toast.success("ინფორმაცია განახლდა");

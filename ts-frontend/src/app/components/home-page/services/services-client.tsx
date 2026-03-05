@@ -1,8 +1,7 @@
 "use client";
 
-import { useAuthStore } from "@/app/store/useAuthStore";
+import { useCurrentUser } from "@/app/hooks/useCurrentUser";
 import Link from "next/link";
-import React from "react";
 import { BiCategory } from "react-icons/bi";
 
 export default function ServicesClient({
@@ -10,7 +9,7 @@ export default function ServicesClient({
 }: {
   categories: CategoryData;
 }) {
-  const { currentUser } = useAuthStore();
+  const { data: currentUser } = useCurrentUser();
 
   const path = currentUser
     ? currentUser.role === "individual"

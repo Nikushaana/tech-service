@@ -3,15 +3,15 @@
 import { OrdersChart } from "@/app/components/admin/orders-chart";
 import { UsedDevicesChart } from "@/app/components/admin/used-devices-chart";
 import { UsersChart } from "@/app/components/admin/users-chart";
-import { axiosAdmin } from "@/app/lib/api/axios";
+import { api } from "@/app/lib/api/axios";
 import { useQuery } from "@tanstack/react-query";
 import { Loader2Icon } from "lucide-react";
 
 const fetchAllStats = async () => {
   const [userRes, devicesRes, orderRes] = await Promise.all([
-    axiosAdmin.get("/admin/user-registration-stats"),
-    axiosAdmin.get("/admin/used-devices-stats"),
-    axiosAdmin.get("/admin/order-stats"),
+    api.get("/admin/user-registration-stats"),
+    api.get("/admin/used-devices-stats"),
+    api.get("/admin/order-stats"),
   ]);
 
   return {

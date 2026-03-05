@@ -1,15 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useAuthStore } from "@/app/store/useAuthStore";
 import { toast } from "react-toastify";
 import { sendCodeSchema, verifyCodeSchema } from "@/app/utils/validation";
 import UserPhoneUpdate from "../shared components/user-phone-update";
 import { formatPhone } from "@/app/utils/formatPhone";
-import { axiosIndividual } from "@/app/lib/api/axios";
+import { api } from "@/app/lib/api/axios";
+import { useCurrentUser } from "@/app/hooks/useCurrentUser";
 
 export default function IndividualPhoneUpdate() {
-  const { currentUser } = useAuthStore();
+  const { data: currentUser } = useCurrentUser();
 
   const [values, setValues] = useState({
     phone: "",
@@ -53,7 +53,7 @@ export default function IndividualPhoneUpdate() {
         abortEarly: false,
       });
 
-      axiosIndividual
+      api
         .post(`individual/send-change-number-code`, {
           phone: values.phone && values.phone.replace(/\s+/g, ""),
         })
@@ -106,7 +106,7 @@ export default function IndividualPhoneUpdate() {
         abortEarly: false,
       });
 
-      axiosIndividual
+      api
         .post(`individual/change-number`, {
           phone: values.phone && values.phone.replace(/\s+/g, ""),
           code: values.code,

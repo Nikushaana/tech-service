@@ -1,8 +1,9 @@
 "use client";
 
+import { useCurrentUser } from "@/app/hooks/useCurrentUser";
 import { fetchAdminUnreadNotifications } from "@/app/lib/api/adminUnreadNotifications";
 import { useBurgerMenuStore } from "@/app/store/burgerMenuStore";
-import { useAuthStore } from "@/app/store/useAuthStore";
+import { useLogOutStore } from "@/app/store/useLogOutStore";
 import { formatPhone } from "@/app/utils/formatPhone";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
@@ -26,7 +27,9 @@ const sidebarLinks = [
 export default function Layout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
-  const { currentUser, authLoading, toggleLogOut } = useAuthStore();
+  const { data: currentUser, isLoading: authLoading } = useCurrentUser();
+
+  const { toggleLogOut } = useLogOutStore();
 
   const { openAdminSideBar, toggleAdminSideBar, closeAdminSideBar } =
     useBurgerMenuStore();

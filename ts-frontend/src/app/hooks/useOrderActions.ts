@@ -1,7 +1,7 @@
 import { toast } from "react-toastify";
 import { useQueryClient } from "@tanstack/react-query";
-import { axiosCompany, axiosDelivery, axiosIndividual, axiosTechnician } from "../lib/api/axios";
 import { useOrderFlowStore } from "../store/useOrderFlowStore";
+import { api } from "../lib/api/axios";
 
 export function useOrderActions() {
     const queryClient = useQueryClient();
@@ -29,49 +29,49 @@ export function useOrderActions() {
         startPickup: (id: number) =>
             handle(
                 "startPickup",
-                () => axiosDelivery.patch(`/delivery/orders/${id}/pickup-started`),
+                () => api.patch(`/delivery/orders/${id}/pickup-started`),
                 "თქვენ მიდიხართ ტექნიკის ასაღებად"
             ),
 
         pickedUp: (id: number) =>
             handle(
                 "pickedUp",
-                () => axiosDelivery.patch(`/delivery/orders/${id}/picked-up`),
+                () => api.patch(`/delivery/orders/${id}/picked-up`),
                 "თქვენ აიღეთ ტექნიკა"
             ),
 
         deliveredToTechnician: (id: number) =>
             handle(
                 "deliveredToTechnician",
-                () => axiosDelivery.patch(`/delivery/orders/${id}/delivered-to-technician`),
+                () => api.patch(`/delivery/orders/${id}/delivered-to-technician`),
                 "თქვენ გადაეცით ტექნიკა ტექნიკოსს"
             ),
 
         returningFixed: (id: number) =>
             handle(
                 "returningFixed",
-                () => axiosDelivery.patch(`/delivery/orders/${id}/returning-fixed`),
+                () => api.patch(`/delivery/orders/${id}/returning-fixed`),
                 "თქვენ აბრუნებთ შეკეთებულ ტექნიკას"
             ),
 
         returnedFixed: (id: number) =>
             handle(
                 "returnedFixed",
-                () => axiosDelivery.patch(`/delivery/orders/${id}/returned-fixed`),
+                () => api.patch(`/delivery/orders/${id}/returned-fixed`),
                 "თქვენ დააბრუნეთ შეკეთებული ტექნიკა"
             ),
 
         returningBroken: (id: number) =>
             handle(
                 "returningBroken",
-                () => axiosDelivery.patch(`/delivery/orders/${id}/returning-broken`),
+                () => api.patch(`/delivery/orders/${id}/returning-broken`),
                 "თქვენ აბრუნებთ შეუკეთებელ ტექნიკას"
             ),
 
         returnedBroken: (id: number) =>
             handle(
                 "returnedBroken",
-                () => axiosDelivery.patch(`/delivery/orders/${id}/returned-broken`),
+                () => api.patch(`/delivery/orders/${id}/returned-broken`),
                 "თქვენ დააბრუნეთ შეუკეთებელი ტექნიკა"
             ),
 
@@ -79,14 +79,14 @@ export function useOrderActions() {
         inspection: (id: number) =>
             handle(
                 "inspection",
-                () => axiosTechnician.patch(`/technician/orders/${id}/inspection`),
+                () => api.patch(`/technician/orders/${id}/inspection`),
                 "თქვენ დაიწყეთ დიაგნოსტიკა"
             ),
 
         waitingDecision: (id: number, values: { payment_amount: string, payment_reason: string }) =>
             handle(
                 "waitingDecision",
-                () => axiosTechnician.patch(`/technician/orders/${id}/waiting-decision`, {
+                () => api.patch(`/technician/orders/${id}/waiting-decision`, {
                     payment_amount: Number(values.payment_amount),
                     payment_reason: values.payment_reason
                 }),
@@ -96,38 +96,38 @@ export function useOrderActions() {
         fixedReady: (id: number) =>
             handle(
                 "fixedReady",
-                () => axiosTechnician.patch(`/technician/orders/${id}/fixed-ready`),
+                () => api.patch(`/technician/orders/${id}/fixed-ready`),
                 "თქვენ დაასრულეთ ტექნიკის შეკეთება"
             ),
 
         brokenReady: (id: number) =>
             handle(
                 "brokenReady",
-                () => axiosTechnician.patch(`/technician/orders/${id}/broken-ready`),
+                () => api.patch(`/technician/orders/${id}/broken-ready`),
                 "თქვენ გაამზადეთ შეუკეთებელი ტექნიკა დასაბრუნებლად"
             ),
         technicianComing: (id: number) =>
             handle(
                 "technicianComing",
-                () => axiosTechnician.patch(`/technician/orders/${id}/technician-coming`),
+                () => api.patch(`/technician/orders/${id}/technician-coming`),
                 "თქვენ მიდიხართ ადგილზე"
             ),
         installing: (id: number) =>
             handle(
                 "installing",
-                () => axiosTechnician.patch(`/technician/orders/${id}/installing`),
+                () => api.patch(`/technician/orders/${id}/installing`),
                 "თქვენ დაიწყეთ მონტაჟი"
             ),
         repairingOnSite: (id: number) =>
             handle(
                 "repairingOnSite",
-                () => axiosTechnician.patch(`/technician/orders/${id}/repairing-on-site`),
+                () => api.patch(`/technician/orders/${id}/repairing-on-site`),
                 "თქვენ დაიწყეთ ადგილზე შეკეთება"
             ),
         waitingPayment: (id: number, values: { payment_amount: string, payment_reason: string }) =>
             handle(
                 "waitingPayment",
-                () => axiosTechnician.patch(`/technician/orders/${id}/waiting-payment`, {
+                () => api.patch(`/technician/orders/${id}/waiting-payment`, {
                     payment_amount: Number(values.payment_amount),
                     payment_reason: values.payment_reason
                 }),
@@ -138,19 +138,13 @@ export function useOrderActions() {
         toTechnician: (id: number, role: "company" | "individual") =>
             handle(
                 "toTechnician",
-                () => (role === "company"
-                    ? axiosCompany
-                    : axiosIndividual
-                ).patch(`/${role}/orders/${id}/to-technician`),
+                () => api.patch(`/${role}/orders/${id}/to-technician`),
                 "თქვენ გადაეცით ტექნიკა კურიერს"
             ),
         decision: (actionKey: "decisionApprove" | "decisionCancel", id: number, values: { decision: string, reason?: string }, role: "company" | "individual") =>
             handle(
                 actionKey,
-                () => (role === "company"
-                    ? axiosCompany
-                    : axiosIndividual
-                ).patch(`/${role}/orders/${id}/decision`, {
+                () => api.patch(`/${role}/orders/${id}/decision`, {
                     decision: values.decision,
                     reason: values.reason
                 }),
@@ -159,28 +153,19 @@ export function useOrderActions() {
         cancelled: (id: number, role: "company" | "individual") =>
             handle(
                 "cancelled",
-                () => (role === "company"
-                    ? axiosCompany
-                    : axiosIndividual
-                ).patch(`/${role}/orders/${id}/cancelled`),
+                () => api.patch(`/${role}/orders/${id}/cancelled`),
                 "თქვენ ჩაიბარეთ შეუკეთებელი ტექნიკა"
             ),
         completed: (id: number, role: "company" | "individual") =>
             handle(
                 "completed",
-                () => (role === "company"
-                    ? axiosCompany
-                    : axiosIndividual
-                ).patch(`/${role}/orders/${id}/completed`),
+                () => api.patch(`/${role}/orders/${id}/completed`),
                 "თქვენ ჩაიბარეთ შეკეთებელი ტექნიკა"
             ),
         completedOnSite: (id: number, role: "company" | "individual") =>
             handle(
                 "completedOnSite",
-                () => (role === "company"
-                    ? axiosCompany
-                    : axiosIndividual
-                ).patch(`/${role}/orders/${id}/completed-on-site`),
+                () => api.patch(`/${role}/orders/${id}/completed-on-site`),
                 "მომსახურება წარმატებით დასრულდა"
             ),
     };

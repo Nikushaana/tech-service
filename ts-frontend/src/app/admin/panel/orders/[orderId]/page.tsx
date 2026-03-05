@@ -16,12 +16,12 @@ import {
   statusDescriptions,
   typeLabels,
 } from "@/app/utils/order-type-status-translations";
-import { axiosAdmin } from "@/app/lib/api/axios";
+import { api } from "@/app/lib/api/axios";
 
 const fetchAdminActiveEmployees = async () => {
   const [technicians, deliveries] = await Promise.all([
-    axiosAdmin.get("admin/technicians?status=true"),
-    axiosAdmin.get("admin/deliveries?status=true"),
+    api.get("admin/technicians?status=true"),
+    api.get("admin/deliveries?status=true"),
   ]);
 
   return {
@@ -31,7 +31,7 @@ const fetchAdminActiveEmployees = async () => {
 };
 
 const fetchAdminOrderById = async (orderId: string) => {
-  const { data } = await axiosAdmin.get(`admin/orders/${orderId}`);
+  const { data } = await api.get(`admin/orders/${orderId}`);
   return data;
 };
 
@@ -132,7 +132,7 @@ export default function Page() {
 
   const updateOrderMutation = useMutation({
     mutationFn: (payload: any) =>
-      axiosAdmin.patch(`admin/orders/${orderId}`, payload),
+      api.patch(`admin/orders/${orderId}`, payload),
 
     onSuccess: () => {
       toast.success("შეკვეთა განახლდა");

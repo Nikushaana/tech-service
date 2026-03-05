@@ -3,7 +3,7 @@
 import StarRating from "@/app/components/inputs/star-rating";
 import LinearLoader from "@/app/components/linearLoader";
 import Pagination from "@/app/components/pagination/pagination";
-import { axiosAdmin } from "@/app/lib/api/axios";
+import { api } from "@/app/lib/api/axios";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -24,7 +24,7 @@ import { IoPersonSharp } from "react-icons/io5";
 import { toast } from "react-toastify";
 
 const fetchAdminReviews = async (page: number) => {
-  const { data } = await axiosAdmin.get(`admin/reviews?page=${page}`);
+  const { data } = await api.get(`admin/reviews?page=${page}`);
   return data;
 };
 
@@ -42,7 +42,7 @@ export default function AdminReviewsClientComponent() {
 
   // delete review
   const deleteReviewMutation = useMutation({
-    mutationFn: (id: number) => axiosAdmin.delete(`admin/reviews/${id}`),
+    mutationFn: (id: number) => api.delete(`admin/reviews/${id}`),
 
     onSuccess: () => {
       toast.success("შეფასება წაიშალა");

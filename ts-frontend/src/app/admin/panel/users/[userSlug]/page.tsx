@@ -11,7 +11,7 @@ import { useParams, useRouter } from "next/navigation";
 import { Switch } from "@/components/ui/switch";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { formatPhone } from "@/app/utils/formatPhone";
-import { axiosAdmin } from "@/app/lib/api/axios";
+import { api } from "@/app/lib/api/axios";
 
 interface UserValues {
   // individual
@@ -32,7 +32,7 @@ interface UserValues {
 }
 
 const fetchAdminUserById = async (userType: string, userId: string) => {
-  const { data } = await axiosAdmin.get(`admin/${userType}/${userId}`);
+  const { data } = await api.get(`admin/${userType}/${userId}`);
   return data;
 };
 
@@ -161,7 +161,7 @@ export default function Page() {
 
   const updateUserMutation = useMutation({
     mutationFn: async (formData: FormData) =>
-      axiosAdmin.patch(`admin/${userType}/${userId}`, formData),
+      api.patch(`admin/${userType}/${userId}`, formData),
 
     onSuccess: () => {
       toast.success("ინფორმაცია განახლდა");

@@ -4,7 +4,7 @@ import { Dropdown } from "@/app/components/inputs/drop-down";
 import PanelFormInput from "@/app/components/inputs/panel-form-input";
 import LinearLoader from "@/app/components/linearLoader";
 import Pagination from "@/app/components/pagination/pagination";
-import { axiosAdmin } from "@/app/lib/api/axios";
+import { api } from "@/app/lib/api/axios";
 import { formatPhone } from "@/app/utils/formatPhone";
 import { Button } from "@/components/ui/button";
 import {
@@ -35,7 +35,7 @@ const fetchAdminUsers = async (
   if (status) params.set("status", status);
   if (search) params.set("search", search);
 
-  const { data } = await axiosAdmin.get(
+  const { data } = await api.get(
     `admin/${type == "ფიზიკური პირი" ? "individuals" : "companies"}?${params.toString()}`,
   );
   return data;

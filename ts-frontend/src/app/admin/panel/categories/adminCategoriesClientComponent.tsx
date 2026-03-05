@@ -2,7 +2,7 @@
 
 import LinearLoader from "@/app/components/linearLoader";
 import Pagination from "@/app/components/pagination/pagination";
-import { axiosAdmin } from "@/app/lib/api/axios";
+import { api } from "@/app/lib/api/axios";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -21,7 +21,7 @@ import { BsEye } from "react-icons/bs";
 import { toast } from "react-toastify";
 
 const fetchAdminCategories = async (page: number) => {
-  const { data } = await axiosAdmin.get(`admin/categories?page=${page}`);
+  const { data } = await api.get(`admin/categories?page=${page}`);
   return data;
 };
 
@@ -39,7 +39,7 @@ export default function AdminCategoriesClientComponent() {
 
   // delete category
   const deleteCategoryMutation = useMutation({
-    mutationFn: (id: number) => axiosAdmin.delete(`admin/categories/${id}`),
+    mutationFn: (id: number) => api.delete(`admin/categories/${id}`),
 
     onSuccess: () => {
       toast.success("კატეგორია წაიშალა");

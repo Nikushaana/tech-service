@@ -9,7 +9,7 @@ import { sendCodeSchema } from "@/app/utils/validation";
 import { Loader2Icon } from "lucide-react";
 import Link from "next/link";
 import { formatPhone } from "@/app/utils/formatPhone";
-import { axiosFront } from "@/app/lib/api/axios";
+import { api } from "@/app/lib/api/axios";
 
 export default function SendResetPasswordCode() {
   const router = useRouter();
@@ -30,7 +30,7 @@ export default function SendResetPasswordCode() {
       resetErrors();
       await sendCodeSchema.validate(values, { abortEarly: false });
 
-      axiosFront
+      api
         .post(`auth/send-reset-password-code`, {
           phone: values.phone && values.phone.replace(/\s+/g, ""),
         })

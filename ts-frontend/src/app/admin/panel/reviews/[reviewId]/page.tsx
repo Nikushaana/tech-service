@@ -12,10 +12,10 @@ import PanelFormInput from "@/app/components/inputs/panel-form-input";
 import { useParams, useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { formatPhone } from "@/app/utils/formatPhone";
-import { axiosAdmin } from "@/app/lib/api/axios";
+import { api } from "@/app/lib/api/axios";
 
 const fetchAdminReviewById = async (reviewId: string) => {
-  const { data } = await axiosAdmin.get(`admin/reviews/${reviewId}`);
+  const { data } = await api.get(`admin/reviews/${reviewId}`);
   return data;
 };
 
@@ -90,7 +90,7 @@ export default function Page() {
 
   const updateReviewMutation = useMutation({
     mutationFn: async (payload: any) =>
-      axiosAdmin.patch(`admin/reviews/${reviewId}`, payload),
+      api.patch(`admin/reviews/${reviewId}`, payload),
 
     onSuccess: () => {
       toast.success("შეფასება განახლდა");

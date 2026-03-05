@@ -7,7 +7,7 @@ import { useState } from "react";
 import * as Yup from "yup";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Loader2Icon } from "lucide-react";
-import { axiosAdmin } from "@/app/lib/api/axios";
+import { api } from "@/app/lib/api/axios";
 
 export default function Page() {
   const queryClient = useQueryClient();
@@ -40,7 +40,7 @@ export default function Page() {
   //add faq
   const addFaqMutation = useMutation({
     mutationFn: (payload: { question: string; answer: string }) =>
-      axiosAdmin.post("admin/faq", payload),
+      api.post("admin/faq", payload),
 
     onSuccess: () => {
       toast.success("FAQ დაემატა");

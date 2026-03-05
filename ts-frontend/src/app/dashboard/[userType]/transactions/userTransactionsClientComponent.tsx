@@ -12,7 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { axiosCompany, axiosIndividual } from "@/app/lib/api/axios";
+import { api } from "@/app/lib/api/axios";
 import { providerLabels } from "@/app/utils/providerLabels";
 import { transactionTypeLabels } from "@/app/utils/transactionTypeLabels";
 import Pagination from "@/app/components/pagination/pagination";
@@ -36,7 +36,6 @@ const fetchUserTransactions = async (
   if (status) params.set("status", status);
   if (search) params.set("search", search);
 
-  const api = userType === "company" ? axiosCompany : axiosIndividual;
   const { data } = await api.get(
     `${userType}/transactions?${params.toString()}`,
   );

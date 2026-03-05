@@ -11,7 +11,7 @@ import { Dropdown2 } from "../inputs/drop-down-2";
 import { Button } from "@/components/ui/button";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchCities, fetchStreets } from "@/app/lib/api/locations";
-import { axiosCompany, axiosIndividual } from "@/app/lib/api/axios";
+import { api } from "@/app/lib/api/axios";
 
 export default function CreateAddress() {
   const { openCreateAddressModal, toggleOpenCreateAddressModal, modalType } =
@@ -84,7 +84,7 @@ export default function CreateAddress() {
   // Generic handler for dropdown (city / street)
   const handleDropdownChange = (
     key: "searchCity" | "searchStreet",
-    value: string
+    value: string,
   ) => {
     setHelperValues((prev) => ({
       ...prev,
@@ -112,7 +112,7 @@ export default function CreateAddress() {
   // Generic handler for selecting dropdown item
   const handleDropdownSelect = (
     key: "searchCity" | "searchStreet",
-    item: any
+    item: any,
   ) => {
     setValues((prev) => ({
       ...prev,
@@ -154,11 +154,7 @@ export default function CreateAddress() {
       apartment_number?: string;
       description: string;
       location: LatLng | null;
-    }) =>
-      (modalType === "company" ? axiosCompany : axiosIndividual).post(
-        `${modalType}/create-address`,
-        payload
-      ),
+    }) => api.post(`${modalType}/create-address`, payload),
 
     onSuccess: () => {
       toast.success("მისამართი დაემატა");

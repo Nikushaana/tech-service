@@ -1,15 +1,15 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useAuthStore } from "@/app/store/useAuthStore";
 import { toast } from "react-toastify";
 import * as Yup from "yup";
 import UserDetailsForm from "../shared components/user-details-form";
 import { Loader2Icon } from "lucide-react";
 import ImageSelector from "../../inputs/image-selector";
-import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { axiosIndividual } from "@/app/lib/api/axios";
+import { api } from "@/app/lib/api/axios";
+import { useQueryClient } from "@tanstack/react-query";
+import { useCurrentUser } from "@/app/hooks/useCurrentUser";
 
 interface IndividualValues {
   name: string;
@@ -20,10 +20,9 @@ interface IndividualValues {
 }
 
 export default function IndividualDetailsForm() {
-  const router = useRouter();
-  const pathname = usePathname();
-  const { currentUser } = useAuthStore();
-  const rehydrate = useAuthStore((state) => state.rehydrate);
+  const { data: currentUser } = useCurrentUser();
+
+  const queryClient = useQueryClient();
 
   const [values, setValues] = useState<IndividualValues>({
     name: "",
@@ -93,11 +92,13 @@ export default function IndividualDetailsForm() {
       formData.append("name", values.name);
       formData.append("lastName", values.lastName);
 
-      axiosIndividual
+      api
         .patch(`individual`, formData)
         .then((res) => {
           toast.success(`ინფორმაცია განახლდა`);
-          rehydrate(router, pathname);
+          queryClient.invalidateQueries({
+            queryKey: ["currentUser"],
+          });
           setValues((prev) => ({
             ...prev,
             newImages: [],

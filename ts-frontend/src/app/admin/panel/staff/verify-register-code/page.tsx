@@ -8,7 +8,7 @@ import FormInput from "@/app/components/inputs/form-input";
 import { toast } from "react-toastify";
 import { verifyCodeSchema } from "@/app/utils/validation";
 import { Loader2Icon } from "lucide-react";
-import { axiosAdmin } from "@/app/lib/api/axios";
+import { api } from "@/app/lib/api/axios";
 
 export default function VerifyAdminStaffRegisterCode() {
   const router = useRouter();
@@ -35,7 +35,7 @@ export default function VerifyAdminStaffRegisterCode() {
       resetErrors();
       await verifyCodeSchema.validate(values, { abortEarly: false });
 
-      axiosAdmin
+      api
         .post(
           `auth/${
             values.role == "technician" ? "technician" : "delivery"
