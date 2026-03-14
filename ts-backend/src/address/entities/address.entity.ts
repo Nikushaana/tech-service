@@ -14,23 +14,11 @@ export class Address {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({ nullable: true })
-    apartment_number: string;
-
-    @Column({ nullable: true })
-    building_floor: string;
-
-    @Column({ nullable: true })
-    building_entrance: string;
-
     @Column()
     building_number: string;
 
     @Column()
     street: string;
-
-    @Column()
-    city: string;
 
     @Column()
     name: string;

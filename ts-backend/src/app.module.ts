@@ -20,7 +20,6 @@ import { FaqModule } from './faq/faq.module';
 import { PricingModule } from './pricing/pricing.module';
 import { TransactionsModule } from './transactions/transactions.module';
 import { PaymentModule } from './payment/payment.module';
-import { CitiesModule } from './cities/cities.module';
 import { StreetsModule } from './streets/streets.module';
 
 @Module({
@@ -93,8 +92,6 @@ import { StreetsModule } from './streets/streets.module';
     TransactionsModule,
 
     PaymentModule,
-
-    CitiesModule,
 
     StreetsModule
   ],

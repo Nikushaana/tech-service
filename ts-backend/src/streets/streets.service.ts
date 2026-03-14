@@ -5,9 +5,9 @@ import { GooglePlacesService } from 'src/common/services/google-places/google-pl
 export class StreetsService {
     constructor(private readonly googlePlaces: GooglePlacesService) { }
 
-    async getStreets(city: string, street: string) {
+    async getStreets(street: string) {
         const predictions = await this.googlePlaces.autocomplete({
-            input: `${city} ${street}`,
+            input: `${street}`,
             types: 'address',
             components: 'country:GE',
         });

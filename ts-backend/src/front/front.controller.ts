@@ -3,8 +3,6 @@ import { BranchesService } from 'src/branches/branches.service';
 import { FaqService } from 'src/faq/faq.service';
 import { CategoryService } from 'src/category/category.service';
 import { ReviewsService } from 'src/reviews/reviews.service';
-import { GetCitiesDto } from 'src/cities/dto/get-cities.dto';
-import { CitiesService } from 'src/cities/cities.service';
 import { StreetsService } from 'src/streets/streets.service';
 import { GetStreetsDto } from 'src/streets/dto/get-streets.dto';
 import { GetCategoriesDto } from 'src/category/dto/get-categories.dto';
@@ -19,8 +17,6 @@ export class FrontController {
         private readonly categoryService: CategoryService,
 
         private readonly reviewsService: ReviewsService,
-
-        private readonly citiesService: CitiesService,
 
         private readonly streetsService: StreetsService,
     ) { }
@@ -45,13 +41,8 @@ export class FrontController {
         return this.branchesService.getFrontBranches();
     }
 
-    @Get('cities')
-    async getCities(@Query() query: GetCitiesDto) {
-        return this.citiesService.getCities(query.city);
-    }
-
     @Get('streets')
     async getStreets(@Query() query: GetStreetsDto) {
-        return this.streetsService.getStreets(query.city, query.street);
+        return this.streetsService.getStreets(query.street);
     }
 }
