@@ -30,6 +30,18 @@ export class AddressService {
     async createAddress(userId: number, repo: any, createAddressDto: CreateAddressDto) {
         const user = await this.baseUserService.getUser(userId, repo);
 
+        const existingAddress = await this.addressRepo.findOne({
+            where: {
+                name: createAddressDto.name,
+                ...("companyName" in user ? { company: { id: user.id } } : { individual: { id: user.id } })
+            },
+            relations: ["company", "individual"]
+        });
+
+        if (existingAddress) {
+            throw new BadRequestException('You already have an address with this name.');
+        }
+
         const branches = await this.branchRepo.find();
         if (!branches.length) throw new BadRequestException('No branches available — cannot add address');
 
@@ -86,7 +98,7 @@ export class AddressService {
             order: { created_at: 'DESC' },
             skip: limit ? (page - 1) * limit : undefined,
             take: limit,
-        }); 
+        });
 
         return {
             data: instanceToPlain(addresses),
