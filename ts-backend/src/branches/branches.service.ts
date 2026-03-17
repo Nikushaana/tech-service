@@ -66,9 +66,6 @@ export class BranchesService {
     ) {
         const branch = await this.getOneBranch(id)
 
-        const existing = await this.branchRepo.findOne({ where: { name: updateBranchDto.name } });
-        if (existing) throw new BadRequestException('Branch already exists');
-
         // Merge updates
         this.branchRepo.merge(branch, {
             ...updateBranchDto

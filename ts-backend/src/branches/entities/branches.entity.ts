@@ -21,9 +21,6 @@ export class Branch {
     name: string;
 
     @Column()
-    city: string;
-
-    @Column()
     street: string;
 
     @Column()

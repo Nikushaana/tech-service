@@ -49,8 +49,7 @@ export class TransactionsService {
         if (search?.trim()) {
             qb.andWhere(
                 new Brackets((qb) => {
-                    qb.orWhere('transaction.reason ILIKE :search')
-                        .orWhere('"order".id::text ILIKE :search');
+                    qb.orWhere('transaction.reason ILIKE :search');
                 }),
                 { search: `%${search}%` }
             );

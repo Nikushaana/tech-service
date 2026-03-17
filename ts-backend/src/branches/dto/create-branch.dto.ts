@@ -18,10 +18,6 @@ export class CreateBranchDto {
 
     @IsString()
     @IsNotEmpty()
-    city: string;
-
-    @IsString()
-    @IsNotEmpty()
     street: string;
 
     @IsString()

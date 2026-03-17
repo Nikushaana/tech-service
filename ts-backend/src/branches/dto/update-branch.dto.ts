@@ -20,11 +20,6 @@ export class UpdateBranchDto {
     @IsString()
     @IsOptional()
     @IsNotEmpty()
-    city: string;
-
-    @IsString()
-    @IsOptional()
-    @IsNotEmpty()
     street: string;
 
     @IsString()
