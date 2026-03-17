@@ -10,7 +10,7 @@ import CreateAddress from "../components/modals/create-address";
 import CreateOrder from "../components/modals/create-order";
 import UpdateOrder from "../components/modals/update-order";
 import CreateReview from "../components/modals/create-review";
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 import { useAddressesStore } from "../store/useAddressesStore";
 import { useOrdersStore } from "../store/useOrdersStore";
 import { useReviewsStore } from "../store/useReviewsStore";
@@ -225,9 +225,15 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       <LogOut />
       <CreateAddress />
       <CreateOrder />
-      <FilterOrders />
-      <FilterNotifications />
-      <FilterTransactions />
+      <Suspense fallback={null}>
+        <FilterOrders />
+      </Suspense>
+      <Suspense fallback={null}>
+        <FilterNotifications />
+      </Suspense>
+      <Suspense fallback={null}>
+        <FilterTransactions />
+      </Suspense>
       <UpdateOrder />
       <CreateReview />
       <OrderMedia />
