@@ -17,6 +17,7 @@ import {
   typeLabels,
 } from "@/app/utils/order-type-status-translations";
 import { api } from "@/app/lib/api/axios";
+import { useOrderMediaStore } from "@/app/store/useOrderMediaStore";
 
 const fetchAdminActiveEmployees = async () => {
   const [technicians, deliveries] = await Promise.all([
@@ -43,6 +44,8 @@ export default function Page() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const { statusOptions, typeOptions } = useOrderTypeStatusOptionsStore();
+
+  const { openMedia } = useOrderMediaStore();
 
   const { data: employees } = useQuery({
     queryKey: ["adminActiveEmployees"],
@@ -131,8 +134,7 @@ export default function Page() {
   });
 
   const updateOrderMutation = useMutation({
-    mutationFn: (payload: any) =>
-      api.patch(`admin/orders/${orderId}`, payload),
+    mutationFn: (payload: any) => api.patch(`admin/orders/${orderId}`, payload),
 
     onSuccess: () => {
       toast.success("შეკვეთა განახლდა");
@@ -182,6 +184,17 @@ export default function Page() {
     }
   };
 
+  const orderMedia = [
+    ...(order?.images || []).map((url: string) => ({
+      url,
+      type: "image",
+    })),
+    ...(order?.videos || []).map((url: string) => ({
+      url,
+      type: "video",
+    })),
+  ];
+
   if (isLoading || isError)
     return (
       <div className="flex justify-center w-full mt-10">
@@ -190,7 +203,7 @@ export default function Page() {
     );
 
   return (
-    <div className="border rounded-lg shadow px-[10px] py-[20px] sm:p-[20px] bg-white flex flex-col gap-y-4">
+    <div className="flex flex-col gap-y-4">
       {/* Header */}
       <h2 className={`flex justify-end text-sm`}>
         {statusDescriptions[order.status] || order.status}
@@ -202,32 +215,26 @@ export default function Page() {
         order.cancel_reason) && (
         <>
           <div>
-            <h3 className="font-semibold mb-2">სერვისის დეტალები</h3>
+            <h3 className="mb-2">სერვისის დეტალები</h3>
 
             {order.payment_reason && (
               <p className="text-sm">
                 დანიშნულება:{" "}
-                <span className="text-base font-semibold">
-                  {order.payment_reason}
-                </span>
+                <span className="text-base">{order.payment_reason}</span>
               </p>
             )}
 
             {order.payment_amount && (
               <p className="text-sm">
                 ფასი:{" "}
-                <span className="text-base font-semibold">
-                  {order.payment_amount} ₾
-                </span>
+                <span className="text-base">{order.payment_amount} ₾</span>
               </p>
             )}
 
             {order.cancel_reason && (
               <p className="text-sm text-red-600">
                 გაუქმების მიზეზი:{" "}
-                <span className="text-base font-semibold">
-                  {order.cancel_reason}
-                </span>
+                <span className="text-base">{order.cancel_reason}</span>
               </p>
             )}
           </div>
@@ -295,36 +302,25 @@ export default function Page() {
         <div>
           <p className="text-sm">
             სერვისის ტიპი:{" "}
-            <span className="text-base font-semibold">
+            <span className="text-base">
               {typeLabels[order.service_type] || order.service_type}
             </span>
           </p>
           <p className="text-sm">
-            კატეგორია:{" "}
-            <span className="text-base font-semibold">
-              {order.category?.name}
-            </span>
+            კატეგორია: <span className="text-base">{order.category?.name}</span>
           </p>
           <p className="text-sm">
-            ბრენდი:{" "}
-            <span className="text-base font-semibold">{order.brand}</span>
+            ბრენდი: <span className="text-base">{order.brand}</span>
           </p>
           <p className="text-sm">
-            მოდელი:{" "}
-            <span className="text-base font-semibold">{order.model}</span>
+            მოდელი: <span className="text-base">{order.model}</span>
           </p>
         </div>
         <div>
           <p className="text-sm">
             დაემატა:{" "}
-            <span className="text-base font-semibold">
+            <span className="text-base">
               {dayjs(order.created_at).format("DD.MM.YYYY - HH:mm:ss")}
-            </span>
-          </p>
-          <p className="text-sm">
-            განახლდა:{" "}
-            <span className="text-base font-semibold">
-              {dayjs(order.updated_at).format("DD.MM.YYYY - HH:mm:ss")}
             </span>
           </p>
         </div>
@@ -343,7 +339,7 @@ export default function Page() {
           <>
             <p className="text-sm">
               საიდენტიფიკაციო კოდი:{" "}
-              <span className="text-base font-semibold">
+              <span className="text-base">
                 {order.company?.companyIdentificationCode}
               </span>
             </p>
@@ -366,93 +362,49 @@ export default function Page() {
         <h3>მისამართი</h3>
         <p>{order?.address?.name}</p>
         <p className="text-sm">
-          ქალაქი:{" "}
-          <span className="text-base font-semibold">
-            {order?.address?.city}
-          </span>
-        </p>
-        <p className="text-sm">
-          ქუჩა:{" "}
-          <span className="text-base font-semibold">
-            {order?.address?.street}
-          </span>
+          ქუჩა: <span className="text-base">{order?.address?.street}</span>
         </p>
         <p className="text-sm">
           შენობის ნომერი:{" "}
-          <span className="text-base font-semibold">
-            {order?.address?.building_number}
-          </span>
+          <span className="text-base">{order?.address?.building_number}</span>
         </p>
-        {order?.address?.building_entrance && (
-          <p className="text-sm">
-            სადარბაზო:{" "}
-            <span className="text-base font-semibold">
-              {order?.address?.building_entrance}
-            </span>
-          </p>
-        )}
-        {order?.address?.building_floor && (
-          <p className="text-sm">
-            სართული:{" "}
-            <span className="text-base font-semibold">
-              {order?.address?.building_floor}
-            </span>
-          </p>
-        )}
-        {order?.address?.apartment_number && (
-          <p className="text-sm">
-            ბინის ნომერი:{" "}
-            <span className="text-base font-semibold">
-              {order?.address?.apartment_number}
-            </span>
-          </p>
-        )}
-        <p className="p-[5px] bg-gray-100 rounded-[8px]">
-          {order?.address?.description}
+        <p className="text-sm">
+          დამატებითი ინფორმაცია:{" "}
+          <span className="text-base">{order?.address?.description}</span>
         </p>
-        <div className="h-[100px] mt-2 bg-myLightBlue rounded-[8px] overflow-hidden">
+
+        <div className="h-[200px] mt-2">
           <Map
             centerCoordinates={order?.address.location}
             markerCoordinates={order?.address.location}
+            seeGoogleMap={true}
           />
         </div>
-        <p
-          onClick={() =>
-            window.open(
-              `https://www.google.com/maps/dir/?api=1&destination=${order?.address?.location?.lat},${order?.address?.location?.lng}`,
-              "_blank",
-            )
-          }
-          className="underline text-sm hover:text-myGray mt-2 self-end cursor-pointer"
-        >
-          რუკაზე ნახვა
-        </p>
       </div>
 
       {/* Description */}
       <div>
-        <h3 className="font-semibold mb-1">სერვისის აღწერა</h3>
+        <h3 className="mb-1">სერვისის აღწერა</h3>
         <p>{order.description}</p>
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-2">
-          {/* Videos */}
-          {order.videos?.map((videoUrl: string) => (
-            <video
-              key={videoUrl}
-              src={videoUrl}
-              controls
-              className="h-[80px] sm:h-[130px] w-full object-cover rounded border"
-            />
-          ))}
-
-          {/* Images */}
-          {order.images?.map((imageUrl: string) => (
-            <img
-              key={imageUrl}
-              src={imageUrl}
-              alt="Order image"
-              className="h-[80px] sm:h-[130px] w-full object-cover rounded border"
-            />
-          ))}
+        <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4 mt-2">
+          {/* order media */}
+          {orderMedia.map((item, index) =>
+            item.type === "image" ? (
+              <img
+                key={item.url}
+                src={item.url}
+                onClick={() => openMedia(orderMedia, index)}
+                className="h-[80px] sm:h-[130px] w-full object-cover rounded-lg border cursor-pointer"
+              />
+            ) : (
+              <video
+                key={item.url}
+                src={item.url}
+                onClick={() => openMedia(orderMedia, index)}
+                className="h-[80px] sm:h-[130px] w-full object-cover rounded-lg border cursor-pointer"
+              />
+            ),
+          )}
         </div>
       </div>
     </div>

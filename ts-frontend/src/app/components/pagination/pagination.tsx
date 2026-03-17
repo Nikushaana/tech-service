@@ -24,7 +24,7 @@ export default function Pagination({ totalPages, currentPage }: any) {
             <Link
               key={page}
               href={`?${params.toString()}`}
-              className={`w-8 h-10 flex items-center justify-center font-bold text-sm rounded-lg cursor-pointer border-2 ${
+              className={`w-8 h-10 flex items-center justify-center text-sm rounded-lg cursor-pointer border-2 ${
                 currentPage === page && "border-myLightBlue"
               }`}
             >
@@ -42,7 +42,7 @@ export default function Pagination({ totalPages, currentPage }: any) {
           return (
             <span
               key={page}
-              className="w-8 h-10 flex items-center justify-center font-bold text-sm"
+              className="w-8 h-10 flex items-center justify-center text-sm"
             >
               ...
             </span>

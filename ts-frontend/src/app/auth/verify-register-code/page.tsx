@@ -69,7 +69,7 @@ export default function VerifyRegisterCode() {
 
   return (
     <div className="w-full flex flex-col gap-y-5 relative">
-      <h1 className="text-center text-xl sm:text-2xl font-semibold">
+      <h1 className="text-center text-xl sm:text-2xl">
         რეგისტრაცია
       </h1>
       <p className="text-center text-sm">

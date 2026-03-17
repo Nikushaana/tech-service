@@ -59,109 +59,105 @@ export default function AdminCategoriesClientComponent() {
   };
 
   return (
-    <div className="flex flex-col items-center gap-y-2 w-full">
-      <Link href={"/admin/panel/categories/add"} className="w-auto self-end">
-        <Button className="h-[45px] w-full px-6 text-white cursor-pointer">
-          დამატება
-        </Button>
-      </Link>
-      <div className="w-full bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6 space-y-2">
-        <h2 className="text-xl font-semibold mb-2">კატეგორიები</h2>
+    <div className="w-full space-y-1">
+      <div className="flex items-center justify-between">
+        <h2 className="text-xl mb-2">კატეგორიები</h2>
+        <Link href={"/admin/panel/categories/add"} className="w-auto self-end">
+          <Button className="h-[45px] w-full px-6 text-white cursor-pointer">
+            დამატება
+          </Button>
+        </Link>
+      </div>
 
-        <div className="flex justify-end">
-          <Pagination totalPages={categories?.totalPages} currentPage={page} />
-        </div>
+      <LinearLoader isLoading={isFetching} />
 
-        <LinearLoader isLoading={isFetching} />
-
-        <div className="overflow-x-auto w-full">
-          <Table className="min-w-[900px] table-auto">
-            <TableHeader>
+      <div className="overflow-x-auto w-full">
+        <Table className="min-w-[900px] table-auto">
+          <TableHeader>
+            <TableRow className="bg-gray-100 hover:bg-gray-100">
+              <TableHead>ID</TableHead>
+              <TableHead>ფოტო</TableHead>
+              <TableHead>კატეგორია</TableHead>
+              <TableHead>სტატუსი</TableHead>
+              <TableHead className="text-right"></TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {!categories ? (
               <TableRow>
-                <TableHead className="font-semibold">ID</TableHead>
-                <TableHead className="font-semibold">ფოტო</TableHead>
-                <TableHead className="font-semibold">კატეგორია</TableHead>
-                <TableHead className="font-semibold">სტატუსი</TableHead>
-                <TableHead className="text-right"></TableHead>
+                <TableCell
+                  colSpan={5}
+                  className="text-center py-6 text-gray-500"
+                >
+                  ინფორმაცია იძებნება...
+                </TableCell>
               </TableRow>
-            </TableHeader>
-            <TableBody>
-              {!categories ? (
-                <TableRow>
-                  <TableCell
-                    colSpan={5}
-                    className="text-center py-6 text-gray-500"
-                  >
-                    ინფორმაცია იძებნება...
+            ) : categories?.total === 0 ? (
+              <TableRow>
+                <TableCell
+                  colSpan={5}
+                  className="text-center py-6 text-gray-500"
+                >
+                  ინფორმაცია არ მოიძებნა
+                </TableCell>
+              </TableRow>
+            ) : (
+              categories?.data?.map((category: Category) => (
+                <TableRow key={category.id} className="hover:bg-gray-100">
+                  <TableCell>{category.id}</TableCell>
+                  <TableCell>
+                    <img
+                      src={
+                        (category.images && category.images[0]) ||
+                        "/images/logo.png"
+                      }
+                      alt={category.name}
+                      className="aspect-square object-contain w-[40px]"
+                    />
                   </TableCell>
-                </TableRow>
-              ) : categories?.total === 0 ? (
-                <TableRow>
-                  <TableCell
-                    colSpan={5}
-                    className="text-center py-6 text-gray-500"
-                  >
-                    ინფორმაცია არ მოიძებნა
+                  <TableCell>{category.name}</TableCell>
+                  <TableCell>
+                    {category.status ? "აქტიური" : "დაბლოკილი"}
                   </TableCell>
-                </TableRow>
-              ) : (
-                categories?.data?.map((category: Category) => (
-                  <TableRow key={category.id} className="hover:bg-gray-50">
-                    <TableCell>{category.id}</TableCell>
-                    <TableCell>
-                      <img
-                        src={
-                          (category.images && category.images[0]) ||
-                          "/images/logo.png"
-                        }
-                        alt={category.name}
-                        className="aspect-square object-contain w-[40px]"
-                      />
-                    </TableCell>
-                    <TableCell>{category.name}</TableCell>
-                    <TableCell>
-                      {category.status ? "აქტიური" : "დაბლოკილი"}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Link href={`/admin/panel/categories/${category.id}`}>
-                        <Button
-                          variant="secondary"
-                          size="icon"
-                          className="hover:bg-gray-100 cursor-pointer"
-                        >
-                          <BsEye className="size-4" />
-                        </Button>
-                      </Link>
+                  <TableCell className="text-right">
+                    <Link href={`/admin/panel/categories/${category.id}`}>
                       <Button
-                        onClick={() => {
-                          handleDeleteCategory(category.id);
-                        }}
-                        disabled={
-                          deleteCategoryMutation.isPending &&
-                          deleteCategoryMutation.variables === category.id
-                        }
                         variant="secondary"
                         size="icon"
-                        className="bg-[red] hover:bg-[#b91c1c] ml-3 cursor-pointer"
+                        className="bg-myLightBlue hover:bg-myBlue text-white cursor-pointer rounded-lg"
                       >
-                        {deleteCategoryMutation.isPending &&
-                        deleteCategoryMutation.variables === category.id ? (
-                          <Loader2Icon className="animate-spin size-4" />
-                        ) : (
-                          <AiOutlineDelete className="size-4" />
-                        )}
+                        <BsEye className="size-4" />
                       </Button>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </div>
+                    </Link>
+                    <Button
+                      onClick={() => {
+                        handleDeleteCategory(category.id);
+                      }}
+                      disabled={
+                        deleteCategoryMutation.isPending &&
+                        deleteCategoryMutation.variables === category.id
+                      }
+                      variant="secondary"
+                      size="icon"
+                      className="bg-[red] hover:bg-[#b91c1c] ml-3 text-white cursor-pointer rounded-lg"
+                    >
+                      {deleteCategoryMutation.isPending &&
+                      deleteCategoryMutation.variables === category.id ? (
+                        <Loader2Icon className="animate-spin size-4" />
+                      ) : (
+                        <AiOutlineDelete className="size-4" />
+                      )}
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </div>
 
-        <div className="flex justify-end">
-          <Pagination totalPages={categories?.totalPages} currentPage={page} />
-        </div>
+      <div className="flex justify-end">
+        <Pagination totalPages={categories?.totalPages} currentPage={page} />
       </div>
     </div>
   );

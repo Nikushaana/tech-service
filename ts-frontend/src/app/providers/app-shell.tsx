@@ -24,6 +24,13 @@ import { useCurrentUser } from "../hooks/useCurrentUser";
 import { useLogOutStore } from "../store/useLogOutStore";
 import { usePathname, useRouter } from "next/navigation";
 import { api } from "../lib/api/axios";
+import OrderMedia from "../components/modals/order-media";
+import { useOrderMediaStore } from "../store/useOrderMediaStore";
+import FilterOrders from "../components/modals/filter-modals/filter-orders";
+import FilterNotifications from "../components/modals/filter-modals/filter-notifications";
+import { useNotificationsStore } from "../store/useNotificationStore";
+import FilterTransactions from "../components/modals/filter-modals/filter-transactions";
+import { useTransactionsStore } from "../store/useTransactionStore";
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -34,22 +41,29 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const queryClient = useQueryClient();
 
   const { openCreateAddressModal } = useAddressesStore();
-  const { openCreateOrderModal } = useOrdersStore();
+  const { openCreateOrderModal, openFilterOrderModal } = useOrdersStore();
   const { openCreateReviewModal } = useReviewsStore();
   const { openLogOut } = useLogOutStore();
   const { openUpdateOrderModal } = useUpdateOrderStore();
   const { openAdminSideBar, isOpen, openSideBar } = useBurgerMenuStore();
+  const { currentIndex } = useOrderMediaStore();
   const { openOrderFlowModal } = useOrderFlowStore();
+  const { openFilterNotificationModal } = useNotificationsStore();
+  const { openFilterTransactionModal } = useTransactionsStore();
 
   const isAnyModalOpen =
     openCreateAddressModal ||
     openCreateOrderModal ||
+    openFilterOrderModal ||
+    openFilterNotificationModal ||
+    openFilterTransactionModal ||
     openCreateReviewModal ||
     openLogOut ||
     openUpdateOrderModal ||
     openAdminSideBar ||
     isOpen ||
     openSideBar ||
+    currentIndex !== null ||
     openOrderFlowModal;
 
   useEffect(() => {
@@ -188,7 +202,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         if (pathname.startsWith("/admin/")) router.push("/admin");
         else if (pathname.startsWith("/staff/")) router.push("/staff");
         else if (pathname.startsWith("/dashboard")) router.push("/auth/login");
-        api.post("/auth/logout");
+        api.post("auth/logout");
         queryClient.setQueryData(["currentUser"], null);
       }
     }
@@ -211,8 +225,12 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       <LogOut />
       <CreateAddress />
       <CreateOrder />
+      <FilterOrders />
+      <FilterNotifications />
+      <FilterTransactions />
       <UpdateOrder />
       <CreateReview />
+      <OrderMedia />
       <OrderFlow />
     </>
   );

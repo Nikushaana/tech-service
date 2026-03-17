@@ -1,7 +1,6 @@
 "use client";
 
 import dayjs from "dayjs";
-import { Loader2Icon } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import {
   Table,
@@ -20,7 +19,7 @@ import LinearLoader from "@/app/components/linearLoader";
 import PanelFormInput from "@/app/components/inputs/panel-form-input";
 import { Dropdown } from "@/app/components/inputs/drop-down";
 import { Button } from "@/components/ui/button";
-import { useEffect, useState } from "react";
+import { useRef, useState } from "react";
 
 const fetchAdminTransactions = async (
   page: number,
@@ -35,9 +34,7 @@ const fetchAdminTransactions = async (
   if (status) params.set("status", status);
   if (search) params.set("search", search);
 
-  const { data } = await api.get(
-    `admin/transactions?${params.toString()}`,
-  );
+  const { data } = await api.get(`admin/transactions?${params.toString()}`);
   return data;
 };
 
@@ -62,22 +59,30 @@ export default function AdminTransactionsClientComponent() {
   const search = searchParams.get("search") || "";
 
   const [searchInput, setSearchInput] = useState(search);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // search delay
-  useEffect(() => {
-    const handler = setTimeout(() => {
+  const handleSearch = (value: string) => {
+    setSearchInput(value);
+
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+
+    timeoutRef.current = setTimeout(() => {
       const params = new URLSearchParams(searchParams.toString());
-      if (searchInput.trim()) {
-        params.set("search", searchInput.trim());
+
+      if (value.trim()) {
+        params.set("search", value.trim());
       } else {
         params.delete("search");
       }
+
       params.set("page", "1");
+
       router.push(`?${params.toString()}`, { scroll: false });
     }, 500);
-
-    return () => clearTimeout(handler);
-  }, [searchInput]);
+  };
 
   const { data: transactions, isFetching } = useQuery({
     queryKey: ["adminTransactions", page, type, status, search],
@@ -107,116 +112,109 @@ export default function AdminTransactionsClientComponent() {
   };
 
   return (
-    <div className={`w-full flex flex-col gap-y-2`}>
-      <div className="w-full bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6 space-y-2">
-        <h2 className="text-xl font-semibold mb-2">ტრანზაქციები</h2>
+    <div className="w-full space-y-1">
+      <h2 className="text-xl mb-2">ტრანზაქციები</h2>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 mb-4 gap-[20px] items-end">
-          <PanelFormInput
-            id="search"
-            value={searchInput}
-            label="ფილტრი"
-            onChange={(e) => setSearchInput(e.target.value)}
-          />
-          <Dropdown
-            data={transactionStatus}
-            id="status"
-            value={status}
-            label="სტატუსი"
-            valueKey="name"
-            labelKey="name"
-            onChange={handleChange}
-          />
-          <Dropdown
-            data={transactionType}
-            id="type"
-            value={type}
-            label="ტიპი"
-            valueKey="nameEng"
-            labelKey="name"
-            onChange={handleChange}
-          />
-          <Button onClick={clearFilters} className="cursor-pointer rounded-lg">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 mb-4 gap-[20px] items-end">
+        <PanelFormInput
+          id="search"
+          value={searchInput}
+          label="ფილტრი"
+          placeholder="მაგ: შეკვეთა №8..."
+          onChange={(e) => handleSearch(e.target.value)}
+        />
+        <Dropdown
+          data={transactionStatus}
+          id="status"
+          value={status}
+          label="სტატუსი"
+          placeholder="მაგ: pending"
+          valueKey="name"
+          labelKey="name"
+          onChange={handleChange}
+        />
+        <Dropdown
+          data={transactionType}
+          id="type"
+          value={type}
+          label="ტიპი"
+          placeholder="მაგ: ჩამოჭრა"
+          valueKey="nameEng"
+          labelKey="name"
+          onChange={handleChange}
+        />
+        {(searchInput || type || status) && (
+          <Button
+            onClick={clearFilters}
+            variant="outline"
+            className="cursor-pointer border-red-500 text-red-600"
+          >
             გასუფთავება
           </Button>
-        </div>
+        )}
+      </div>
 
-        <div className="flex justify-end">
-          <Pagination
-            totalPages={transactions?.totalPages}
-            currentPage={page}
-          />
-        </div>
+      <LinearLoader isLoading={isFetching} />
 
-        <LinearLoader isLoading={isFetching} />
-
-        <div className="overflow-x-auto w-full">
-          <Table className="min-w-[900px] table-auto">
-            <TableHeader>
+      <div className="overflow-x-auto w-full">
+        <Table className="min-w-[900px] table-auto">
+          <TableHeader>
+            <TableRow className="bg-gray-100 hover:bg-gray-100">
+              <TableHead>ID</TableHead>
+              <TableHead>თანხა (₾)</TableHead>
+              <TableHead>დანიშნულება</TableHead>
+              <TableHead>სტატუსი</TableHead>
+              <TableHead>ტრანზაქციის ტიპი</TableHead>
+              <TableHead>გადახდის მეთოდი</TableHead>
+              <TableHead className="text-right">თარიღი</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {!transactions ? (
               <TableRow>
-                <TableHead className="font-semibold">ID</TableHead>
-                <TableHead className="font-semibold">თანხა (₾)</TableHead>
-                <TableHead className="font-semibold">დანიშნულება</TableHead>
-                <TableHead className="font-semibold">სტატუსი</TableHead>
-                <TableHead className="font-semibold">
-                  ტრანზაქციის ტიპი
-                </TableHead>
-                <TableHead className="font-semibold">გადახდის მეთოდი</TableHead>
-                <TableHead className="font-semibold text-right">
-                  თარიღი
-                </TableHead>
+                <TableCell
+                  colSpan={7}
+                  className="text-center py-6 text-gray-500"
+                >
+                  ინფორმაცია იძებნება...
+                </TableCell>
               </TableRow>
-            </TableHeader>
-            <TableBody>
-              {!transactions ? (
-                <TableRow>
-                  <TableCell
-                    colSpan={7}
-                    className="text-center py-6 text-gray-500"
-                  >
-                    ინფორმაცია იძებნება...
+            ) : transactions?.total === 0 ? (
+              <TableRow>
+                <TableCell
+                  colSpan={7}
+                  className="text-center py-6 text-gray-500"
+                >
+                  ინფორმაცია არ მოიძებნა
+                </TableCell>
+              </TableRow>
+            ) : (
+              transactions?.data?.map((transaction: any) => (
+                <TableRow key={transaction.id} className="hover:bg-gray-100">
+                  <TableCell>{transaction.id}</TableCell>
+                  <TableCell>{transaction.amount} ₾</TableCell>
+                  <TableCell>{transaction.reason}</TableCell>
+                  <TableCell>{transaction.status}</TableCell>
+                  <TableCell>
+                    {transactionTypeLabels[transaction.type] ||
+                      transaction.type}
+                  </TableCell>
+                  <TableCell>
+                    {providerLabels[transaction.provider] ||
+                      transaction.provider}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {dayjs(transaction.created_at).format("DD.MM.YYYY HH:mm")}
                   </TableCell>
                 </TableRow>
-              ) : transactions?.total === 0 ? (
-                <TableRow>
-                  <TableCell
-                    colSpan={7}
-                    className="text-center py-6 text-gray-500"
-                  >
-                    ინფორმაცია არ მოიძებნა
-                  </TableCell>
-                </TableRow>
-              ) : (
-                transactions?.data?.map((transaction: any) => (
-                  <TableRow key={transaction.id} className="hover:bg-gray-50">
-                    <TableCell>{transaction.id}</TableCell>
-                    <TableCell>{transaction.amount} ₾</TableCell>
-                    <TableCell>{transaction.reason}</TableCell>
-                    <TableCell>{transaction.status}</TableCell>
-                    <TableCell>
-                      {transactionTypeLabels[transaction.type] ||
-                        transaction.type}
-                    </TableCell>
-                    <TableCell>
-                      {providerLabels[transaction.provider] ||
-                        transaction.provider}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {dayjs(transaction.created_at).format("DD.MM.YYYY HH:mm")}
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </div>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </div>
 
-        <div className="flex justify-end">
-          <Pagination
-            totalPages={transactions?.totalPages}
-            currentPage={page}
-          />
-        </div>
+      <div className="flex justify-end">
+        <Pagination totalPages={transactions?.totalPages} currentPage={page} />
       </div>
     </div>
   );

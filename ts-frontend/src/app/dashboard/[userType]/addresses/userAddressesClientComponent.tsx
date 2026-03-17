@@ -42,10 +42,7 @@ export default function UserAddressesClientComponent() {
 
   // delete address
   const deleteAddressMutation = useMutation({
-    mutationFn: (id: number) =>
-      api.delete(
-        `${userType}/addresses/${id}`,
-      ),
+    mutationFn: (id: number) => api.delete(`${userType}/addresses/${id}`),
 
     onSuccess: () => {
       toast.success("მისამართი წაიშალა");
@@ -74,114 +71,103 @@ export default function UserAddressesClientComponent() {
   };
 
   return (
-    <div className={`w-full flex flex-col gap-y-2`}>
-      <div className="self-end">
+    <div className="w-full space-y-1">
+      <div className="flex items-center gap-2 justify-between">
+        <h1 className="text-xl">მისამართები</h1>
         <Button
           onClick={() => toggleOpenCreateAddressModal(userType)}
-          className={`cursor-pointer h-[40px]`}
+          className={`cursor-pointer`}
         >
-          მისამართის დამატება
+          დამატება
         </Button>
       </div>
 
-      <div className="w-full bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6 space-y-2">
-        <h2 className="text-xl font-semibold mb-2">მისამართები</h2>
+      <LinearLoader isLoading={isFetching} />
 
-        <div className="flex justify-end">
-          <Pagination totalPages={addresses?.totalPages} currentPage={page} />
-        </div>
-
-        <LinearLoader isLoading={isFetching} />
-
-        <div className="overflow-x-auto w-full">
-          <Table className="min-w-[900px] table-auto">
-            <TableHeader>
+      <div className="overflow-x-auto w-full">
+        <Table className="min-w-[900px] table-auto">
+          <TableHeader>
+            <TableRow className="bg-gray-100 hover:bg-gray-100">
+              <TableHead>ID</TableHead>
+              <TableHead>მდებარეობა</TableHead>
+              <TableHead>მისამართის სახელი</TableHead>
+              <TableHead>ქალაქი</TableHead>
+              <TableHead>ქუჩა</TableHead>
+              <TableHead>შენობის ნომერი</TableHead>
+              <TableHead>სადარბაზოს ნომერი</TableHead>
+              <TableHead>სართული</TableHead>
+              <TableHead>ბინის ნომერი</TableHead>
+              <TableHead>აღწერა</TableHead>
+              <TableHead className="text-right"></TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {!addresses ? (
               <TableRow>
-                <TableHead className="font-semibold">ID</TableHead>
-                <TableHead className="font-semibold">მდებარეობა</TableHead>
-                <TableHead className="font-semibold">
-                  მისამართის სახელი
-                </TableHead>
-                <TableHead className="font-semibold">ქალაქი</TableHead>
-                <TableHead className="font-semibold">ქუჩა</TableHead>
-                <TableHead className="font-semibold">შენობის ნომერი</TableHead>
-                <TableHead className="font-semibold">
-                  სადარბაზოს ნომერი
-                </TableHead>
-                <TableHead className="font-semibold">სართული</TableHead>
-                <TableHead className="font-semibold">ბინის ნომერი</TableHead>
-                <TableHead className="font-semibold">აღწერა</TableHead>
-                <TableHead className="text-right"></TableHead>
+                <TableCell
+                  colSpan={11}
+                  className="text-center py-6 text-gray-500"
+                >
+                  ინფორმაცია იძებნება...
+                </TableCell>
               </TableRow>
-            </TableHeader>
-            <TableBody>
-              {!addresses ? (
-                <TableRow>
-                  <TableCell
-                    colSpan={11}
-                    className="text-center py-6 text-gray-500"
-                  >
-                    ინფორმაცია იძებნება...
+            ) : addresses?.total === 0 ? (
+              <TableRow>
+                <TableCell
+                  colSpan={11}
+                  className="text-center py-6 text-gray-500"
+                >
+                  ინფორმაცია არ მოიძებნა
+                </TableCell>
+              </TableRow>
+            ) : (
+              addresses?.data?.map((address: any) => (
+                <TableRow key={address.id} className="hover:bg-gray-100">
+                  <TableCell>{address.id}</TableCell>
+                  <TableCell>
+                    <div className="h-[80px] aspect-video">
+                      <Map
+                        centerCoordinates={address.location}
+                        markerCoordinates={address.location}
+                      />
+                    </div>
+                  </TableCell>
+                  <TableCell>{address.name}</TableCell>
+                  <TableCell>{address.city}</TableCell>
+                  <TableCell>{address.street}</TableCell>
+                  <TableCell>{address.building_number}</TableCell>
+                  <TableCell>{address.building_entrance || "---"}</TableCell>
+                  <TableCell>{address.building_floor || "---"}</TableCell>
+                  <TableCell>{address.apartment_number || "---"}</TableCell>
+                  <TableCell>{address.description}</TableCell>
+                  <TableCell className="text-right">
+                    <Button
+                      variant="secondary"
+                      size="icon"
+                      className="bg-red-600 hover:bg-red-700 text-white cursor-pointer rounded-lg"
+                      onClick={() => handleDeleteAddress(address.id)}
+                      disabled={
+                        deleteAddressMutation.isPending &&
+                        deleteAddressMutation.variables === address.id
+                      }
+                    >
+                      {deleteAddressMutation.isPending &&
+                      deleteAddressMutation.variables === address.id ? (
+                        <Loader2Icon className="animate-spin" />
+                      ) : (
+                        <AiOutlineDelete className="size-4"/>
+                      )}
+                    </Button>
                   </TableCell>
                 </TableRow>
-              ) : addresses?.total === 0 ? (
-                <TableRow>
-                  <TableCell
-                    colSpan={11}
-                    className="text-center py-6 text-gray-500"
-                  >
-                    ინფორმაცია არ მოიძებნა
-                  </TableCell>
-                </TableRow>
-              ) : (
-                addresses?.data?.map((address: any) => (
-                  <TableRow key={address.id} className="hover:bg-gray-50">
-                    <TableCell>{address.id}</TableCell>
-                    <TableCell>
-                      <div className="h-[80px] aspect-video bg-myLightBlue rounded-[8px] overflow-hidden">
-                        <Map
-                          centerCoordinates={address.location}
-                          markerCoordinates={address.location}
-                        />
-                      </div>
-                    </TableCell>
-                    <TableCell>{address.name}</TableCell>
-                    <TableCell>{address.city}</TableCell>
-                    <TableCell>{address.street}</TableCell>
-                    <TableCell>{address.building_number}</TableCell>
-                    <TableCell>{address.building_entrance || "---"}</TableCell>
-                    <TableCell>{address.building_floor || "---"}</TableCell>
-                    <TableCell>{address.apartment_number || "---"}</TableCell>
-                    <TableCell>{address.description}</TableCell>
-                    <TableCell className="text-right">
-                      <Button
-                        variant="secondary"
-                        size="icon"
-                        className="bg-[red] hover:bg-[#b91c1c] cursor-pointer"
-                        onClick={() => handleDeleteAddress(address.id)}
-                        disabled={
-                          deleteAddressMutation.isPending &&
-                          deleteAddressMutation.variables === address.id
-                        }
-                      >
-                        {deleteAddressMutation.isPending &&
-                        deleteAddressMutation.variables === address.id ? (
-                          <Loader2Icon className="animate-spin" />
-                        ) : (
-                          <AiOutlineDelete />
-                        )}
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </div>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </div>
 
-        <div className="flex justify-end">
-          <Pagination totalPages={addresses?.totalPages} currentPage={page} />
-        </div>
+      <div className="flex justify-end">
+        <Pagination totalPages={addresses?.totalPages} currentPage={page} />
       </div>
     </div>
   );

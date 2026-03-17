@@ -5,6 +5,7 @@ import { useOrdersStore } from "@/app/store/useOrdersStore";
 import dayjs from "dayjs";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { BsEye } from "react-icons/bs";
+import { CiFilter } from "react-icons/ci";
 import { toast } from "react-toastify";
 import Link from "next/link";
 import {
@@ -16,17 +17,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useQuery } from "@tanstack/react-query";
-import {
-  statusLabels,
-  typeLabels,
-} from "@/app/utils/order-type-status-translations";
+import { statusLabels, typeLabels } from "@/app/utils/order-type-status-translations";
 import { api } from "@/app/lib/api/axios";
 import Pagination from "@/app/components/pagination/pagination";
 import LinearLoader from "@/app/components/linearLoader";
-import PanelFormInput from "@/app/components/inputs/panel-form-input";
-import { Dropdown } from "@/app/components/inputs/drop-down";
-import DateRangePicker from "@/app/components/inputs/date-range-picker";
-import { useEffect, useState } from "react";
 import { useOrderTypeStatusOptionsStore } from "@/app/store/orderTypeStatusOptionsStore";
 import { useCurrentUser } from "@/app/hooks/useCurrentUser";
 
@@ -63,25 +57,8 @@ export default function UserOrdersClientComponent() {
   const from = searchParams.get("from") || "";
   const to = searchParams.get("to") || "";
 
-  const [searchInput, setSearchInput] = useState(search);
-
   const { typeOptions } = useOrderTypeStatusOptionsStore();
-
-  // search delay
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      const params = new URLSearchParams(searchParams.toString());
-      if (searchInput.trim()) {
-        params.set("search", searchInput.trim());
-      } else {
-        params.delete("search");
-      }
-      params.set("page", "1");
-      router.push(`?${params.toString()}`, { scroll: false });
-    }, 500);
-
-    return () => clearTimeout(handler);
-  }, [searchInput]);
+  const serviceTypeFilters = [{ id: "", name: "ყველა" }, ...typeOptions];
 
   const { data: orders, isFetching } = useQuery({
     queryKey: ["userOrders", userType, page, service_type, search, from, to],
@@ -92,27 +69,17 @@ export default function UserOrdersClientComponent() {
   });
 
   const { data: currentUser } = useCurrentUser();
-  const { toggleOpenCreateOrderModal } = useOrdersStore();
+  const { toggleOpenCreateOrderModal, toggleOpenFilterOrderModal } =
+    useOrdersStore();
 
-  // change filter values
-  const handleChange = (e: {
-    target: {
-      id: string;
-      value: { from: string | null; to: string | null } | string;
-    };
-  }) => {
-    const { id, value } = e.target;
-
+  // change filter service_type
+  const handleChange = (value: string) => {
     const params = new URLSearchParams(searchParams.toString());
 
-    if (id === "date_range" && typeof value !== "string") {
-      if (value.from) params.set("from", value.from);
-      else params.delete("from");
-
-      if (value.to) params.set("to", value.to);
-      else params.delete("to");
-    } else if (typeof value === "string") {
-      params.set(id, value);
+    if (value) {
+      params.set("service_type", value);
+    } else {
+      params.delete("service_type");
     }
 
     params.set("page", "1");
@@ -120,149 +87,130 @@ export default function UserOrdersClientComponent() {
     router.push(`?${params.toString()}`, { scroll: false });
   };
 
-  // Clear all filters
-  const clearFilters = () => {
-    const params = new URLSearchParams();
-    params.set("page", "1");
-    setSearchInput("");
-    router.push(`?${params.toString()}`, { scroll: false });
-  };
+  const countFilter = [service_type, search, from].filter(Boolean).length;
 
   return (
-    <div className={`w-full flex flex-col gap-y-2`}>
-      <div className="self-end">
-        <Button
-          onClick={() => {
-            if (currentUser?.status) {
-              toggleOpenCreateOrderModal(userType);
-            } else {
-              toast.error(
-                "თქვენ ვერ დაამატებთ შეკვეთას, რადგან თქვენი პროფილი გასააქტიურებელია",
-              );
-            }
-          }}
-          className={`cursor-pointer h-[40px]`}
-        >
-          აირჩიე სერვისი
-        </Button>
-      </div>
-
-      <div className="w-full bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6 space-y-2">
-        <h2 className="text-xl font-semibold mb-2">ჩემი სერვისები</h2>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 mb-4 gap-[20px] items-end">
-          <PanelFormInput
-            id="search"
-            value={searchInput}
-            label="ფილტრი"
-            onChange={(e) => setSearchInput(e.target.value)}
-          />
-          <Dropdown
-            data={typeOptions}
-            id="service_type"
-            value={service_type}
-            label="ტიპი"
-            valueKey="id"
-            labelKey="name"
-            onChange={handleChange}
-          />
-          <DateRangePicker
-            id="date_range"
-            value={{
-              from: from ? new Date(from) : undefined,
-              to: to ? new Date(to) : undefined,
+    <div className="w-full space-y-1">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-2 justify-between">
+        <h1 className="text-xl">ჩემი განცხადებები</h1>
+        <div className="flex gap-2 self-end">
+          <Button
+            onClick={toggleOpenFilterOrderModal}
+            variant="outline"
+            className="cursor-pointer"
+          >
+            <CiFilter className="size-4" />{" "}
+            <p className="hidden sm:flex">
+              ფილტრი {countFilter !== 0 && `(${countFilter})`}
+            </p>
+          </Button>
+          <Button
+            onClick={() => {
+              if (currentUser?.status) {
+                toggleOpenCreateOrderModal(userType);
+              } else {
+                toast.error(
+                  "თქვენ ვერ დაამატებთ შეკვეთას, რადგან თქვენი პროფილი გასააქტიურებელია",
+                );
+              }
             }}
-            label="თარიღი"
-            onChange={handleChange}
-          />
-          <Button onClick={clearFilters} className="cursor-pointer rounded-lg">
-            გასუფთავება
+            className={`md:hidden cursor-pointer`}
+          >
+            შეავსე განაცხადი
           </Button>
         </div>
-        <div className="flex justify-end">
-          <Pagination totalPages={orders?.totalPages} currentPage={page} />
-        </div>
+      </div>
 
-        <LinearLoader isLoading={isFetching} />
+      <div className="flex items-center overflow-x-auto">
+        {serviceTypeFilters.map((type) => {
+          const isActive = service_type === type.id;
 
-        <div className="overflow-x-auto w-full">
-          <Table className="min-w-[900px] table-auto">
-            <TableHeader>
+          return (
+            <button
+              key={type.id || "all"}
+              onClick={() => handleChange(type.id)}
+              className={`px-2 sm:px-4 py-1.5 text-[13px] cursor-pointer duration-100 border-b-1 shrink-0
+        ${
+          isActive
+            ? "text-myLightBlue border-b-myLightBlue"
+            : "hover:text-myLightBlue border-b-transparent hover:border-b-myLightBlue"
+        }`}
+            >
+              {type.name}
+            </button>
+          );
+        })}
+      </div>
+
+      <LinearLoader isLoading={isFetching} />
+
+      <div className="overflow-x-auto w-full">
+        <Table className="min-w-[900px] table-auto">
+          <TableHeader>
+            <TableRow className="bg-gray-100 hover:bg-gray-100">
+              <TableHead>ID</TableHead>
+              <TableHead>ტიპი</TableHead>
+              <TableHead>კატეგორია</TableHead>
+              <TableHead>ბრენდი</TableHead>
+              <TableHead>მოდელი</TableHead>
+              <TableHead>სტატუსი</TableHead>
+              <TableHead>დამატების თარიღი</TableHead>
+              <TableHead className="text-right"></TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {!orders ? (
               <TableRow>
-                <TableHead className="font-semibold">ID</TableHead>
-                <TableHead className="font-semibold">ტიპი</TableHead>
-                <TableHead className="font-semibold">კატეგორია</TableHead>
-                <TableHead className="font-semibold">ბრენდი</TableHead>
-                <TableHead className="font-semibold">მოდელი</TableHead>
-                <TableHead className="font-semibold">სტატუსი</TableHead>
-                <TableHead className="font-semibold">
-                  განაცხადის თარიღი
-                </TableHead>
-                <TableHead className="font-semibold">
-                  ცვლილების თარიღი
-                </TableHead>
-                <TableHead className="text-right"></TableHead>
+                <TableCell
+                  colSpan={9}
+                  className="text-center py-6 text-gray-500"
+                >
+                  ინფორმაცია იძებნება...
+                </TableCell>
               </TableRow>
-            </TableHeader>
-            <TableBody>
-              {!orders ? (
-                <TableRow>
-                  <TableCell
-                    colSpan={9}
-                    className="text-center py-6 text-gray-500"
-                  >
-                    ინფორმაცია იძებნება...
+            ) : orders?.total === 0 ? (
+              <TableRow>
+                <TableCell
+                  colSpan={9}
+                  className="text-center py-6 text-gray-500"
+                >
+                  ინფორმაცია არ მოიძებნა
+                </TableCell>
+              </TableRow>
+            ) : (
+              orders?.data?.map((order: Order) => (
+                <TableRow key={order.id} className="hover:bg-gray-100">
+                  <TableCell>{order.id}</TableCell>
+                  <TableCell>{typeLabels[order.service_type] || order.service_type}</TableCell>
+                  <TableCell>{order.category.name}</TableCell>
+                  <TableCell>{order.brand}</TableCell>
+                  <TableCell>{order.model}</TableCell>
+                  <TableCell>
+                    {statusLabels[order.status] || order.status}
+                  </TableCell>
+                  <TableCell>
+                    {dayjs(order.created_at).format("DD.MM.YYYY HH:mm")}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <Link href={`/dashboard/${userType}/orders/${order.id}`}>
+                      <Button
+                        variant="secondary"
+                        size="icon"
+                        className="bg-myLightBlue hover:bg-myBlue text-white cursor-pointer rounded-lg"
+                      >
+                        <BsEye className="size-4" />
+                      </Button>
+                    </Link>
                   </TableCell>
                 </TableRow>
-              ) : orders?.total === 0 ? (
-                <TableRow>
-                  <TableCell
-                    colSpan={9}
-                    className="text-center py-6 text-gray-500"
-                  >
-                    ინფორმაცია არ მოიძებნა
-                  </TableCell>
-                </TableRow>
-              ) : (
-                orders?.data?.map((order: Order) => (
-                  <TableRow key={order.id} className="hover:bg-gray-50">
-                    <TableCell>{order.id}</TableCell>
-                    <TableCell>
-                      {typeLabels[order.service_type] || order.service_type}
-                    </TableCell>
-                    <TableCell>{order.category.name}</TableCell>
-                    <TableCell>{order.brand}</TableCell>
-                    <TableCell>{order.model}</TableCell>
-                    <TableCell>
-                      {statusLabels[order.status] || order.status}
-                    </TableCell>
-                    <TableCell>
-                      {dayjs(order.created_at).format("DD.MM.YYYY HH:mm")}
-                    </TableCell>
-                    <TableCell>
-                      {dayjs(order.updated_at).format("DD.MM.YYYY HH:mm")}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Link href={`/dashboard/${userType}/orders/${order.id}`}>
-                        <Button
-                          variant="secondary"
-                          size="icon"
-                          className="hover:bg-gray-100 cursor-pointer"
-                        >
-                          <BsEye className="size-4" />
-                        </Button>
-                      </Link>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </div>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </div>
 
-        <div className="flex justify-end">
-          <Pagination totalPages={orders?.totalPages} currentPage={page} />
-        </div>
+      <div className="flex justify-end">
+        <Pagination totalPages={orders?.totalPages} currentPage={page} />
       </div>
     </div>
   );

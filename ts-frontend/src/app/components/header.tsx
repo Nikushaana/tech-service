@@ -27,7 +27,7 @@ export default function Header() {
     queryFn: () => fetchUserUnreadNotifications(role),
     staleTime: 1000 * 60 * 10,
     enabled: !!role,
-    retry: false
+    retry: false,
   });
 
   const firstSegment = pathname.split("/")[1];
@@ -40,16 +40,22 @@ export default function Header() {
     : "/auth/login";
 
   return (
-    <header className={`z-10 w-full ${isHidden ? "hidden" : ""}`}>
-      <div className="max-w-[1140px] mx-auto flex items-center justify-between h-[100px] px-4">
+    <header className={`w-full ${isHidden ? "hidden" : ""}`}>
+      <div
+        className={`${pathname.startsWith("/dashboard") ? "max-w-[1920px]" : "max-w-[1140px]"} mx-auto flex items-center justify-between h-[80px] sm:h-[100px] px-4`}
+      >
         <Link href={"/"}>
-          <img src="/images/logo.png" alt="logo" className="h-[60px]" />
+          <img
+            src="/images/logo.webp"
+            alt="logo"
+            className="h-[50px] sm:h-[60px]"
+          />
         </Link>
 
         {/* Desktop Menu */}
         <nav className="hidden md:flex gap-6">
           {menu.map((item) => (
-            <h1
+            <p
               key={item.id}
               onClick={() => {
                 if (pathname.split("/")[1]) {
@@ -58,20 +64,18 @@ export default function Header() {
                   scrollToSection(item.target);
                 }
               }}
-              className={`${
-                pathname.split("/")[1] ? "text-myGray" : "text-white"
-              } cursor-pointer hover:text-myLightBlue duration-100`}
+              className={`text-myLightGray cursor-pointer text-[15px] hover:text-myLightBlue duration-100`}
             >
               {item.text}
-            </h1>
+            </p>
           ))}
         </nav>
 
         {/* Request Button (Desktop) */}
-        <div className="flex items-center gap-[10px] duration-200">
+        <div className="flex items-center gap-[10px]">
           <Link href={path}>
             <Button className="hidden md:flex cursor-pointer h-[45px] px-[20px] sm:px-[30px]">
-              {currentUser ? "აირჩიე სერვისი" : "ავტორიზაცია"}
+              {currentUser ? "შეავსე განაცხადი" : "ავტორიზაცია"}
             </Button>
           </Link>
 
@@ -103,9 +107,7 @@ export default function Header() {
           {/* Mobile Hamburger */}
           <div
             onClick={toggleBurgerMenu}
-            className={`md:hidden flex items-center justify-center ${
-              pathname.split("/")[2] ? "text-myGray" : "text-white"
-            } text-2xl duration-150 h-[45px] aspect-square ${
+            className={`md:hidden flex items-center justify-center text-2xl duration-150 h-[45px] aspect-square ${
               isOpen && "rotate-[180deg]"
             }`}
           >

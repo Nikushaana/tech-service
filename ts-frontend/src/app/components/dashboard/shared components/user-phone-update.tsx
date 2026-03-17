@@ -31,10 +31,10 @@ export default function UserPhoneUpdate({
     <div className="flex flex-col gap-y-[20px] w-full">
       <div className="flex flex-col gap-y-[10px] w-full">
         {title && <h2>{title}</h2>}
-        <p className="text-center text-sm">
+        <p className={`text-[13px] ${!sentCode && "italic"}`}>
           {sentCode
             ? "შეიყვანე ტელეფონის ნომერზე გამოგზავნილი კოდი"
-            : "თუ გსურს ტელეფონის ნომრის განახლება საჭიროა ახალი ნომრის დადასტურება ვალიდური კოდით"}
+            : "*თუ გსურთ ტელეფონის ნომრის განახლება საჭიროა ახალი ნომრის დადასტურება ვალიდური კოდით"}
         </p>
 
         {/* For debug, can remove */}

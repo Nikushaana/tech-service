@@ -129,10 +129,7 @@ export default function UpdateOrder() {
 
   const updateOrderMutation = useMutation({
     mutationFn: (payload: FormData) =>
-      api.patch(
-        `${modalType}/orders/${currentOrder.id}`,
-        payload,
-      ),
+      api.patch(`${modalType}/orders/${currentOrder.id}`, payload),
 
     onSuccess: () => {
       toast.success("სერვისი განახლდა");
@@ -171,7 +168,7 @@ export default function UpdateOrder() {
     onError: (error: any) => {
       if (error.response.data.message == "Inactive user cannot update orders") {
         toast.error(
-          "თქვენ ვერ განაახლებთ სერვისს, რადგან თქვენი პროფილი გასააქტიურებელია"
+          "თქვენ ვერ განაახლებთ სერვისს, რადგან თქვენი პროფილი გასააქტიურებელია",
         );
       } else {
         toast.error("სერვისი ვერ განახლდა");
@@ -262,11 +259,13 @@ export default function UpdateOrder() {
       ></div>
 
       <div
-        className={`bg-white rounded-2xl shadow-lg py-6 px-3 w-full sm:w-[600px] mx-[10px] z-[22] transition-transform duration-200 flex flex-col gap-y-[10px] max-h-[80vh] ${
+        className={`bg-white rounded-[20px] sm:rounded-[30px] shadow-lg py-4 px-3 sm:py-6 sm:px-5 w-full sm:w-[600px] mx-[10px] z-[22] duration-200 flex flex-col gap-y-[10px] max-h-[80vh] ${
           openUpdateOrderModal ? "scale-100 opacity-100" : "scale-90 opacity-0"
         }`}
       >
-        <h2 className="text-lg font-semibold ">შეცვალე ინფორმაცია</h2>
+        <h2 className="text-lg ">შეცვალე ინფორმაცია</h2>
+
+        <hr />
 
         <div className="flex-1 overflow-y-auto showScroll pr-2">
           <div className="flex flex-col gap-y-[10px]">
@@ -277,6 +276,7 @@ export default function UpdateOrder() {
                   id="categoryId"
                   value={values.categoryId}
                   label="კატეგორია"
+                  placeholder="მაგ: მაცივარი"
                   valueKey="id"
                   labelKey="name"
                   onChange={handleChange}
@@ -288,6 +288,7 @@ export default function UpdateOrder() {
                 value={values.brand || ""}
                 onChange={handleChange}
                 label="ბრენდი"
+                placeholder="მაგ: ბოში"
                 error={errors.brand}
               />
               <PanelFormInput
@@ -295,6 +296,7 @@ export default function UpdateOrder() {
                 value={values.model || ""}
                 onChange={handleChange}
                 label="მოდელი"
+                placeholder="მაგ: KDN43VL20U"
                 error={errors.model}
               />
               <div className="col-span-1 sm:col-span-2">
@@ -303,6 +305,7 @@ export default function UpdateOrder() {
                   value={values.description || ""}
                   onChange={handleChange}
                   label="აღწერა"
+                  placeholder="მაგ: მაცივარი აღარ ყინავს.."
                   error={errors.description}
                 />
               </div>
@@ -378,14 +381,15 @@ export default function UpdateOrder() {
                 description: "",
               }));
             }}
-            className="h-[45px] px-6 cursor-pointer bg-red-500 hover:bg-[#b91c1c]"
+            variant="outline"
+            className="cursor-pointer"
           >
             გაუქმება
           </Button>
           <Button
             onClick={handleUpdateOrder}
             disabled={updateOrderMutation.isPending}
-            className="h-[45px] px-6 text-white cursor-pointer"
+            className="cursor-pointer"
           >
             {updateOrderMutation.isPending && (
               <Loader2Icon className="animate-spin" />

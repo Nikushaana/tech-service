@@ -7,12 +7,12 @@ import UsersCommentsSection from "./components/home-page/users-comments/users-co
 
 export default function Home() {
   return (
-    <div className="mt-[-100px] flex flex-col gap-y-[150px] pb-[150px] items-center">
-      <div id="hero" className="w-full">
+    <div className="flex flex-col gap-y-24 sm:gap-y-36 pb-[150px] md:px-4 items-center">
+      <div id="hero" className="w-full px-4 md:px-0">
         <HeroSection />
       </div>
 
-      <div className="max-w-[1140px] w-full flex flex-col gap-y-[100px] sm:gap-y-[150px] px-4">
+      <div className="max-w-[1140px] w-full flex flex-col gap-y-24 sm:gap-y-36 px-4 md:px-0">
         <ServicesSection />
 
         <div id="whychoose" className="scroll-mt-[180px] ">
@@ -22,14 +22,18 @@ export default function Home() {
 
       <StatsSection />
 
-      <div className="max-w-[1140px] w-full flex flex-col gap-y-[100px] sm:gap-y-[150px] px-4">
-        <div id="usercomments" className="scroll-mt-[180px]">
-          <UsersCommentsSection />
-        </div>
+      <div
+        id="usercomments"
+        className="scroll-mt-[180px] max-w-[1140px] w-full"
+      >
+        <UsersCommentsSection />
+      </div>
 
-        <div id="faq" className="scroll-mt-[180px]">
-          <FaqSection />
-        </div>
+      <div
+        id="faq"
+        className="scroll-mt-[180px] w-full flex justify-center bg-gray-100 md:rounded-[30px] px-4"
+      >
+        <FaqSection />
       </div>
     </div>
   );

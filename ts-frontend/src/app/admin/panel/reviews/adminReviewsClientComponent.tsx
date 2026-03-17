@@ -62,40 +62,36 @@ export default function AdminReviewsClientComponent() {
   };
 
   return (
-    <div className="w-full bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6 space-y-2">
-      <h2 className="text-xl font-semibold mb-2">შეფასებები</h2>
-
-      <div className="flex justify-end">
-        <Pagination totalPages={reviews?.totalPages} currentPage={page} />
-      </div>
+    <div className="w-full space-y-1">
+      <h2 className="text-xl mb-2">შეფასებები</h2>
 
       <LinearLoader isLoading={isFetching} />
 
       <div className="overflow-x-auto w-full">
         <Table className="min-w-[900px] table-auto">
           <TableHeader>
-            <TableRow>
-              <TableHead className="font-semibold">ID</TableHead>
-              <TableHead className="font-semibold">მომხმარებელი</TableHead>
-              <TableHead className="font-semibold">ვარსკვლავი</TableHead>
-              <TableHead className="font-semibold">შეფასება</TableHead>
-              <TableHead className="font-semibold">სტატუსი</TableHead>
-              <TableHead className="font-semibold">განაცხადის თარიღი</TableHead>
-              <TableHead className="font-semibold">ცვლილების თარიღი</TableHead>
+            <TableRow className="bg-gray-100 hover:bg-gray-100">
+              <TableHead>ID</TableHead>
+              <TableHead>მომხმარებელი</TableHead>
+              <TableHead>ვარსკვლავი</TableHead>
+              <TableHead>შეფასება</TableHead>
+              <TableHead>სტატუსი</TableHead>
+              <TableHead>განაცხადის თარიღი</TableHead>
+              <TableHead>ცვლილების თარიღი</TableHead>
               <TableHead className="text-right"></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {!reviews ? (
-                <TableRow>
-                  <TableCell
-                    colSpan={8}
-                    className="text-center py-6 text-gray-500"
-                  >
-                    ინფორმაცია იძებნება...
-                  </TableCell>
-                </TableRow>
-              ) : reviews?.total === 0 ? (
+              <TableRow>
+                <TableCell
+                  colSpan={8}
+                  className="text-center py-6 text-gray-500"
+                >
+                  ინფორმაცია იძებნება...
+                </TableCell>
+              </TableRow>
+            ) : reviews?.total === 0 ? (
               <TableRow>
                 <TableCell
                   colSpan={8}
@@ -106,7 +102,7 @@ export default function AdminReviewsClientComponent() {
               </TableRow>
             ) : (
               reviews?.data?.map((review: Review) => (
-                <TableRow key={review.id} className="hover:bg-gray-50">
+                <TableRow key={review.id} className="hover:bg-gray-100">
                   <TableCell className="font-medium">{review.id}</TableCell>
                   <TableCell>
                     <div className="flex items-center gap-[10px]">
@@ -159,7 +155,7 @@ export default function AdminReviewsClientComponent() {
                       <Button
                         variant="secondary"
                         size="icon"
-                        className="hover:bg-gray-100 cursor-pointer"
+                        className="bg-myLightBlue hover:bg-myBlue text-white cursor-pointer rounded-lg"
                       >
                         <BsEye className="size-4" />
                       </Button>
@@ -174,7 +170,7 @@ export default function AdminReviewsClientComponent() {
                         deleteReviewMutation.isPending &&
                         deleteReviewMutation.variables === review.id
                       }
-                      className="bg-[red] hover:bg-[#b91c1c] ml-3 cursor-pointer"
+                      className="bg-[red] hover:bg-[#b91c1c] ml-3 text-white cursor-pointer rounded-lg"
                     >
                       {deleteReviewMutation.isPending &&
                       deleteReviewMutation.variables === review.id ? (

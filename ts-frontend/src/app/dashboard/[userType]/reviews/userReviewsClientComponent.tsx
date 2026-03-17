@@ -41,79 +41,72 @@ export default function UserReviewsClientComponent() {
   });
 
   return (
-    <div className={`w-full flex flex-col gap-y-2`}>
-      <div className="self-end">
+    <div className="w-full space-y-1">
+      <div className="flex items-center gap-2 justify-between">
+        <h1 className="text-xl">შეაფასე Techero</h1>
         <Button
           onClick={() => {
             toggleOpenCreateReviewModal(userType);
           }}
-          className={`cursor-pointer h-[40px]`}
+          className={`cursor-pointer`}
         >
           დატოვე შეფასება
         </Button>
       </div>
-      <div className="w-full bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6 space-y-2">
-        <h2 className="text-xl font-semibold mb-2">შეაფასე Tech Service</h2>
-        <div className="flex justify-end">
-          <Pagination totalPages={reviews?.totalPages} currentPage={page} />
-        </div>
+      
+      <LinearLoader isLoading={isFetching} />
 
-        <LinearLoader isLoading={isFetching} />
-
-        <div className="overflow-x-auto w-full">
-          <Table className="min-w-[900px] table-auto">
-            <TableHeader>
+      <div className="overflow-x-auto w-full">
+        <Table className="min-w-[900px] table-auto">
+          <TableHeader>
+            <TableRow className="bg-gray-100 hover:bg-gray-100">
+              <TableHead>ID</TableHead>
+              <TableHead>ვარსკვლავი</TableHead>
+              <TableHead>შეფასება</TableHead>
+              <TableHead className="text-right">განაცხადის თარიღი</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {!reviews ? (
               <TableRow>
-                <TableHead className="font-semibold">ID</TableHead>
-                <TableHead className="font-semibold">ვარსკვლავი</TableHead>
-                <TableHead className="font-semibold">შეფასება</TableHead>
-                <TableHead className="text-right font-semibold">
-                  განაცხადის თარიღი
-                </TableHead>
+                <TableCell
+                  colSpan={4}
+                  className="text-center py-6 text-gray-500"
+                >
+                  ინფორმაცია იძებნება...
+                </TableCell>
               </TableRow>
-            </TableHeader>
-            <TableBody>
-              {!reviews ? (
-                <TableRow>
-                  <TableCell
-                    colSpan={4}
-                    className="text-center py-6 text-gray-500"
-                  >
-                    ინფორმაცია იძებნება...
+            ) : reviews?.total === 0 ? (
+              <TableRow>
+                <TableCell
+                  colSpan={4}
+                  className="text-center py-6 text-gray-500"
+                >
+                  ინფორმაცია არ მოიძებნა
+                </TableCell>
+              </TableRow>
+            ) : (
+              reviews?.data?.map((review: Review) => (
+                <TableRow key={review.id} className="hover:bg-gray-100">
+                  <TableCell className="font-medium">{review.id}</TableCell>
+                  <TableCell>
+                    <StarRating value={review.stars || 5} />
+                  </TableCell>
+                  <TableCell className="max-w-[200px] truncate">
+                    {review.review}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {dayjs(review.created_at).format("DD.MM.YYYY HH:mm")}
                   </TableCell>
                 </TableRow>
-              ) : reviews?.total === 0 ? (
-                <TableRow>
-                  <TableCell
-                    colSpan={4}
-                    className="text-center py-6 text-gray-500"
-                  >
-                    ინფორმაცია არ მოიძებნა
-                  </TableCell>
-                </TableRow>
-              ) : (
-                reviews?.data?.map((review: Review) => (
-                  <TableRow key={review.id} className="hover:bg-gray-50">
-                    <TableCell className="font-medium">{review.id}</TableCell>
-                    <TableCell>
-                      <StarRating value={review.stars || 5} />
-                    </TableCell>
-                    <TableCell className="max-w-[200px] truncate">
-                      {review.review}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {dayjs(review.created_at).format("DD.MM.YYYY HH:mm")}
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </div>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </div>
 
-        <div className="flex justify-end">
-          <Pagination totalPages={reviews?.totalPages} currentPage={page} />
-        </div>
+      <div className="flex justify-end">
+        <Pagination totalPages={reviews?.totalPages} currentPage={page} />
       </div>
     </div>
   );

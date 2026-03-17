@@ -26,11 +26,9 @@ interface TechnicianValues {
 
 const fetchAdminStaffMemberById = async (
   staffMemberType: string,
-  staffMemberId: string
+  staffMemberId: string,
 ) => {
-  const { data } = await api.get(
-    `admin/${staffMemberType}/${staffMemberId}`
-  );
+  const { data } = await api.get(`admin/${staffMemberType}/${staffMemberId}`);
   return data;
 };
 
@@ -99,7 +97,7 @@ export default function Page() {
   }, [staffMember]);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { id, value } = e.target;
     setValues((prev) => ({
@@ -115,7 +113,7 @@ export default function Page() {
     phone: Yup.string()
       .matches(
         /^5\d{2} \d{3} \d{3}$/,
-        "ნომერი უნდა დაიწყოს 5-ით და იყოს ფორმატში: 5** *** ***"
+        "ნომერი უნდა დაიწყოს 5-ით და იყოს ფორმატში: 5** *** ***",
       )
       .required("ტელეფონის ნომერი აუცილებელია"),
     password: Yup.string()
@@ -176,7 +174,7 @@ export default function Page() {
       formData.append("lastName", values.lastName);
       formData.append(
         "phone",
-        values.phone && values.phone.replace(/\s+/g, "")
+        values.phone && values.phone.replace(/\s+/g, ""),
       );
       if (values.password) {
         formData.append("password", values.password);
@@ -207,18 +205,6 @@ export default function Page() {
 
   return (
     <div className={`w-full flex flex-col items-center gap-y-[20px]`}>
-      <div className="flex items-center gap-2 text-sm">
-        <p>დაბლოკილი</p>
-        <Switch
-          checked={values.status}
-          onCheckedChange={(checked) =>
-            setValues((prev) => ({ ...prev, status: checked }))
-          }
-          className="cursor-pointer"
-        />
-        <p>აქტიური</p>
-      </div>
-
       <ImageSelector
         images={values.images}
         setImages={(url: string) =>
@@ -242,7 +228,17 @@ export default function Page() {
             })),
         }}
       />
-
+      <div className="flex items-center gap-2 text-sm">
+        <p>დაბლოკილი</p>
+        <Switch
+          checked={values.status}
+          onCheckedChange={(checked) =>
+            setValues((prev) => ({ ...prev, status: checked }))
+          }
+          className="cursor-pointer"
+        />
+        <p>აქტიური</p>
+      </div>
       <PanelFormInput
         id="name"
         value={values.name}

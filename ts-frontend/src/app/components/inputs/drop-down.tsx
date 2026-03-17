@@ -1,6 +1,5 @@
 "use client";
 
-import * as React from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,6 +14,7 @@ export function Dropdown<T>({
   id,
   value,
   label,
+  placeholder = "",
   error,
   valueKey,
   labelKey,
@@ -24,6 +24,7 @@ export function Dropdown<T>({
   id: string;
   value: string;
   label: string;
+  placeholder?: string;
   error?: string;
   valueKey: keyof T;
   labelKey: keyof T | ((item: T) => string);
@@ -38,7 +39,7 @@ export function Dropdown<T>({
       ? labelKey(item)
       : String(item[labelKey]);
 
-  const displayText = selectedItem ? getLabel(selectedItem) : label;
+  const displayText = selectedItem ? getLabel(selectedItem) : placeholder;
 
   const handleSelect = (val: string) => {
     onChange({
@@ -58,13 +59,13 @@ export function Dropdown<T>({
           <Input
             readOnly
             value={displayText}
-            className={`mt-[5px] cursor-pointer border-2 rounded-[8px] h-9 px-2 text-start ${
+            className={`mt-[3px] cursor-pointer border-1 rounded-full h-9 px-3 text-start ${
               !value ? "text-gray-400" : ""
             } ${error ? "border-red-500" : "border-gray-300"}`}
           />
         </DropdownMenuTrigger>
 
-        <DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)] max-h-[140px] overflow-y-auto rounded-[8px] border-2">
+        <DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)] max-h-[140px] overflow-y-auto rounded-[18px] border-1">
           <DropdownMenuRadioGroup
             value={String(value)}
             onValueChange={handleSelect}
@@ -73,7 +74,7 @@ export function Dropdown<T>({
               <DropdownMenuRadioItem
                 key={String(item[valueKey])}
                 value={String(item[valueKey])}
-                className="cursor-pointer text-sm"
+                className="cursor-pointer text-sm rounded-[20px]"
               >
                 {getLabel(item)}
               </DropdownMenuRadioItem>

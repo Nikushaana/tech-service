@@ -14,7 +14,7 @@ interface MenuStore {
 export const useMenuStore = create<MenuStore>(() => ({
     menu: [
         { id: 1, text: "მთავარი", target: "hero" },
-        { id: 2, text: "რატომ Tech Service?", target: "whychoose" },
+        { id: 2, text: "რატომ Techero?", target: "whychoose" },
         { id: 3, text: "შეფასებები", target: "usercomments" },
         { id: 4, text: "FAQ", target: "faq" },
     ],

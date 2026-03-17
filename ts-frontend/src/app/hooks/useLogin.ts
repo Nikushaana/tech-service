@@ -16,7 +16,7 @@ export function useLogin() {
   const loginMutation = useMutation({
     mutationFn: async () => {
       const payload = { phone: values.phone.replace(/\s+/g, ""), password: values.password };
-      const res = await api.post("/auth/login", payload);
+      const res = await api.post("auth/login", payload);
       return res.data;
     },
     onSuccess: async (data) => {
@@ -32,7 +32,7 @@ export function useLogin() {
       const allowedRoles = getAllowedRoles(pathname);
 
       if (!allowedRoles || !allowedRoles.includes(role)) {
-        await api.post("/auth/logout");
+        await api.post("auth/logout");
 
         queryClient.invalidateQueries({
           queryKey: ["currentUser"],

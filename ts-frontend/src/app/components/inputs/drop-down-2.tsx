@@ -11,6 +11,7 @@ interface DropdownProps {
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onSelect: (item: any) => void;
   label: string;
+  placeholder?: string;
   error?: string;
   isLoading?: boolean;
 }
@@ -22,6 +23,7 @@ export function Dropdown2({
   onChange,
   onSelect,
   label,
+  placeholder,
   error,
   isLoading,
 }: DropdownProps) {
@@ -51,7 +53,7 @@ export function Dropdown2({
 
   return (
     <div ref={wrapperRef} className="w-full relative">
-      <label className="text-myGray text-sm">{label}</label>
+      <label className="text-myGray text-[13px]">{label}</label>
       {isLoading && (
         <Loader2Icon className="absolute right-[10px] bottom-[10px] pointer-events-none animate-spin w-[15px] h-[15px]" />
       )}
@@ -59,12 +61,12 @@ export function Dropdown2({
         id={id}
         type="text"
         value={value}
-        placeholder={isLoading ? "იტვირთება..." : label}
+        placeholder={placeholder}
         onChange={onChange}
         onFocus={() => {
           if (data?.length > 0) setOpen(true);
         }}
-        className={`rounded-[8px] text-start border-2 mt-[5px] focus-visible:ring-0 shadow-none px-2 h-9 ${
+        className={`rounded-full text-start border-1 mt-[3px] focus-visible:ring-0 shadow-none px-3 h-9 ${
           error ? "border-red-500" : "border-gray-300"
         }`}
       />

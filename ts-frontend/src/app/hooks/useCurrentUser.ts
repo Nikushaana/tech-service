@@ -11,7 +11,7 @@ const fetchCurrentUser = async () => {
         // Try refresh token if not missing
         if (err.response?.data?.message !== "Token missing") {
             try {
-                await api.post("/auth/refresh-token");
+                await api.post("auth/refresh-token");
                 const { data } = await api.get("auth/current-user");
                 return data;
             } catch {

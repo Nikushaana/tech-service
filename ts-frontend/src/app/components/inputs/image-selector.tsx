@@ -1,15 +1,13 @@
 "use client";
 
-import React, { useRef } from "react";
-import { Trash2Icon } from "lucide-react";
-import { LuImagePlus } from "react-icons/lu";
-import { Button } from "@/components/ui/button";
+import { useRef } from "react";
+import { User } from "lucide-react";
 
 interface ImageSelectorProps {
-  images?: string[]; // already uploaded images (URLs)
+  images?: string[];
   setImages?: (url: string) => void;
 
-  newImages: File[]; // newly added but not uploaded
+  newImages: File[];
   setNewImages: {
     add: (files: File[]) => void;
     remove: (file: File) => void;
@@ -24,74 +22,50 @@ export default function ImageSelector({
 }: ImageSelectorProps) {
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const handleAddFiles = (files: FileList) => {
-    const fileArray = Array.from(files);
-    setNewImages.add(fileArray);
+  const preview =
+    newImages?.[0]
+      ? URL.createObjectURL(newImages[0])
+      : images?.[0] || null;
+
+  const handleFileChange = (file: File) => {
+    if (images?.[0] && setImages) {
+      setImages(images[0]);
+    }
+
+    setNewImages.add([file]);
   };
 
   return (
-    <div className="flex flex-wrap justify-center gap-3">
-      {/* Existing images */}
-      {images?.map((url) => (
-        <div
-          key={url}
-          className="w-[200px] h-[130px] rounded relative overflow-hidden shadow border-[1px]"
-        >
-          <Button
-            onClick={() => {
-              if (setImages) setImages(url);
-            }}
-            className="absolute bottom-[5px] left-[5%] w-[90%] h-[40px] flex items-center justify-center bg-red-500 text-white hover:bg-red-600 text-[30px] cursor-pointer"
-          >
-            <Trash2Icon />
-          </Button>
+    <div
+      onClick={() => inputRef.current?.click()}
+      className="flex items-center gap-3 cursor-pointer group"
+    >
+      <div className="w-[60px] h-[60px] rounded-full overflow-hidden border flex items-center justify-center bg-gray-100">
+        {preview ? (
           <img
-            src={url}
-            alt="uploaded"
-            className="w-full h-full object-contain"
+            src={preview}
+            alt="profile"
+            className="w-full h-full object-cover"
           />
-        </div>
-      ))}
-
-      {/* New images preview */}
-      {newImages.map((file, index) => (
-        <div
-          key={index}
-          className="w-[200px] h-[130px] rounded relative overflow-hidden shadow border-[1px]"
-        >
-          <Button
-            onClick={() => setNewImages.remove(file)}
-            className="absolute bottom-[5px] left-[5%] w-[90%] h-[40px] flex items-center justify-center bg-red-500 text-white hover:bg-red-600 text-[30px] cursor-pointer"
-          >
-            <Trash2Icon />
-          </Button>
-          <img
-            src={URL.createObjectURL(file)}
-            alt="preview"
-            className="w-full h-full object-contain"
-          />
-        </div>
-      ))}
-
-      {/* Add new images */}
-      <div className="w-[200px] h-[130px] relative ">
-        <Button
-          onClick={() => inputRef.current?.click()}
-          className="absolute top-0 left-0 w-full h-full flex items-center justify-center text-[30px] cursor-pointer rounded bg-green-500 text-white hover:bg-green-600 duration-100"
-        >
-          <LuImagePlus />
-        </Button>
-        <input
-          type="file"
-          multiple
-          accept="image/*"
-          style={{ display: "none" }}
-          ref={inputRef}
-          onChange={(e) => {
-            if (e.target.files) handleAddFiles(e.target.files);
-          }}
-        />
+        ) : (
+          <User size={24} className="text-gray-500" />
+        )}
       </div>
+
+      <p className="text-sm text-myLightBlue group-hover:text-myBlue group-hover:underline">
+        შეცვალე სურათი
+      </p>
+
+      <input
+        type="file"
+        accept="image/*"
+        hidden
+        ref={inputRef}
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) handleFileChange(file);
+        }}
+      />
     </div>
   );
 }

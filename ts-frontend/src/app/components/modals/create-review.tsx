@@ -114,11 +114,12 @@ export default function CreateReview() {
       ></div>
 
       <div
-        className={`bg-white rounded-2xl shadow-lg py-6 px-3 w-full sm:w-[600px] mx-[10px] z-[22] transition-transform duration-200 flex flex-col gap-y-[10px] max-h-[80vh] ${
+        className={`bg-white rounded-[20px] sm:rounded-[30px] shadow-lg py-4 px-3 sm:py-6 sm:px-5 w-full sm:w-[600px] mx-[10px] z-[22] duration-200 flex flex-col gap-y-[10px] max-h-[80vh] ${
           openCreateReviewModal ? "scale-100 opacity-100" : "scale-90 opacity-0"
         }`}
       >
-        <h2 className="text-lg font-semibold ">შეაფასე Tech Service</h2>
+        <h2 className="text-lg ">შეაფასე Techero</h2>
+        <hr />
         <div className="flex-1 overflow-y-auto showScroll pr-2">
           <div className="flex flex-col gap-y-[10px]">
             <div className="self-end">
@@ -133,7 +134,8 @@ export default function CreateReview() {
               id="review"
               value={values.review || ""}
               onChange={handleChange}
-              label={"შეფასება"}
+              label="შეფასება"
+              placeholder="მაგ: კმაყოფილი ვარ Techero-ს მომსახურებით..."
               error={errors.review}
             />
           </div>
@@ -141,6 +143,7 @@ export default function CreateReview() {
 
         <div className="flex gap-3 justify-end mt-4">
           <Button
+            variant="outline"
             onClick={() => {
               toggleOpenCreateReviewModal();
               setErrors((prev) => ({
@@ -155,14 +158,14 @@ export default function CreateReview() {
                 stars: 5,
               }));
             }}
-            className="h-[45px] px-6 cursor-pointer bg-red-500 hover:bg-[#b91c1c]"
+            className="cursor-pointer"
           >
             გაუქმება
           </Button>
           <Button
             onClick={handleCreateReview}
             disabled={addReviewMutation.isPending}
-            className="h-[45px] px-6 text-white cursor-pointer"
+            className="cursor-pointer"
           >
             {addReviewMutation.isPending && (
               <Loader2Icon className="animate-spin" />

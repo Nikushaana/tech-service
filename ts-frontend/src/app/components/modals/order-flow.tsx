@@ -116,7 +116,7 @@ export default function OrderFlow() {
           openOrderFlowModal ? "scale-100 opacity-100" : "scale-90 opacity-0"
         }`}
       >
-        <h2 className="text-lg font-semibold ">დაამატე ინფორმაცია</h2>
+        <h2 className="text-lg ">დაამატე ინფორმაცია</h2>
         <div className="flex-1 overflow-y-auto showScroll pr-2">
           <div className="flex flex-col gap-y-[10px]">
             {openOrderFlowModal?.actionKey !== "decisionCancel" && (

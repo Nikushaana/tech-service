@@ -10,7 +10,7 @@ import Map from "@/app/components/map/map";
 import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { fetchCities, fetchStreets } from "@/app/lib/api/locations";
+// import { fetchCities, fetchStreets } from "@/app/lib/api/locations";
 import { formatNumber } from "@/app/utils/formatNumber";
 import { api } from "@/app/lib/api/axios";
 
@@ -329,10 +329,7 @@ export default function Page() {
           isLoading={streetLoading}
           error={errors.street}
         />
-        <div
-          className={`col-span-1 sm:col-span-2 h-[200px] bg-myLightBlue rounded-[8px] overflow-hidden
-          ${errors.location && "border-2 border-red-500"}`}
-        >
+        <div className={`col-span-1 sm:col-span-2 h-[200px]`}>
           <Map
             uiControl={true}
             id="location"
@@ -343,6 +340,7 @@ export default function Page() {
               undefined
             }
             onChange={handleChange}
+            error={errors.location}
           />
         </div>
         <PanelFormInput

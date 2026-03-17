@@ -13,15 +13,15 @@ import { HiMenu, HiX } from "react-icons/hi";
 
 const sidebarLinks = [
   { name: "მთავარი", href: "/admin/panel/main" },
-  { name: "მომხმარებლების სერვისები", href: "/admin/panel/orders" },
+  { name: "განცხადებები", href: "/admin/panel/orders" },
+  { name: "შეტყობინებები", href: "/admin/panel/notifications" },
+  { name: "მომხმარებლები", href: "/admin/panel/users" },
+  { name: "თანამშრომლები", href: "/admin/panel/staff" },
+  { name: "ტრანზაქციები", href: "/admin/panel/transactions" },
+  { name: "ფილიალები", href: "/admin/panel/branches" },
   { name: "კატეგორიები", href: "/admin/panel/categories" },
   { name: "FAQs", href: "/admin/panel/faqs" },
   { name: "შეფასებები", href: "/admin/panel/reviews" },
-  { name: "ფილიალები", href: "/admin/panel/branches" },
-  { name: "მომხმარებლები", href: "/admin/panel/users" },
-  { name: "თანამშრომლები", href: "/admin/panel/staff" },
-  { name: "შეტყობინებები", href: "/admin/panel/notifications" },
-  { name: "ტრანზაქციები", href: "/admin/panel/transactions" },
 ];
 
 export default function Layout({ children }: { children: React.ReactNode }) {
@@ -44,8 +44,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex flex-col items-center">
       <div
-        className={`max-w-[1920px] w-full flex flex-col min-h-[100vh] p-[10px] gap-[10px] duration-100 ${
-          authLoading && "brightness-70 blur-[2px] pointer-events-none"
+        className={`max-w-[1920px] w-full flex flex-col min-h-[100vh] p-[10px] gap-[10px] ${
+          authLoading && "pointer-events-none"
         }`}
       >
         {/* Mobile Hamburger */}
@@ -79,40 +79,40 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           >
             <div
               onClick={(e) => e.stopPropagation()}
-              className={`h-full w-[256px] bg-myLightBlue hover:bg-myBlue text-white flex flex-col px-[10px] py-[20px] shadow-xl rounded-r-xl lg:rounded-xl duration-100
-            ${!openAdminSideBar && "ml-[-256px] lg:ml-0"}
+              className={`h-full w-[256px] flex flex-col bg-white px-4 lg:px-0 duration-200
+            ${!openAdminSideBar && "ml-[-256px] lg:ml-0"} ${authLoading && "pointer-events-none"}
           `}
             >
-              <div className="sticky top-[20px]">
-                <h2 className="text-[20px] text-center font-bold tracking-wide">
-                  ადმინი
-                </h2>
-                {currentUser && (
-                  <p className="mb-8 text-center text-gray-200">
-                    {formatPhone(
-                      currentUser?.name +
-                        " " +
-                        currentUser?.lastName +
-                        " " +
-                        currentUser?.phone,
-                    )}
-                  </p>
-                )}
+              <div className="sticky top-[20px] flex flex-col gap-y-3 overflow-y-auto">
+                <img
+                  src="/images/logo.webp"
+                  alt="logo"
+                  className="h-[60px] object-contain cursor-pointer self-center"
+                />
+                <hr />
+                <div className="flex flex-col gap-y-2 items-center">
+                  {currentUser && (
+                    <div className="flex flex-col items-center">
+                      <p className="">
+                        {currentUser?.name + " " + currentUser?.lastName}
+                      </p>
+                      <p className="">{formatPhone(currentUser?.phone)}</p>
+                    </div>
+                  )}
+                </div>
 
-                <nav
-                  className={`flex flex-col gap-2 mb-6 duration-300 w-full ${
-                    !authLoading ? "" : "ml-[-300px]"
-                  }`}
-                >
+                <hr />
+
+                <nav className={`flex flex-col gap-2 w-full `}>
                   {sidebarLinks.map((link) => {
                     const isActive = pathname.startsWith(link.href);
                     return (
                       <Link
                         key={link.href}
                         href={link.href}
-                        className={`flex items-center justify-between px-4 py-2 rounded-lg text-sm font-medium duration-200 ${
+                        className={`flex items-center justify-between px-4 py-2 rounded-full text-sm duration-200 ${
                           isActive
-                            ? "bg-white text-myBlue"
+                            ? "bg-myLightBlue text-white"
                             : "hover:bg-myLightBlue hover:text-white"
                         }`}
                         onClick={() => closeAdminSideBar()}
@@ -129,10 +129,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
                 <Button
                   onClick={() => toggleLogOut()}
-                  className={`mt-[40px] rounded-lg font-semibold text-[#1e40af] bg-white w-full
-        hover:bg-[#b91c1c] hover:text-white duration-300 cursor-pointer ${
-          !authLoading ? "" : "ml-[-300px]"
-        }`}
+                  variant="outline"
+                  className={`border-red-600 text-red-600 hover:text-white w-full
+        hover:bg-red-600 duration-300 cursor-pointer`}
                 >
                   გასვლა
                 </Button>
@@ -142,7 +141,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
           {/* Main content */}
           <main
-            className={`flex-1 flex flex-col overflow-x-auto duration-200 bg-gray-50 p-2 border-[1px] rounded-xl shadow-inner`}
+            className={`flex-1 flex flex-col overflow-x-auto bg-gray-50 py-[26px] px-[20px] sm:p-[34px] rounded-[30px] shadow-inner`}
           >
             {children}
           </main>

@@ -1,21 +1,22 @@
 "use client";
 
-import React, { useState } from "react";
-import {
-  BsFacebook,
-  BsInstagram,
-  BsTelephone,
-  BsYoutube,
-} from "react-icons/bs";
-import { GoMail } from "react-icons/go";
+import { BsInstagram } from "react-icons/bs";
+import { FiFacebook } from "react-icons/fi";
+import { FiYoutube } from "react-icons/fi";
 import { useMenuStore } from "../store/useMenuStore";
 import { scrollToSection } from "../utils/scroll";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import Link from "next/link";
 
 export default function Footer() {
   const pathname = usePathname();
   const menu = useMenuStore((state) => state.menu);
+
+  const socialLinks = [
+    { id: 1, icon: FiFacebook, link: "https://facebook.com/techero" },
+    { id: 2, icon: BsInstagram, link: "https://instagram.com/techero" },
+    { id: 3, icon: FiYoutube, link: "https://youtube.com/techero" },
+  ];
 
   const other = [
     { id: 1, text: "ჩვენს შესახებ", url: "/about-us" },
@@ -24,47 +25,62 @@ export default function Footer() {
   ];
 
   const firstSegment = pathname.split("/")[1];
-  const isHidden = firstSegment === "admin" || firstSegment === "staff";
+  const isHidden = firstSegment === "admin" || firstSegment === "staff" || firstSegment === "dashboard";
 
   return (
-    <footer className={`w-full ${isHidden ? "hidden" : ""}`}>
-      <div className="max-w-[1140px] bg-gray-100 border-[1px] border-gray-300 shadow-inner mx-auto flex flex-col md:flex-row justify-between items-start md:items-center px-4 py-10 md:py-20 gap-10 md:gap-0 rounded-t-[40px]">
-        {/* Logo & Social */}
-        <div className="flex flex-col gap-6 md:gap-10 w-full md:w-auto">
-          <img src="/images/logo.png" alt="logo" className="w-[60px]" />
-          <p className="text-myLightGray text-sm md:text-base max-w-[250px]">
-            Tech Service — პირველი სრულიად ციფრული სერვისი თქვენი ტექნიკის
-            შესაკეთებლად
-          </p>
-          <div className="flex flex-col gap-y-[10px]">
-            <div className="flex items-center gap-2 text-myGray hover:text-myLightBlue duration-100">
-              <BsTelephone className="text-2xl" />
-              <p className="text-sm md:text-base">+995 5** *** ***</p>
+    <footer
+      className={`w-full px-4 ${isHidden ? "hidden" : ""} bg-myLightBlue`}
+    >
+      <div className="max-w-[1140px] mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10 py-12">
+          {/* Logo & Social */}
+          <div className="gap-7 sm:col-span-2 md:col-span-1 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1">
+            <div className="space-y-7">
+              <div>
+                <img
+                  src="/images/whiteLogo.webp"
+                  alt="logo"
+                  className="h-[60px]"
+                />
+              </div>
+              <div className="flex flex-col gap-y-[10px]">
+                <p className="text-gray-200 hover:text-gray-300 duration-100 text-sm md:text-base">
+                  +995 592 803 023
+                </p>
+                <p className="text-gray-200 hover:text-gray-300 duration-100 text-sm md:text-base">
+                  info@techero.ge
+                </p>
+              </div>
             </div>
-            <div className="flex items-center gap-2 text-myGray hover:text-myLightBlue duration-100">
-              <GoMail className="text-2xl" />
-              <p className="text-sm md:text-base">info@techservice.ge</p>
-            </div>
-          </div>
-          <div className="flex gap-6 text-2xl md:text-3xl">
-            <BsFacebook className="text-myGray hover:text-myLightBlue duration-100 cursor-pointer" />
-            <BsInstagram className="text-myGray hover:text-myLightBlue duration-100 cursor-pointer" />
-            <BsYoutube className="text-myGray hover:text-myLightBlue duration-100 cursor-pointer" />
-          </div>
-        </div>
 
-        {/* Menus */}
-        <div className="flex flex-col sm:flex-row gap-10 md:gap-20 w-full md:w-auto">
+            <div className="space-y-3">
+              <h2 className="text-white">გამოგვყევით</h2>
+              <div className="flex gap-3">
+                {socialLinks.map(({ id, icon: Icon, link }) => (
+                  <a
+                    key={id}
+                    href={link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="bg-[#ffffff28] text-gray-200 text-[19px] w-10 h-10 rounded-full cursor-pointer flex items-center justify-center"
+                  >
+                    <Icon />
+                  </a>
+                ))}
+              </div>
+            </div>
+          </div>
+
           {/* Quick Links */}
           <div className="flex flex-col gap-3">
-            <h2 className="text-[20px] md:text-[25px] text-myGray font-semibold">
+            <h1 className="text-[20px] md:text-[22px] text-white">
               სწრაფი ძიება
-            </h2>
+            </h1>
             {menu.map((item) => (
               <p
                 key={item.id}
                 onClick={() => scrollToSection(item.target)}
-                className="cursor-pointer text-myLightGray hover:text-myLightBlue duration-100 text-sm md:text-base"
+                className="cursor-pointer text-gray-200 hover:text-gray-300 duration-100 text-sm md:text-base"
               >
                 {item.text}
               </p>
@@ -73,19 +89,24 @@ export default function Footer() {
 
           {/* Other Info */}
           <div className="flex flex-col gap-3">
-            <h2 className="text-[20px] md:text-[25px] text-myGray font-semibold">
+            <h1 className="text-[20px] md:text-[22px] text-white">
               დამატებითი ინფორმაცია
-            </h2>
+            </h1>
             {other.map((item) => (
               <Link
                 key={item.id}
                 href={item.url}
-                className="cursor-pointer text-myLightGray hover:text-myLightBlue duration-100 text-sm md:text-base"
+                className="cursor-pointer text-gray-200 hover:text-gray-300 duration-100 text-sm md:text-base"
               >
                 {item.text}
               </Link>
             ))}
           </div>
+        </div>
+        <hr className="bg-white" />
+        <div className="flex justify-center gap-1 text-white text-[14px] py-3">
+          <p className="pt-[0.5]">©</p>
+          <p>2026 Techore </p>
         </div>
       </div>
     </footer>

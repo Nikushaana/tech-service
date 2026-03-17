@@ -22,7 +22,7 @@ import { toast } from "react-toastify";
 import { fetchAdminUnreadNotifications } from "@/app/lib/api/adminUnreadNotifications";
 import PanelFormInput from "@/app/components/inputs/panel-form-input";
 import { Dropdown } from "@/app/components/inputs/drop-down";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import DateRangePicker from "@/app/components/inputs/date-range-picker";
 
 const fetchAdminNotifications = async (
@@ -40,9 +40,7 @@ const fetchAdminNotifications = async (
   if (from) params.set("from", from);
   if (to) params.set("to", to);
 
-  const { data } = await api.get(
-    `admin/notifications?${params.toString()}`,
-  );
+  const { data } = await api.get(`admin/notifications?${params.toString()}`);
   return data;
 };
 
@@ -64,22 +62,30 @@ export default function AdminNotificationsClientComponent() {
   const to = searchParams.get("to") || "";
 
   const [searchInput, setSearchInput] = useState(search);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // search delay
-  useEffect(() => {
-    const handler = setTimeout(() => {
+  const handleSearch = (value: string) => {
+    setSearchInput(value);
+
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+
+    timeoutRef.current = setTimeout(() => {
       const params = new URLSearchParams(searchParams.toString());
-      if (searchInput.trim()) {
-        params.set("search", searchInput.trim());
+
+      if (value.trim()) {
+        params.set("search", value.trim());
       } else {
         params.delete("search");
       }
+
       params.set("page", "1");
+
       router.push(`?${params.toString()}`, { scroll: false });
     }, 500);
-
-    return () => clearTimeout(handler);
-  }, [searchInput]);
+  };
 
   const queryClient = useQueryClient();
 
@@ -184,21 +190,23 @@ export default function AdminNotificationsClientComponent() {
   };
 
   return (
-    <div className="w-full bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6 space-y-2">
-      <h2 className="text-xl font-semibold mb-2">შეტყობინებები</h2>
+    <div className="w-full space-y-1">
+      <h2 className="text-xl mb-2">შეტყობინებები</h2>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 mb-4 gap-[20px] items-end">
         <PanelFormInput
           id="search"
           value={searchInput}
           label="ფილტრი"
-          onChange={(e) => setSearchInput(e.target.value)}
+          placeholder="მაგ: შეკვეთა №94..."
+          onChange={(e) => handleSearch(e.target.value)}
         />
         <Dropdown
           data={notificationTypes}
           id="type"
           value={type}
           label="ტიპი"
+          placeholder="მაგ: შეკვეთები"
           valueKey="nameEng"
           labelKey="name"
           onChange={handleChange}
@@ -212,13 +220,15 @@ export default function AdminNotificationsClientComponent() {
           label="თარიღი"
           onChange={handleChange}
         />
-        <Button onClick={clearFilters} className="cursor-pointer rounded-lg">
-          გასუფთავება
-        </Button>
-      </div>
-
-      <div className="flex justify-end">
-        <Pagination totalPages={notifications?.totalPages} currentPage={page} />
+        {(searchInput || type || from || to) && (
+          <Button
+            onClick={clearFilters}
+            variant="outline"
+            className="cursor-pointer border-red-500 text-red-600"
+          >
+            გასუფთავება
+          </Button>
+        )}
       </div>
 
       <LinearLoader isLoading={isFetching} />
@@ -226,10 +236,10 @@ export default function AdminNotificationsClientComponent() {
       <div className="overflow-x-auto w-full">
         <Table className="min-w-[900px] table-auto">
           <TableHeader>
-            <TableRow>
-              <TableHead className="font-semibold">ID</TableHead>
-              <TableHead className="font-semibold">შეტყობინება</TableHead>
-              <TableHead className="font-semibold">თარიღი</TableHead>
+            <TableRow className="bg-gray-100 hover:bg-gray-100">
+              <TableHead>ID</TableHead>
+              <TableHead>შეტყობინება</TableHead>
+              <TableHead>თარიღი</TableHead>
               <TableHead className="text-right py-2">
                 {unreadNotifications > 0 && (
                   <Button
@@ -237,7 +247,7 @@ export default function AdminNotificationsClientComponent() {
                     variant="secondary"
                     size="icon"
                     disabled={readAllNotificationsMutation.isPending}
-                    className={`text-white bg-myLightBlue hover:bg-myBlue cursor-pointer duration-100`}
+                    className={`text-white bg-myLightBlue hover:bg-myBlue cursor-pointer rounded-lg`}
                   >
                     {readAllNotificationsMutation.isPending ? (
                       <Loader2Icon className="animate-spin size-4" />
@@ -270,7 +280,7 @@ export default function AdminNotificationsClientComponent() {
               </TableRow>
             ) : (
               notifications?.data?.map((notification: any) => (
-                <TableRow key={notification.id} className="hover:bg-gray-50">
+                <TableRow key={notification.id} className="hover:bg-gray-100">
                   <TableCell>{notification.id}</TableCell>
                   <TableCell>{notification.message}</TableCell>
                   <TableCell>
@@ -296,7 +306,7 @@ export default function AdminNotificationsClientComponent() {
                           !notification.read
                             ? "text-white bg-myLightBlue hover:bg-myBlue"
                             : "hover:bg-gray-100"
-                        } cursor-pointer duration-100`}
+                        } cursor-pointer rounded-lg`}
                       >
                         {(readNotificationMutation.isPending &&
                           readNotificationMutation.variables ===

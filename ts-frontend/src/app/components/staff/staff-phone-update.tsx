@@ -161,10 +161,10 @@ export default function StaffPhoneUpdate() {
           {staffType == "technician" ? "ტექნიკოსის" : "კურიერის"} ტელეფონის
           ნომერი
         </h2>
-        <p className="text-center text-sm">
+        <p className={`text-[13px] ${!sentChangeNumberCode && "italic"}`}>
           {sentChangeNumberCode
             ? "შეიყვანე ტელეფონის ნომერზე გამოგზავნილი კოდი"
-            : "თუ გსურს ტელეფონის ნომრის განახლება საჭიროა ახალი ნომრის დადასტურება ვალიდური კოდით"}
+            : "*თუ გსურს ტელეფონის ნომრის განახლება საჭიროა ახალი ნომრის დადასტურება ვალიდური კოდით"}
         </p>
 
         {/* For debug, can remove */}

@@ -9,6 +9,7 @@ interface FormInputProps {
   value: string | number;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   label: string;
+  placeholder?: string;
   type?: string;
   error?: string;
 }
@@ -18,6 +19,7 @@ export default function PanelFormInput({
   value,
   onChange,
   label,
+  placeholder,
   type = "text",
   error,
 }: FormInputProps) {
@@ -26,7 +28,7 @@ export default function PanelFormInput({
   const isPassword = type === "password";
   return (
     <div className="w-full">
-      <label htmlFor={id} className="text-myGray text-sm">
+      <label htmlFor={id} className="text-myGray text-[13px]">
         {label}
       </label>
       <div className="w-full relative">
@@ -34,9 +36,9 @@ export default function PanelFormInput({
           id={id}
           type={isPassword && showPassword ? "text" : type}
           value={value}
+          placeholder={placeholder}
           onChange={onChange}
-          placeholder={label}
-          className={`rounded-[8px] border-2 mt-[5px] focus-visible:ring-0 shadow-none px-2 h-9 ${
+          className={`rounded-full border-1 mt-[3px] focus-visible:ring-0 shadow-none px-3 h-9 ${
             error ? "border-red-500" : "border-gray-300"
           } `}
         />

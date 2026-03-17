@@ -4,7 +4,7 @@ import QueryProvider from "./providers/providers";
 import AppShell from "./providers/app-shell";
 
 export const metadata: Metadata = {
-  title: "Tech Service | საოჯახო ტექნიკის სერვის-ცენტრი",
+  title: "Techero | საოჯახო ტექნიკის სერვის-ცენტრი",
   description: "სერვისი დაგეხმარება საოჯახო ტექნიკის შეკეთებაში",
 };
 

@@ -17,10 +17,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useQuery } from "@tanstack/react-query";
-import { Loader2Icon } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { BsEye } from "react-icons/bs";
 import { IoPersonSharp } from "react-icons/io5";
 
@@ -68,22 +67,30 @@ export default function AdminStaffClientComponent() {
   }, [type, setValues]);
 
   const [searchInput, setSearchInput] = useState(search);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // search delay
-  useEffect(() => {
-    const handler = setTimeout(() => {
+  const handleSearch = (value: string) => {
+    setSearchInput(value);
+
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+
+    timeoutRef.current = setTimeout(() => {
       const params = new URLSearchParams(searchParams.toString());
-      if (searchInput.trim()) {
-        params.set("search", searchInput.trim());
+
+      if (value.trim()) {
+        params.set("search", value.trim());
       } else {
         params.delete("search");
       }
+
       params.set("page", "1");
+
       router.push(`?${params.toString()}`, { scroll: false });
     }, 500);
-
-    return () => clearTimeout(handler);
-  }, [searchInput]);
+  };
 
   const { data: staff, isFetching } = useQuery({
     queryKey: ["adminStaff", type, page, status, search],
@@ -113,137 +120,135 @@ export default function AdminStaffClientComponent() {
   };
 
   return (
-    <div className="flex flex-col items-center gap-y-2 w-full">
-      <Link
-        href={"/admin/panel/staff/send-register-code"}
-        className="w-auto self-end"
-      >
-        <Button className="h-[45px] px-6 text-white cursor-pointer">
-          {type}ს რეგისტრაცია
-        </Button>
-      </Link>
-      <div className="w-full bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6 space-y-2">
-        <h2 className="text-xl font-semibold mb-2">თანამშრომლები</h2>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 mb-4 gap-[20px] items-end">
-          <Dropdown
-            data={staffType}
-            id="type"
-            value={type}
-            label="ტიპი"
-            valueKey="name"
-            labelKey="name"
-            onChange={handleChange}
-          />
-          <PanelFormInput
-            id="search"
-            value={searchInput}
-            label="ფილტრი"
-            onChange={(e) => setSearchInput(e.target.value)}
-          />
-          <Dropdown
-            data={userStatus}
-            id="status"
-            value={status}
-            label="სტატუსი"
-            valueKey="status"
-            labelKey="name"
-            onChange={handleChange}
-          />
-          <Button
-            onClick={clearFilters}
-            className="cursor-pointer rounded-lg sm:col-span-2 md:col-span-1"
-          >
-            გასუფთავება
+    <div className="w-full space-y-1">
+      <div className="flex flex-col sm:flex-row items-center justify-between">
+        <h2 className="text-xl mb-2">თანამშრომლები</h2>
+        <Link
+          href={"/admin/panel/staff/send-register-code"}
+          className=""
+        >
+          <Button className="h-[45px] px-6 text-white cursor-pointer">
+            {type}ს რეგისტრაცია
           </Button>
-        </div>
+        </Link>
+      </div>
 
-        <div className="flex justify-end">
-          <Pagination totalPages={staff?.totalPages} currentPage={page} />
-        </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 mb-4 gap-[20px] items-end">
+        <Dropdown
+          data={staffType}
+          id="type"
+          value={type}
+          label="ტიპი"
+          placeholder="მაგ: ტექნიკოსი"
+          valueKey="name"
+          labelKey="name"
+          onChange={handleChange}
+        />
+        <PanelFormInput
+          id="search"
+          value={searchInput}
+          label="ფილტრი"
+          placeholder="მაგ: ტელ, სახ, გვარ"
+          onChange={(e) => handleSearch(e.target.value)}
+        />
+        <Dropdown
+          data={userStatus}
+          id="status"
+          value={status}
+          label="სტატუსი"
+          placeholder="მაგ: აქტიური"
+          valueKey="status"
+          labelKey="name"
+          onChange={handleChange}
+        />
+        <Button
+          onClick={clearFilters}
+          variant="outline"
+          className="cursor-pointer border-red-500 text-red-600"
+        >
+          გასუფთავება
+        </Button>
+      </div>
 
-        <LinearLoader isLoading={isFetching} />
+      <LinearLoader isLoading={isFetching} />
 
-        <div className="overflow-x-auto w-full">
-          <Table className="min-w-[900px] table-auto">
-            <TableHeader>
+      <div className="overflow-x-auto w-full">
+        <Table className="min-w-[900px] table-auto">
+          <TableHeader>
+            <TableRow className="bg-gray-100 hover:bg-gray-100">
+              <TableHead>ID</TableHead>
+              <TableHead>ფოტო</TableHead>
+              <TableHead>სახელი</TableHead>
+              <TableHead>გვარი</TableHead>
+              <TableHead>ტელეფონის ნომერი</TableHead>
+              <TableHead>სტატუსი</TableHead>
+              <TableHead className="text-right"></TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {!staff ? (
               <TableRow>
-                <TableHead className="font-semibold">ID</TableHead>
-                <TableHead className="font-semibold">ფოტო</TableHead>
-                <TableHead className="font-semibold">სახელი</TableHead>
-                <TableHead className="font-semibold">გვარი</TableHead>
-                <TableHead className="font-semibold">
-                  ტელეფონის ნომერი
-                </TableHead>
-                <TableHead className="font-semibold">სტატუსი</TableHead>
-                <TableHead className="text-right"></TableHead>
+                <TableCell
+                  colSpan={7}
+                  className="text-center py-6 text-gray-500"
+                >
+                  ინფორმაცია იძებნება...
+                </TableCell>
               </TableRow>
-            </TableHeader>
-            <TableBody>
-              {!staff ? (
-                <TableRow>
-                  <TableCell
-                    colSpan={7}
-                    className="text-center py-6 text-gray-500"
-                  >
-                    ინფორმაცია იძებნება...
+            ) : staff?.total === 0 ? (
+              <TableRow>
+                <TableCell
+                  colSpan={7}
+                  className="text-center py-6 text-gray-500"
+                >
+                  ინფორმაცია არ მოიძებნა
+                </TableCell>
+              </TableRow>
+            ) : (
+              staff?.data?.map((staffMember: User) => (
+                <TableRow key={staffMember.id} className="hover:bg-gray-100">
+                  <TableCell>{staffMember.id}</TableCell>
+                  <TableCell>
+                    <div className="w-[35px] h-[35px] rounded-full overflow-hidden bg-myLightBlue text-white flex items-center justify-center">
+                      {staffMember.images && staffMember.images[0] ? (
+                        <img
+                          src={staffMember.images[0]}
+                          alt={staffMember.name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <IoPersonSharp />
+                      )}
+                    </div>
                   </TableCell>
-                </TableRow>
-              ) : staff?.total === 0 ? (
-                <TableRow>
-                  <TableCell
-                    colSpan={7}
-                    className="text-center py-6 text-gray-500"
-                  >
-                    ინფორმაცია არ მოიძებნა
+                  <TableCell>{staffMember.name}</TableCell>
+                  <TableCell>{staffMember.lastName}</TableCell>
+                  <TableCell>{formatPhone(staffMember.phone)}</TableCell>
+                  <TableCell>
+                    {staffMember.status ? "აქტიური" : "დაბლოკილი"}
                   </TableCell>
-                </TableRow>
-              ) : (
-                staff?.data?.map((staffMember: User) => (
-                  <TableRow key={staffMember.id} className="hover:bg-gray-50">
-                    <TableCell>{staffMember.id}</TableCell>
-                    <TableCell>
-                      <div className="w-[35px] h-[35px] rounded-full overflow-hidden bg-myLightBlue text-white flex items-center justify-center">
-                        {staffMember.images && staffMember.images[0] ? (
-                          <img
-                            src={staffMember.images[0]}
-                            alt={staffMember.name}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <IoPersonSharp />
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell>{staffMember.name}</TableCell>
-                    <TableCell>{staffMember.lastName}</TableCell>
-                    <TableCell>{formatPhone(staffMember.phone)}</TableCell>
-                    <TableCell>
-                      {staffMember.status ? "აქტიური" : "დაბლოკილი"}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Link
-                        href={`/admin/panel/staff/${staffMember.role}-${staffMember.id}`}
+                  <TableCell className="text-right">
+                    <Link
+                      href={`/admin/panel/staff/${staffMember.role}-${staffMember.id}`}
+                    >
+                      <Button
+                        variant="secondary"
+                        size="icon"
+                        className="bg-myLightBlue hover:bg-myBlue text-white cursor-pointer rounded-lg"
                       >
-                        <Button
-                          variant="secondary"
-                          size="icon"
-                          className="hover:bg-gray-100 cursor-pointer"
-                        >
-                          <BsEye className="size-4" />
-                        </Button>
-                      </Link>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </div>
+                        <BsEye className="size-4" />
+                      </Button>
+                    </Link>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </div>
 
-        <div className="flex justify-end">
-          <Pagination totalPages={staff?.totalPages} currentPage={page} />
-        </div>
+      <div className="flex justify-end">
+        <Pagination totalPages={staff?.totalPages} currentPage={page} />
       </div>
     </div>
   );

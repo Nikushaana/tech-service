@@ -18,7 +18,7 @@ export default function Page() {
           onClick={() => {
             router.push("/");
           }}
-          src="/images/logo.png"
+          src="/images/logo.webp"
           alt="logo"
           className="h-[60px] object-contain cursor-pointer self-center"
         />

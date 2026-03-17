@@ -11,31 +11,21 @@ export default function HeroSection() {
   const { data: currentUser } = useCurrentUser();
 
   return (
-    <div className="relative flex justify-center w-full">
+    <div className="relative flex justify-center w-full h-[50vh] sm:h-[60vh] lg:h-[75vh] rounded-[30px] shadow-lg overflow-hidden">
       <img
         src="/images/1.webp"
         alt="logo"
-        className="h-full w-full object-cover max-sm:[object-position:37%_center] absolute inset-0 blur-[2px] brightness-40"
+        className="h-full w-full object-cover max-sm:[object-position:37%_center] absolute inset-0 blur-[3px] brightness-80"
       />
 
-      <div className="z-[2] max-w-[1140px] w-full flex flex-col gap-y-[40px] sm:gap-y-[60px] px-4 pt-[150px] sm:pt-[200px] pb-[100px] sm:pb-[150px]">
-        <h1 className="text-white text-center text-[30px] sm:text-[50px]">
-          ტექნიკის შეკეთება ასე მარტივი არასდროს ყოფილა
+      <div className="z-[2] max-w-[700px] w-full px-4 flex flex-col gap-6 sm:gap-8 items-center justify-center">
+        <h1 className="text-white text-center text-[30px] sm:text-[44px] lg:text-[56px]">
+          ჩვენ ვიზრუნებთ თქვენს ტექნიკაზე
         </h1>
-        <hr className="border-gray-300 border-[1px]" />
-        <div className="flex flex-col gap-y-[15px] sm:gap-y-[20px]">
-          <h2 className="text-white text-[22px] sm:text-[30px] mt-[10px]">
-            შეაკეთე ტექნიკა სახლიდან გაუსვლელად
-          </h2>
-          <p className="text-white text-[15px] sm:text-[17px]">
-            შენი კომფორტი ჩვენი პრიორიტეტია – გვაცნობე პრობლემა, ჩვენი გუნდის
-            წევრები კი იზრუნებენ მის შეკეთებაზე.
-          </p>
-          <p className="text-white text-[15px] sm:text-[17px]">
-            სანდო, სწრაფი და გამჭვირვალე მომსახურება – სწორედ ისეთი, როგორიც
-            გჭირდება.
-          </p>
-        </div>
+        <p className="text-white text-center text-[15px] sm:text-[18px] lg:text-[20px]">
+          შეავსეთ განაცხადი ტექნიკის შეკეთების ან მონტაჟისთვის და ისარგებლეთ
+          საუკეთესო სერვისით
+        </p>
         <Button
           onClick={() => {
             if (currentUser) {
@@ -50,9 +40,9 @@ export default function HeroSection() {
               toast.warning("ასარჩევად გაიარე ავტორიზაცია");
             }
           }}
-          className="md:hidden flex h-[45px] px-[20px] sm:px-[30px] self-center cursor-pointer"
+          className="flex h-[45px] cursor-pointer"
         >
-          აირჩიე სერვისი
+          შეავსე განაცხადი
         </Button>
       </div>
     </div>

@@ -107,7 +107,7 @@ export default function AdminStaffRegister() {
 
   return (
     <div className="w-full flex flex-col self-start items-center p-[10px] rounded-xl shadow border border-gray-200 gap-y-5 relative max-w-lg mx-auto bg-white">
-      <h1 className="text-center text-xl sm:text-2xl font-semibold">
+      <h1 className="text-center text-xl sm:text-2xl">
         Tech Service-ში{" "}
         {values.role == "technician" ? "ტექნიკოსის" : "კურიერის"} რეგისტრაცია
       </h1>

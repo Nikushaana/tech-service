@@ -59,94 +59,90 @@ export default function AdminBranchesClientComponent() {
   };
 
   return (
-    <div className="flex flex-col items-center gap-y-2 w-full">
-      <Link href={"/admin/panel/branches/add"} className="w-auto self-end">
-        <Button className="h-[45px] w-full px-6 text-white cursor-pointer">
-          დამატება
-        </Button>
-      </Link>
-      <div className="w-full bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6 space-y-2">
-        <h2 className="text-xl font-semibold mb-2">ფილიალები</h2>
+    <div className="w-full space-y-1">
+      <div className="flex items-center justify-between">
+        <h2 className="text-xl mb-2">ფილიალები</h2>
+        <Link href={"/admin/panel/branches/add"} className="w-auto self-end">
+          <Button className="h-[45px] w-full px-6 text-white cursor-pointer">
+            დამატება
+          </Button>
+        </Link>
+      </div>
 
-        <div className="flex justify-end">
-          <Pagination totalPages={branches?.totalPages} currentPage={page} />
-        </div>
+      <LinearLoader isLoading={isFetching} />
 
-        <LinearLoader isLoading={isFetching} />
-
-        <div className="overflow-x-auto w-full">
-          <Table className="min-w-[900px] table-auto">
-            <TableHeader>
+      <div className="overflow-x-auto w-full">
+        <Table className="min-w-[900px] table-auto">
+          <TableHeader>
+            <TableRow className="bg-gray-100 hover:bg-gray-100">
+              <TableHead>ID</TableHead>
+              <TableHead>სახელი</TableHead>
+              <TableHead className="text-right"></TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {!branches ? (
               <TableRow>
-                <TableHead className="font-semibold">ID</TableHead>
-                <TableHead className="font-semibold">სახელი</TableHead>
-                <TableHead className="text-right"></TableHead>
+                <TableCell
+                  colSpan={3}
+                  className="text-center py-6 text-gray-500"
+                >
+                  ინფორმაცია იძებნება...
+                </TableCell>
               </TableRow>
-            </TableHeader>
-            <TableBody>
-              {!branches ? (
-                <TableRow>
-                  <TableCell
-                    colSpan={3}
-                    className="text-center py-6 text-gray-500"
-                  >
-                    ინფორმაცია იძებნება...
-                  </TableCell>
-                </TableRow>
-              ) : branches?.total === 0 ? (
-                <TableRow>
-                  <TableCell
-                    colSpan={3}
-                    className="text-center py-6 text-gray-500"
-                  >
-                    ინფორმაცია არ მოიძებნა
-                  </TableCell>
-                </TableRow>
-              ) : (
-                branches?.data?.map((branch: Branch) => (
-                  <TableRow key={branch.id} className="hover:bg-gray-50">
-                    <TableCell>{branch.id}</TableCell>
-                    <TableCell>{branch.name}</TableCell>
-                    <TableCell className="text-right">
-                      <Link href={`/admin/panel/branches/${branch.id}`}>
-                        <Button
-                          variant="secondary"
-                          size="icon"
-                          className="hover:bg-gray-100 cursor-pointer"
-                        >
-                          <BsEye className="size-4" />
-                        </Button>
-                      </Link>
+            ) : branches?.total === 0 ? (
+              <TableRow>
+                <TableCell
+                  colSpan={3}
+                  className="text-center py-6 text-gray-500"
+                >
+                  ინფორმაცია არ მოიძებნა
+                </TableCell>
+              </TableRow>
+            ) : (
+              branches?.data?.map((branch: Branch) => (
+                <TableRow key={branch.id} className="hover:bg-gray-100">
+                  <TableCell>{branch.id}</TableCell>
+                  <TableCell>{branch.name}</TableCell>
+                  <TableCell className="text-right">
+                    <Link href={`/admin/panel/branches/${branch.id}`}>
                       <Button
-                        onClick={() => {
-                          handleDeleteBranch(branch.id);
-                        }}
                         variant="secondary"
                         size="icon"
-                        disabled={
-                          deleteBranchMutation.isPending &&
-                          deleteBranchMutation.variables === branch.id
-                        }
-                        className="bg-[red] hover:bg-[#b91c1c] ml-3 cursor-pointer"
+                        className="bg-myLightBlue hover:bg-myBlue text-white cursor-pointer rounded-lg"
                       >
-                        {deleteBranchMutation.isPending &&
-                        deleteBranchMutation.variables === branch.id ? (
-                          <Loader2Icon className="animate-spin size-4" />
-                        ) : (
-                          <AiOutlineDelete className="size-4" />
-                        )}
+                        <BsEye className="size-4" />
                       </Button>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </div>
+                    </Link>
+                    <Button
+                      onClick={() => {
+                        handleDeleteBranch(branch.id);
+                      }}
+                      variant="secondary"
+                      size="icon"
+                      disabled={
+                        deleteBranchMutation.isPending &&
+                        deleteBranchMutation.variables === branch.id
+                      }
+                      className="bg-[red] hover:bg-[#b91c1c] ml-3 text-white cursor-pointer rounded-lg"
+                    >
+                      {deleteBranchMutation.isPending &&
+                      deleteBranchMutation.variables === branch.id ? (
+                        <Loader2Icon className="animate-spin size-4" />
+                      ) : (
+                        <AiOutlineDelete className="size-4" />
+                      )}
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </div>
 
-        <div className="flex justify-end">
-          <Pagination totalPages={branches?.totalPages} currentPage={page} />
-        </div>
+      <div className="flex justify-end">
+        <Pagination totalPages={branches?.totalPages} currentPage={page} />
       </div>
     </div>
   );

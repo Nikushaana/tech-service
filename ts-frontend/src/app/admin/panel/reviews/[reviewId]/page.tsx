@@ -13,6 +13,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { formatPhone } from "@/app/utils/formatPhone";
 import { api } from "@/app/lib/api/axios";
+import { Switch } from "@/components/ui/switch";
 
 const fetchAdminReviewById = async (reviewId: string) => {
   const { data } = await api.get(`admin/reviews/${reviewId}`);
@@ -52,7 +53,8 @@ export default function Page() {
   const [values, setValues] = useState({
     review: "",
     stars: 5,
-    status: "დაბლოკვა",
+    // status: "დაბლოკვა",
+    status: false,
   });
 
   const [errors, setErrors] = useState({
@@ -65,7 +67,8 @@ export default function Page() {
       setValues({
         review: review.review || "",
         stars: review.stars || 5,
-        status: review.status ? "გამოქვეყნება" : "დაბლოკვა",
+        // status: review.status ? "გამოქვეყნება" : "დაბლოკვა",
+        status: review.status,
       });
     }
   }, [review]);
@@ -124,13 +127,13 @@ export default function Page() {
       });
       await updateReviewSchema.validate(values, { abortEarly: false });
 
-      let payload: any = {
-        review: values.review,
-        stars: values.stars,
-        status: values.status == "დაბლოკვა" ? false : true,
-      };
+      // let payload: any = {
+      //   review: values.review,
+      //   stars: values.stars,
+      //   status: values.status == "დაბლოკვა" ? false : true,
+      // };
 
-      updateReviewMutation.mutate(payload);
+      updateReviewMutation.mutate(values);
     } catch (err: any) {
       // Yup validation errors
       if (err.inner) {
@@ -158,23 +161,23 @@ export default function Page() {
     <div
       className={`border rounded-lg shadow px-[10px] py-[20px] sm:p-[20px] bg-white w-full max-w-3xl mx-auto flex flex-col gap-y-4`}
     >
-      {/* Header */}
-      <h2 className={`flex justify-end text-sm`}>
-        {review.status ? "გამოქვეყნებულია" : "გამოუქვეყნებელია"}
-      </h2>
-
+      <div className="flex items-center gap-2 text-sm justify-center">
+        <p>დაბლოკილი</p>
+        <Switch
+          checked={values.status}
+          onCheckedChange={(checked) =>
+            setValues((prev) => ({ ...prev, status: checked }))
+          }
+          className="cursor-pointer"
+        />
+        <p>აქტიური</p>
+      </div>
       {/* Main Info */}
       <div>
         <p className="text-sm">
           დაემატა:{" "}
-          <span className="text-base font-semibold">
+          <span className="text-base">
             {dayjs(review.created_at).format("DD.MM.YYYY - HH:mm:ss")}
-          </span>
-        </p>
-        <p className="text-sm">
-          განახლდა:{" "}
-          <span className="text-base font-semibold">
-            {dayjs(review.updated_at).format("DD.MM.YYYY - HH:mm:ss")}
           </span>
         </p>
       </div>
@@ -190,7 +193,9 @@ export default function Page() {
 
         <p>
           {formatPhone(
-            review.individual ? review.individual?.phone : review.company?.phone
+            review.individual
+              ? review.individual?.phone
+              : review.company?.phone,
           )}
         </p>
       </div>
@@ -207,18 +212,6 @@ export default function Page() {
         <StarRating
           value={values.stars || 5}
           onChange={(star) => setValues((prev) => ({ ...prev, stars: star }))}
-        />
-      </div>
-
-      <div className="flex flex-col sm:flex-row gap-[10px]">
-        <Dropdown
-          data={status}
-          id="status"
-          value={values.status}
-          label="სტატუსი"
-          valueKey="name"
-          labelKey="name"
-          onChange={handleChange}
         />
       </div>
 

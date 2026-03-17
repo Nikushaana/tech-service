@@ -42,11 +42,13 @@ export default function OrderImagesSelector({
         {images?.map((url, index) => (
           <div
             key={index}
-            className="h-[100px] rounded relative overflow-hidden shadow border-[1px]"
+            className="h-[100px] rounded-lg relative overflow-hidden shadow border-[1px]"
           >
             <Button
               onClick={() => setImages?.remove(url)}
-              className="absolute top-[5px] right-[5px] h-[40px] w-[40px] p-0! rounded-full flex items-center justify-center bg-red-500 text-white hover:bg-red-600 cursor-pointer"
+              variant="secondary"
+              size="icon"
+              className="absolute top-[5px] right-[5px] rounded-lg bg-red-500 text-white hover:bg-red-600 cursor-pointer"
             >
               <Trash2Icon className="w-[16px]" />
             </Button>
@@ -61,13 +63,15 @@ export default function OrderImagesSelector({
         {newImages.map((file, index) => (
           <div
             key={index}
-            className="h-[100px] rounded relative overflow-hidden shadow border-[1px]"
+            className="h-[100px] rounded-lg relative overflow-hidden shadow border-[1px]"
           >
             <Button
               onClick={() => setNewImages.remove(file)}
-              className="absolute top-[5px] right-[5px] h-[40px] w-[40px] p-0! rounded-full flex items-center justify-center bg-red-500 text-white hover:bg-red-600 cursor-pointer"
+              variant="secondary"
+              size="icon"
+              className="absolute top-[5px] right-[5px] rounded-lg bg-red-500 text-white hover:bg-red-600 cursor-pointer"
             >
-              <Trash2Icon className="w-[16px]" />
+              <Trash2Icon className="size-4" />
             </Button>
             <img
               src={URL.createObjectURL(file)}

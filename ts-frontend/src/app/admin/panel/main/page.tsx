@@ -9,9 +9,9 @@ import { Loader2Icon } from "lucide-react";
 
 const fetchAllStats = async () => {
   const [userRes, devicesRes, orderRes] = await Promise.all([
-    api.get("/admin/user-registration-stats"),
-    api.get("/admin/used-devices-stats"),
-    api.get("/admin/order-stats"),
+    api.get("admin/user-registration-stats"),
+    api.get("admin/used-devices-stats"),
+    api.get("admin/order-stats"),
   ]);
 
   return {

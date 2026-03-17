@@ -134,29 +134,31 @@ export default function IndividualDetailsForm() {
 
   return (
     <div className="flex flex-col gap-y-[20px]">
-      <ImageSelector
-        images={values.images}
-        setImages={(url: string) =>
-          setValues((prev) => ({
-            ...prev,
-            images: prev.images.filter((img: string) => img !== url),
-            deletedImages: [...prev.deletedImages, url],
-          }))
-        }
-        newImages={values.newImages}
-        setNewImages={{
-          add: (files: File[]) =>
+      <div className="self-center">
+        <ImageSelector
+          images={values.images}
+          setImages={(url: string) =>
             setValues((prev) => ({
               ...prev,
-              newImages: [...prev.newImages, ...files],
-            })),
-          remove: (file: File) =>
-            setValues((prev) => ({
-              ...prev,
-              newImages: prev.newImages.filter((f) => f !== file),
-            })),
-        }}
-      />
+              images: prev.images.filter((img: string) => img !== url),
+              deletedImages: [...prev.deletedImages, url],
+            }))
+          }
+          newImages={values.newImages}
+          setNewImages={{
+            add: (files: File[]) =>
+              setValues((prev) => ({
+                ...prev,
+                newImages: [...prev.newImages, ...files],
+              })),
+            remove: (file: File) =>
+              setValues((prev) => ({
+                ...prev,
+                newImages: prev.newImages.filter((f) => f !== file),
+              })),
+          }}
+        />
+      </div>
       <UserDetailsForm
         title="მომხმარებლის ინფორმაცია"
         values={values}

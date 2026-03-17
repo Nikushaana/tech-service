@@ -4,7 +4,7 @@ import React from "react";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex flex-col gap-y-5 items-center justify-center min-h-[80vh] px-4 pt-10 pb-36 relative overflow-hidden">
+    <div className="flex flex-col gap-y-5 items-center justify-center min-h-[90vh] px-4 pt-10 pb-36 relative overflow-hidden">
       {/* Background Images */}
       <img
         src="/images/2.webp"
@@ -18,7 +18,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       />
 
       {/* Card */}
-      <div className="rounded-xl bg-gray-100 border-[1px] w-full max-w-sm sm:max-w-md md:max-w-lg p-6 sm:p-10 z-10 shadow-2xl">
+      <div className="rounded-xl bg-gray-100 shadow-myShadow w-full max-w-sm sm:max-w-md md:max-w-lg p-6 sm:p-10 z-10">
         <div>{children}</div>
       </div>
     </div>

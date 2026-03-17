@@ -16,7 +16,7 @@ export default function LogOut() {
 
   const logoutMutation = useMutation({
     mutationFn: async () => {
-      await api.post("/auth/logout");
+      await api.post("auth/logout");
     },
 
     onSuccess: () => {
@@ -46,22 +46,23 @@ export default function LogOut() {
       ></div>
 
       <div
-        className={`bg-white rounded-2xl shadow-lg p-6 z-[22] transition-transform duration-200 ${
+        className={`bg-white rounded-[20px] sm:rounded-[30px] shadow-lg p-6 z-[22] transition-transform duration-200 ${
           openLogOut ? "scale-100 opacity-100" : "scale-90 opacity-0"
         }`}
       >
-        <h2 className="text-lg font-semibold mb-4">ნამდვილად გსურს გასვლა?</h2>
+        <h2 className="text-lg mb-4">ნამდვილად გსურს გასვლა?</h2>
         <div className="flex gap-3 justify-end">
           <Button
             onClick={toggleLogOut}
-            className="h-[45px] px-6 cursor-pointer"
+            variant="outline"
+            className="cursor-pointer"
           >
             არა
           </Button>
           <Button
             onClick={() => logoutMutation.mutate()}
             disabled={logoutMutation.isPending}
-            className="h-[45px] px-6 bg-red-600 hover:bg-[#b91c1c] text-white cursor-pointer"
+            className="px-6 bg-red-600 hover:bg-[#b91c1c] text-white cursor-pointer"
           >
             {logoutMutation.isPending && (
               <Loader2Icon className="animate-spin" />

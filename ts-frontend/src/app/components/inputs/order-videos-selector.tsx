@@ -42,29 +42,30 @@ export default function OrderVideosSelector({
         {videos?.map((url, index) => (
           <div
             key={index}
-            className="h-[100px] rounded relative overflow-hidden shadow border-[1px]"
+            className="h-[100px] rounded-lg relative overflow-hidden shadow border-[1px]"
           >
             <Button
               onClick={() => setVideos?.remove(url)}
-              className="absolute z-1 top-[5px] right-[5px] h-[40px] w-[40px] p-0! rounded-full flex items-center justify-center bg-red-500 text-white hover:bg-red-600 cursor-pointer"
+              variant="secondary"
+              size="icon"
+              className="absolute z-1 top-[5px] right-[5px] rounded-lg bg-red-500 text-white hover:bg-red-600 cursor-pointer"
             >
               <Trash2Icon className="w-[16px]" />
             </Button>
-            <video
-              src={url}
-              className="w-full h-full object-cover"
-            />
+            <video src={url} className="w-full h-full object-cover" />
           </div>
         ))}
         {/* New videos preview */}
-        {newVideos.map((file) => (
+        {newVideos.map((file, index) => (
           <div
-            key={file.name}
-            className="h-[100px] rounded relative overflow-hidden shadow border-[1px]"
+            key={index}
+            className="h-[100px] rounded-lg relative overflow-hidden shadow border-[1px]"
           >
             <Button
               onClick={() => setNewVideos.remove(file)}
-              className="absolute z-1 top-[5px] right-[5px] h-[40px] w-[40px] p-0! rounded-full flex items-center justify-center bg-red-500 text-white hover:bg-red-600 cursor-pointer"
+              variant="secondary"
+              size="icon"
+              className="absolute z-1 top-[5px] right-[5px] rounded-lg bg-red-500 text-white hover:bg-red-600 cursor-pointer"
             >
               <Trash2Icon className="w-[16px]" />
             </Button>

@@ -8,7 +8,7 @@ export default function AboutPage() {
       <div className="max-w-[1140px] w-full px-4 pt-16 pb-[150px] space-y-24">
         {/* Section 1 */}
         <section className="space-y-6 text-center md:text-left">
-          <h2 className="text-3xl md:text-4xl font-semibold">ვინ ვართ ჩვენ?</h2>
+          <h2 className="text-3xl md:text-4xl">ვინ ვართ ჩვენ?</h2>
           <p className="text-gray-600 leading-relaxed">
             <strong>Tech Service</strong> — კომპანია, რომელიც აერთიანებს
             გამოცდილ და პროფესიონალ ტექნიკოსებსა და კურიერებს, რათა თქვენს
@@ -26,7 +26,7 @@ export default function AboutPage() {
         {/* Section 2 */}
         <section className="grid md:grid-cols-2 gap-12 items-center">
           <div className="space-y-6 text-center md:text-left">
-            <h2 className="text-3xl md:text-4xl font-semibold">რას ვაკეთებთ</h2>
+            <h2 className="text-3xl md:text-4xl">რას ვაკეთებთ</h2>
             <p className="text-gray-600 leading-relaxed">
               ჩვენ გთავაზობთ როგორც წვრილი, ისე მსხვილი საოჯახო ტექნიკის
               შეკეთებას და მონტაჟს. ვემსახურებით როგორც ფიზიკურ, ისე
@@ -63,7 +63,7 @@ export default function AboutPage() {
             className="w-full h-[300px] rounded-2xl object-cover shadow-md order-2 md:order-1"
           />
           <div className="space-y-6 text-center md:text-left order-1 md:order-2">
-            <h2 className="text-3xl md:text-4xl font-semibold">
+            <h2 className="text-3xl md:text-4xl">
               როგორ მუშაობს ჩვენი სერვისი
             </h2>
             <p className="text-gray-600">
@@ -83,7 +83,7 @@ export default function AboutPage() {
 
         {/* Section 4 */}
         <section className="space-y-6 text-center md:text-left">
-          <h2 className="text-3xl md:text-4xl font-semibold">
+          <h2 className="text-3xl md:text-4xl">
             გარანტია და სანდოობა
           </h2>
           <p className="text-gray-600 leading-relaxed">
@@ -96,7 +96,7 @@ export default function AboutPage() {
 
         {/* Section 5 */}
         <section className="space-y-6 text-center">
-          <h2 className="text-3xl md:text-4xl font-semibold">პარტნიორები</h2>
+          <h2 className="text-3xl md:text-4xl">პარტნიორები</h2>
           <p className="text-gray-600">
             ვთანამშრომლობთ ისეთ წამყვან ბრენდებთან, როგორებიცაა:
           </p>

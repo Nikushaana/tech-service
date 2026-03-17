@@ -38,7 +38,7 @@ export default function UserDetailsForm({
 }: UserDetailsFormProps) {
   return (
     <div className="flex flex-col gap-y-[10px]">
-      {title && <h2 className="text-lg font-semibold">{title}</h2>}
+      {title && <h2 className="text-lg">{title}</h2>}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 items-center gap-[20px]">
         {fields.map((field) => (
           <PanelFormInput

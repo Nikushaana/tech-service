@@ -20,10 +20,8 @@ import Pagination from "@/app/components/pagination/pagination";
 import LinearLoader from "@/app/components/linearLoader";
 import { fetchUserUnreadNotifications } from "@/app/lib/api/userUnreadNotifications";
 import { toast } from "react-toastify";
-import PanelFormInput from "@/app/components/inputs/panel-form-input";
-import { Dropdown } from "@/app/components/inputs/drop-down";
-import DateRangePicker from "@/app/components/inputs/date-range-picker";
-import { useEffect, useState } from "react";
+import { CiFilter } from "react-icons/ci";
+import { useNotificationsStore } from "@/app/store/useNotificationStore";
 
 const fetchUserNotifications = async (
   userType: ClientRole,
@@ -47,14 +45,6 @@ const fetchUserNotifications = async (
   return data;
 };
 
-const notificationTypes = [
-  { id: 1, name: "შეკვეთის დამატება", nameEng: "new_order" },
-  { id: 2, name: "შეკვეთების ინფორმაცია", nameEng: "order_updated" },
-  { id: 3, name: "შეფასების დამატება", nameEng: "new_review" },
-  { id: 4, name: "რეგისტრაცია", nameEng: "new_user" },
-  { id: 5, name: "პროფილის ინფორმაცია", nameEng: "profile_updated" },
-];
-
 export default function UserNotificationsClientComponent() {
   const { userType } = useParams<{
     userType: ClientRole;
@@ -68,25 +58,14 @@ export default function UserNotificationsClientComponent() {
   const from = searchParams.get("from") || "";
   const to = searchParams.get("to") || "";
 
-  const [searchInput, setSearchInput] = useState(search);
-
-  // search delay
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      const params = new URLSearchParams(searchParams.toString());
-      if (searchInput.trim()) {
-        params.set("search", searchInput.trim());
-      } else {
-        params.delete("search");
-      }
-      params.set("page", "1");
-      router.push(`?${params.toString()}`, { scroll: false });
-    }, 500);
-
-    return () => clearTimeout(handler);
-  }, [searchInput]);
-
   const queryClient = useQueryClient();
+
+  const { notificationTypeOptions, toggleOpenFilterNotificationModal } =
+    useNotificationsStore();
+  const typeFilters = [
+    { id: 1, name: "ყველა", nameEng: "" },
+    ...notificationTypeOptions,
+  ];
 
   const { data: notifications, isFetching } = useQuery({
     queryKey: ["userNotifications", userType, page, type, search, from, to],
@@ -153,24 +132,14 @@ export default function UserNotificationsClientComponent() {
     },
   });
 
-  const handleChange = (e: {
-    target: {
-      id: string;
-      value: { from: string | null; to: string | null } | string;
-    };
-  }) => {
-    const { id, value } = e.target;
-
+  // change filter type
+  const handleChange = (value: string) => {
     const params = new URLSearchParams(searchParams.toString());
 
-    if (id === "date_range" && typeof value !== "string") {
-      if (value.from) params.set("from", value.from);
-      else params.delete("from");
-
-      if (value.to) params.set("to", value.to);
-      else params.delete("to");
-    } else if (typeof value === "string") {
-      params.set(id, value);
+    if (value) {
+      params.set("type", value);
+    } else {
+      params.delete("type");
     }
 
     params.set("page", "1");
@@ -178,50 +147,43 @@ export default function UserNotificationsClientComponent() {
     router.push(`?${params.toString()}`, { scroll: false });
   };
 
-  // Clear all filters
-  const clearFilters = () => {
-    const params = new URLSearchParams();
-    params.set("page", "1");
-    setSearchInput("");
-    router.push(`?${params.toString()}`, { scroll: false });
-  };
+  const countFilter = [type, search, from].filter(Boolean).length;
 
   return (
-    <div className="w-full bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6 space-y-2">
-      <h2 className="text-xl font-semibold mb-2">შეტყობინებები</h2>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 mb-4 gap-[20px] items-end">
-        <PanelFormInput
-          id="search"
-          value={searchInput}
-          label="ფილტრი"
-          onChange={(e) => setSearchInput(e.target.value)}
-        />
-        <Dropdown
-          data={notificationTypes}
-          id="type"
-          value={type}
-          label="ტიპი"
-          valueKey="nameEng"
-          labelKey="name"
-          onChange={handleChange}
-        />
-        <DateRangePicker
-          id="date_range"
-          value={{
-            from: from ? new Date(from) : undefined,
-            to: to ? new Date(to) : undefined,
-          }}
-          label="თარიღი"
-          onChange={handleChange}
-        />
-        <Button onClick={clearFilters} className="cursor-pointer rounded-lg">
-          გასუფთავება
+    <div className="w-full space-y-1">
+      <div className="flex items-center gap-2 justify-between">
+        <h1 className="text-xl">შეტყობინებები</h1>
+        <Button
+          onClick={toggleOpenFilterNotificationModal}
+          variant="outline"
+          className="cursor-pointer"
+        >
+          <CiFilter className="size-4" />{" "}
+          <p className="hidden sm:flex">
+            ფილტრი {countFilter !== 0 && `(${countFilter})`}
+          </p>
         </Button>
       </div>
 
-      <div className="flex justify-end">
-        <Pagination totalPages={notifications?.totalPages} currentPage={page} />
+      <div className="flex items-center overflow-x-auto">
+        {typeFilters.map((type1) => {
+          const isActive = type === type1.nameEng;
+
+          return (
+            <button
+              key={type1.id || "all"}
+              onClick={() => handleChange(type1.nameEng)}
+              className={`px-2 sm:px-4 py-1.5 text-[13px] cursor-pointer duration-100 border-b-1 shrink-0
+        ${
+          isActive
+            ? "text-myLightBlue border-b-myLightBlue"
+            : "hover:text-myLightBlue border-b-transparent hover:border-b-myLightBlue"
+        }`}
+            >
+              {type1.name}
+            </button>
+          );
+        })}
       </div>
 
       <LinearLoader isLoading={isFetching} />
@@ -229,10 +191,10 @@ export default function UserNotificationsClientComponent() {
       <div className="overflow-x-auto w-full">
         <Table className="min-w-[900px] table-auto">
           <TableHeader>
-            <TableRow>
-              <TableHead className="font-semibold">ID</TableHead>
-              <TableHead className="font-semibold">შეტყობინება</TableHead>
-              <TableHead className="font-semibold">თარიღი</TableHead>
+            <TableRow className="bg-gray-100 hover:bg-gray-100">
+              <TableHead>ID</TableHead>
+              <TableHead>შეტყობინება</TableHead>
+              <TableHead>თარიღი</TableHead>
               <TableHead className="text-right py-2">
                 {unreadNotifications > 0 && (
                   <Button
@@ -240,7 +202,7 @@ export default function UserNotificationsClientComponent() {
                     variant="secondary"
                     size="icon"
                     disabled={readAllNotificationsMutation.isPending}
-                    className={`text-white bg-myLightBlue hover:bg-myBlue cursor-pointer duration-100`}
+                    className={`text-white bg-myLightBlue hover:bg-myBlue cursor-pointer rounded-lg`}
                   >
                     {readAllNotificationsMutation.isPending ? (
                       <Loader2Icon className="animate-spin size-4" />
@@ -273,7 +235,7 @@ export default function UserNotificationsClientComponent() {
               </TableRow>
             ) : (
               notifications?.data?.map((notification: any) => (
-                <TableRow key={notification.id} className="hover:bg-gray-50">
+                <TableRow key={notification.id} className="hover:bg-gray-100">
                   <TableCell>{notification.id}</TableCell>
                   <TableCell>{notification.message}</TableCell>
                   <TableCell>
@@ -299,7 +261,7 @@ export default function UserNotificationsClientComponent() {
                           !notification.read
                             ? "text-white bg-myLightBlue hover:bg-myBlue"
                             : "hover:bg-gray-100"
-                        } cursor-pointer duration-100`}
+                        } cursor-pointer rounded-lg`}
                       >
                         {(readNotificationMutation.isPending &&
                           readNotificationMutation.variables ===

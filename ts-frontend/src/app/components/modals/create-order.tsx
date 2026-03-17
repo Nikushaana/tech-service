@@ -30,6 +30,26 @@ interface CreateOrderValues {
   newVideos: File[];
 }
 
+const initialValues: CreateOrderValues = {
+  serviceType: "",
+  categoryId: "",
+  addressId: "",
+  brand: "",
+  model: "",
+  description: "",
+  newImages: [],
+  newVideos: [],
+};
+
+const initialErrors = {
+  serviceType: "",
+  categoryId: "",
+  addressId: "",
+  brand: "",
+  model: "",
+  description: "",
+};
+
 export default function CreateOrder() {
   const { openCreateOrderModal, toggleOpenCreateOrderModal, modalType } =
     useOrdersStore();
@@ -52,25 +72,13 @@ export default function CreateOrder() {
     staleTime: 1000 * 60 * 10,
   });
 
-  const [values, setValues] = useState<CreateOrderValues>({
-    serviceType: "",
-    categoryId: "",
-    addressId: "",
-    brand: "",
-    model: "",
-    description: "",
-    newImages: [],
-    newVideos: [],
-  });
+  const [values, setValues] = useState(initialValues);
+  const [errors, setErrors] = useState(initialErrors);
 
-  const [errors, setErrors] = useState({
-    serviceType: "",
-    categoryId: "",
-    addressId: "",
-    brand: "",
-    model: "",
-    description: "",
-  });
+  const resetForm = () => {
+    setValues(initialValues);
+    setErrors(initialErrors);
+  };
 
   const handleChange = (e: { target: { id: string; value: string } }) => {
     const { id, value } = e.target;
@@ -122,13 +130,10 @@ export default function CreateOrder() {
   // add order
   const addOrderMutation = useMutation({
     mutationFn: (payload: FormData) =>
-      api.post(
-        `${modalType}/create-order`,
-        payload,
-      ),
+      api.post(`${modalType}/create-order`, payload),
 
     onSuccess: () => {
-      toast.success("შეკვეთა დაემატა");
+      toast.success("განაცხადი დაემატა");
 
       // refresh orders list
       queryClient.invalidateQueries({
@@ -136,26 +141,7 @@ export default function CreateOrder() {
       });
 
       toggleOpenCreateOrderModal();
-
-      setValues({
-        serviceType: "",
-        categoryId: "",
-        brand: "",
-        model: "",
-        description: "",
-        addressId: "",
-        newImages: [],
-        newVideos: [],
-      });
-
-      setErrors({
-        serviceType: "",
-        categoryId: "",
-        brand: "",
-        model: "",
-        description: "",
-        addressId: "",
-      });
+      resetForm();
     },
 
     onError: (error: any) => {
@@ -168,7 +154,7 @@ export default function CreateOrder() {
         error.response.data.message == "Inactive user cannot create orders"
       ) {
         toast.error(
-          "თქვენ ვერ დაამატებთ შეკვეთას, რადგან თქვენი პროფილი გასააქტიურებელია"
+          "თქვენ ვერ დაამატებთ შეკვეთას, რადგან თქვენი პროფილი გასააქტიურებელია",
         );
       } else {
         toast.error("შეკვეთა ვერ დაემატა");
@@ -225,36 +211,17 @@ export default function CreateOrder() {
         }`}
         onClick={() => {
           toggleOpenCreateOrderModal();
-          setErrors((prev) => ({
-            ...prev,
-            serviceType: "",
-            categoryId: "",
-            brand: "",
-            model: "",
-            description: "",
-            addressId: "",
-          }));
-
-          setValues((prev) => ({
-            ...prev,
-            serviceType: "",
-            categoryId: "",
-            brand: "",
-            model: "",
-            description: "",
-            addressId: "",
-            newImages: [],
-            newVideos: [],
-          }));
-        }} // closes when clicking outside
+          resetForm();
+        }}
       ></div>
 
       <div
-        className={`bg-white rounded-2xl shadow-lg py-6 px-3 w-full sm:w-[600px] mx-[10px] z-[22] transition-transform duration-200 flex flex-col gap-y-[10px] max-h-[80vh] ${
+        className={`bg-white rounded-[20px] sm:rounded-[30px] shadow-lg py-4 px-3 sm:py-6 sm:px-5 w-full sm:w-[600px] mx-[10px] z-[22] duration-200 flex flex-col gap-y-[10px] max-h-[80vh] ${
           openCreateOrderModal ? "scale-100 opacity-100" : "scale-90 opacity-0"
         }`}
       >
-        <h2 className="text-lg font-semibold ">შეავსე განაცხადი</h2>
+        <h2 className="text-lg ">შეავსე განაცხადი</h2>
+        <hr />
         <div className="flex-1 overflow-y-auto showScroll pr-2">
           <div className="flex flex-col gap-y-[10px]">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-[10px]">
@@ -264,6 +231,7 @@ export default function CreateOrder() {
                   id="serviceType"
                   value={values.serviceType}
                   label="სერვისის ტიპი"
+                  placeholder="მაგ: შეკეთება სერვისცენტრში"
                   valueKey="id"
                   labelKey="name"
                   onChange={handleChange}
@@ -275,6 +243,7 @@ export default function CreateOrder() {
                 id="categoryId"
                 value={values.categoryId}
                 label="კატეგორია"
+                placeholder="მაგ: მაცივარი"
                 valueKey="id"
                 labelKey="name"
                 onChange={handleChange}
@@ -285,6 +254,7 @@ export default function CreateOrder() {
                 value={values.brand || ""}
                 onChange={handleChange}
                 label="ბრენდი"
+                placeholder="მაგ: ბოში"
                 error={errors.brand}
               />
               <PanelFormInput
@@ -292,6 +262,7 @@ export default function CreateOrder() {
                 value={values.model || ""}
                 onChange={handleChange}
                 label="მოდელი"
+                placeholder="მაგ: KDN43VL20U"
                 error={errors.model}
               />
               <div
@@ -312,6 +283,7 @@ export default function CreateOrder() {
                     id="addressId"
                     value={values.addressId}
                     label="მისამართი"
+                    placeholder="მაგ: სახლი"
                     valueKey="id"
                     labelKey="name"
                     onChange={handleChange}
@@ -336,6 +308,7 @@ export default function CreateOrder() {
                   value={values.description || ""}
                   onChange={handleChange}
                   label="აღწერა"
+                  placeholder="მაგ: მაცივარი აღარ ყინავს.."
                   error={errors.description}
                 />
               </div>
@@ -357,7 +330,7 @@ export default function CreateOrder() {
                 }}
               />
               <OrderVideosSelector
-                newVideos={values.newVideos} // use the correct field
+                newVideos={values.newVideos}
                 setNewVideos={{
                   add: (files: File[]) =>
                     setValues((prev) => ({
@@ -375,40 +348,21 @@ export default function CreateOrder() {
           </div>
         </div>
 
-        <div className="flex gap-3 justify-end mt-4">
+        <div className="flex gap-3 justify-end">
           <Button
             onClick={() => {
               toggleOpenCreateOrderModal();
-              setErrors((prev) => ({
-                ...prev,
-                serviceType: "",
-                categoryId: "",
-                brand: "",
-                model: "",
-                description: "",
-                addressId: "",
-              }));
-
-              setValues((prev) => ({
-                ...prev,
-                serviceType: "",
-                categoryId: "",
-                brand: "",
-                model: "",
-                description: "",
-                addressId: "",
-                newImages: [],
-                newVideos: [],
-              }));
+              resetForm();
             }}
-            className="h-[45px] px-6 cursor-pointer bg-red-500 hover:bg-[#b91c1c]"
+            variant="outline"
+            className="cursor-pointer"
           >
             გაუქმება
           </Button>
           <Button
             onClick={handleCreateOrder}
             disabled={addOrderMutation.isPending || !price}
-            className="h-[45px] px-6 text-white cursor-pointer"
+            className="cursor-pointer"
           >
             {(addOrderMutation.isPending || isLoadingPrice) && (
               <Loader2Icon className="animate-spin" />

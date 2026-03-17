@@ -37,9 +37,9 @@ export default function BurgerMenu() {
           duration-100 bg-gray-100 h-full w-[300px] px-4 py-[20px] flex flex-col gap-6 overflow-hidden`}
       >
         <img
-          src="/images/logo.png"
+          src="/images/logo.webp"
           alt="logo"
-          className="h-[60px] aspect-square self-start"
+          className="h-[60px] self-center"
         />
 
         <Link href={path}>
@@ -49,7 +49,7 @@ export default function BurgerMenu() {
             }}
             className="flex cursor-pointer h-[45px] w-full"
           >
-            {currentUser ? "აირჩიე სერვისი" : "ავტორიზაცია"}
+            {currentUser ? "შეავსე განაცხადი" : "ავტორიზაცია"}
           </Button>
         </Link>
 

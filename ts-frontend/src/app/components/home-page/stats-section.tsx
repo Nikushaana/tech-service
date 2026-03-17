@@ -11,7 +11,7 @@ const statistic = [
 
 export default function StatsSection() {
   return (
-    <div className="w-full bg-myLightBlue flex justify-center">
+    <div className="w-full bg-myLightBlue flex justify-center md:rounded-[30px]">
       <div className="max-w-[1140px] w-full grid grid-cols-2 sm:grid-cols-4 gap-[20px] sm:gap-[40px] py-[40px] sm:py-[50px] px-4">
         {statistic.map((item) => (
           <div key={item.id} className="text-white text-center">

@@ -1,7 +1,6 @@
 "use client";
 
 import dayjs from "dayjs";
-import { Loader2Icon } from "lucide-react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -18,9 +17,8 @@ import { transactionTypeLabels } from "@/app/utils/transactionTypeLabels";
 import Pagination from "@/app/components/pagination/pagination";
 import LinearLoader from "@/app/components/linearLoader";
 import { Button } from "@/components/ui/button";
-import { Dropdown } from "@/app/components/inputs/drop-down";
-import PanelFormInput from "@/app/components/inputs/panel-form-input";
-import { useEffect, useState } from "react";
+import { CiFilter } from "react-icons/ci";
+import { useTransactionsStore } from "@/app/store/useTransactionStore";
 
 const fetchUserTransactions = async (
   userType: ClientRole,
@@ -42,18 +40,6 @@ const fetchUserTransactions = async (
   return data;
 };
 
-const transactionType = [
-  { id: 1, name: "ჩამოჭრა", nameEng: "debit" },
-  { id: 2, name: "ჩარიცხვა", nameEng: "credit" },
-];
-
-const transactionStatus = [
-  { id: 1, name: "pending" },
-  { id: 2, name: "paid" },
-  { id: 3, name: "failed" },
-  { id: 4, name: "refunded" },
-];
-
 export default function UserTransactionsClientComponent() {
   const { userType } = useParams<{
     userType: ClientRole;
@@ -66,23 +52,9 @@ export default function UserTransactionsClientComponent() {
   const status = searchParams.get("status") || "";
   const search = searchParams.get("search") || "";
 
-  const [searchInput, setSearchInput] = useState(search);
-
-  // search delay
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      const params = new URLSearchParams(searchParams.toString());
-      if (searchInput.trim()) {
-        params.set("search", searchInput.trim());
-      } else {
-        params.delete("search");
-      }
-      params.set("page", "1");
-      router.push(`?${params.toString()}`, { scroll: false });
-    }, 500);
-
-    return () => clearTimeout(handler);
-  }, [searchInput]);
+  const { toggleOpenFilterTransactionModal, transactionType } =
+    useTransactionsStore();
+  const typeFilters = [{ id: 1, name: "ყველა", nameEng: "" }, ...transactionType];
 
   const { data: transactions, isFetching } = useQuery({
     queryKey: ["userTransactions", page, userType, type, status, search],
@@ -91,137 +63,120 @@ export default function UserTransactionsClientComponent() {
     placeholderData: (previous) => previous,
   });
 
-  const handleChange = (e: { target: { id: string; value: string } }) => {
-    const { id, value } = e.target;
-
+  const handleChange = (value: string) => {
     const params = new URLSearchParams(searchParams.toString());
 
-    params.set(id, value);
+    if (value) {
+      params.set("type", value);
+    } else {
+      params.delete("type");
+    }
 
     params.set("page", "1");
 
     router.push(`?${params.toString()}`, { scroll: false });
   };
 
-  // Clear all filters
-  const clearFilters = () => {
-    const params = new URLSearchParams();
-    params.set("page", "1");
-    setSearchInput("");
-    router.push(`?${params.toString()}`, { scroll: false });
-  };
+  const countFilter = [type, status, search].filter(Boolean).length;
 
   return (
-    <div className={`w-full flex flex-col gap-y-2`}>
-      <div className="w-full bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6 space-y-2">
-        <h2 className="text-xl font-semibold mb-2">ტრანზაქციები</h2>
+    <div className="w-full space-y-1">
+      <div className="flex items-center gap-2 justify-between">
+        <h1 className="text-xl mb-2">ტრანზაქციები</h1>
+        <Button
+          onClick={toggleOpenFilterTransactionModal}
+          variant="outline"
+          className="cursor-pointer"
+        >
+          <CiFilter className="size-4" />{" "}
+          <p className="hidden sm:flex">
+            ფილტრი {countFilter !== 0 && `(${countFilter})`}
+          </p>
+        </Button>
+      </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 mb-4 gap-[20px] items-end">
-          <PanelFormInput
-            id="search"
-            value={searchInput}
-            label="ფილტრი"
-            onChange={(e) => setSearchInput(e.target.value)}
-          />
-          <Dropdown
-            data={transactionStatus}
-            id="status"
-            value={status}
-            label="სტატუსი"
-            valueKey="name"
-            labelKey="name"
-            onChange={handleChange}
-          />
-          <Dropdown
-            data={transactionType}
-            id="type"
-            value={type}
-            label="ტიპი"
-            valueKey="nameEng"
-            labelKey="name"
-            onChange={handleChange}
-          />
-          <Button onClick={clearFilters} className="cursor-pointer rounded-lg">
-            გასუფთავება
-          </Button>
-        </div>
+      <div className="flex items-center overflow-x-auto">
+        {typeFilters.map((type1) => {
+          const isActive = type === type1.nameEng;
 
-        <div className="flex justify-end">
-          <Pagination
-            totalPages={transactions?.totalPages}
-            currentPage={page}
-          />
-        </div>
+          return (
+            <button
+              key={type1.id || "all"}
+              onClick={() => handleChange(type1.nameEng)}
+              className={`px-2 sm:px-4 py-1.5 text-[13px] cursor-pointer duration-100 border-b-1 shrink-0
+        ${
+          isActive
+            ? "text-myLightBlue border-b-myLightBlue"
+            : "hover:text-myLightBlue border-b-transparent hover:border-b-myLightBlue"
+        }`}
+            >
+              {type1.name}
+            </button>
+          );
+        })}
+      </div>
 
-        <LinearLoader isLoading={isFetching} />
+      <LinearLoader isLoading={isFetching} />
 
-        <div className="overflow-x-auto w-full">
-          <Table className="min-w-[900px] table-auto">
-            <TableHeader>
+      <div className="overflow-x-auto w-full">
+        <Table className="min-w-[900px] table-auto">
+          <TableHeader>
+            <TableRow className="bg-gray-100 hover:bg-gray-100">
+              <TableHead>ID</TableHead>
+              <TableHead>თანხა</TableHead>
+              <TableHead>დანიშნულება</TableHead>
+              <TableHead>სტატუსი</TableHead>
+              <TableHead>ტრანზაქციის ტიპი</TableHead>
+              <TableHead>გადახდის მეთოდი</TableHead>
+              <TableHead className="text-right">თარიღი</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {!transactions ? (
               <TableRow>
-                <TableHead className="font-semibold">ID</TableHead>
-                <TableHead className="font-semibold">თანხა</TableHead>
-                <TableHead className="font-semibold">დანიშნულება</TableHead>
-                <TableHead className="font-semibold">სტატუსი</TableHead>
-                <TableHead className="font-semibold">
-                  ტრანზაქციის ტიპი
-                </TableHead>
-                <TableHead className="font-semibold">გადახდის მეთოდი</TableHead>
-                <TableHead className="font-semibold text-right">
-                  თარიღი
-                </TableHead>
+                <TableCell
+                  colSpan={7}
+                  className="text-center py-6 text-gray-500"
+                >
+                  ინფორმაცია იძებნება...
+                </TableCell>
               </TableRow>
-            </TableHeader>
-            <TableBody>
-              {!transactions ? (
-                <TableRow>
-                  <TableCell
-                    colSpan={7}
-                    className="text-center py-6 text-gray-500"
-                  >
-                    ინფორმაცია იძებნება...
+            ) : transactions?.total === 0 ? (
+              <TableRow>
+                <TableCell
+                  colSpan={7}
+                  className="text-center py-6 text-gray-500"
+                >
+                  ინფორმაცია არ მოიძებნა
+                </TableCell>
+              </TableRow>
+            ) : (
+              transactions?.data?.map((transaction: any) => (
+                <TableRow key={transaction.id} className="hover:bg-gray-100">
+                  <TableCell>{transaction.id}</TableCell>
+                  <TableCell>{transaction.amount} ₾</TableCell>
+                  <TableCell>{transaction.reason}</TableCell>
+                  <TableCell>{transaction.status}</TableCell>
+                  <TableCell>
+                    {transactionTypeLabels[transaction.type] ||
+                      transaction.type}
+                  </TableCell>
+                  <TableCell>
+                    {providerLabels[transaction.provider] ||
+                      transaction.provider}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {dayjs(transaction.created_at).format("DD.MM.YYYY HH:mm")}
                   </TableCell>
                 </TableRow>
-              ) : transactions?.total === 0 ? (
-                <TableRow>
-                  <TableCell
-                    colSpan={7}
-                    className="text-center py-6 text-gray-500"
-                  >
-                    ინფორმაცია არ მოიძებნა
-                  </TableCell>
-                </TableRow>
-              ) : (
-                transactions?.data?.map((transaction: any) => (
-                  <TableRow key={transaction.id} className="hover:bg-gray-50">
-                    <TableCell>{transaction.id}</TableCell>
-                    <TableCell>{transaction.amount} ₾</TableCell>
-                    <TableCell>{transaction.reason}</TableCell>
-                    <TableCell>{transaction.status}</TableCell>
-                    <TableCell>
-                      {transactionTypeLabels[transaction.type] ||
-                        transaction.type}
-                    </TableCell>
-                    <TableCell>
-                      {providerLabels[transaction.provider] ||
-                        transaction.provider}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {dayjs(transaction.created_at).format("DD.MM.YYYY HH:mm")}
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </div>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </div>
 
-        <div className="flex justify-end">
-          <Pagination
-            totalPages={transactions?.totalPages}
-            currentPage={page}
-          />
-        </div>
+      <div className="flex justify-end">
+        <Pagination totalPages={transactions?.totalPages} currentPage={page} />
       </div>
     </div>
   );

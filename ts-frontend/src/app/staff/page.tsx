@@ -18,10 +18,12 @@ export default function Page() {
           onClick={() => {
             router.push("/");
           }}
-          src="/images/logo.png"
+          src="/images/logo.webp"
           alt="logo"
           className="h-[60px] object-contain cursor-pointer self-center"
         />
+
+        <h1 className="text-center">თანამშრომლის ავტორიზაცია</h1>
 
         <FormInput
           id="phone"

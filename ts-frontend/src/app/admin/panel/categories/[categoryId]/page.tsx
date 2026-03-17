@@ -76,7 +76,7 @@ export default function Page() {
   }, [category]);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { id, value } = e.target;
     setValues((prev) => ({
@@ -159,18 +159,6 @@ export default function Page() {
 
   return (
     <div className={`w-full flex flex-col items-center gap-y-[20px]`}>
-      <div className="flex items-center gap-2 text-sm">
-        <p>დაბლოკილი</p>
-        <Switch
-          checked={values.status}
-          onCheckedChange={(checked) =>
-            setValues((prev) => ({ ...prev, status: checked }))
-          }
-          className="cursor-pointer"
-        />
-        <p>აქტიური</p>
-      </div>
-
       <ImageSelector
         images={values.images}
         setImages={(url: string) =>
@@ -194,6 +182,17 @@ export default function Page() {
             })),
         }}
       />
+      <div className="flex items-center gap-2 text-sm">
+        <p>დაბლოკილი</p>
+        <Switch
+          checked={values.status}
+          onCheckedChange={(checked) =>
+            setValues((prev) => ({ ...prev, status: checked }))
+          }
+          className="cursor-pointer"
+        />
+        <p>აქტიური</p>
+      </div>
 
       <PanelFormInput
         id="name"

@@ -10,30 +10,7 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchStaffUnreadNotifications } from "@/app/lib/api/staffUnreadNotifications";
 import { useCurrentUser } from "@/app/hooks/useCurrentUser";
 import { useLogOutStore } from "@/app/store/useLogOutStore";
-
-type SidebarLinksWithTitle = {
-  title?: string;
-  links: { name: string; href: string }[];
-};
-
-const sidebarLinks: Record<StaffRole, SidebarLinksWithTitle> = {
-  technician: {
-    title: "ტექნიკოსის გვერდი",
-    links: [
-      { name: "ჩემი სერვისები", href: "/staff/technician/orders" },
-      { name: "პროფილი", href: "/staff/technician/profile" },
-      { name: "შეტყობინებები", href: "/staff/technician/notifications" },
-    ],
-  },
-  delivery: {
-    title: "კურიერის გვერდი",
-    links: [
-      { name: "ჩემი სერვისები", href: "/staff/delivery/orders" },
-      { name: "პროფილი", href: "/staff/delivery/profile" },
-      { name: "შეტყობინებები", href: "/staff/delivery/notifications" },
-    ],
-  },
-};
+import { IoPersonSharp } from "react-icons/io5";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -43,24 +20,25 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   const role = currentUser?.role as StaffRole;
 
-  const sidebar =
-    role && sidebarLinks[role]
-      ? sidebarLinks[role]
-      : { title: "იტვირთება..", links: [] };
+  const sidebarLinks = [
+    { name: "პროფილი", href: `/staff/${role}/profile` },
+    { name: "ჩემი განცხადებები", href: `/staff/${role}/orders` },
+    { name: "შეტყობინებები", href: `/staff/${role}/notifications` },
+  ];
 
   const { data: unreadNotifications } = useQuery({
     queryKey: ["staffUnreadNotifications", role],
     queryFn: () => fetchStaffUnreadNotifications(role),
     staleTime: 1000 * 60 * 10,
     enabled: !!role,
-    retry: false
+    retry: false,
   });
 
   return (
     <div className="flex flex-col items-center">
       <div
-        className={`max-w-[1920px] w-full flex flex-col min-h-[100vh] p-[10px] gap-[10px] duration-100 ${
-          authLoading && "brightness-70 blur-[2px] pointer-events-none"
+        className={`max-w-[1920px] w-full flex flex-col min-h-[100vh] p-[10px] gap-[10px] ${
+          authLoading && "pointer-events-none"
         }`}
       >
         {/* Mobile Hamburger */}
@@ -94,41 +72,56 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           >
             <div
               onClick={(e) => e.stopPropagation()}
-              className={`h-full w-[256px] bg-myLightBlue hover:bg-myBlue text-white flex flex-col px-[10px] py-[20px] shadow-xl rounded-r-xl lg:rounded-xl duration-100
-            ${!openSideBar && "ml-[-256px] lg:ml-0"}
+              className={`h-full w-[256px] flex flex-col bg-white px-4 lg:px-0 duration-200
+            ${!openSideBar && "ml-[-256px] lg:ml-0"} ${authLoading && "pointer-events-none"}
           `}
             >
-              <div className="sticky top-[20px]">
-                <h2 className="text-[20px] text-center font-bold tracking-wide">
-                  {sidebar.title}
-                </h2>
-                {currentUser && (
-                  <p className="mb-8 text-center text-gray-200">
-                    {formatPhone(
-                      currentUser?.name +
-                        " " +
-                        currentUser?.lastName +
-                        " " +
-                        currentUser?.phone,
-                    )}
-                  </p>
-                )}
+              <div className="sticky top-[20px] flex flex-col gap-y-3">
+                <img
+                  src="/images/logo.webp"
+                  alt="logo"
+                  className="h-[60px] object-contain cursor-pointer self-center"
+                />
+                <hr />
 
-                <nav
-                  className={`flex flex-col gap-2 mb-6 duration-300 w-full ${
-                    !authLoading ? "" : "ml-[-300px]"
-                  }`}
-                >
-                  {sidebar.links.map((link) => {
+                <div className="flex flex-col gap-y-2 items-center">
+                  <div className="w-[60px] h-[60px] overflow-hidden rounded-full bg-myLightBlue group-hover:bg-myBlue duration-200  text-white flex items-center justify-center text-[18px] ">
+                    {currentUser?.images && currentUser?.images[0] ? (
+                      <img
+                        src={currentUser?.images[0]}
+                        alt="logo"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <IoPersonSharp />
+                    )}
+                  </div>
+                  {currentUser && (
+                    <div className="flex flex-col items-center">
+                      <p className="text-[13px]">
+                        {role == "technician" ? "ტექნიკოსი" : "კურიერი"}
+                      </p>
+                      <p className="">
+                        {currentUser?.name + " " + currentUser?.lastName}
+                      </p>
+                      <p className="">{formatPhone(currentUser?.phone)}</p>
+                    </div>
+                  )}
+                </div>
+
+                <hr />
+
+                <nav className={`flex flex-col gap-2 w-full `}>
+                  {sidebarLinks.map((link) => {
                     const isActive = pathname.startsWith(link.href);
                     return (
                       <Link
                         key={link.href}
                         href={link.href}
-                        className={`flex items-center justify-between px-4 py-2 rounded-lg text-sm font-medium duration-200
+                        className={`flex items-center justify-between px-4 py-2 rounded-full text-sm duration-200
               ${
                 isActive
-                  ? "bg-white text-myBlue"
+                  ? "bg-myLightBlue text-white"
                   : "hover:bg-myLightBlue hover:text-white"
               }
             `}
@@ -144,12 +137,13 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   })}
                 </nav>
 
+                <hr />
+
                 <Button
                   onClick={() => toggleLogOut()}
-                  className={`mt-[40px] rounded-lg font-semibold text-[#1e40af] bg-white w-full
-        hover:bg-[#b91c1c] hover:text-white duration-300 cursor-pointer ${
-          !authLoading ? "" : "ml-[-300px]"
-        }`}
+                  variant="outline"
+                  className={`border-red-600 text-red-600 hover:text-white w-full
+        hover:bg-red-600 duration-300 cursor-pointer`}
                 >
                   გასვლა
                 </Button>
@@ -159,7 +153,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
           {/* Main content */}
           <main
-            className={`flex-1 flex overflow-x-auto duration-200 bg-gray-50 p-2 border-[1px] rounded-xl shadow-inner`}
+            className={`flex-1 flex overflow-x-auto bg-gray-50 py-[26px] px-[20px] sm:p-[34px] rounded-[30px] shadow-inner`}
           >
             {children}
           </main>

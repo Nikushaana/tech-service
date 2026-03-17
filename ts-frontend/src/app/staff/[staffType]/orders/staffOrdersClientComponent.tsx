@@ -24,7 +24,7 @@ import LinearLoader from "@/app/components/linearLoader";
 import PanelFormInput from "@/app/components/inputs/panel-form-input";
 import { Dropdown } from "@/app/components/inputs/drop-down";
 import DateRangePicker from "@/app/components/inputs/date-range-picker";
-import { useEffect, useState } from "react";
+import { useRef, useState } from "react";
 import { useOrderTypeStatusOptionsStore } from "@/app/store/orderTypeStatusOptionsStore";
 
 const fetchStaffOrders = async (
@@ -59,24 +59,32 @@ export default function StaffOrdersClientComponent() {
   const to = searchParams.get("to") || "";
 
   const [searchInput, setSearchInput] = useState(search);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const { typeOptions } = useOrderTypeStatusOptionsStore();
 
   // search delay
-  useEffect(() => {
-    const handler = setTimeout(() => {
+  const handleSearch = (value: string) => {
+    setSearchInput(value);
+
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+
+    timeoutRef.current = setTimeout(() => {
       const params = new URLSearchParams(searchParams.toString());
-      if (searchInput.trim()) {
-        params.set("search", searchInput.trim());
+
+      if (value.trim()) {
+        params.set("search", value.trim());
       } else {
         params.delete("search");
       }
+
       params.set("page", "1");
+
       router.push(`?${params.toString()}`, { scroll: false });
     }, 500);
-
-    return () => clearTimeout(handler);
-  }, [searchInput]);
+  };
 
   const { data: orders, isFetching } = useQuery({
     queryKey: ["staffOrders", page, service_type, search, from, to],
@@ -121,21 +129,23 @@ export default function StaffOrdersClientComponent() {
   };
 
   return (
-    <div className="w-full bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6 space-y-2">
-      <h2 className="text-xl font-semibold mb-2">ჩემი სერვისები</h2>
+    <div className="w-full space-y-1">
+      <h2 className="text-xl mb-2">ჩემი განცხადებები</h2>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 mb-4 gap-[20px] items-end">
         <PanelFormInput
           id="search"
           value={searchInput}
           label="ფილტრი"
-          onChange={(e) => setSearchInput(e.target.value)}
+          placeholder="მაგ: ბოში, KDN43VL20Y, მაცივარი"
+          onChange={(e) => handleSearch(e.target.value)}
         />
         <Dropdown
           data={typeOptions}
           id="service_type"
           value={service_type}
           label="ტიპი"
+          placeholder="მაგ: შეკეთება სერვისცენტრში"
           valueKey="id"
           labelKey="name"
           onChange={handleChange}
@@ -149,15 +159,15 @@ export default function StaffOrdersClientComponent() {
           label="თარიღი"
           onChange={handleChange}
         />
-        <Button
-          onClick={clearFilters}
-          className="cursor-pointer rounded-lg"
-        >
-          გასუფთავება
-        </Button>
-      </div>
-      <div className="flex justify-end">
-        <Pagination totalPages={orders?.totalPages} currentPage={page} />
+        {(searchInput || service_type || from || to) && (
+          <Button
+            onClick={clearFilters}
+            variant="outline"
+            className="cursor-pointer border-red-500 text-red-600"
+          >
+            გასუფთავება
+          </Button>
+        )}
       </div>
 
       <LinearLoader isLoading={isFetching} />
@@ -165,15 +175,14 @@ export default function StaffOrdersClientComponent() {
       <div className="overflow-x-auto w-full">
         <Table className="min-w-[900px] table-auto">
           <TableHeader>
-            <TableRow>
-              <TableHead className="font-semibold">ID</TableHead>
-              <TableHead className="font-semibold">ტიპი</TableHead>
-              <TableHead className="font-semibold">კატეგორია</TableHead>
-              <TableHead className="font-semibold">ბრენდი</TableHead>
-              <TableHead className="font-semibold">მოდელი</TableHead>
-              <TableHead className="font-semibold">სტატუსი</TableHead>
-              <TableHead className="font-semibold">განაცხადის თარიღი</TableHead>
-              <TableHead className="font-semibold">ცვლილების თარიღი</TableHead>
+            <TableRow className="bg-gray-100 hover:bg-gray-100">
+              <TableHead>ID</TableHead>
+              <TableHead>ტიპი</TableHead>
+              <TableHead>კატეგორია</TableHead>
+              <TableHead>ბრენდი</TableHead>
+              <TableHead>მოდელი</TableHead>
+              <TableHead>სტატუსი</TableHead>
+              <TableHead>დამატების თარიღი</TableHead>
               <TableHead className="text-right"></TableHead>
             </TableRow>
           </TableHeader>
@@ -198,7 +207,7 @@ export default function StaffOrdersClientComponent() {
               </TableRow>
             ) : (
               orders?.data?.map((order: Order) => (
-                <TableRow key={order.id} className="hover:bg-gray-50">
+                <TableRow key={order.id} className="hover:bg-gray-100">
                   <TableCell>{order.id}</TableCell>
                   <TableCell>
                     {typeLabels[order.service_type] || order.service_type}
@@ -212,15 +221,12 @@ export default function StaffOrdersClientComponent() {
                   <TableCell>
                     {dayjs(order.created_at).format("DD.MM.YYYY HH:mm")}
                   </TableCell>
-                  <TableCell>
-                    {dayjs(order.updated_at).format("DD.MM.YYYY HH:mm")}
-                  </TableCell>
                   <TableCell className="text-right">
                     <Link href={`/staff/${staffType}/orders/${order.id}`}>
                       <Button
                         variant="secondary"
                         size="icon"
-                        className="hover:bg-gray-100 cursor-pointer"
+                        className="bg-myLightBlue hover:bg-myBlue text-white cursor-pointer rounded-lg"
                       >
                         <BsEye className="size-4" />
                       </Button>

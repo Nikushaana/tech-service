@@ -1,10 +1,6 @@
 import { api } from "./axios";
 
-export async function fetchCities(city: string) {
-  const { data } = await api.get(`front/cities?city=${city}`);
-  return data;
-}
-export async function fetchStreets(city: string, street: string) {
-  const { data } = await api.get(`front/streets?city=${city}&street=${street}`);
+export async function fetchStreets(street: string) {
+  const { data } = await api.get(`front/streets?street=${street}`);
   return data;
 }
