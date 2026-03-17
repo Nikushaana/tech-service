@@ -225,7 +225,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       <LogOut />
       <CreateAddress />
       <CreateOrder />
-      {/* <Suspense fallback={null}>
+      <Suspense fallback={null}>
         <FilterOrders />
       </Suspense>
       <Suspense fallback={null}>
@@ -233,7 +233,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       </Suspense>
       <Suspense fallback={null}>
         <FilterTransactions />
-      </Suspense> */}
+      </Suspense>
       <UpdateOrder />
       <CreateReview />
       <OrderMedia />

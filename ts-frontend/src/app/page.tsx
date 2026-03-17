@@ -7,8 +7,8 @@ import UsersCommentsSection from "./components/home-page/users-comments/users-co
 
 export default function Home() {
   return (
-    <div className="flex flex-col gap-y-24 sm:gap-y-36 pb-[150px] md:px-4 items-center">
-      <div id="hero" className="w-full px-4 md:px-0">
+    <div className="flex flex-col gap-y-24 sm:gap-y-36 pb-[150px]   md:px-4 items-center">
+      <div id="hero" className="w-full px-4 md:px-0 ">
         <HeroSection />
       </div>
 
@@ -31,7 +31,7 @@ export default function Home() {
 
       <div
         id="faq"
-        className="scroll-mt-[180px] w-full flex justify-center bg-gray-100 md:rounded-[30px] px-4"
+        className="scroll-mt-[180px] w-full  flex justify-center bg-gray-100 md:rounded-[30px] px-4"
       >
         <FaqSection />
       </div>
