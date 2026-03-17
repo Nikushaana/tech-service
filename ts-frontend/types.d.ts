@@ -114,7 +114,6 @@ type OrderType = "fix_off_site" | "fix_on_site" | "installation";
 
 interface BranchValues {
   name: string;
-  city: string;
   street: string;
   building_number: string;
   description: string;

@@ -9,62 +9,58 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Dropdown2 } from "@/app/components/inputs/drop-down-2";
 import Map from "@/app/components/map/map";
 import { Loader2Icon } from "lucide-react";
-// import { fetchCities, fetchStreets } from "@/app/lib/api/locations";
+import { fetchStreets } from "@/app/lib/api/locations";
 import { formatNumber } from "@/app/utils/formatNumber";
 import { api } from "@/app/lib/api/axios";
+
+const initialValues = {
+  name: "",
+  street: "",
+  building_number: "",
+  description: "",
+  coverage_radius_km: "",
+  fix_off_site_price: "",
+  installation_price: "",
+  fix_on_site_price: "",
+  location: null as LatLng | null,
+};
+
+const initialErrors = {
+  name: "",
+  street: "",
+  building_number: "",
+  description: "",
+  coverage_radius_km: "",
+  fix_off_site_price: "",
+  installation_price: "",
+  fix_on_site_price: "",
+  location: "",
+};
+
+const initialHelperValues = {
+  searchStreet: "",
+  streetLocation: null as LatLng | null,
+  isSelectingStreet: false,
+};
 
 export default function Page() {
   const queryClient = useQueryClient();
 
-  const [values, setValues] = useState<BranchValues>({
-    name: "",
-    city: "",
-    street: "",
-    building_number: "",
-    description: "",
-    coverage_radius_km: "",
-    fix_off_site_price: "",
-    installation_price: "",
-    fix_on_site_price: "",
-    location: null as LatLng | null,
-  });
-  const [errors, setErrors] = useState({
-    name: "",
-    city: "",
-    street: "",
-    building_number: "",
-    description: "",
-    coverage_radius_km: "",
-    fix_off_site_price: "",
-    installation_price: "",
-    fix_on_site_price: "",
-    location: "",
-  });
+  const [values, setValues] = useState(initialValues);
+  const [errors, setErrors] = useState(initialErrors);
+  const [helperValues, setHelperValues] = useState(initialHelperValues);
 
-  const [helperValues, setHelperValues] = useState({
-    searchCity: "",
-    searchStreet: "",
-    cityLocation: null as LatLng | null,
-    streetLocation: null as LatLng | null,
-    isSelectingCity: false,
-    isSelectingStreet: false,
-  });
-
-  const { data: citiesData = [], isLoading: cityLoading } = useQuery({
-    queryKey: ["cities", helperValues.searchCity],
-    queryFn: () => fetchCities(helperValues.searchCity),
-    enabled:
-      !helperValues.isSelectingCity && helperValues.searchCity.length >= 2,
-    staleTime: 1000 * 60 * 5,
-  });
+  const resetForm = () => {
+    setValues(initialValues);
+    setErrors(initialErrors);
+    setHelperValues(initialHelperValues);
+  };
 
   const { data: streetsData = [], isLoading: streetLoading } = useQuery({
-    queryKey: ["streets", values.city, helperValues.searchStreet],
-    queryFn: () => fetchStreets(values.city, helperValues.searchStreet),
+    queryKey: ["streets", helperValues.searchStreet],
+    queryFn: () => fetchStreets(helperValues.searchStreet),
     enabled:
-      !helperValues.isSelectingStreet &&
-      !!values.city &&
-      helperValues.searchStreet.length >= 2,
+      !helperValues.isSelectingStreet && helperValues.searchStreet.length >= 2,
     staleTime: 1000 * 60 * 5,
   });
 
@@ -88,57 +84,37 @@ export default function Page() {
     }));
   };
 
-  // Generic handler for dropdown (city / street)
-  const handleDropdownChange = (
-    key: "searchCity" | "searchStreet",
-    value: string,
-  ) => {
+  const handleDropdownChange = (value: string) => {
     setHelperValues((prev) => ({
       ...prev,
-      [key]: value,
-      [`isSelecting${key === "searchCity" ? "City" : "Street"}`]: false,
-      ...(key === "searchCity" && {
-        searchStreet: "",
-      }),
+      searchStreet: value,
+      isSelectingStreet: false,
     }));
 
-    // Reset form value (city/street) when typing
     setValues((prev) => ({
       ...prev,
-      ...(key === "searchCity" && {
-        city: value,
-        street: "",
-      }),
-      ...(key === "searchStreet" && {
-        street: value,
-      }),
+      street: value,
       location: null,
     }));
   };
 
-  // Generic handler for selecting dropdown item
-  const handleDropdownSelect = (
-    key: "searchCity" | "searchStreet",
-    item: any,
-  ) => {
+  const handleDropdownSelect = (item: any) => {
     setValues((prev) => ({
       ...prev,
-      [key === "searchCity" ? "city" : "street"]: item.name,
+      street: item.name,
     }));
 
     setHelperValues((prev) => ({
       ...prev,
-      [key]: item.name,
-      [`${key === "searchCity" ? "cityLocation" : "streetLocation"}`]:
-        item.location,
-      [`isSelecting${key === "searchCity" ? "City" : "Street"}`]: true,
+      searchStreet: item.name,
+      streetLocation: item.location,
+      isSelectingStreet: true,
     }));
   };
 
   // validation
   const branchSchema = Yup.object().shape({
     name: Yup.string().required("სახელწოდება აუცილებელია"),
-    city: Yup.string().required("ქალაქი აუცილებელია"),
     street: Yup.string().required("ქუჩა აუცილებელია"),
     building_number: Yup.string().required("შენობის ნომერი აუცილებელია"),
     description: Yup.string().required("აღწერა აუცილებელია"),
@@ -191,35 +167,7 @@ export default function Page() {
     onSuccess: () => {
       toast.success("ფილიალი დაემატა");
 
-      setValues({
-        name: "",
-        city: "",
-        street: "",
-        building_number: "",
-        description: "",
-        coverage_radius_km: "",
-        fix_off_site_price: "",
-        installation_price: "",
-        fix_on_site_price: "",
-        location: null,
-      });
-      setErrors({
-        name: "",
-        city: "",
-        street: "",
-        building_number: "",
-        description: "",
-        coverage_radius_km: "",
-        fix_off_site_price: "",
-        installation_price: "",
-        fix_on_site_price: "",
-        location: "",
-      });
-      setHelperValues((prev) => ({
-        ...prev,
-        searchCity: "",
-        searchStreet: "",
-      }));
+      resetForm();
 
       // refresh branches list
       queryClient.invalidateQueries({
@@ -266,21 +214,11 @@ export default function Page() {
         />
       </div>
       <Dropdown2
-        id="searchCity"
-        data={citiesData}
-        value={helperValues.searchCity}
-        onChange={(e) => handleDropdownChange("searchCity", e.target.value)}
-        onSelect={(item) => handleDropdownSelect("searchCity", item)}
-        label="ქალაქი"
-        isLoading={cityLoading}
-        error={errors.city}
-      />
-      <Dropdown2
         id="searchStreet"
         data={streetsData}
         value={helperValues.searchStreet}
-        onChange={(e) => handleDropdownChange("searchStreet", e.target.value)}
-        onSelect={(item) => handleDropdownSelect("searchStreet", item)}
+        onChange={(e) => handleDropdownChange(e.target.value)}
+        onSelect={handleDropdownSelect}
         label="ქუჩა"
         isLoading={streetLoading}
         error={errors.street}
@@ -293,11 +231,7 @@ export default function Page() {
           uiControl={true}
           id="location"
           markerCoordinates={values.location || undefined}
-          centerCoordinates={
-            helperValues.streetLocation ||
-            helperValues.cityLocation ||
-            undefined
-          }
+          centerCoordinates={helperValues.streetLocation || undefined}
           onChange={handleChange}
           error={errors.location}
         />
