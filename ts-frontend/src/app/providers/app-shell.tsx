@@ -225,15 +225,25 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       <LogOut />
       <CreateAddress />
       <CreateOrder />
-      <Suspense fallback={null}>
-        <FilterOrders />
-      </Suspense>
-      <Suspense fallback={null}>
-        <FilterNotifications />
-      </Suspense>
-      <Suspense fallback={null}>
-        <FilterTransactions />
-      </Suspense>
+
+      {openFilterOrderModal && (
+        <Suspense fallback={null}>
+          <FilterOrders />
+        </Suspense>
+      )}
+
+      {openFilterNotificationModal && (
+        <Suspense fallback={null}>
+          <FilterNotifications />
+        </Suspense>
+      )}
+
+      {openFilterTransactionModal && (
+        <Suspense fallback={null}>
+          <FilterTransactions />
+        </Suspense>
+      )}
+
       <UpdateOrder />
       <CreateReview />
       <OrderMedia />
