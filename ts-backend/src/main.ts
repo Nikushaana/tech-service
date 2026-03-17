@@ -9,7 +9,7 @@ async function bootstrap() {
   app.use(cookieParser());
 
   app.enableCors({
-    origin: ['http://localhost:3000', 'http://192.168.100.9:3000', 'https://tech-service-ten.vercel.app'],
+    origin: ['http://localhost:3000', 'http://192.168.100.9:3000', 'https://techero-iota.vercel.app'],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
     credentials: true,
   });
