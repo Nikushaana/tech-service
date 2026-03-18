@@ -117,9 +117,9 @@ export class OrderService {
     async createOrder(userId: number, repo: any, createOrderDto: CreateOrderDto, images: Express.Multer.File[] = [], videos: Express.Multer.File[] = []) {
         const user = await this.baseUserService.getUser(userId, repo);
 
-        if (!user.status) {
-            throw new BadRequestException('Inactive user cannot create orders');
-        }
+        // if (!user.status) {
+        //     throw new BadRequestException('Inactive user cannot create orders');
+        // }
 
         const category = await this.categoryRepo.findOne({ where: { id: createOrderDto.categoryId, status: true } });
         if (!category) throw new NotFoundException('Category not found');
@@ -295,9 +295,9 @@ export class OrderService {
     async updateOneOrder(userId: number, id: number, repo: any, updateUserOrderDto: UpdateUserOrderDto, images: Express.Multer.File[] = [], videos: Express.Multer.File[] = []) {
         const user = await this.baseUserService.getUser(userId, repo);
 
-        if (!user.status) {
-            throw new BadRequestException('Inactive user cannot update orders');
-        }
+        // if (!user.status) {
+        //     throw new BadRequestException('Inactive user cannot update orders');
+        // }
 
         const relationKey = "companyName" in user ? "company" : "individual";
 
