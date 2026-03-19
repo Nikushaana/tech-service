@@ -87,7 +87,7 @@ export default function UserReviewsClientComponent() {
               </TableRow>
             ) : (
               reviews?.data?.map((review: Review) => (
-                <TableRow key={review.id} className="hover:bg-gray-100">
+                <TableRow key={review.id} className="hover:bg-gray-100 h-13">
                   <TableCell className="font-medium">{review.id}</TableCell>
                   <TableCell>
                     <StarRating value={review.stars || 5} />

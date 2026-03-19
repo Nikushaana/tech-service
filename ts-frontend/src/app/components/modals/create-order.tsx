@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAddressesStore } from "@/app/store/useAddressesStore";
 import * as Yup from "yup";
 import { toast } from "react-toastify";
@@ -18,6 +18,8 @@ import { fetchFrontCategories } from "@/app/lib/api/frontCategories";
 import { fetchUserAddresses } from "@/app/lib/api/userAddresses";
 import { fetchUserCalculatePrice } from "@/app/lib/api/userCalculatePrice";
 import { api } from "@/app/lib/api/axios";
+import { useCurrentUser } from "@/app/hooks/useCurrentUser";
+import { useRouter } from "next/navigation";
 
 interface CreateOrderValues {
   serviceType: OrderType | "";
@@ -51,10 +53,11 @@ const initialErrors = {
 };
 
 export default function CreateOrder() {
-  const { openCreateOrderModal, toggleOpenCreateOrderModal, modalType } =
-    useOrdersStore();
+  const router = useRouter();
+  const { openCreateOrderModal, toggleOpenCreateOrderModal } = useOrdersStore();
   const { toggleOpenCreateAddressModal } = useAddressesStore();
   const { typeOptions } = useOrderTypeStatusOptionsStore();
+  const { data: currentUser } = useCurrentUser();
 
   const queryClient = useQueryClient();
 
@@ -66,8 +69,8 @@ export default function CreateOrder() {
   });
 
   const { data: addresses } = useQuery({
-    queryKey: ["userAddresses", modalType],
-    queryFn: () => fetchUserAddresses(modalType),
+    queryKey: ["userAddresses", currentUser?.role],
+    queryFn: () => fetchUserAddresses(currentUser.role),
     enabled: openCreateOrderModal,
     staleTime: 1000 * 60 * 10,
   });
@@ -78,6 +81,7 @@ export default function CreateOrder() {
   const resetForm = () => {
     setValues(initialValues);
     setErrors(initialErrors);
+    sessionStorage.removeItem("pendingTecheroOrder");
   };
 
   const handleChange = (e: { target: { id: string; value: string } }) => {
@@ -93,12 +97,12 @@ export default function CreateOrder() {
   const { data: price, isLoading: isLoadingPrice } = useQuery({
     queryKey: [
       "userCalculatedPrice",
-      modalType,
+      currentUser?.role,
       values.serviceType,
       values.addressId,
     ],
     queryFn: () =>
-      fetchUserCalculatePrice(modalType, {
+      fetchUserCalculatePrice(currentUser.role, {
         addressId: +values.addressId,
         service_type: values.serviceType as OrderType,
       }),
@@ -130,7 +134,7 @@ export default function CreateOrder() {
   // add order
   const addOrderMutation = useMutation({
     mutationFn: (payload: FormData) =>
-      api.post(`${modalType}/create-order`, payload),
+      api.post(`${currentUser.role}/create-order`, payload),
 
     onSuccess: () => {
       toast.success("განაცხადი დაემატა");
@@ -199,11 +203,43 @@ export default function CreateOrder() {
     }
   };
 
+  const handleWrapperClick = () => {
+    if (!currentUser) {
+      if (
+        values.serviceType ||
+        values.categoryId ||
+        values.addressId ||
+        values.brand.trim() ||
+        values.model.trim() ||
+        values.description.trim() ||
+        values.newImages.length > 0 ||
+        values.newVideos.length > 0
+      ) {
+        sessionStorage.setItem(
+          "pendingTecheroOrder",
+          JSON.stringify("pendingTecheroOrder"),
+        );
+      }
+
+      toggleOpenCreateOrderModal();
+      router.push("/auth/login");
+      setErrors(initialErrors);
+      toast.info("განაცხადის შესავსებად გაიარე ავტორიზაცია");
+      return;
+    }
+
+    if ((addresses?.total ?? 0) <= 0) {
+      toggleOpenCreateAddressModal(currentUser.role);
+    }
+  };
+
+  const shouldDisable = !currentUser || (addresses?.total ?? 0) <= 0;
+
   return (
     <div
       className={`${
         openCreateOrderModal ? "" : "opacity-0 pointer-events-none"
-      } fixed inset-0 z-20 flex items-center justify-center`}
+      } fixed inset-0 z-20 flex items-center justify-center duration-200`}
     >
       <div
         className={`absolute inset-0 bg-black transition-opacity ${
@@ -266,17 +302,11 @@ export default function CreateOrder() {
                 error={errors.model}
               />
               <div
-                onClick={() => {
-                  addresses?.total <= 0 &&
-                    modalType &&
-                    toggleOpenCreateAddressModal(modalType);
-                }}
+                onClick={handleWrapperClick}
                 className="flex items-end gap-1"
               >
                 <div
-                  className={`flex-1 ${
-                    addresses?.total <= 0 && "pointer-events-none"
-                  }`}
+                  className={`flex-1 ${shouldDisable && "pointer-events-none"}`}
                 >
                   <Dropdown
                     data={addresses?.data}
@@ -292,12 +322,13 @@ export default function CreateOrder() {
                 </div>
                 <Button
                   onClick={() => {
-                    addresses?.total > 0 &&
-                      modalType &&
-                      toggleOpenCreateAddressModal(modalType);
+                    (addresses?.total ?? 0) > 0 &&
+                      currentUser &&
+                      toggleOpenCreateAddressModal(currentUser.role);
                   }}
                   variant="secondary"
-                  className="h-9 aspect-square rounded-[8px] bg-myLightBlue hover:bg-myBlue text-white text-[18px] cursor-pointer"
+                  className={`h-9 aspect-square rounded-[8px] bg-myLightBlue hover:bg-myBlue text-white text-[18px] cursor-pointer
+                    ${shouldDisable && "pointer-events-none"}`}
                 >
                   <MdAddLocationAlt />
                 </Button>
@@ -357,11 +388,11 @@ export default function CreateOrder() {
             variant="outline"
             className="cursor-pointer"
           >
-            გაუქმება
+            დახურვა
           </Button>
           <Button
             onClick={handleCreateOrder}
-            disabled={addOrderMutation.isPending || !price}
+            disabled={addOrderMutation.isPending}
             className="cursor-pointer"
           >
             {(addOrderMutation.isPending || isLoadingPrice) && (

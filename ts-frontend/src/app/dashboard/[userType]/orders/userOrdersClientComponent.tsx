@@ -6,7 +6,6 @@ import dayjs from "dayjs";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { BsEye } from "react-icons/bs";
 import { CiFilter } from "react-icons/ci";
-import { toast } from "react-toastify";
 import Link from "next/link";
 import {
   Table,
@@ -22,7 +21,6 @@ import { api } from "@/app/lib/api/axios";
 import Pagination from "@/app/components/pagination/pagination";
 import LinearLoader from "@/app/components/linearLoader";
 import { useOrderTypeStatusOptionsStore } from "@/app/store/orderTypeStatusOptionsStore";
-import { useCurrentUser } from "@/app/hooks/useCurrentUser";
 
 const fetchUserOrders = async (
   userType: ClientRole,
@@ -68,7 +66,6 @@ export default function UserOrdersClientComponent() {
     placeholderData: (previous) => previous,
   });
 
-  const { data: currentUser } = useCurrentUser();
   const { toggleOpenCreateOrderModal, toggleOpenFilterOrderModal } =
     useOrdersStore();
 
@@ -106,13 +103,7 @@ export default function UserOrdersClientComponent() {
           </Button>
           <Button
             onClick={() => {
-              if (currentUser?.status) {
-                toggleOpenCreateOrderModal(userType);
-              } else {
-                toast.error(
-                  "თქვენ ვერ დაამატებთ შეკვეთას, რადგან თქვენი პროფილი გასააქტიურებელია",
-                );
-              }
+                toggleOpenCreateOrderModal();
             }}
             className={`md:hidden cursor-pointer`}
           >
@@ -129,7 +120,7 @@ export default function UserOrdersClientComponent() {
             <button
               key={type.id || "all"}
               onClick={() => handleChange(type.id)}
-              className={`px-2 sm:px-4 py-1.5 text-[13px] cursor-pointer duration-100 border-b-1 shrink-0
+              className={`px-2 sm:px-4 py-3 sm:py-1.5 text-[13px] cursor-pointer duration-100 border-b-1 shrink-0
         ${
           isActive
             ? "text-myLightBlue border-b-myLightBlue"

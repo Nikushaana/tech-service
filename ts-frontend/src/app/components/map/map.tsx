@@ -47,10 +47,6 @@ export default function Map({
     staleTime: 1000 * 60 * 10,
   });
 
-  const [currentPosition, setCurrentPosition] = React.useState<LatLng | null>(
-    null,
-  );
-
   useEffect(() => {
     if (requestedLocation.current) return;
 
@@ -80,9 +76,7 @@ export default function Map({
   }, [centerCoordinates]);
 
   const centerPosition =
-    centerCoordinates ||
-    currentPosition ||
-    (branches && branches[0] && branches[0].location);
+    centerCoordinates || (branches && branches[0] && branches[0].location);
 
   const options = {
     disableDefaultUI: true,
@@ -117,6 +111,12 @@ export default function Map({
 
         if (!insideCircle) {
           toast.warning("დასვი პინი იქ, სადაც სერვისი ხელმისაწვდომია.");
+
+          if (mapRef.current && centerPosition) {
+            mapRef.current.panTo(centerPosition);
+            mapRef.current.setZoom(8);
+          }
+
           return;
         } // Ignore clicks outside circles
       }
@@ -136,6 +136,8 @@ export default function Map({
     }
   }, [markerCoordinates]);
 
+  const zoomLevel = markerCoordinates ? 18 : 8;
+
   if (!isLoaded)
     return (
       <div className="w-full h-full flex items-center justify-center">
@@ -151,7 +153,7 @@ export default function Map({
         <GoogleMap
           mapContainerStyle={{ width: "100%", height: "100%" }}
           center={centerPosition}
-          zoom={18}
+          zoom={zoomLevel}
           options={options}
           onClick={handleMapClick}
           onLoad={(map) => {
@@ -178,7 +180,7 @@ export default function Map({
           ))}
         </GoogleMap>
       </div>
-      
+
       {seeGoogleMap && markerCoordinates && (
         <a
           href={`https://www.google.com/maps/dir/?api=1&destination=${markerCoordinates?.lat},${markerCoordinates?.lng}`}

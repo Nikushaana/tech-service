@@ -190,7 +190,7 @@ export default function AdminTransactionsClientComponent() {
               </TableRow>
             ) : (
               transactions?.data?.map((transaction: any) => (
-                <TableRow key={transaction.id} className="hover:bg-gray-100">
+                <TableRow key={transaction.id} className="hover:bg-gray-100 h-13">
                   <TableCell>{transaction.id}</TableCell>
                   <TableCell>{transaction.amount} ₾</TableCell>
                   <TableCell>{transaction.reason}</TableCell>

@@ -102,7 +102,7 @@ export default function AdminReviewsClientComponent() {
               </TableRow>
             ) : (
               reviews?.data?.map((review: Review) => (
-                <TableRow key={review.id} className="hover:bg-gray-100">
+                <TableRow key={review.id} className="hover:bg-gray-100 h-13">
                   <TableCell className="font-medium">{review.id}</TableCell>
                   <TableCell>
                     <div className="flex items-center gap-[10px]">

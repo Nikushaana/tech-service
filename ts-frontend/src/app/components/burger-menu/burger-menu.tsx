@@ -7,19 +7,15 @@ import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useCurrentUser } from "@/app/hooks/useCurrentUser";
+import { useOrdersStore } from "@/app/store/useOrdersStore";
 
 export default function BurgerMenu() {
   const menu = useMenuStore((state) => state.menu);
   const { isOpen, closeBurgerMenu } = useBurgerMenuStore();
+    const { toggleOpenCreateOrderModal } = useOrdersStore();
   const { data: currentUser } = useCurrentUser();
   const pathname = usePathname();
   const router = useRouter();
-
-  const path = currentUser
-    ? currentUser.role === "individual"
-      ? "/dashboard/individual/orders"
-      : "/dashboard/company/orders"
-    : "/auth/login";
 
   return (
     <div
@@ -42,16 +38,19 @@ export default function BurgerMenu() {
           className="h-[60px] self-center"
         />
 
-        <Link href={path}>
           <Button
             onClick={() => {
               closeBurgerMenu();
+              if (currentUser) {
+                toggleOpenCreateOrderModal();
+              } else {
+                router.push("/auth/login");
+              }
             }}
             className="flex cursor-pointer h-[45px] w-full"
           >
             {currentUser ? "შეავსე განაცხადი" : "ავტორიზაცია"}
           </Button>
-        </Link>
 
         <nav className="flex flex-col gap-6">
           {menu.map((item) => (

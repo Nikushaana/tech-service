@@ -47,7 +47,7 @@ export default function UsersCommentsClient({
             className="w-[180%] sm:w-full"
           >
             {reviews.map((item) => (
-              <SwiperSlide key={item.id} className="p-5">
+              <SwiperSlide key={item.id} className="px-2 py-5 sm:p-5">
                 <div className="shadow-myShadow rounded-[30px] bg-white p-[15px] sm:p-[20px] flex flex-col gap-y-[10px]">
                   <div className="flex items-center justify-between">
                     <StarRating value={item.stars || 5} />
@@ -93,12 +93,7 @@ export default function UsersCommentsClient({
         <Button
           onClick={() => {
             if (currentUser) {
-              const path =
-                currentUser.role === "individual"
-                  ? "/dashboard/individual/reviews"
-                  : "/dashboard/company/reviews";
-
-              router.push(path);
+              router.push(`/dashboard/${currentUser.role}/reviews`);
             } else {
               router.push("/auth/login");
               toast.warning("შესაფასებლად გაიარე ავტორიზაცია");

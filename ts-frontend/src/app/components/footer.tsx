@@ -105,8 +105,8 @@ export default function Footer() {
         </div>
         <hr className="bg-white" />
         <div className="flex justify-center gap-1 text-white text-[14px] py-3">
-          <p className="pt-[0.5]">©</p>
-          <p>2026 Techore </p>
+          <p className="text-[19px]">©</p>
+          <p className="pt-0.5">2026 Techore </p>
         </div>
       </div>
     </footer>

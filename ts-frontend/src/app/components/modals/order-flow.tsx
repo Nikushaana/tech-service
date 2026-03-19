@@ -102,7 +102,7 @@ export default function OrderFlow() {
     <div
       className={`${
         openOrderFlowModal ? "" : "opacity-0 pointer-events-none"
-      } fixed inset-0 z-20 flex items-center justify-center`}
+      } fixed inset-0 z-20 flex items-center justify-center duration-200`}
     >
       <div
         className={`absolute inset-0 bg-black transition-opacity ${
@@ -170,7 +170,7 @@ export default function OrderFlow() {
             }}
             className="h-[45px] px-6 cursor-pointer bg-red-500 hover:bg-[#b91c1c]"
           >
-            გაუქმება
+            დახურვა
           </Button>
           <Button
             onClick={handleWaitingDecision}

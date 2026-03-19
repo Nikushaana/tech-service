@@ -7,10 +7,12 @@ import { api } from "@/app/lib/api/axios";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLogOutStore } from "@/app/store/useLogOutStore";
 import { Loader2Icon } from "lucide-react";
+import { useBurgerMenuStore } from "@/app/store/burgerMenuStore";
 
 export default function LogOut() {
   const router = useRouter();
   const { openLogOut, toggleLogOut } = useLogOutStore();
+  const { toggleSideBar } = useBurgerMenuStore();
 
   const queryClient = useQueryClient();
 
@@ -24,6 +26,7 @@ export default function LogOut() {
       toast.success("წარმატებით გამოხვედით სისტემიდან");
 
       toggleLogOut();
+      toggleSideBar();
       router.push("/");
     },
 
@@ -36,7 +39,7 @@ export default function LogOut() {
     <div
       className={`${
         openLogOut ? "" : "opacity-0 pointer-events-none"
-      } fixed inset-0 z-30 flex items-center justify-center`}
+      } fixed inset-0 z-30 flex items-center justify-center duration-200`}
     >
       <div
         className={`absolute inset-0 bg-black transition-opacity ${

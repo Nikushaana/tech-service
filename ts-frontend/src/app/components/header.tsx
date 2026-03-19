@@ -11,10 +11,12 @@ import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { fetchUserUnreadNotifications } from "../lib/api/userUnreadNotifications";
 import { useCurrentUser } from "../hooks/useCurrentUser";
+import { useOrdersStore } from "../store/useOrdersStore";
 
 export default function Header() {
   const menu = useMenuStore((state) => state.menu);
   const { isOpen, toggleBurgerMenu } = useBurgerMenuStore();
+  const { toggleOpenCreateOrderModal } = useOrdersStore();
   const pathname = usePathname();
   const router = useRouter();
 
@@ -32,12 +34,6 @@ export default function Header() {
 
   const firstSegment = pathname.split("/")[1];
   const isHidden = firstSegment === "admin" || firstSegment === "staff";
-
-  const path = currentUser
-    ? currentUser.role === "individual"
-      ? "/dashboard/individual/orders"
-      : "/dashboard/company/orders"
-    : "/auth/login";
 
   return (
     <header className={`w-full ${isHidden ? "hidden" : ""}`}>
@@ -73,11 +69,18 @@ export default function Header() {
 
         {/* Request Button (Desktop) */}
         <div className="flex items-center gap-[10px]">
-          <Link href={path}>
-            <Button className="hidden md:flex cursor-pointer h-[45px] px-[20px] sm:px-[30px]">
-              {currentUser ? "შეავსე განაცხადი" : "ავტორიზაცია"}
-            </Button>
-          </Link>
+          <Button
+            onClick={() => {
+              if (currentUser) {
+                toggleOpenCreateOrderModal();
+              } else {
+                router.push("/auth/login");
+              }
+            }}
+            className="hidden md:flex cursor-pointer h-[45px] px-[20px] sm:px-[30px]"
+          >
+            {currentUser ? "შეავსე განაცხადი" : "ავტორიზაცია"}
+          </Button>
 
           <Link
             href={`/dashboard/${currentUser?.role}/profile`}

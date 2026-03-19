@@ -104,7 +104,7 @@ export default function CreateReview() {
     <div
       className={`${
         openCreateReviewModal ? "" : "opacity-0 pointer-events-none"
-      } fixed inset-0 z-20 flex items-center justify-center`}
+      } fixed inset-0 z-20 flex items-center justify-center duration-200`}
     >
       <div
         className={`absolute inset-0 bg-black transition-opacity ${
@@ -160,7 +160,7 @@ export default function CreateReview() {
             }}
             className="cursor-pointer"
           >
-            გაუქმება
+            დახურვა
           </Button>
           <Button
             onClick={handleCreateReview}

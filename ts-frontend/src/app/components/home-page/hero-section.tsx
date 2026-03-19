@@ -1,21 +1,17 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { toast } from "react-toastify";
 import { Button } from "@/components/ui/button";
-import { useCurrentUser } from "@/app/hooks/useCurrentUser";
+import { useOrdersStore } from "@/app/store/useOrdersStore";
 
 export default function HeroSection() {
-  const router = useRouter();
-
-  const { data: currentUser } = useCurrentUser();
+  const { toggleOpenCreateOrderModal } = useOrdersStore();
 
   return (
-    <div className="relative flex justify-center w-full h-[50vh] sm:h-[60vh] lg:h-[75vh] rounded-[30px] shadow-lg overflow-hidden">
+    <div className="relative flex justify-center w-full h-[55vh] sm:h-[60vh] lg:h-[75vh] rounded-[30px] shadow-lg overflow-hidden">
       <img
         src="/images/1.webp"
         alt="logo"
-        className="h-full w-full object-cover max-sm:[object-position:37%_center] absolute inset-0 blur-[3px] brightness-80"
+        className="h-full w-full object-cover max-sm:[object-position:37%_center] absolute inset-0 blur-[1px] brightness-70"
       />
 
       <div className="z-[2] max-w-[700px] w-full px-4 flex flex-col gap-6 sm:gap-8 items-center justify-center">
@@ -27,19 +23,9 @@ export default function HeroSection() {
           საუკეთესო სერვისით
         </p>
         <Button
-          onClick={() => {
-            if (currentUser) {
-              const path =
-                currentUser.role === "individual"
-                  ? "/dashboard/individual/orders"
-                  : "/dashboard/company/orders";
-
-              router.push(path);
-            } else {
-              router.push("/auth/login");
-              toast.warning("ასარჩევად გაიარე ავტორიზაცია");
-            }
-          }}
+           onClick={() => {
+                toggleOpenCreateOrderModal();
+            }}
           className="flex h-[45px] cursor-pointer"
         >
           შეავსე განაცხადი

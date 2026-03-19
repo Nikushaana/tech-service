@@ -2,6 +2,7 @@
 
 import { useOrderMediaStore } from "@/app/store/useOrderMediaStore";
 import { Button } from "@/components/ui/button";
+import { useEffect, useRef } from "react";
 import { BsXLg } from "react-icons/bs";
 
 export default function OrderMedia() {
@@ -9,11 +10,20 @@ export default function OrderMedia() {
   const isOpen = currentIndex !== null;
   const item = isOpen ? media[currentIndex] : null;
 
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+
+  useEffect(() => {
+    if (!isOpen && videoRef.current) {
+      videoRef.current.pause();
+      videoRef.current.currentTime = 0; // optional: reset video
+    }
+  }, [isOpen]);
+
   return (
     <div
       className={`${
         isOpen && item ? "" : "opacity-0 pointer-events-none"
-      } fixed inset-0 z-30 flex items-center justify-center`}
+      } fixed inset-0 z-30 flex items-center justify-center duration-200`}
     >
       {/* Background overlay */}
       <div
@@ -43,6 +53,7 @@ export default function OrderMedia() {
           />
         ) : (
           <video
+            ref={videoRef}
             src={item?.url}
             controls
             autoPlay

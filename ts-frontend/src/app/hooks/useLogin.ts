@@ -3,12 +3,13 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/app/lib/api/axios";
 import { toast } from "react-toastify";
 import { loginSchema } from "@/app/utils/validation";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
+import { useOrdersStore } from "../store/useOrdersStore";
 
 export function useLogin() {
   const pathname = usePathname()
-  const router = useRouter()
   const queryClient = useQueryClient();
+  const { toggleOpenCreateOrderModal } = useOrdersStore();
 
   const [values, setValues] = useState({ phone: "", password: "" });
   const [errors, setErrors] = useState({ phone: "", password: "" });
@@ -54,6 +55,11 @@ export function useLogin() {
       toast.success("ავტორიზაცია შესრულდა");
 
       // router.replace(roleRedirectMap[role]);
+
+      const pendingOrder = sessionStorage.getItem("pendingTecheroOrder");
+
+      if (pendingOrder)
+        toggleOpenCreateOrderModal()
 
       queryClient.invalidateQueries({
         queryKey: ["currentUser"],

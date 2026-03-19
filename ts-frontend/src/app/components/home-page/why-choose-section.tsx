@@ -1,14 +1,11 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { toast } from "react-toastify";
 import { Button } from "@/components/ui/button";
-import { useCurrentUser } from "@/app/hooks/useCurrentUser";
 import { TbPointFilled } from "react-icons/tb";
+import { useOrdersStore } from "@/app/store/useOrdersStore";
 
 export default function WhyChooseSection() {
-  const router = useRouter();
-  const { data: currentUser } = useCurrentUser();
+  const { toggleOpenCreateOrderModal } = useOrdersStore();
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 items-stretch gap-[30px] sm:gap-[50px] group">
@@ -38,17 +35,7 @@ export default function WhyChooseSection() {
         </ul>
         <Button
           onClick={() => {
-            if (currentUser) {
-              const path =
-                currentUser.role === "individual"
-                  ? "/dashboard/individual/orders"
-                  : "/dashboard/company/orders";
-
-              router.push(path);
-            } else {
-              router.push("/auth/login");
-              toast.warning("ასარჩევად გაიარე ავტორიზაცია");
-            }
+            toggleOpenCreateOrderModal();
           }}
           className="flex h-[45px] px-[20px] sm:px-[30px] self-start cursor-pointer"
         >

@@ -173,7 +173,7 @@ export default function UserNotificationsClientComponent() {
             <button
               key={type1.id || "all"}
               onClick={() => handleChange(type1.nameEng)}
-              className={`px-2 sm:px-4 py-1.5 text-[13px] cursor-pointer duration-100 border-b-1 shrink-0
+              className={`px-2 sm:px-4 py-3 sm:py-1.5 text-[13px] cursor-pointer duration-100 border-b-1 shrink-0
         ${
           isActive
             ? "text-myLightBlue border-b-myLightBlue"

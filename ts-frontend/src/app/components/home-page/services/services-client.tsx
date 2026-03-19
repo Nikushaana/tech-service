@@ -1,7 +1,6 @@
 "use client";
 
-import { useCurrentUser } from "@/app/hooks/useCurrentUser";
-import Link from "next/link";
+import { useOrdersStore } from "@/app/store/useOrdersStore";
 import { BiCategory } from "react-icons/bi";
 
 export default function ServicesClient({
@@ -9,13 +8,7 @@ export default function ServicesClient({
 }: {
   categories: CategoryData;
 }) {
-  const { data: currentUser } = useCurrentUser();
-
-  const path = currentUser
-    ? currentUser.role === "individual"
-      ? "/dashboard/individual/orders"
-      : "/dashboard/company/orders"
-    : "/auth/login";
+  const { toggleOpenCreateOrderModal } = useOrdersStore();
 
   return (
     <div className="flex flex-col gap-y-[30px] sm:gap-y-[50px]">
@@ -38,8 +31,10 @@ export default function ServicesClient({
             </h1>
           </div>
         ))}
-        <Link
-          href={path}
+        <div
+          onClick={() => {
+            toggleOpenCreateOrderModal();
+          }}
           className="rounded-[30px] px-[10px] sm:px-[20px] py-[10px] flex flex-col items-center gap-y-[15px] sm:gap-y-[20px] bg-myLightBlue hover:bg-myBlue duration-200 text-white  cursor-pointer hover:hover:scale-110 w-[calc((100%-20px)/2)] sm:w-[calc((100%-80px)/3)] lg:w-[calc((100%-160px)/5)]"
         >
           <div className="aspect-square sm:aspect-video lg:aspect-square w-[50px] sm:w-full flex items-center justify-center text-[60px]">
@@ -49,7 +44,7 @@ export default function ServicesClient({
           <h1 className="text-center text-[14px] sm:text-[16px]">
             იპოვე სასურველი კატეგორია
           </h1>
-        </Link>
+        </div>
       </div>
     </div>
   );
