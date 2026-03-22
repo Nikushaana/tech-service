@@ -21,6 +21,7 @@ import { PricingModule } from './pricing/pricing.module';
 import { TransactionsModule } from './transactions/transactions.module';
 import { PaymentModule } from './payment/payment.module';
 import { StreetsModule } from './streets/streets.module';
+import { InvoiceModule } from './invoice/invoice.module';
 
 @Module({
   imports: [
@@ -93,7 +94,9 @@ import { StreetsModule } from './streets/streets.module';
 
     PaymentModule,
 
-    StreetsModule
+    StreetsModule,
+
+    InvoiceModule
   ],
   controllers: [AppController],
   providers: [AppService],
