@@ -192,7 +192,7 @@ export class OrderService {
         const invoice = await this.invoiceService.createInvoice({
             orderId: order.id,
             amount: price,
-            type: InvoiceType.FIRST_PAYMENT,
+            type: InvoiceType.CREATE_ORDER,
         });
 
         // Create transaction for this order creating
@@ -953,14 +953,14 @@ export class OrderService {
         await this.orderRepo.save(order)
 
         const existing = order.invoices?.find(
-            (inv) => inv.type === InvoiceType.SECOND_PAYMENT
+            (inv) => inv.type === InvoiceType.REPAIR_ORDER
         );
 
         if (!existing) {
             await this.invoiceService.createInvoice({
                 orderId: order.id,
                 amount: order.payment_amount,
-                type: InvoiceType.SECOND_PAYMENT,
+                type: InvoiceType.REPAIR_ORDER,
             });
         }
 
@@ -1020,7 +1020,7 @@ export class OrderService {
             });
 
             const secondInvoice = order.invoices?.find(
-                (invoice) => invoice.type === InvoiceType.SECOND_PAYMENT
+                (invoice) => invoice.type === InvoiceType.REPAIR_ORDER
             );
 
             if (!secondInvoice) {
@@ -1377,7 +1377,7 @@ export class OrderService {
         await this.invoiceService.createInvoice({
             orderId: order.id,
             amount: order.payment_amount,
-            type: InvoiceType.ON_SITE_PAYMENT,
+            type: InvoiceType.SERVICE_ONSITE,
         });
 
         // sent notifications
@@ -1426,7 +1426,7 @@ export class OrderService {
         });
 
         const onSiteInvoice = order.invoices?.find(
-            (invoice) => invoice.type === InvoiceType.ON_SITE_PAYMENT
+            (invoice) => invoice.type === InvoiceType.SERVICE_ONSITE
         );
 
         if (!onSiteInvoice) {

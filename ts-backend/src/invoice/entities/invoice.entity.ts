@@ -15,9 +15,9 @@ export enum InvoiceStatus {
 }
 
 export enum InvoiceType {
-  FIRST_PAYMENT = 'Order Creation',
-  SECOND_PAYMENT = 'Second Payment / Repair',
-  ON_SITE_PAYMENT = 'On-site Completion',
+  CREATE_ORDER = 'CREATE_ORDER',
+  REPAIR_ORDER = 'REPAIR_ORDER',
+  SERVICE_ONSITE = 'SERVICE_ONSITE',
 }
 
 @Entity('invoices')
