@@ -28,6 +28,8 @@ import { PaymentProvider } from 'src/common/types/payment-provider.enum';
 import { PaymentService } from 'src/payment/payment.service';
 import { NotificationType } from 'src/notifications/entities/notification.entity';
 import { GetOrdersDto } from './dto/get-orders.dto';
+import { InvoiceService } from 'src/invoice/invoice.service';
+import { InvoiceType } from 'src/invoice/entities/invoice.entity';
 
 @Injectable()
 export class OrderService {
@@ -60,6 +62,8 @@ export class OrderService {
         private readonly transactionsService: TransactionsService,
 
         private readonly paymentService: PaymentService,
+
+        private readonly invoiceService: InvoiceService,
     ) { }
 
     // order status changes
@@ -181,6 +185,16 @@ export class OrderService {
             service_type: createOrderDto.service_type,
         });
 
+        const serviceTypeLabel =
+            OrderTypeLabelsGeorgian[order.service_type] || order.service_type;
+
+        // Create invoice
+        const invoice = await this.invoiceService.createInvoice({
+            orderId: order.id,
+            amount: price,
+            type: InvoiceType.FIRST_PAYMENT,
+        });
+
         // Create transaction for this order creating
         const transaction = await this.transactionsService.createTransaction({
             amount: price,
@@ -191,8 +205,6 @@ export class OrderService {
             companyId: "companyName" in user ? user.id : undefined,
             orderId: order.id
         });
-
-        const serviceTypeLabel = OrderTypeLabelsGeorgian[order.service_type] || order.service_type;
 
         // send notification to admin
         await this.notificationService.sendNotification(
@@ -217,7 +229,7 @@ export class OrderService {
         );
 
         // mocked payment
-        await this.paymentService.mockPayOrder(transaction.id);
+        await this.paymentService.mockPayOrder(transaction.id, invoice.id);
 
         return { message: `Order created successfully`, order: instanceToPlain(order) };
     }
@@ -232,6 +244,7 @@ export class OrderService {
         const qb = this.orderRepo
             .createQueryBuilder('order')
             .leftJoinAndSelect('order.category', 'category')
+            .leftJoinAndSelect('order.invoices', 'invoice')
             .where(`order.${relationKey} = :userId`, { userId })
             .orderBy('order.created_at', 'DESC')
             .skip((page - 1) * limit)
@@ -276,7 +289,7 @@ export class OrderService {
 
         const order = await this.orderRepo.findOne({
             where: { [relationKey]: { id: userId }, id },
-            relations: ['company', 'individual', 'technician', 'delivery'],
+            relations: ['company', 'individual', 'technician', 'delivery', 'invoices'],
         });
         if (!order) throw new NotFoundException('Order not found');
 
@@ -396,6 +409,7 @@ export class OrderService {
             .leftJoinAndSelect('order.technician', 'technician')
             .leftJoinAndSelect('order.delivery', 'delivery')
             .leftJoinAndSelect('order.category', 'category')
+            .leftJoinAndSelect('order.invoices', 'invoice')
             .orderBy('order.created_at', 'DESC')
             .skip((page - 1) * limit)
             .take(limit);
@@ -938,6 +952,18 @@ export class OrderService {
 
         await this.orderRepo.save(order)
 
+        const existing = order.invoices?.find(
+            (inv) => inv.type === InvoiceType.SECOND_PAYMENT
+        );
+
+        if (!existing) {
+            await this.invoiceService.createInvoice({
+                orderId: order.id,
+                amount: order.payment_amount,
+                type: InvoiceType.SECOND_PAYMENT,
+            });
+        }
+
         // sent notifications
         await this.notifyOrderStatusUpdate(order, [
             { role: 'admin' },
@@ -993,8 +1019,16 @@ export class OrderService {
                 orderId: order.id
             });
 
+            const secondInvoice = order.invoices?.find(
+                (invoice) => invoice.type === InvoiceType.SECOND_PAYMENT
+            );
+
+            if (!secondInvoice) {
+                throw new NotFoundException('Second invoice not found');
+            }
+
             // mocked payment
-            await this.paymentService.mockPayOrder(transaction.id);
+            await this.paymentService.mockPayOrder(transaction.id, secondInvoice.id);
         }
 
         return {
@@ -1340,6 +1374,12 @@ export class OrderService {
 
         await this.orderRepo.save(order)
 
+        await this.invoiceService.createInvoice({
+            orderId: order.id,
+            amount: order.payment_amount,
+            type: InvoiceType.ON_SITE_PAYMENT,
+        });
+
         // sent notifications
         await this.notifyOrderStatusUpdate(order, [
             { role: 'admin' },
@@ -1385,9 +1425,16 @@ export class OrderService {
             orderId: order.id
         });
 
-        // mocked payment
-        await this.paymentService.mockPayOrder(transaction.id);
+        const onSiteInvoice = order.invoices?.find(
+            (invoice) => invoice.type === InvoiceType.ON_SITE_PAYMENT
+        );
 
+        if (!onSiteInvoice) {
+            throw new NotFoundException('On-site invoice not found');
+        }
+
+        // mocked payment
+        await this.paymentService.mockPayOrder(transaction.id, onSiteInvoice.id);
 
         return {
             message: `Waiting payment to Complete on site successfully`,

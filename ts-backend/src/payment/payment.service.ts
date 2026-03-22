@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { OrderStatus } from 'src/common/types/order-status.enum';
 import { OrderType } from 'src/common/types/order-type.enum';
 import { TransactionStatus } from 'src/common/types/transaction-status.enum';
+import { InvoiceService } from 'src/invoice/invoice.service';
 import { NotificationFor, NotificationType } from 'src/notifications/entities/notification.entity';
 import { NotificationsService } from 'src/notifications/notifications.service';
 import { Order } from 'src/order/entities/order.entity';
@@ -19,9 +20,11 @@ export class PaymentService {
         private readonly transactionRepo: Repository<Transaction>,
 
         private readonly notificationService: NotificationsService,
+
+        private readonly invoiceService: InvoiceService,
     ) { }
 
-    async mockPayOrder(transactionId?: number) {
+    async mockPayOrder(transactionId: number, invoiceId: number) {
         const transaction = await this.transactionRepo.findOne({ where: { id: transactionId }, relations: ['order'] });
 
         if (!transaction?.order) {
@@ -54,6 +57,9 @@ export class PaymentService {
         // Update transaction status
         transaction.status = TransactionStatus.PAID;
         await this.transactionRepo.save(transaction);
+
+        // Update invoice
+        await this.invoiceService.markAsPaidById(invoiceId);
 
         const user = order.company || order.individual;
 

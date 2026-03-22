@@ -13,9 +13,10 @@ import { Category } from 'src/category/entities/category.entity';
 import { PricingModule } from 'src/pricing/pricing.module';
 import { TransactionsModule } from 'src/transactions/transactions.module';
 import { PaymentModule } from 'src/payment/payment.module';
+import { InvoiceModule } from 'src/invoice/invoice.module';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([Order, Technician, Delivery, Address, Category]), BaseUserModule, BranchesModule, CloudinaryModule, NotificationsModule, PricingModule, TransactionsModule, PaymentModule],
+    imports: [TypeOrmModule.forFeature([Order, Technician, Delivery, Address, Category]), BaseUserModule, BranchesModule, CloudinaryModule, NotificationsModule, PricingModule, TransactionsModule, PaymentModule, InvoiceModule],
     providers: [OrderService],
     exports: [OrderService, TypeOrmModule],
 })
