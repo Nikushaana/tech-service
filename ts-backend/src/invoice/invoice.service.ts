@@ -1,7 +1,8 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Invoice, InvoiceStatus, InvoiceType } from './entities/invoice.entity';
+import * as puppeteer from 'puppeteer';
 
 @Injectable()
 export class InvoiceService {
@@ -40,43 +41,150 @@ export class InvoiceService {
     return this.invoiceRepo.save(invoice);
   }
 
-  async generateInvoicePdf(id: number, user: any) {
-    // Fetch invoice and check permissions
+  async generateInvoiceFile(id: number): Promise<{
+    buffer: Buffer;
+    filename: string;
+  }> {
     const invoice = await this.invoiceRepo.findOne({
       where: { id },
-      relations: ['order', 'order.individual', 'order.company'],
     });
 
-    if (!invoice) throw new NotFoundException();
-
-    if (
-      user.role !== 'admin' &&
-      invoice.order.individual?.id !== user.id &&
-      invoice.order.company?.id !== user.id
-    ) {
-      throw new ForbiddenException('You cannot access this invoice');
+    if (!invoice) {
+      throw new NotFoundException('Invoice not found');
     }
 
-    // Generate PDF (example with pdfkit)
-    const PDFDocument = require('pdfkit');
-    const doc = new PDFDocument();
-    const chunks: Uint8Array[] = [];
+    // 🧾 HTML template (you can fully customize this)
+    const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 40px;
+      color: #333;
+    }
 
-    doc.on('data', (chunk) => chunks.push(chunk));
-    doc.on('end', () => { });
+    h1 {
+      text-align: center;
+      margin-bottom: 10px;
+    }
 
-    // Example content
-    doc.text(`Invoice #${invoice.id}`);
-    doc.text(`Amount: ${invoice.amount} ${invoice.currency}`);
-    doc.text(`Status: ${invoice.status}`);
-    doc.end();
+    .status {
+      text-align: center;
+      margin-bottom: 20px;
+      font-weight: bold;
+      color: ${invoice.status === 'PAID' ? 'green' : 'orange'};
+    }
 
-    // Convert chunks to Buffer
-    const buffer = Buffer.concat(chunks);
+    .info {
+      margin-top: 20px;
+    }
 
-    const filename = `invoice-${invoice.id}.pdf`;
+    .info p {
+      margin: 5px 0;
+    }
 
-    // Return an object, not just Buffer
-    return { buffer, filename };
+    .table {
+      width: 100%;
+      margin-top: 30px;
+      border-collapse: collapse;
+    }
+
+    .table th, .table td {
+      border: 1px solid #ddd;
+      padding: 10px;
+    }
+
+    .table th {
+      background-color: #f5f5f5;
+      text-align: left;
+    }
+
+    .total {
+      margin-top: 20px;
+      text-align: right;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .footer {
+      margin-top: 40px;
+      font-size: 12px;
+      text-align: center;
+      color: #777;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Invoice #${invoice.id}</h1>
+
+  <div class="status">
+    Status: ${invoice.status}
+  </div>
+
+  <div class="info">
+    <p><strong>Order ID:</strong> ${invoice.order_id}</p>
+    <p><strong>Type:</strong> ${invoice.type}</p>
+    <p><strong>Created At:</strong> ${new Date(invoice.created_at).toLocaleDateString()}</p>
+    <p><strong>Paid At:</strong> ${invoice.paid_at
+        ? new Date(invoice.paid_at).toLocaleDateString()
+        : 'Not paid yet'
+      }</p>
+  </div>
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Service Type</th>
+        <th>Status</th>
+        <th>Amount</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr>
+        <td>${invoice.type}</td>
+        <td>${invoice.status}</td>
+        <td>${invoice.amount} ${invoice.currency}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="total">
+    Total: ${invoice.amount} ${invoice.currency}
+  </div>
+
+  <div class="footer">
+    Thank you for using our service.
+  </div>
+</body>
+</html>
+`;
+
+    // 🚀 Generate PDF
+    const browser = await puppeteer.launch({
+      headless: true,
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    });
+
+    const page = await browser.newPage();
+    await page.setContent(html, { waitUntil: 'load' });
+
+    const pdfUint8 = await page.pdf({
+      format: 'A4',
+      printBackground: true,
+    });
+
+    const buffer = Buffer.from(pdfUint8);
+
+    await browser.close();
+
+    return {
+      buffer,
+      filename: `invoice-${invoice.id}.pdf`,
+    };
   }
 }
