@@ -53,7 +53,7 @@ export class Invoice {
   @Column({
     type: 'enum',
     enum: InvoiceType,
-    default: InvoiceType.FIRST_PAYMENT,
+    default: InvoiceType.CREATE_ORDER,
   })
   type: InvoiceType;
 
