@@ -2,7 +2,8 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Invoice, InvoiceStatus, InvoiceType } from './entities/invoice.entity';
-import * as puppeteer from 'puppeteer';
+import * as puppeteer from 'puppeteer-core';
+import chromium from '@sparticuz/chromium';
 
 @Injectable()
 export class InvoiceService {
@@ -166,8 +167,9 @@ export class InvoiceService {
 
     // 🚀 Generate PDF
     const browser = await puppeteer.launch({
+      args: chromium.args,
+      executablePath: await chromium.executablePath(),
       headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
     });
 
     const page = await browser.newPage();
