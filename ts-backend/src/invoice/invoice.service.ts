@@ -165,12 +165,20 @@ export class InvoiceService {
 </html>
 `;
 
+    const isProduction = process.env.NODE_ENV === 'production';
+
     // 🚀 Generate PDF
-    const browser = await puppeteer.launch({
-      args: chromium.args,
-      executablePath: await chromium.executablePath(),
-      headless: true,
-    });
+    const browser = await puppeteer.launch(
+      isProduction
+        ? {
+          args: chromium.args,
+          executablePath: await chromium.executablePath(),
+          headless: true,
+        }
+        : {
+          headless: true,
+        }
+    );
 
     const page = await browser.newPage();
     await page.setContent(html, { waitUntil: 'load' });
