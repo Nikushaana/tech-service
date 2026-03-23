@@ -2,7 +2,8 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Invoice, InvoiceStatus, InvoiceType } from './entities/invoice.entity';
-import * as puppeteer from 'puppeteer-core';
+import * as puppeteerCore from 'puppeteer-core';
+import puppeteer from 'puppeteer';
 import chromium from '@sparticuz/chromium';
 
 @Injectable()
@@ -42,19 +43,10 @@ export class InvoiceService {
     return this.invoiceRepo.save(invoice);
   }
 
-  async generateInvoiceFile(id: number): Promise<{
-    buffer: Buffer;
-    filename: string;
-  }> {
-    const invoice = await this.invoiceRepo.findOne({
-      where: { id },
-    });
+  async generateInvoiceFile(id: number): Promise<{ buffer: Buffer; filename: string }> {
+    const invoice = await this.invoiceRepo.findOne({ where: { id } });
+    if (!invoice) throw new NotFoundException('Invoice not found');
 
-    if (!invoice) {
-      throw new NotFoundException('Invoice not found');
-    }
-
-    // 🧾 HTML template (you can fully customize this)
     const html = `
 <!DOCTYPE html>
 <html>
@@ -165,30 +157,28 @@ export class InvoiceService {
 </html>
 `;
 
-    const isProduction = process.env.NODE_ENV === 'production';
+    const isProduction = process.env.RENDER || process.env.NODE_ENV === 'production';
 
-    // 🚀 Generate PDF
-    const browser = await puppeteer.launch(
-      isProduction
-        ? {
-          args: chromium.args,
-          executablePath: await chromium.executablePath(),
-          headless: true,
-        }
-        : {
-          headless: true,
-        }
-    );
+    const browser = isProduction
+      ? await puppeteerCore.launch({
+        args: chromium.args,
+        executablePath: await chromium.executablePath(),
+        headless: true,
+      })
+      : await puppeteer.launch({
+        headless: true,
+        args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      });
 
     const page = await browser.newPage();
     await page.setContent(html, { waitUntil: 'load' });
 
-    const pdfUint8 = await page.pdf({
+    const pdfUint8: Uint8Array = await page.pdf({
       format: 'A4',
       printBackground: true,
     });
 
-    const buffer = Buffer.from(pdfUint8);
+    const buffer: Buffer = Buffer.from(pdfUint8.buffer);
 
     await browser.close();
 
