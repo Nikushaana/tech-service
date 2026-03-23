@@ -107,8 +107,7 @@ export default function Page() {
     queryKey: ["streets", helperValues.searchStreet],
     queryFn: () => fetchStreets(helperValues.searchStreet),
     enabled:
-      !helperValues.isSelectingStreet &&
-      helperValues.searchStreet.length >= 2,
+      !helperValues.isSelectingStreet && helperValues.searchStreet.length >= 2,
     staleTime: 1000 * 60 * 5,
   });
 
@@ -257,17 +256,15 @@ export default function Page() {
     );
 
   return (
-    <div className={`w-full h-full flex flex-col items-center justify-center`}>
-      <div className="bg-white rounded-xl shadow-md p-4 sm:p-6 grid grid-cols-1 sm:grid-cols-2 gap-[10px] w-full max-w-2xl mx-auto">
-        <div className="col-span-1 sm:col-span-2">
-          <PanelFormInput
-            id="name"
-            value={values.name || ""}
-            onChange={handleChange}
-            label="მისამართის სახელი"
-            error={errors.name}
-          />
-        </div>
+    <div className="bg-white rounded-xl shadow-md border border-gray-200 p-4 sm:p-6 w-full max-w-2xl mx-auto space-y-2">
+      <PanelFormInput
+        id="name"
+        value={values.name || ""}
+        onChange={handleChange}
+        label="მისამართის სახელი"
+        error={errors.name}
+      />
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
         <Dropdown2
           id="searchStreet"
           data={streetsData}
@@ -278,19 +275,6 @@ export default function Page() {
           isLoading={streetLoading}
           error={errors.street}
         />
-        <div className={`col-span-1 sm:col-span-2 h-[200px]`}>
-          <Map
-            uiControl={true}
-            id="location"
-            markerCoordinates={values.location || undefined}
-            centerCoordinates={
-              helperValues.streetLocation ||
-              undefined
-            }
-            onChange={handleChange}
-            error={errors.location}
-          />
-        </div>
         <PanelFormInput
           id="building_number"
           value={values.building_number || ""}
@@ -298,13 +282,25 @@ export default function Page() {
           label="შენობის ნომერი"
           error={errors.building_number}
         />
-        <PanelFormInput
-          id="description"
-          value={values.description || ""}
+      </div>
+      <PanelFormInput
+        id="description"
+        value={values.description || ""}
+        onChange={handleChange}
+        label="აღწერა"
+        error={errors.description}
+      />
+      <div className={`h-[200px]`}>
+        <Map
+          uiControl={true}
+          id="location"
+          markerCoordinates={values.location || undefined}
+          centerCoordinates={helperValues.streetLocation || undefined}
           onChange={handleChange}
-          label="აღწერა"
-          error={errors.description}
+          error={errors.location}
         />
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
         <PanelFormInput
           id="coverage_radius_km"
           value={values.coverage_radius_km}
@@ -337,18 +333,18 @@ export default function Page() {
           type="tel"
           error={errors.fix_on_site_price}
         />
-        <div className="col-span-1 sm:col-span-2">
-          <Button
-            onClick={handleUpdateBranch}
-            disabled={updateBranchMutation.isPending}
-            className="h-[45px] px-6 text-white cursor-pointer flex place-self-end"
-          >
-            {updateBranchMutation.isPending && (
-              <Loader2Icon className="animate-spin" />
-            )}
-            ცვლილების შენახვა
-          </Button>
-        </div>
+      </div>
+      <div className="col-span-1 sm:col-span-2">
+        <Button
+          onClick={handleUpdateBranch}
+          disabled={updateBranchMutation.isPending}
+          className="h-[45px] px-6 text-white cursor-pointer flex place-self-end"
+        >
+          {updateBranchMutation.isPending && (
+            <Loader2Icon className="animate-spin" />
+          )}
+          ცვლილების შენახვა
+        </Button>
       </div>
     </div>
   );

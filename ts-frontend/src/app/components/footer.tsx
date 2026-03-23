@@ -21,7 +21,7 @@ export default function Footer() {
   const other = [
     { id: 1, text: "ჩვენს შესახებ", url: "/about-us" },
     { id: 2, text: "კონფიდენციალურობის პოლიტიკა", url: "/privacy-policy" },
-    { id: 3, text: "წესები და პირობები", url: "/terms" },
+    { id: 3, text: "წესები და პირობები", url: "/terms-and-conditions" },
   ];
 
   const firstSegment = pathname.split("/")[1];

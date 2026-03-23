@@ -199,60 +199,56 @@ export default function CreateAddress() {
 
         <hr />
 
-        <div className="flex-1 overflow-y-auto showScroll pr-2">
-          <div className="space-y-2">
-            <PanelFormInput
-              id="name"
-              value={values.name || ""}
-              onChange={handleChange}
-              label="მისამართის სახელი"
-              placeholder="მაგ: სახლი, სამსახური..."
-              error={errors.name}
+        <div className="flex-1 overflow-y-auto showScroll pr-2 space-y-2">
+          <PanelFormInput
+            id="name"
+            value={values.name || ""}
+            onChange={handleChange}
+            label="მისამართის სახელი"
+            placeholder="მაგ: სახლი, სამსახური..."
+            error={errors.name}
+          />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <Dropdown2
+              id="searchStreet"
+              data={streetsData}
+              value={helperValues.searchStreet}
+              onChange={(e) => handleDropdownChange(e.target.value)}
+              onSelect={handleDropdownSelect}
+              label="ქუჩა"
+              placeholder="მაგ: იოსელიანის ქუჩა"
+              isLoading={streetLoading}
+              error={errors.street}
             />
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              <Dropdown2
-                id="searchStreet"
-                data={streetsData}
-                value={helperValues.searchStreet}
-                onChange={(e) => handleDropdownChange(e.target.value)}
-                onSelect={handleDropdownSelect}
-                label="ქუჩა"
-                placeholder="მაგ: იოსელიანის ქუჩა"
-                isLoading={streetLoading}
-                error={errors.street}
-              />
-              <PanelFormInput
-                id="building_number"
-                value={values.building_number || ""}
+            <PanelFormInput
+              id="building_number"
+              value={values.building_number || ""}
+              onChange={handleChange}
+              label="შენობის ნომერი"
+              placeholder="მაგ: 32ა"
+              error={errors.building_number}
+            />
+          </div>
+          <PanelFormInput
+            id="description"
+            value={values.description || ""}
+            onChange={handleChange}
+            label="დამატებითი ინფორმაცია"
+            placeholder="მაგ: ჩიხი, სადარბაზო, სართული..."
+            error={errors.description}
+          />
+          <div className={`h-[200px]`}>
+            {openCreateAddressModal && (
+              <Map
+                uiControl={true}
+                checkCoverageRadius={true}
+                id="location"
+                markerCoordinates={values.location || undefined}
+                centerCoordinates={helperValues.streetLocation || undefined}
                 onChange={handleChange}
-                label="შენობის ნომერი"
-                placeholder="მაგ: 32ა"
-                error={errors.building_number}
+                error={errors.location}
               />
-              <div className="col-span-1 sm:col-span-2">
-                <PanelFormInput
-                  id="description"
-                  value={values.description || ""}
-                  onChange={handleChange}
-                  label="დამატებითი ინფორმაცია"
-                  placeholder="მაგ: ჩიხი, სადარბაზო, სართული..."
-                  error={errors.description}
-                />
-              </div>
-            </div>
-            <div className={`col-span-1 sm:col-span-3 h-[200px]`}>
-              {openCreateAddressModal && (
-                <Map
-                  uiControl={true}
-                  checkCoverageRadius={true}
-                  id="location"
-                  markerCoordinates={values.location || undefined}
-                  centerCoordinates={helperValues.streetLocation || undefined}
-                  onChange={handleChange}
-                  error={errors.location}
-                />
-              )}
-            </div>
+            )}
           </div>
         </div>
 

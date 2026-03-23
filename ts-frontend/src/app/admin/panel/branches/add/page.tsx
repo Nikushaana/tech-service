@@ -203,30 +203,41 @@ export default function Page() {
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-md border border-gray-200 p-4 sm:p-6 grid grid-cols-1 sm:grid-cols-2 gap-[10px] w-full max-w-2xl mx-auto">
-      <div className="col-span-1 sm:col-span-2">
+    <div className="bg-white rounded-xl shadow-md border border-gray-200 p-4 sm:p-6 w-full max-w-2xl mx-auto space-y-2">
+      <PanelFormInput
+        id="name"
+        value={values.name || ""}
+        onChange={handleChange}
+        label="მისამართის სახელი"
+        error={errors.name}
+      />
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        <Dropdown2
+          id="searchStreet"
+          data={streetsData}
+          value={helperValues.searchStreet}
+          onChange={(e) => handleDropdownChange(e.target.value)}
+          onSelect={handleDropdownSelect}
+          label="ქუჩა"
+          isLoading={streetLoading}
+          error={errors.street}
+        />
         <PanelFormInput
-          id="name"
-          value={values.name || ""}
+          id="building_number"
+          value={values.building_number || ""}
           onChange={handleChange}
-          label="მისამართის სახელი"
-          error={errors.name}
+          label="შენობის ნომერი"
+          error={errors.building_number}
         />
       </div>
-      <Dropdown2
-        id="searchStreet"
-        data={streetsData}
-        value={helperValues.searchStreet}
-        onChange={(e) => handleDropdownChange(e.target.value)}
-        onSelect={handleDropdownSelect}
-        label="ქუჩა"
-        isLoading={streetLoading}
-        error={errors.street}
+      <PanelFormInput
+        id="description"
+        value={values.description || ""}
+        onChange={handleChange}
+        label="აღწერა"
+        error={errors.description}
       />
-      <div
-        className={`col-span-1 sm:col-span-2 h-[200px]
-        `}
-      >
+      <div className={`h-[200px]`}>
         <Map
           uiControl={true}
           id="location"
@@ -236,52 +247,40 @@ export default function Page() {
           error={errors.location}
         />
       </div>
-      <PanelFormInput
-        id="building_number"
-        value={values.building_number || ""}
-        onChange={handleChange}
-        label="შენობის ნომერი"
-        error={errors.building_number}
-      />
-      <PanelFormInput
-        id="description"
-        value={values.description || ""}
-        onChange={handleChange}
-        label="აღწერა"
-        error={errors.description}
-      />
-      <PanelFormInput
-        id="coverage_radius_km"
-        value={values.coverage_radius_km}
-        onChange={handleChange}
-        label="დაფარვის რადიუსი (კმ)"
-        type="tel"
-        error={errors.coverage_radius_km}
-      />
-      <PanelFormInput
-        id="fix_off_site_price"
-        value={values.fix_off_site_price}
-        onChange={handleChange}
-        label="სერვ-ში შეკეთების გამოძახების ფასი"
-        type="tel"
-        error={errors.fix_off_site_price}
-      />
-      <PanelFormInput
-        id="installation_price"
-        value={values.installation_price}
-        onChange={handleChange}
-        label="მონტაჟის გამოძახების ფასი"
-        type="tel"
-        error={errors.installation_price}
-      />
-      <PanelFormInput
-        id="fix_on_site_price"
-        value={values.fix_on_site_price}
-        onChange={handleChange}
-        label="ადგილზე შეკეთების გამოძახების ფასი"
-        type="tel"
-        error={errors.fix_on_site_price}
-      />
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        <PanelFormInput
+          id="coverage_radius_km"
+          value={values.coverage_radius_km}
+          onChange={handleChange}
+          label="დაფარვის რადიუსი (კმ)"
+          type="tel"
+          error={errors.coverage_radius_km}
+        />
+        <PanelFormInput
+          id="fix_off_site_price"
+          value={values.fix_off_site_price}
+          onChange={handleChange}
+          label="სერვ-ში შეკეთების გამოძახების ფასი"
+          type="tel"
+          error={errors.fix_off_site_price}
+        />
+        <PanelFormInput
+          id="installation_price"
+          value={values.installation_price}
+          onChange={handleChange}
+          label="მონტაჟის გამოძახების ფასი"
+          type="tel"
+          error={errors.installation_price}
+        />
+        <PanelFormInput
+          id="fix_on_site_price"
+          value={values.fix_on_site_price}
+          onChange={handleChange}
+          label="ადგილზე შეკეთების გამოძახების ფასი"
+          type="tel"
+          error={errors.fix_on_site_price}
+        />
+      </div>
       <div className="col-span-1 sm:col-span-2">
         <Button
           onClick={handleAddBranch}

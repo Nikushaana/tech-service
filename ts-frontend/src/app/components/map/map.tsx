@@ -23,6 +23,8 @@ interface MapProps {
   error?: string;
 }
 
+const defaultTbilisi = { lat: 41.6933, lng: 44.8015 };
+
 export default function Map({
   id,
   uiControl,
@@ -76,7 +78,9 @@ export default function Map({
   }, [centerCoordinates]);
 
   const centerPosition =
-    centerCoordinates || (branches && branches[0] && branches[0].location);
+    centerCoordinates ||
+    (branches && branches[0] && branches[0].location) ||
+    defaultTbilisi;
 
   const options = {
     disableDefaultUI: true,
@@ -114,7 +118,6 @@ export default function Map({
 
           if (mapRef.current && centerPosition) {
             mapRef.current.panTo(centerPosition);
-            mapRef.current.setZoom(8);
           }
 
           return;
@@ -136,8 +139,6 @@ export default function Map({
     }
   }, [markerCoordinates]);
 
-  const zoomLevel = markerCoordinates ? 18 : 8;
-
   if (!isLoaded)
     return (
       <div className="w-full h-full flex items-center justify-center">
@@ -153,7 +154,7 @@ export default function Map({
         <GoogleMap
           mapContainerStyle={{ width: "100%", height: "100%" }}
           center={centerPosition}
-          zoom={zoomLevel}
+          zoom={18}
           options={options}
           onClick={handleMapClick}
           onLoad={(map) => {

@@ -54,7 +54,7 @@ const initialErrors = {
 
 export default function CreateOrder() {
   const router = useRouter();
-  const { openCreateOrderModal, toggleOpenCreateOrderModal } = useOrdersStore();
+  const { openCreateOrderModal, toggleCloseCreateOrderModal } = useOrdersStore();
   const { toggleOpenCreateAddressModal } = useAddressesStore();
   const { typeOptions } = useOrderTypeStatusOptionsStore();
   const { data: currentUser } = useCurrentUser();
@@ -144,7 +144,7 @@ export default function CreateOrder() {
         queryKey: ["userOrders"],
       });
 
-      toggleOpenCreateOrderModal();
+      toggleCloseCreateOrderModal();
       resetForm();
     },
 
@@ -221,7 +221,7 @@ export default function CreateOrder() {
         );
       }
 
-      toggleOpenCreateOrderModal();
+      toggleCloseCreateOrderModal();
       router.push("/auth/login");
       setErrors(initialErrors);
       toast.info("განაცხადის შესავსებად გაიარე ავტორიზაცია");
@@ -246,7 +246,7 @@ export default function CreateOrder() {
           openCreateOrderModal ? "opacity-50" : "opacity-0"
         }`}
         onClick={() => {
-          toggleOpenCreateOrderModal();
+          toggleCloseCreateOrderModal();
           resetForm();
         }}
       ></div>
@@ -303,7 +303,7 @@ export default function CreateOrder() {
               />
               <div
                 onClick={handleWrapperClick}
-                className="flex items-end gap-1"
+                className={`flex items-end gap-1 ${shouldDisable && "cursor-pointer"}`}
               >
                 <div
                   className={`flex-1 ${shouldDisable && "pointer-events-none"}`}
@@ -382,7 +382,7 @@ export default function CreateOrder() {
         <div className="flex gap-3 justify-end">
           <Button
             onClick={() => {
-              toggleOpenCreateOrderModal();
+              toggleCloseCreateOrderModal();
               resetForm();
             }}
             variant="outline"

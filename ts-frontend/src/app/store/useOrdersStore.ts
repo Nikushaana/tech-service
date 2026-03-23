@@ -5,6 +5,7 @@ interface OrdersStoreState {
     openFilterOrderModal: boolean;
 
     toggleOpenCreateOrderModal: () => void;
+    toggleCloseCreateOrderModal: () => void;
     toggleOpenFilterOrderModal: () => void;
 }
 
@@ -14,7 +15,11 @@ export const useOrdersStore = create<OrdersStoreState>((set) => ({
 
     toggleOpenCreateOrderModal: () =>
         set((state) => ({
-            openCreateOrderModal: !state.openCreateOrderModal,
+            openCreateOrderModal: true,
+        })),
+    toggleCloseCreateOrderModal: () =>
+        set((state) => ({
+            openCreateOrderModal: false,
         })),
     toggleOpenFilterOrderModal: () =>
         set((state) => ({

@@ -5,7 +5,7 @@ import dayjs from "dayjs";
 import Map from "@/app/components/map/map";
 import { useUpdateOrderStore } from "@/app/store/useUpdateOrderStore";
 import { useParams, useRouter } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 import {
   statusDescriptions,
@@ -15,6 +15,7 @@ import { OrderFlowActions } from "@/app/components/order-flow-actions/order-flow
 import { api } from "@/app/lib/api/axios";
 import { useOrderFlowStore } from "@/app/store/useOrderFlowStore";
 import { useOrderMediaStore } from "@/app/store/useOrderMediaStore";
+import { toast } from "react-toastify";
 
 const fetchUserOrder = async (userType: ClientRole, orderId: string) => {
   const { data } = await api.get(`${userType}/orders/${orderId}`);
@@ -33,7 +34,7 @@ export default function Page() {
   const { toggleOpenUpdateOrderModal } = useUpdateOrderStore();
 
   const { openMedia } = useOrderMediaStore();
-  
+
   const router = useRouter();
 
   const {
@@ -70,6 +71,45 @@ export default function Page() {
     })),
   ];
 
+  const getInvoiceLabel = (type: string) => {
+    switch (type) {
+      case "CREATE_ORDER":
+        return "განცხადების შექმნის ინვოისი";
+      case "REPAIR_ORDER":
+        return "შეკეთების ინვოისი";
+      case "SERVICE_ONSITE":
+        return "ადგილზე მომსახურების ინვოისი";
+      default:
+        return `ინვოისი`;
+    }
+  };
+
+  const downloadInvoiceMutation = useMutation({
+    mutationFn: async (invoiceId: number) => {
+      const response = await api.get(`/invoices/${invoiceId}/download`, {
+        responseType: "blob",
+      });
+
+      // Create temporary link for browser to download
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `invoice-${invoiceId}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    },
+
+    onSuccess: () => {
+      toast.success("ინვოისი ჩამოიტვირთა");
+    },
+
+    onError: (error: any) => {
+      toast.error("ინვოისი ვერ ჩამოიტვირთა");
+    },
+  });
+
   if (isLoading || isError)
     return (
       <div className="flex justify-center w-full mt-10">
@@ -82,7 +122,8 @@ export default function Page() {
       {/* Header */}
       <div
         className={`flex items-center ${
-          order?.status == "processing" || order?.status == "pending_creation_payment"
+          order?.status == "processing" ||
+          order?.status == "pending_creation_payment"
             ? "flex-col sm:flex-row gap-2 justify-between"
             : "justify-end"
         }`}
@@ -137,6 +178,33 @@ export default function Page() {
       )}
 
       <OrderFlowActions role={userType} order={order} />
+
+      {order?.invoices?.length > 0 && (
+        <>
+          <div className="flex flex-col gap-y-2">
+            {order.invoices.map((invoice: any) => (
+              <div
+                key={invoice.id}
+                onClick={() => downloadInvoiceMutation.mutate(invoice.id)}
+                className={`${
+                  downloadInvoiceMutation.isPending &&
+                  downloadInvoiceMutation.variables === invoice.id &&
+                  "pointer-events-none text-gray-500"
+                } self-start flex items-center gap-1`}
+              >
+                <p className="text-sm underline cursor-pointer">
+                  {getInvoiceLabel(invoice.type)}
+                </p>
+                {downloadInvoiceMutation.isPending &&
+                  downloadInvoiceMutation.variables === invoice.id && (
+                    <Loader2Icon className="animate-spin w-4 h-4" />
+                  )}
+              </div>
+            ))}
+          </div>
+          <hr />
+        </>
+      )}
 
       {/* Main Info */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
