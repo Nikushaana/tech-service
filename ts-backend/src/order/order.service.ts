@@ -244,7 +244,6 @@ export class OrderService {
         const qb = this.orderRepo
             .createQueryBuilder('order')
             .leftJoinAndSelect('order.category', 'category')
-            .leftJoinAndSelect('order.invoices', 'invoice')
             .where(`order.${relationKey} = :userId`, { userId })
             .orderBy('order.created_at', 'DESC')
             .skip((page - 1) * limit)
@@ -409,7 +408,6 @@ export class OrderService {
             .leftJoinAndSelect('order.technician', 'technician')
             .leftJoinAndSelect('order.delivery', 'delivery')
             .leftJoinAndSelect('order.category', 'category')
-            .leftJoinAndSelect('order.invoices', 'invoice')
             .orderBy('order.created_at', 'DESC')
             .skip((page - 1) * limit)
             .take(limit);
@@ -457,7 +455,7 @@ export class OrderService {
     async findAdminOneOrderEntity(id: number) {
         const order = await this.orderRepo.findOne({
             where: { id },
-            relations: ['individual', 'company', 'technician', 'delivery'],
+            relations: ['individual', 'company', 'technician', 'delivery', 'invoices'],
         });
         if (!order) throw new NotFoundException('Order not found');
 
